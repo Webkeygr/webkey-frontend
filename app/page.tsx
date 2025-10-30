@@ -1,65 +1,75 @@
-import Image from "next/image";
+// app/page.tsx  (αν είναι .js βγάλ' το typing)
 
-export default function Home() {
+async function getData() {
+  const res = await fetch('https://cms.webkey.gr/graphql', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: `
+        {
+          posts(first: 5) {
+            nodes {
+              id
+              title
+              slug
+              date
+            }
+          }
+        }
+      `,
+    }),
+    cache: 'no-store',
+  });
+
+  const json = await res.json();
+  return json.data;
+}
+
+export default async function Home() {
+  const data = await getData();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '2rem',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'radial-gradient(circle at top, #0f172a 0%, #020617 70%)',
+      color: 'white',
+      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    }}>
+      <h1 style={{ fontSize: '3rem', fontWeight: 700 }}>Webkey Headless 🚀</h1>
+      <p style={{ opacity: 0.7 }}>Frontend: Vercel • CMS: https://cms.webkey.gr</p>
+
+      <div style={{
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '1rem',
+        padding: '1.5rem 2rem',
+        width: 'min(600px, 90vw)'
+      }}>
+        <h2 style={{ marginBottom: '1rem' }}>Τελευταία Posts</h2>
+        {data?.posts?.nodes?.length ? (
+          <ul style={{ display: 'grid', gap: '0.6rem' }}>
+            {data.posts.nodes.map((post: any) => (
+              <li key={post.id}>
+                <strong>{post.title}</strong>
+                <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>
+                  {post.slug} • {new Date(post.date).toLocaleDateString('el-GR')}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Δεν βρέθηκαν posts.</p>
+        )}
+      </div>
+
+      <small style={{ opacity: 0.3 }}>Login: https://cms.webkey.gr/wp-admin</small>
+    </main>
   );
 }
