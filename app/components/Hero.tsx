@@ -4,9 +4,9 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
 export default function Hero() {
-  const heroRef = (useRef < HTMLElement) | (null > null);
-  const titleRef = (useRef < HTMLHeadingElement) | (null > null);
-  const subtitleRef = (useRef < HTMLDivElement) | (null > null);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  const subtitleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -38,7 +38,9 @@ export default function Hero() {
       }
     }, heroRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
   return (
