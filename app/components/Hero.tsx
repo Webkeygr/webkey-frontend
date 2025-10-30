@@ -51,7 +51,7 @@ export default function Hero() {
           Creative Digital Studio
         </div>
         <h1 ref={titleRef} className="hero-title">
-          Dare Against <br> Normal
+          Dare<br></br> Against <br> Normal
         </h1>
         <p className="hero-text">
           Websites, experiences and brands that refuse to blend in.
