@@ -76,10 +76,10 @@ body {
 }
 
 .hero-title {
-  font-size: clamp(4rem, 6vw, 6rem);
+  font-size: clamp(10rem, 6vw, 12rem);
   line-height: 0.95;
   letter-spacing: -0.04em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .hero-text {
