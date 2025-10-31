@@ -52,7 +52,7 @@ export default function Hero() {
         <h1 ref={titleRef} className="hero-title">
           Dare
           <br />
-          Against
+          &nbsp Against
           <br />
           Normal
         </h1>
