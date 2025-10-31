@@ -38,6 +38,12 @@ body {
   overflow: hidden;
 }
 
+.hero-iridescence {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 .hero-bg {
   position: absolute;
   inset: 0;
@@ -56,7 +62,6 @@ body {
 .hero-inner {
   position: relative;
   z-index: 1;
-  max-width: 900px;
 }
 
 .hero-pill {

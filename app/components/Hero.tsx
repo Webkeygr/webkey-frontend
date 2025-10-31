@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import Iridescence from "./Iridescence";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -10,13 +11,6 @@ export default function Hero() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from(".hero-bg", {
-        opacity: 0,
-        scale: 1.05,
-        duration: 1.2,
-        ease: "power3.out",
-      });
-
       if (titleRef.current) {
         gsap.from(titleRef.current, {
           y: 80,
@@ -26,7 +20,6 @@ export default function Hero() {
           delay: 0.1,
         });
       }
-
       if (subtitleRef.current) {
         gsap.from(subtitleRef.current, {
           y: 30,
@@ -38,24 +31,26 @@ export default function Hero() {
       }
     }, heroRef);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
     <section ref={heroRef} className="hero">
-      <div className="hero-bg" />
+      {/* ΝΕΟ BACKGROUND */}
+      <Iridescence
+        className="hero-iridescence"
+        color={[1, 1, 1]}
+        mouseReact={true}
+        amplitude={0.2}
+        speed={1.0}
+      />
+
       <div className="hero-inner">
         <div ref={subtitleRef} className="hero-pill">
           Creative Digital Studio
         </div>
         <h1 ref={titleRef} className="hero-title">
-          Dare
-          <br />
-          Against
-          <br />
-          Normal
+          Dare Against Normal
         </h1>
         <p className="hero-text">
           Websites, experiences and brands that refuse to blend in.
