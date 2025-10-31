@@ -110,3 +110,41 @@ body {
     font-size: clamp(3.2rem, 14vw, 4.5rem);
   }
 }
+
+/* Maintenance basic styles */
+.maintenance-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #0f172a 0%, #020617 55%, #000 100%);
+  color: #fff;
+  padding: 1.5rem;
+}
+
+.maintenance-card {
+  background: rgba(2, 6, 23, 0.4);
+  border: 1px solid rgba(252, 236, 69, 0.4);
+  backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+  padding: 2.5rem 3rem;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.maintenance-card h1 {
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
+  margin-bottom: 1rem;
+}
+
+.maintenance-card p {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.maintenance-sub {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 0.75rem;
+}
