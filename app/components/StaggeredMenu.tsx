@@ -156,14 +156,17 @@ export default function StaggeredMenu({
   }, []);
 
   const playOpen = useCallback(() => {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    const tl = buildOpenTimeline();
-    if (tl) {
-      tl.eventCallback("onComplete", () => (busyRef.current = false));
-      tl.play(0);
-    } else busyRef.current = false;
-  }, [buildOpenTimeline]);
+  if (busyRef.current) return;
+  busyRef.current = true;
+  const tl = buildOpenTimeline();
+  if (tl) {
+    tl.eventCallback("onComplete", () => { busyRef.current = false; }); // ← σωστό (void)
+    tl.play(0);
+  } else {
+    busyRef.current = false;
+  }
+}, [buildOpenTimeline]);
+
 
   const playClose = useCallback(() => {
     openTlRef.current?.kill();

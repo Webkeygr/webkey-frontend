@@ -149,7 +149,7 @@ body {
   margin-top: 0.75rem;
 }
 
-..cta-btn {
+.cta-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
