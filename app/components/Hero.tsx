@@ -40,8 +40,8 @@ export default function Hero() {
       <Iridescence
         className="hero-iridescence"
         color={[1, 1, 1]}
-        mouseReact={true}
-        amplitude={0.2}
+        mouseReact={false}
+        amplitude={0}
         speed={1.0}
       />
 
