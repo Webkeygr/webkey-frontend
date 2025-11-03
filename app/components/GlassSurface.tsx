@@ -1,7 +1,7 @@
 // app/components/GlassSurface.tsx
 "use client";
 
-import { useEffect, useRef, useId } from "react";
+import { useEffect, useRef, useId, useMemo } from "react";
 import "./GlassSurface.css";
 
 type GlassSurfaceProps = {
@@ -61,6 +61,26 @@ export default function GlassSurface({
   const blueChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
   const gaussianBlurRef = useRef<SVGFEGaussianBlurElement | null>(null);
 
+  // ---------- SSR-SAFE SUPPORT CHECK ----------
+  // Αν είμαστε σε SSR, *μην* αγγίξεις window/document: γύρνα fallback κλάση.
+  const supportsSVGFilters = useMemo(() => {
+    if (typeof window === "undefined") {
+      // server-side render: δεν υπάρχουν DOM APIs
+      return false;
+    }
+    const ua = navigator.userAgent;
+    const isWebkit = /Safari/.test(ua) && !/Chrome/.test(ua);
+    const isFirefox = /Firefox/.test(ua);
+    if (isWebkit || isFirefox) return false;
+
+    const div = document.createElement("div");
+    // @ts-ignore – είμαστε σε client, το style έχει ιδιότητα
+    div.style.backdropFilter = `url(#${filterId})`;
+    // @ts-ignore
+    return div.style.backdropFilter !== "";
+  }, [filterId]);
+
+  // ---------- MAP GENERATION ----------
   const generateDisplacementMap = () => {
     const rect = containerRef.current?.getBoundingClientRect();
     const actualWidth = rect?.width || 400;
@@ -93,6 +113,7 @@ export default function GlassSurface({
   };
 
   useEffect(() => {
+    // Όλα αυτά τρέχουν μόνο στον client (useEffect)
     updateDisplacementMap();
     [
       { ref: redChannelRef, offset: redOffset },
@@ -136,23 +157,12 @@ export default function GlassSurface({
     setTimeout(updateDisplacementMap, 0);
   }, [width, height]);
 
-  const supportsSVGFilters = () => {
-    const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-    const isFirefox = /Firefox/.test(navigator.userAgent);
-    if (isWebkit || isFirefox) return false;
-
-    const div = document.createElement("div");
-    const styleAny = div.style as unknown as Record<string, any>;
-    styleAny.backdropFilter = `url(#${filterId})`;
-    return styleAny.backdropFilter !== "";
-  };
-
+  // ---------- STYLES ----------
   const containerStyle = {
     ...style,
     width: typeof width === "number" ? `${width}px` : width,
     height: typeof height === "number" ? `${height}px` : height,
     borderRadius: `${borderRadius}px`,
-    // custom CSS variables (TS-safe με index signature)
     ["--glass-frost" as any]: backgroundOpacity,
     ["--glass-saturation" as any]: saturation,
     ["--filter-id" as any]: `url(#${filterId})`,
@@ -161,7 +171,7 @@ export default function GlassSurface({
   return (
     <div
       ref={containerRef}
-      className={`glass-surface ${supportsSVGFilters() ? "glass-surface--svg" : "glass-surface--fallback"} ${className}`}
+      className={`glass-surface ${supportsSVGFilters ? "glass-surface--svg" : "glass-surface--fallback"} ${className}`}
       style={containerStyle}
     >
       <svg className="glass-surface__filter" xmlns="http://www.w3.org/2000/svg">
