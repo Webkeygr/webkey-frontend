@@ -180,12 +180,12 @@ export default function StaggeredMenu({
     closeTweenRef.current?.kill();
     const off = position === "left" ? -100 : 100;
     closeTweenRef.current = gsap.to(all, {
-      xPercent: off,
-      duration: 0.32,
-      ease: "power3.in",
-      overwrite: "auto",
-      onComplete: () => (busyRef.current = false),
-    });
+  xPercent: off,
+  duration: 0.32,
+  ease: "power3.in",
+  overwrite: "auto",
+  onComplete: () => { busyRef.current = false; }, // ✅ void callback
+});
   }, [position]);
 
   const animateIcon = useCallback((opening: boolean) => {
