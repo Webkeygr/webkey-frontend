@@ -314,3 +314,31 @@
   position: relative;
   z-index: 2200; /* overlay είναι 2050, panel 2100+ */
 }
+
+/* ===========================
+   Dim background on mobile/tablet when menu is open
+   Adjust the rgba() alpha to taste
+   =========================== */
+
+/* Tablet και κάτω */
+@media (max-width: 1024px) {
+  .sm-overlay {
+    /* προαιρετικό ελαφρύ blur για διαχωρισμό */
+    backdrop-filter: blur(2px);
+  }
+  .sm-overlay.is-open {
+    /* ελαφρύ σκοτείνιασμα για tablet */
+    background: rgba(0, 0, 0, 0.28);
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .sm-overlay {
+    backdrop-filter: blur(3px);
+  }
+  .sm-overlay.is-open {
+    /* λίγο πιο έντονο στο κινητό */
+    background: rgba(0, 0, 0, 0.42);
+  }
+}
