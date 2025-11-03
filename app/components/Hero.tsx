@@ -47,9 +47,7 @@ export default function Hero() {
 
       <div className="hero-inner">
         <h1 ref={titleRef} className="hero-title">
-          Dare
-          <br />
-          <span className="hero-title--indent">To</span>
+          Dare to
           <br />
           Differ
         </h1>

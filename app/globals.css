@@ -148,3 +148,16 @@ body {
   opacity: 0.6;
   margin-top: 0.75rem;
 }
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 10px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  color: #111; /* σε dark hero μπορείς να αλλάξεις σε #fff */
+}

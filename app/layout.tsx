@@ -1,6 +1,7 @@
 // app/layout.tsx
 import "./globals.css";
 import type { Metadata } from "next";
+import Header from "./components/Header";
 
 export const metadata: Metadata = {
   title: "Webkey — Dare Against Normal",
@@ -14,7 +15,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Fixed header */}
+        <Header />
+
+        {/* Push content below the 72px header */}
+        <main style={{ paddingTop: "72px" }}>{children}</main>
+      </body>
     </html>
   );
 }
