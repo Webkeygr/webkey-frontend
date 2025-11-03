@@ -1,67 +1,17 @@
 /* ===========================
-   STAGGERED MENU — WEBKEY.GR
+   STAGGERED MENU — WEBKEY
    =========================== */
 
+/* Wrapper inline ώστε το toggle να στέκεται δίπλα στο CTA */
 .staggered-menu-wrapper {
   position: relative;
-  width: 100%;
-  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
   z-index: 250;
 }
 
-/* Fixed mode full-viewport */
-.staggered-menu-wrapper.fixed-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 999;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.staggered-menu-wrapper.fixed-wrapper[data-open] {
-  pointer-events: none;
-}
-
-/* Panel αρχικά κρυμμένο */
-.staggered-menu-wrapper:not([data-open]) .staggered-menu-panel {
-  transform: translateX(100%);
-}
-
-/* Header (λογότυπο, toggle) */
-.staggered-menu-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2em;
-  background: transparent;
-  pointer-events: none;
-  z-index: 290;
-}
-.staggered-menu-header > * {
-  pointer-events: auto;
-}
-.sm-logo {
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-.sm-logo-img {
-  display: block;
-  height: 32px;
-  width: auto;
-  object-fit: contain;
-}
-
-/* ===========================
-   TOGGLE
-   =========================== */
+/* ───────── Toggle ───────── */
 .sm-toggle {
   position: relative;
   display: inline-flex;
@@ -76,7 +26,6 @@
   font-size: 14px;
   white-space: nowrap;
   line-height: 1;
-  overflow: visible;
 }
 .sm-toggle.icon-only {
   width: 44px;
@@ -108,9 +57,6 @@
   line-height: 1;
 }
 
-.sm-icon-line {
-  background: currentColor;
-}
 .sm-icon {
   position: relative;
   width: 14px;
@@ -139,9 +85,22 @@
   background: #111 !important;
 }
 
-/* ===========================
-   PANEL (Glass, Layout)
-   =========================== */
+/* ───────── Overlay για click–outside ───────── */
+.sm-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent; /* μπορείς αν θέλεις: rgba(0,0,0,.08) */
+  z-index: 2050;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.sm-overlay.is-open {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* ───────── Panel (fixed overlay) ───────── */
 .staggered-menu-panel {
   --sm-item-indent: 22px;
   --sm-item-rightpad: 1.4em;
@@ -152,26 +111,26 @@
   width: clamp(260px, 38vw, 420px);
   height: 100%;
   background: transparent;
-  padding: 6em 2em 2em 2em;
+  padding: 6em 2em 2em;
   overflow-y: auto;
-  z-index: 1000;
+  z-index: 2100;
   pointer-events: auto;
-  transform: translateX(100%);
   will-change: transform;
+  visibility: hidden; /* guard */
 }
-[data-position="left"] .staggered-menu-panel {
-  transform: translateX(-100%);
+.staggered-menu-panel.panel-fixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: auto;
+  height: 100vh;
 }
-[data-position="left"][data-open] .staggered-menu-panel {
-  transform: translateX(0);
-}
-
-/* όταν είναι ανοιχτό */
 .staggered-menu-wrapper[data-open] .staggered-menu-panel {
-  transform: translateX(0);
+  visibility: visible;
 }
 
-/* Pre-layers */
+/* Προ-στρώσεις (αν χρησιμοποιούνται) */
 .sm-prelayers {
   position: absolute;
   top: 0;
@@ -179,11 +138,13 @@
   bottom: 0;
   width: clamp(260px, 38vw, 420px);
   pointer-events: none;
-  z-index: 292;
+  z-index: 2099;
 }
-[data-position="left"] .sm-prelayers {
-  right: auto;
-  left: 0;
+.sm-prelayers.panel-fixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 .sm-prelayer {
   position: absolute;
@@ -191,40 +152,33 @@
   right: 0;
   height: 100%;
   width: 100%;
-  transform: translateX(0);
 }
 
-.sm-panel--glass .sm-panel-glass,
-.sm-panel--glass .glass-surface__content {
-  width: 100%;
-  height: 100%;
+/* Perf mode: όσο κινείται, απενεργοποιούμε το βαρύ SVG filter */
+.staggered-menu-wrapper[data-animating] .glass-surface__filter {
+  opacity: 0;
 }
 
-/* ===========================
-   INNER + TYPOGRAPHY
-   =========================== */
+/* ───────── List & Typography ───────── */
 .sm-panel-inner {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   height: 100%;
 }
-
 .sm-panel-inner--on-glass {
   color: #fff;
   align-items: center;
 }
 
-/* Κεντράρισμα λίστας */
 .sm-panel-list {
   list-style: none;
-  margin: auto 0; /* κάθετο κέντρο */
+  margin: auto 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
-
 .sm-panel-itemWrap {
   position: relative;
   overflow: hidden;
@@ -244,37 +198,41 @@
   position: relative;
   padding-left: var(--sm-item-indent);
   padding-right: var(--sm-item-rightpad);
-  transition: transform 0.25s ease, color 0.25s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0.6, 0.2, 1);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
-
 .sm-panel-item::before {
   content: "";
   position: absolute;
   left: 0;
   top: 50%;
   height: 2px;
-  width: 0;
+  width: 16px;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-  transform: translateY(-50%);
+  transform-origin: left center;
+  transform: translate3d(0, -50%, 0) scaleX(0);
   opacity: 0;
-  transition: width 0.25s ease, opacity 0.25s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0.6, 0.2, 1),
+    opacity 0.18s linear;
 }
-
 .sm-panel-item:hover {
-  transform: translateX(6px);
+  transform: translate3d(6px, 0, 0);
 }
 .sm-panel-item:hover::before {
-  width: 16px;
+  transform: translate3d(0, -50%, 0) scaleX(1);
   opacity: 1;
 }
 
 .sm-panel-itemLabel {
   display: inline-block;
-  will-change: transform;
   transform-origin: 50% 100%;
+  will-change: transform;
 }
 
+/* numbering */
 .sm-panel-list[data-numbering] {
   counter-reset: smItem;
 }
@@ -292,50 +250,40 @@
   opacity: var(--sm-num-opacity, 0);
 }
 
-/* ===========================
-   CTA BUTTON (bottom)
-   =========================== */
+/* ───────── CTA (bottom) ───────── */
 .sm-panel-cta-wrap {
   margin-top: auto;
   padding-top: 2rem;
 }
-
 .sm-panel-cta {
   display: block;
   width: 100%;
   height: 52px;
   line-height: 52px;
-
   padding-left: var(--sm-item-indent);
   padding-right: var(--sm-item-rightpad);
-
   border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.9);
-
   color: #111;
   text-shadow: none;
-
-  font-weight: 800;
-  letter-spacing: 0.2px;
   text-decoration: none;
   text-align: left;
-
+  font-weight: 800;
+  letter-spacing: 0.2px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
   transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
   backdrop-filter: blur(1px);
 }
-
 .sm-panel-cta:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
   opacity: 0.98;
 }
 
-/* ===========================
-   RESPONSIVE
-   =========================== */
+/* ───────── Responsive ───────── */
 @media (max-width: 1024px) {
-  .staggered-menu-panel {
+  .staggered-menu-panel,
+  .staggered-menu-panel.panel-fixed {
     width: 100%;
     left: 0;
     right: 0;

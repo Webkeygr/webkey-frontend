@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { gsap } from "gsap";
 import GlassSurface from "./GlassSurface";
 import "./StaggeredMenu.css";
@@ -22,16 +28,15 @@ type Props = {
   accentColor?: string;
   changeMenuColorOnOpen?: boolean;
 
-  /** Το toggle να εμφανίζεται inline (δίπλα στο CTA).
-   * Το panel θα γίνει fixed για να καλύπτει όλο το viewport. */
+  /** Panel as fixed overlay (recommended) */
   panelFixed?: boolean;
-
   showPrelayers?: boolean;
 
   /* Glass options */
   useGlassToggle?: boolean;
   iconOnlyToggle?: boolean;
   toggleGlassProps?: any;
+
   useGlassPanel?: boolean;
   panelGlassProps?: any;
 
@@ -52,17 +57,13 @@ export const StaggeredMenu: React.FC<Props> = ({
   openMenuButtonColor = "#fff",
   accentColor = "#5227FF",
   changeMenuColorOnOpen = true,
-
   panelFixed = true,
   showPrelayers = false,
-
   useGlassToggle = true,
   iconOnlyToggle = true,
   toggleGlassProps,
-
   useGlassPanel = true,
   panelGlassProps,
-
   onMenuOpen,
   onMenuClose,
 }) => {
@@ -78,6 +79,7 @@ export const StaggeredMenu: React.FC<Props> = ({
   const iconRef = useRef<HTMLSpanElement | null>(null);
   const textInnerRef = useRef<HTMLSpanElement | null>(null);
   const textWrapRef = useRef<HTMLSpanElement | null>(null);
+  const toggleBtnRef = useRef<HTMLButtonElement | null>(null);
 
   const [textLines, setTextLines] = useState(["Menu", "Close"]);
 
@@ -86,11 +88,10 @@ export const StaggeredMenu: React.FC<Props> = ({
   const spinTweenRef = useRef<gsap.core.Tween | null>(null);
   const textCycleAnimRef = useRef<gsap.core.Tween | null>(null);
   const colorTweenRef = useRef<gsap.core.Tween | null>(null);
-  const toggleBtnRef = useRef<HTMLButtonElement | null>(null);
-  const busyRef = useRef(false);
   const itemEntranceTweenRef = useRef<gsap.core.Tween | null>(null);
+  const busyRef = useRef(false);
 
-  /* ---------- Initial GSAP setup ---------- */
+  /* Initial GSAP setup (set offscreen, prep icon/text) */
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
       const panel = panelRef.current;
@@ -109,8 +110,8 @@ export const StaggeredMenu: React.FC<Props> = ({
       }
       preLayerElsRef.current = preLayers;
 
-      const offscreen = position === "left" ? -100 : 100;
-      gsap.set([panel, ...preLayers], { xPercent: offscreen, force3D: true }); // GPU hint
+      const off = position === "left" ? -100 : 100;
+      gsap.set([panel, ...preLayers], { xPercent: off, force3D: true });
       gsap.set(plusH, { transformOrigin: "50% 50%", rotate: 0 });
       gsap.set(plusV, { transformOrigin: "50% 50%", rotate: 90 });
       gsap.set(icon, { rotate: 0, transformOrigin: "50% 50%" });
@@ -121,17 +122,13 @@ export const StaggeredMenu: React.FC<Props> = ({
     return () => ctx.revert();
   }, [menuButtonColor, position]);
 
-  /* ---------- Open timeline ---------- */
   const buildOpenTimeline = useCallback(() => {
     const panel = panelRef.current;
     const layers = preLayerElsRef.current;
     if (!panel) return null;
 
     openTlRef.current?.kill();
-    if (closeTweenRef.current) {
-      closeTweenRef.current.kill();
-      closeTweenRef.current = null;
-    }
+    closeTweenRef.current?.kill();
     itemEntranceTweenRef.current?.kill();
 
     const itemEls = Array.from(panel.querySelectorAll(".sm-panel-itemLabel"));
@@ -205,13 +202,12 @@ export const StaggeredMenu: React.FC<Props> = ({
 
     if (socialTitle || socialLinks.length) {
       const socialsStart = panelInsertTime + panelDuration * 0.4;
-      if (socialTitle) {
+      if (socialTitle)
         tl.to(
           socialTitle,
           { opacity: 1, duration: 0.5, ease: "power2.out" },
           socialsStart
         );
-      }
       if (socialLinks.length) {
         tl.to(
           socialLinks,
@@ -262,11 +258,11 @@ export const StaggeredMenu: React.FC<Props> = ({
     if (!panel) return;
 
     const all = [...layers, panel];
-    const offscreen = position === "left" ? -100 : 100;
+    const off = position === "left" ? -100 : 100;
 
     closeTweenRef.current?.kill();
     closeTweenRef.current = gsap.to(all, {
-      xPercent: offscreen,
+      xPercent: off,
       duration: 0.32,
       ease: "power3.in",
       overwrite: "auto",
@@ -329,7 +325,7 @@ export const StaggeredMenu: React.FC<Props> = ({
     [openMenuButtonColor, menuButtonColor, changeMenuColorOnOpen]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!toggleBtnRef.current) return;
     const target = openRef.current ? openMenuButtonColor : menuButtonColor;
     const color = changeMenuColorOnOpen ? target : menuButtonColor;
@@ -343,7 +339,7 @@ export const StaggeredMenu: React.FC<Props> = ({
 
     const currentLabel = opening ? "Menu" : "Close";
     const targetLabel = opening ? "Close" : "Menu";
-    const seq = [currentLabel, targetLabel, targetLabel]; // πιο light cycling
+    const seq = [currentLabel, targetLabel, targetLabel];
 
     setTextLines(seq);
     gsap.set(inner, { yPercent: 0 });
@@ -378,6 +374,15 @@ export const StaggeredMenu: React.FC<Props> = ({
     onMenuOpen,
     onMenuClose,
   ]);
+
+  /* Close on ESC */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && openRef.current) toggleMenu();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggleMenu]);
 
   const ToggleButton = (
     <button
@@ -427,7 +432,7 @@ export const StaggeredMenu: React.FC<Props> = ({
       data-open={open || undefined}
       data-animating={animating || undefined}
     >
-      {/* Toggle: inline, δίπλα στο CTA */}
+      {/* Toggle inline, δίπλα στο CTA */}
       {useGlassToggle ? (
         <div className="sm-toggle-glass">
           <GlassSurface
@@ -442,6 +447,13 @@ export const StaggeredMenu: React.FC<Props> = ({
       ) : (
         ToggleButton
       )}
+
+      {/* Overlay για κλικ εκτός panel */}
+      <div
+        className={`sm-overlay${open ? " is-open" : ""}`}
+        onClick={() => openRef.current && toggleMenu()}
+        aria-hidden={!open}
+      />
 
       {/* Προ-στρώσεις (optional) */}
       {showPrelayers && (
@@ -467,7 +479,7 @@ export const StaggeredMenu: React.FC<Props> = ({
         </div>
       )}
 
-      {/* PANEL: fixed για overlay */}
+      {/* PANEL */}
       <aside
         id="staggered-menu-panel"
         ref={panelRef}
@@ -504,7 +516,6 @@ export const StaggeredMenu: React.FC<Props> = ({
                 )}
               </ul>
 
-              {/* Bottom CTA */}
               <div className="sm-panel-cta-wrap">
                 <a
                   href="/contact"
