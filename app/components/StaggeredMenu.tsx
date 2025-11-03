@@ -164,19 +164,21 @@ export default function StaggeredMenu({
         tl.to(socialTitle, { opacity: 1, duration: 0.5, ease: "power2.out" }, socialsStart);
       }
       if (socialLinks.length) {
-        tl.to(
-          socialLinks,
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.55,
-            ease: "power3.out",
-            stagger: { each: 0.08, from: "start" },
-            onComplete: () => gsap.set(socialLinks, { clearProps: "opacity" }),
-          },
-          socialsStart + 0.04
-        );
-      }
+  tl.to(
+    socialLinks,
+    {
+      y: 0,
+      opacity: 1,
+      duration: 0.55,
+      ease: "power3.out",
+      stagger: { each: 0.08, from: "start" },
+      onComplete: () => {
+        gsap.set(socialLinks, { clearProps: "opacity" });
+      },
+    },
+    socialsStart + 0.04
+  );
+}
     }
 
     openTlRef.current = tl;
