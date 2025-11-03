@@ -6,6 +6,7 @@
   z-index: 250;
 }
 
+/* Fullscreen container για το panel */
 .staggered-menu-wrapper.fixed-wrapper {
   position: fixed;
   top: 0; left: 0;
@@ -13,10 +14,17 @@
   height: 100vh;
   z-index: 2000;
   overflow: hidden;
-  pointer-events: none; /* το overlay ΠΟΤΕ δεν μπλοκάρει */
+
+  /* ΚΛΕΙΣΤΟ: να ΜΗΝ πιάνει events */
+  pointer-events: none;
 }
 
-/* ───────── Internal header (προαιρετικό) ───────── */
+/* ΑΝΟΙΧΤΟ: να πιάνει events (για να είναι clickable το panel) */
+.staggered-menu-wrapper.fixed-wrapper[data-open] {
+  pointer-events: auto;
+}
+
+/* ───────── Internal header (optional) ───────── */
 .staggered-menu-header {
   position: absolute; top: 0; left: 0; width: 100%;
   display: flex; align-items: center; justify-content: space-between;
@@ -50,7 +58,9 @@
 .sm-toggle-glass { position: relative; z-index: 3001; pointer-events: auto; }
 .sm-toggle-glass .glass-surface__content { padding: 0; }
 
-/* ───────── Panel (FOUC guard + click policy) ───────── */
+/* ───────── Panel ─────────
+   ΠΡΟΣΟΧΗ: ΚΑΘΟΛΟΥ transform εδώ. ΤΟ ΚΑΝΕΙ ΜΟΝΟ ΤΟ GSAP.
+   Για να μην “φλασάρει” στο πρώτο paint, το κρύβουμε με visibility.  */
 .staggered-menu-panel {
   position: absolute; top: 0; right: 0;
   width: clamp(260px, 38vw, 420px);
@@ -59,26 +69,24 @@
   padding: 6em 2em 2em;
   overflow-y: auto;
   z-index: 2100;
-
-  /* 1) Κλειστό by default πριν τρέξει το JS */
-  transform: translateX(100%);
+  pointer-events: auto;
   will-change: transform;
 
-  /* 2) Να ΜΗΝ πιάνει clicks όταν είναι κλειστό */
-  pointer-events: none;
+  /* FOUC guard */
+  visibility: hidden;
 }
-[data-position='left'] .staggered-menu-panel { transform: translateX(-100%); }
 
-/* Όταν ανοίγει (open=true), το panel (και μόνο αυτό) παίρνει clicks.
-   Το άνοιγμα/κλείσιμο animation το κάνει το GSAP (xPercent). */
-.staggered-menu-wrapper[data-open] .staggered-menu-panel { pointer-events: auto; }
+/* Όταν το menu είναι open, δείξε το panel */
+.staggered-menu-wrapper[data-open] .staggered-menu-panel {
+  visibility: visible;
+}
 
-/* Προ-στρώσεις ποτέ clicks */
+/* Προ-στρώσεις */
 .sm-prelayers { position: absolute; top: 0; right: 0; bottom: 0; width: clamp(260px, 38vw, 420px); pointer-events: none; z-index: 292; }
 [data-position='left'] .sm-prelayers { right: auto; left: 0; }
 .sm-prelayer { position: absolute; top: 0; right: 0; height: 100%; width: 100%; }
 
-/* ───────── Glass content container ───────── */
+/* Glass content */
 .sm-panel--glass .sm-panel-glass,
 .sm-panel--glass .glass-surface__content { width: 100%; height: 100%; }
 
@@ -92,8 +100,8 @@
   color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.75);
   font-weight: 700; font-size: 3.2rem; line-height: 1.05; letter-spacing: -1px; text-transform: uppercase;
   display: inline-block; text-decoration: none; position: relative;
-  padding-left: 22px;        /* παύλα */
-  padding-right: 1.4em;      /* numbering */
+  padding-left: 22px;      /* παύλα */
+  padding-right: 1.4em;    /* numbering */
   transition: transform .25s ease, color .25s ease;
 }
 .sm-panel-item::before {
@@ -117,15 +125,14 @@
   opacity: var(--sm-num-opacity, 0);
 }
 
-/* ───────── Bottom CTA (full-width, ίδιο padding με items) ───────── */
+/* ───────── Bottom CTA (full-width, ίδιο padding) ───────── */
 .sm-panel-cta-wrap { margin-top: auto; padding-top: 2rem; }
-
 .sm-panel-cta {
   display: block;
   width: 100%;
   height: 52px;
-  line-height: 52px;        /* κάθετη στοίχιση */
-  padding: 0 22px;          /* ίδιο left padding με items */
+  line-height: 52px;
+  padding: 0 22px;       /* ίδιο left padding με items */
   border-radius: 10px;
   border: 2px solid rgba(255,255,255,.9);
   color: #fff; text-decoration: none; font-weight: 800; letter-spacing: .2px;
