@@ -28,15 +28,6 @@ export default function Header({
     []
   );
 
-  const socialItems = useMemo(
-    () => [
-      { label: "Twitter", link: "https://twitter.com" },
-      { label: "GitHub", link: "https://github.com" },
-      { label: "LinkedIn", link: "https://linkedin.com" },
-    ],
-    []
-  );
-
   return (
     <header
       className="site-header"
@@ -69,7 +60,7 @@ export default function Header({
         <Image src={logoSrc} alt="Webkey" width={132} height={28} priority />
       </Link>
 
-      {/* Right cluster: CTA + Toggle */}
+      {/* Right cluster: CTA + Menu toggle */}
       <div
         style={{
           display: "flex",
@@ -80,7 +71,7 @@ export default function Header({
           pointerEvents: "auto",
         }}
       >
-        {/* CTA – πλήρες glass */}
+        {/* CTA (GlassSurface fully on) */}
         <GlassSurface
           width="auto"
           height={44}
@@ -95,35 +86,28 @@ export default function Header({
           style={{ padding: "0 16px" }}
         >
           <Link
-            href="/contact"
+            href={ctaHref}
             className="cta-btn"
-            aria-label="Get a quote"
+            aria-label={ctaText}
             style={{
               textShadow: "0 1px 2px rgba(0,0,0,.6)",
               cursor: "pointer",
             }}
           >
-            Get a quote
+            {ctaText}
           </Link>
         </GlassSurface>
 
-        {/* Toggle + Panel */}
+        {/* Menu */}
         <StaggeredMenu
+          className="header-staggered"
           position="right"
-          items={[
-            { label: "Home", ariaLabel: "Go to home page", link: "/" },
-            { label: "About", ariaLabel: "Learn about us", link: "/about" },
-            {
-              label: "Services",
-              ariaLabel: "View our services",
-              link: "/services",
-            },
-            { label: "Contact", ariaLabel: "Get in touch", link: "/contact" },
-          ]}
+          items={menuItems}
           displayItemNumbering
-          logoUrl="/images/logo-webkey.svg"
+          logoUrl={logoSrc}
           colors={["#B19EEF", "#5227FF"]}
           iconOnlyToggle
+          /* circular glass toggle */
           useGlassToggle
           toggleGlassProps={{
             width: 44,
@@ -141,30 +125,29 @@ export default function Header({
             greenOffset: 2,
             blueOffset: 2,
           }}
+          /* glass panel without green cast on mobile/tablet */
           useGlassPanel
           panelGlassProps={{
             width: "100%",
             height: "100%",
             borderRadius: 10,
             backgroundOpacity: 0.16,
-            saturation: 1.8,
+            saturation: 1.2,
             displace: 0.6,
             distortionScale: -140,
             brightness: 76,
             opacity: 0.92,
             forceSvgMode: true,
-            mixBlendMode: "screen",
-            redOffset: 2,
-            greenOffset: 2,
-            blueOffset: 2,
+            mixBlendMode: "normal", // κρίσιμο για να μη «πρασινίζει» με το overlay
+            redOffset: 0,
+            greenOffset: 0,
+            blueOffset: 0,
           }}
-          panelFixed
           showPrelayers={false}
           menuButtonColor="#fff"
           openMenuButtonColor="#fff"
           changeMenuColorOnOpen
           accentColor="#fcec45"
-          className="header-staggered"
         />
       </div>
     </header>

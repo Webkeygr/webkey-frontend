@@ -11,6 +11,13 @@
   z-index: 250;
 }
 
+/* --- κρατά το toggle πάνω από το overlay για να κλείνει το menu --- */
+.staggered-menu-wrapper .sm-toggle,
+.staggered-menu-wrapper .sm-toggle-glass {
+  position: relative;
+  z-index: 2200; /* overlay 2050, panel 2100+ */
+}
+
 /* ───────── Toggle ───────── */
 .sm-toggle {
   position: relative;
@@ -102,10 +109,10 @@
 
 /* ───────── Panel (fixed overlay) ───────── */
 .staggered-menu-panel {
-  /* κοινά paddings & ρυθμίσεις στο εσωτερικό */
-  --sm-item-indent: 22px; /* ίδιο με το «dash» των items */
-  --sm-item-rightpad: 1.4em; /* ίδιο με το numbering space */
-  --sm-block-hmargin: 0; /* ίσα left/right margins για list & CTA */
+  /* κοινές μεταβλητές ρύθμισης */
+  --sm-item-indent: 22px; /* αριστερό padding items/CTA (παύλα) */
+  --sm-item-rightpad: 1.4em; /* δεξί padding items/CTA (numbering) */
+  --sm-block-hmargin: 0; /* ίσο left/right margin για λίστα + CTA */
 
   position: absolute;
   top: 0;
@@ -119,6 +126,7 @@
   pointer-events: auto;
   will-change: transform;
   visibility: hidden; /* guard */
+  isolation: isolate; /* μην μπλέκει το glass με overlay */
 }
 .staggered-menu-panel.panel-fixed {
   position: fixed;
@@ -162,28 +170,26 @@
 }
 
 /* ───────── Inner & Typography ───────── */
-/* ΚΕΝΤΡΑΡΙΣΜΑ: βάζουμε τα items ΚΑΙ το CTA στο κάθετο κέντρο */
+/* ΚΕΝΤΡΟ: items + CTA στο κάθετο κέντρο */
 .sm-panel-inner {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   height: 100%;
-  justify-content: center; /* <-- κέντρο κατακόρυφα */
+  justify-content: center;
 }
 .sm-panel-inner--on-glass {
   color: #fff;
   align-items: center;
 }
 
-/* Η λίστα πλέον δεν χρειάζεται auto-margins για κέντρο */
 .sm-panel-list {
   list-style: none;
-  margin: 0; /* πριν: auto 0 */
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* οριζόντιο ίσο margin με το CTA */
   margin-left: var(--sm-block-hmargin);
   margin-right: var(--sm-block-hmargin);
 }
@@ -260,11 +266,11 @@
 }
 
 /* ───────── CTA (bottom) ───────── */
-/* πια δεν το σπρώχνουμε κάτω: θέλουμε κέντρο μαζί με τα items */
+/* Δεν το σπρώχνουμε κάτω — θέλουμε κέντρο με τα items */
 .sm-panel-cta-wrap {
-  margin-top: 0; /* πριν: auto */
-  padding-top: 1rem; /* μικρό διάστημα από τη λίστα */
-  align-self: stretch; /* ώστε το button να μπορεί να γίνει full-width */
+  margin-top: 0;
+  padding-top: 1rem;
+  align-self: stretch;
   margin-left: var(--sm-block-hmargin);
   margin-right: var(--sm-block-hmargin);
 }
@@ -301,44 +307,34 @@
     left: 0;
     right: 0;
   }
+  /* σιγουρεύουμε ότι το glass δεν κάνει blend με overlay */
+  .staggered-menu-panel .glass-surface--svg {
+    mix-blend-mode: normal !important;
+  }
 }
+
 @media (max-width: 640px) {
   .sm-panel-item {
     font-size: 2.6rem;
   }
 }
 
-/* --- keep the toggle above the overlay so it can close the menu --- */
-.staggered-menu-wrapper .sm-toggle,
-.staggered-menu-wrapper .sm-toggle-glass {
-  position: relative;
-  z-index: 2200; /* overlay είναι 2050, panel 2100+ */
-}
-
 /* ===========================
    Dim background on mobile/tablet when menu is open
-   Adjust the rgba() alpha to taste
    =========================== */
-
-/* Tablet και κάτω */
 @media (max-width: 1024px) {
   .sm-overlay {
-    /* προαιρετικό ελαφρύ blur για διαχωρισμό */
     backdrop-filter: blur(2px);
   }
   .sm-overlay.is-open {
-    /* ελαφρύ σκοτείνιασμα για tablet */
     background: rgba(0, 0, 0, 0.28);
   }
 }
-
-/* Mobile */
 @media (max-width: 640px) {
   .sm-overlay {
     backdrop-filter: blur(3px);
   }
   .sm-overlay.is-open {
-    /* λίγο πιο έντονο στο κινητό */
     background: rgba(0, 0, 0, 0.42);
   }
 }
