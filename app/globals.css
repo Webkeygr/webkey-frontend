@@ -149,7 +149,7 @@ body {
   margin-top: 0.75rem;
 }
 
-.cta-btn {
+..cta-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -159,6 +159,7 @@ body {
   font-size: 14px;
   letter-spacing: 0.2px;
   text-decoration: none;
+  color: #111;
   white-space: nowrap;
-  color: #111; /* σε dark hero μπορείς να αλλάξεις σε #fff */
+  cursor: pointer;   /* για να φαίνεται το “χεράκι” */
 }

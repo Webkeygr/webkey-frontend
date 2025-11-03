@@ -6,14 +6,23 @@
 }
 
 .staggered-menu-wrapper.fixed-wrapper {
-  position: fixed;
+ position: fixed;
   top: 0; left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 280;
   overflow: hidden;
+  pointer-events: none; /* κρίσιμο */
+}
+/* Panel αρχικά κρυμμένο χωρίς GSAP (να μην ανοίγει by default) */
+.staggered-menu-wrapper:not([data-open]) .staggered-menu-panel {
+  transform: translateX(100%);    /* δεξιά */
 }
 
+[data-position='left'] .staggered-menu-wrapper:not([data-open]) .staggered-menu-panel,
+.staggered-menu-wrapper[data-position='left']:not([data-open]) .staggered-menu-panel {
+  transform: translateX(-100%);
+}
 /* Internal header (συνήθως off) */
 .staggered-menu-header {
   position: absolute;
@@ -46,22 +55,18 @@
   line-height: 1;
   overflow: visible;
 }
-.sm-toggle.icon-only {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  padding: 0;
-  justify-content: center;
-  text-shadow: none; /* δεν φαίνεται κείμενο */
-}
-.sm-toggle.icon-only .sm-icon { width: 16px; height: 16px; }
+.sm-toggle.icon-only { width: 44px; height: 44px; border-radius: 999px; padding: 0; justify-content: center; }
+
+.sm-toggle.icon-only .sm-icon { width: 18px; height: 18px; }
 .sm-toggle:focus-visible { outline: 2px solid #ffffffaa; outline-offset: 4px; border-radius: 4px; }
 .sm-toggle-textWrap { position: relative; display: inline-block; height: 1em; overflow: hidden; white-space: nowrap; }
 .sm-toggle-textInner { display: flex; flex-direction: column; line-height: 1; }
-.sm-toggle-line { display: block; height: 1em; line-height: 1; }
+.sm-icon-line { background: currentColor; }
 .sm-icon { position: relative; width: 14px; height: 14px; flex: 0 0 14px; display: inline-flex; align-items: center; justify-content: center; will-change: transform; }
 .sm-icon-line { position: absolute; left: 50%; top: 50%; width: 100%; height: 2px; background: currentColor; border-radius: 2px; transform: translate(-50%, -50%); will-change: transform; }
 .sm-icon-line.sm-icon-line-v { transform: translate(-50%, -50%) rotate(90deg); }
+.sm-icon-line--dark { background: #111 !important; } /* μαύρο εικονίδιο */
+
 
 /* Panel */
 .staggered-menu-panel {
@@ -69,11 +74,11 @@
   width: clamp(260px, 38vw, 420px);
   height: 100%;
   background: transparent;
-  backdrop-filter: none; -webkit-backdrop-filter: none;
-  display: flex; flex-direction: column;
   padding: 6em 2em 2em 2em;
   overflow-y: auto;
   z-index: 295;
+  pointer-events: auto;          /* panel δέχεται κλικ */
+  will-change: transform;
 }
 [data-position='left'] .staggered-menu-panel { right: auto; left: 0; }
 
@@ -104,18 +109,16 @@
   display: inline-block;
   text-decoration: none;
   position: relative;
-  padding-left: 22px;     /* χώρος για παύλα */
-  padding-right: 1.4em;   /* χώρος για numbering */
+  padding-left: 22px; /* χώρος για παύλα */
+  padding-right: 1.4em;
   transition: transform .25s ease, color .25s ease;
 }
 /* Αριστερή παύλα (εμφανίζεται στο hover) */
 .sm-panel-item::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 50%;
-  height: 2px;
-  width: 0;
+  left: 0; top: 50%;
+  height: 2px; width: 0;
   background: rgba(255,255,255,.95);
   box-shadow: 0 1px 2px rgba(0,0,0,.7);
   transform: translateY(-50%);
@@ -139,28 +142,31 @@
   font-size: 16px; font-weight: 600;
   color: rgba(255,255,255,.9);
   text-shadow: 0 1px 2px rgba(0,0,0,.6);
-  pointer-events: none; user-select: none;
+  pointer-events: none;
   opacity: var(--sm-num-opacity, 0);
 }
 
-/* Socials */
-.sm-socials { margin-top: auto; padding-top: 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
-.sm-socials-title { margin: 0; font-size: 1rem; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
-.sm-socials-list { list-style: none; margin: 0; padding: 0; display: flex; gap: 1rem; flex-wrap: wrap; }
-.sm-socials-link { font-size: 1.05rem; font-weight: 600; color: #fff; text-decoration: none; position: relative; padding: 2px 0; transition: opacity 0.3s ease; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
-.staggered-menu-panel .sm-socials-list .sm-socials-link { opacity: 1; }
-.staggered-menu-panel .sm-socials-list:hover .sm-socials-link:not(:hover) { opacity: 0.45; }
-.staggered-menu-panel .sm-socials-list:focus-within .sm-socials-link:not(:focus-visible) { opacity: 0.45; }
-.staggered-menu-panel .sm-socials-list .sm-socials-link:hover,
-.staggered-menu-panel .sm-socials-list .sm-socials-link:focus-visible { opacity: 1; }
+/* Bottom CTA */
+.sm-panel-cta-wrap { margin-top: auto; padding-top: 2rem; }
+.sm-panel-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 44px; padding: 0 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.9);
+  color: #fff; text-decoration: none;
+  font-weight: 700; letter-spacing: .2px;
+  text-shadow: 0 2px 6px rgba(0,0,0,.75);
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.sm-panel-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,0,0,.22); opacity: 0.95; }
+
+
 
 /* Toggle glass */
 .sm-toggle-glass .glass-surface__content { padding: 0; }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .staggered-menu-panel { width: 100%; left: 0; right: 0; }
-}
-@media (max-width: 640px) {
-  .sm-panel-item { font-size: 2.6rem; }
-}
+@media (max-width: 1024px) { .staggered-menu-panel { width: 100%; left: 0; right: 0; } }
+@media (max-width: 640px) { .sm-panel-item { font-size: 2.6rem; } }
+

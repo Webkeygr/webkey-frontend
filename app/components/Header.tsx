@@ -64,94 +64,93 @@ export default function Header({
         <Image src={logoSrc} alt="Webkey" width={132} height={28} priority />
       </Link>
 
-      {/* Right cluster: CTA + Toggle (δίπλα-δίπλα) */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,                // λίγο μεγαλύτερο gap για να μην ακουμπάνε
-          flexWrap: "nowrap",
-          whiteSpace: "nowrap",
-          pointerEvents: "auto",
-        }}
-      >
-        {/* CTA with full glass */}
-        <GlassSurface
-          width="auto"
-          height={44}
-          borderRadius={999}
-          backgroundOpacity={0.16}
-          saturation={1.8}
-          displace={0.6}
-          distortionScale={-120}
-          brightness={74}
-          opacity={0.92}
-          forceSvgMode
-          style={{ padding: "0 16px" }}
-        >
-          <Link href={ctaHref} className="cta-btn" aria-label={ctaText} style={{ textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>
-            {ctaText}
-          </Link>
-        </GlassSurface>
-
-        {/* TOGGLE: μεγαλύτερο, pill & με σκιά στο text */}
-        <StaggeredMenu
-  position="right"
-  items={menuItems}
-  socialItems={socialItems}
-  displaySocials
-  displayItemNumbering
-  logoUrl={logoSrc}
-  colors={["#B19EEF", "#5227FF"]}
-
-  /* Toggle: στρογγυλό 44x44, μόνο εικονίδιο, full glass */
-  iconOnlyToggle
-  useGlassToggle
-  toggleGlassProps={{
-    width: 44,
-    height: 44,
-    borderRadius: 999,
-    backgroundOpacity: 0.16,
-    saturation: 1.7,
-    displace: 0.4,          // πιο ήπιο για λιγότερα artifacts
-    distortionScale: -120,
-    brightness: 76,
-    opacity: 0.94,
-    forceSvgMode: true,
-    mixBlendMode: "screen", // αποφεύγει “κάψιμο” σε ανοιχτά backgrounds
-    redOffset: 2,
-    greenOffset: 2,
-    blueOffset: 2,
+      {/* Right cluster: CTA + Toggle */}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    flexWrap: "nowrap",
+    whiteSpace: "nowrap",
+    pointerEvents: "auto",
   }}
+>
+  {/* CTA – πλήρες glass */}
+  <GlassSurface
+    width="auto"
+    height={44}
+    borderRadius={999}
+    backgroundOpacity={0.16}
+    saturation={1.8}
+    displace={0.4}
+    distortionScale={-120}
+    brightness={76}
+    opacity={0.94}
+    forceSvgMode
+    style={{ padding: "0 16px" }}
+  >
+    <Link
+      href="/contact"
+      className="cta-btn"
+      aria-label="Get a quote"
+      style={{ textShadow: "0 1px 2px rgba(0,0,0,.6)", cursor: "pointer" }}
+    >
+      Get a quote
+    </Link>
+  </GlassSurface>
 
-  /* Panel: glass + radius 10px, ίδια «παγωμένη» αίσθηση */
-  useGlassPanel
-  panelGlassProps={{
-    width: "100%",
-    height: "100%",
-    borderRadius: 10,
-    backgroundOpacity: 0.16,
-    saturation: 1.8,
-    displace: 0.6,
-    distortionScale: -140,
-    brightness: 76,
-    opacity: 0.92,
-    forceSvgMode: true,
-    mixBlendMode: "screen",
-    redOffset: 2, greenOffset: 2, blueOffset: 2,
-  }}
-
-  /* Συμπεριφορά */
-  isFixed
-  showInternalHeader={false}
-  showPrelayers={false}
-  menuButtonColor="#fff"
-  openMenuButtonColor="#fff"
-  changeMenuColorOnOpen
-  accentColor="#fcec45"
-  className="header-staggered"
-/>
-      </div>
+  {/* Toggle + Panel */}
+  <StaggeredMenu
+    position="right"
+    items={[
+      { label: "Home", ariaLabel: "Go to home page", link: "/" },
+      { label: "About", ariaLabel: "Learn about us", link: "/about" },
+      { label: "Services", ariaLabel: "View our services", link: "/services" },
+      { label: "Contact", ariaLabel: "Get in touch", link: "/contact" },
+    ]}
+    displayItemNumbering
+    logoUrl="/images/logo-webkey.svg"
+    colors={["#B19EEF", "#5227FF"]}
+    iconOnlyToggle
+    useGlassToggle
+    toggleGlassProps={{
+      width: 44,
+      height: 44,
+      borderRadius: 999,
+      backgroundOpacity: 0.16,
+      saturation: 1.7,
+      displace: 0.4,
+      distortionScale: -120,
+      brightness: 76,
+      opacity: 0.94,
+      forceSvgMode: true,
+      mixBlendMode: "screen",
+      redOffset: 2, greenOffset: 2, blueOffset: 2,
+    }}
+    useGlassPanel
+    panelGlassProps={{
+      width: "100%",
+      height: "100%",
+      borderRadius: 10,
+      backgroundOpacity: 0.16,
+      saturation: 1.8,
+      displace: 0.6,
+      distortionScale: -140,
+      brightness: 76,
+      opacity: 0.92,
+      forceSvgMode: true,
+      mixBlendMode: "screen",
+      redOffset: 2, greenOffset: 2, blueOffset: 2,
+    }}
+    isFixed
+    showPrelayers={false}
+    menuButtonColor="#fff"
+    openMenuButtonColor="#fff"
+    changeMenuColorOnOpen
+    accentColor="#fcec45"
+    className="header-staggered"
+  />
+</div>
     </header>
   );
 }
