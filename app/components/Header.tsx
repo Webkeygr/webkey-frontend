@@ -50,9 +50,9 @@ export default function Header({
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 24px",
-        zIndex: 300,            // πάνω από το hero
+        zIndex: 300,
         background: "transparent",
-        pointerEvents: "none",  // επιτρέπουμε clicks μόνο στα παιδιά
+        pointerEvents: "none",
       }}
     >
       {/* Left: Logo */}
@@ -64,82 +64,84 @@ export default function Header({
         <Image src={logoSrc} alt="Webkey" width={132} height={28} priority />
       </Link>
 
-      {/* Right: CTA + Hamburger */}
+      {/* Right cluster: CTA + Toggle (δίπλα-δίπλα) */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 16,                // λίγο μεγαλύτερο gap για να μην ακουμπάνε
           flexWrap: "nowrap",
-          whiteSpace: "nowrap", // ΜΗ σπάει γραμμή
+          whiteSpace: "nowrap",
           pointerEvents: "auto",
         }}
       >
+        {/* CTA with full glass */}
         <GlassSurface
           width="auto"
           height={44}
           borderRadius={999}
-          backgroundOpacity={0.12}
-          saturation={1.6}
+          backgroundOpacity={0.16}
+          saturation={1.8}
           displace={0.6}
           distortionScale={-120}
-          brightness={70}
-          opacity={0.9}
-          className="cta-glass"
-          style={{ padding: "0 14px" }}
+          brightness={74}
+          opacity={0.92}
+          forceSvgMode
+          style={{ padding: "0 16px" }}
         >
-          <Link href={ctaHref} className="cta-btn" aria-label={ctaText}>
+          <Link href={ctaHref} className="cta-btn" aria-label={ctaText} style={{ textShadow: "0 1px 2px rgba(0,0,0,.6)" }}>
             {ctaText}
           </Link>
         </GlassSurface>
 
+        {/* TOGGLE: μεγαλύτερο, pill & με σκιά στο text */}
         <StaggeredMenu
-  position="right"
-  items={menuItems}
-  socialItems={socialItems}
-  displaySocials
-  displayItemNumbering
-  logoUrl={logoSrc}
-  colors={["#B19EEF", "#5227FF"]}
-  /* GLASS */
-  useGlassToggle
-  toggleGlassProps={{
-    width: 44,
-    height: 44,
-    borderRadius: 999,
-    backgroundOpacity: 0.12,
-    saturation: 1.6,
-    displace: 0.6,
-    distortionScale: -120,
-    brightness: 70,
-    opacity: 0.9,
-  }}
-  useGlassPanel
-  panelGlassProps={{
-    width: "100%",
-    height: "100%",
-    borderRadius: 0,
-    backgroundOpacity: 0.12,   // λίγο πιο “παγωμένο” για καλύτερη αναγνωσιμότητα
-    saturation: 1.7,
-    displace: 0.6,
-    distortionScale: -140,
-    brightness: 72,
-    opacity: 0.9,
-  }}
-  /* Κάνει το wrapper full-viewport ώστε το panel να ανοίγει σωστά */
-  isFixed
-  /* Κρύψε το εσωτερικό header του component (να μην διπλασιάζεται το logo) */
-  showInternalHeader={false}
-  /* Κρύψε τα προ-στρώματα (μπλε), κρατάμε μόνο το glass */
-  showPrelayers={false}
-  /* Χρώματα του toggle */
-  menuButtonColor="#fff"
-  openMenuButtonColor="#fff"
-  changeMenuColorOnOpen
-  accentColor="#fcec45"
-  className="header-staggered"
-/>
-
+          position="right"
+          items={menuItems}
+          socialItems={socialItems}
+          displaySocials
+          displayItemNumbering
+          logoUrl={logoSrc}
+          colors={["#B19EEF", "#5227FF"]}
+          /* GLASS */
+          useGlassToggle
+          toggleGlassProps={{
+            width: "auto",
+            height: 44,
+            borderRadius: 999,
+            backgroundOpacity: 0.16,
+            saturation: 1.8,
+            displace: 0.6,
+            distortionScale: -120,
+            brightness: 74,
+            opacity: 0.92,
+            forceSvgMode: true,
+            style: { padding: "0 14px" },
+          }}
+          useGlassPanel
+          panelGlassProps={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 10,           // (4) radius 10px στο panel
+            backgroundOpacity: 0.16,
+            saturation: 1.8,
+            displace: 0.6,
+            distortionScale: -140,
+            brightness: 76,
+            opacity: 0.92,
+            forceSvgMode: true,
+          }}
+          isFixed
+          /* Κρύβουμε εσωτερικό header & prelayers */
+          showInternalHeader={false}
+          showPrelayers={false}
+          /* Χρώμα text + σκιά στο ίδιο το toggle (μέσα στο StaggeredMenu.css) */
+          menuButtonColor="#fff"
+          openMenuButtonColor="#fff"
+          changeMenuColorOnOpen
+          accentColor="#fcec45"
+          className="header-staggered"
+        />
       </div>
     </header>
   );

@@ -25,6 +25,8 @@ type GlassSurfaceProps = {
   mixBlendMode?: React.CSSProperties["mixBlendMode"];
   className?: string;
   style?: React.CSSProperties;
+  /** ΝΕΟ: επιβάλει χρήση του SVG mode (πλήρες glass με παραμόρφωση) */
+  forceSvgMode?: boolean;
 };
 
 export default function GlassSurface({
@@ -48,6 +50,7 @@ export default function GlassSurface({
   mixBlendMode = "difference",
   className = "",
   style = {},
+  forceSvgMode = true, // default: on
 }: GlassSurfaceProps) {
   const uniqueId = useId().replace(/:/g, "-");
   const filterId = `glass-filter-${uniqueId}`;
@@ -61,26 +64,18 @@ export default function GlassSurface({
   const blueChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
   const gaussianBlurRef = useRef<SVGFEGaussianBlurElement | null>(null);
 
-  // ---------- SSR-SAFE SUPPORT CHECK ----------
-  // Αν είμαστε σε SSR, *μην* αγγίξεις window/document: γύρνα fallback κλάση.
-  const supportsSVGFilters = useMemo(() => {
-    if (typeof window === "undefined") {
-      // server-side render: δεν υπάρχουν DOM APIs
-      return false;
-    }
+  // SSR-safe check
+  const supportsSvg = useMemo(() => {
+    if (forceSvgMode) return true;
+    if (typeof window === "undefined") return false;
     const ua = navigator.userAgent;
     const isWebkit = /Safari/.test(ua) && !/Chrome/.test(ua);
     const isFirefox = /Firefox/.test(ua);
     if (isWebkit || isFirefox) return false;
+    // best-effort check
+    return true;
+  }, [forceSvgMode]);
 
-    const div = document.createElement("div");
-    // @ts-ignore – είμαστε σε client, το style έχει ιδιότητα
-    div.style.backdropFilter = `url(#${filterId})`;
-    // @ts-ignore
-    return div.style.backdropFilter !== "";
-  }, [filterId]);
-
-  // ---------- MAP GENERATION ----------
   const generateDisplacementMap = () => {
     const rect = containerRef.current?.getBoundingClientRect();
     const actualWidth = rect?.width || 400;
@@ -113,7 +108,6 @@ export default function GlassSurface({
   };
 
   useEffect(() => {
-    // Όλα αυτά τρέχουν μόνο στον client (useEffect)
     updateDisplacementMap();
     [
       { ref: redChannelRef, offset: redOffset },
@@ -129,21 +123,8 @@ export default function GlassSurface({
     gaussianBlurRef.current?.setAttribute("stdDeviation", String(displace));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    width,
-    height,
-    borderRadius,
-    borderWidth,
-    brightness,
-    opacity,
-    blur,
-    displace,
-    distortionScale,
-    redOffset,
-    greenOffset,
-    blueOffset,
-    xChannel,
-    yChannel,
-    mixBlendMode,
+    width, height, borderRadius, borderWidth, brightness, opacity, blur, displace,
+    distortionScale, redOffset, greenOffset, blueOffset, xChannel, yChannel, mixBlendMode
   ]);
 
   useEffect(() => {
@@ -157,7 +138,6 @@ export default function GlassSurface({
     setTimeout(updateDisplacementMap, 0);
   }, [width, height]);
 
-  // ---------- STYLES ----------
   const containerStyle = {
     ...style,
     width: typeof width === "number" ? `${width}px` : width,
@@ -171,7 +151,7 @@ export default function GlassSurface({
   return (
     <div
       ref={containerRef}
-      className={`glass-surface ${supportsSVGFilters ? "glass-surface--svg" : "glass-surface--fallback"} ${className}`}
+      className={`glass-surface ${supportsSvg ? "glass-surface--svg" : "glass-surface--fallback"} ${className}`}
       style={containerStyle}
     >
       <svg className="glass-surface__filter" xmlns="http://www.w3.org/2000/svg">
@@ -180,31 +160,20 @@ export default function GlassSurface({
             <feImage ref={feImageRef as any} x="0" y="0" width="100%" height="100%" preserveAspectRatio="none" result="map" />
             <feDisplacementMap ref={redChannelRef as any} in="SourceGraphic" in2="map" id="redchannel" result="dispRed" />
             <feColorMatrix
-              in="dispRed"
-              type="matrix"
-              values="1 0 0 0 0
-                      0 0 0 0 0
-                      0 0 0 0 0
-                      0 0 0 1 0"
+              in="dispRed" type="matrix"
+              values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0"
               result="red"
             />
             <feDisplacementMap ref={greenChannelRef as any} in="SourceGraphic" in2="map" id="greenchannel" result="dispGreen" />
             <feColorMatrix
-              in="dispGreen"
-              type="matrix"
-              values="0 0 0 0 0
-                      0 1 0 0 0
-                      0 0 0 0 0
-                      0 0 0 1 0"
+              in="dispGreen" type="matrix"
+              values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0"
               result="green"
             />
             <feDisplacementMap ref={blueChannelRef as any} in="SourceGraphic" in2="map" id="bluechannel" result="dispBlue" />
             <feColorMatrix
-              in="dispBlue"
-              type="matrix"
-              values="0 0 0 0 0
-                      0 0 1 0 0
-                      0 0 0 1 0"
+              in="dispBlue" type="matrix"
+              values="0 0 0 0 0  0 0 1 0 0  0 0 0 1 0"
               result="blue"
             />
             <feBlend in="red" in2="green" mode="screen" result="rg" />

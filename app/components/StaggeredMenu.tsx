@@ -438,12 +438,6 @@ export default function StaggeredMenu({
             style={{ padding: 0, ...(panelGlassProps?.style || {}) }}
             {...panelGlassProps}
           >
-            {/* Close button μέσα στο panel */}
-            <div className="sm-panel-close">
-              <GlassSurface width={40} height={40} borderRadius={999} backgroundOpacity={0.12}>
-                <button className="sm-close-btn" aria-label="Close menu" onClick={toggleMenu} type="button">✕</button>
-              </GlassSurface>
-            </div>
 
             <div className="sm-panel-inner sm-panel-inner--on-glass">
               <ul className="sm-panel-list" role="list" data-numbering={displayItemNumbering || undefined}>
