@@ -8,19 +8,13 @@ export const metadata: Metadata = {
   description: "Creative web experiences",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        {/* Fixed header */}
         <Header />
-
-        {/* Push content below the 72px header */}
-        <main style={{ paddingTop: "72px" }}>{children}</main>
+        {/* ΧΩΡΙΣ padding-top -> το header κάνει overlap πάνω στο hero */}
+        <main>{children}</main>
       </body>
     </html>
   );

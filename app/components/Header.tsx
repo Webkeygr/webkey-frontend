@@ -1,3 +1,4 @@
+// app/components/Header.tsx
 "use client";
 
 import Image from "next/image";
@@ -41,25 +42,39 @@ export default function Header({
       className="site-header"
       style={{
         position: "fixed",
-        inset: "0 auto auto 0",
+        top: 0,
+        left: 0,
         width: "100%",
         height: "72px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         padding: "0 24px",
-        zIndex: 60,
-        pointerEvents: "none",
+        zIndex: 300,            // πάνω από το hero
+        background: "transparent",
+        pointerEvents: "none",  // επιτρέπουμε clicks μόνο στα παιδιά
       }}
     >
       {/* Left: Logo */}
-      <Link href="/" aria-label="Webkey home" style={{ display: "inline-flex", alignItems: "center", gap: 12, pointerEvents: "auto" }}>
+      <Link
+        href="/"
+        aria-label="Webkey home"
+        style={{ display: "inline-flex", alignItems: "center", gap: 12, pointerEvents: "auto" }}
+      >
         <Image src={logoSrc} alt="Webkey" width={132} height={28} priority />
       </Link>
 
-      {/* Right: CTA + Hamburger (glass both) */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, pointerEvents: "auto" }}>
-        {/* CTA with Glass */}
+      {/* Right: CTA + Hamburger */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          flexWrap: "nowrap",
+          whiteSpace: "nowrap", // ΜΗ σπάει γραμμή
+          pointerEvents: "auto",
+        }}
+      >
         <GlassSurface
           width="auto"
           height={44}
@@ -78,7 +93,6 @@ export default function Header({
           </Link>
         </GlassSurface>
 
-        {/* Hamburger with the same Glass */}
         <StaggeredMenu
           position="right"
           items={menuItems}
@@ -87,7 +101,6 @@ export default function Header({
           displayItemNumbering
           logoUrl={logoSrc}
           colors={["#B19EEF", "#5227FF"]}
-          // Glass:
           useGlassToggle
           toggleGlassProps={{
             width: 44,
@@ -112,12 +125,11 @@ export default function Header({
             brightness: 65,
             opacity: 0.9,
           }}
+          isFixed     // <<--- ΣΗΜΑΝΤΙΚΟ: κάνει το wrapper full-viewport
           menuButtonColor="#fff"
           openMenuButtonColor="#fff"
           changeMenuColorOnOpen={true}
           accentColor="#fcec45"
-          onMenuOpen={() => {}}
-          onMenuClose={() => {}}
           className="header-staggered"
         />
       </div>
