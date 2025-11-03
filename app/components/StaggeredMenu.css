@@ -6,23 +6,21 @@
 }
 
 .staggered-menu-wrapper.fixed-wrapper {
- position: fixed;
+  position: fixed;
   top: 0; left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 280;
+  z-index: 999;           /* πιο ψηλά από το header */
   overflow: hidden;
-  pointer-events: none; /* κρίσιμο */
+  pointer-events: auto;   /* default: ΔΕΝ πιάνει events */
 }
+
 /* Panel αρχικά κρυμμένο χωρίς GSAP (να μην ανοίγει by default) */
 .staggered-menu-wrapper:not([data-open]) .staggered-menu-panel {
   transform: translateX(100%);    /* δεξιά */
 }
 
-[data-position='left'] .staggered-menu-wrapper:not([data-open]) .staggered-menu-panel,
-.staggered-menu-wrapper[data-position='left']:not([data-open]) .staggered-menu-panel {
-  transform: translateX(-100%);
-}
+
 /* Internal header (συνήθως off) */
 .staggered-menu-header {
   position: absolute;
