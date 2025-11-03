@@ -94,44 +94,52 @@ export default function Header({
         </GlassSurface>
 
         <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials
-          displayItemNumbering
-          logoUrl={logoSrc}
-          colors={["#B19EEF", "#5227FF"]}
-          useGlassToggle
-          toggleGlassProps={{
-            width: 44,
-            height: 44,
-            borderRadius: 999,
-            backgroundOpacity: 0.12,
-            saturation: 1.6,
-            displace: 0.6,
-            distortionScale: -120,
-            brightness: 70,
-            opacity: 0.9,
-          }}
-          useGlassPanel
-          panelGlassProps={{
-            width: "100%",
-            height: "100%",
-            borderRadius: 0,
-            backgroundOpacity: 0.08,
-            saturation: 1.6,
-            displace: 0.8,
-            distortionScale: -160,
-            brightness: 65,
-            opacity: 0.9,
-          }}
-          isFixed     // <<--- ΣΗΜΑΝΤΙΚΟ: κάνει το wrapper full-viewport
-          menuButtonColor="#fff"
-          openMenuButtonColor="#fff"
-          changeMenuColorOnOpen={true}
-          accentColor="#fcec45"
-          className="header-staggered"
-        />
+  position="right"
+  items={menuItems}
+  socialItems={socialItems}
+  displaySocials
+  displayItemNumbering
+  logoUrl={logoSrc}
+  colors={["#B19EEF", "#5227FF"]}
+  /* GLASS */
+  useGlassToggle
+  toggleGlassProps={{
+    width: 44,
+    height: 44,
+    borderRadius: 999,
+    backgroundOpacity: 0.12,
+    saturation: 1.6,
+    displace: 0.6,
+    distortionScale: -120,
+    brightness: 70,
+    opacity: 0.9,
+  }}
+  useGlassPanel
+  panelGlassProps={{
+    width: "100%",
+    height: "100%",
+    borderRadius: 0,
+    backgroundOpacity: 0.12,   // λίγο πιο “παγωμένο” για καλύτερη αναγνωσιμότητα
+    saturation: 1.7,
+    displace: 0.6,
+    distortionScale: -140,
+    brightness: 72,
+    opacity: 0.9,
+  }}
+  /* Κάνει το wrapper full-viewport ώστε το panel να ανοίγει σωστά */
+  isFixed
+  /* Κρύψε το εσωτερικό header του component (να μην διπλασιάζεται το logo) */
+  showInternalHeader={false}
+  /* Κρύψε τα προ-στρώματα (μπλε), κρατάμε μόνο το glass */
+  showPrelayers={false}
+  /* Χρώματα του toggle */
+  menuButtonColor="#fff"
+  openMenuButtonColor="#fff"
+  changeMenuColorOnOpen
+  accentColor="#fcec45"
+  className="header-staggered"
+/>
+
       </div>
     </header>
   );
