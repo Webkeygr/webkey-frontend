@@ -1,3 +1,4 @@
+// app/components/StaggeredMenu.tsx
 "use client";
 
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
@@ -26,14 +27,16 @@ type Props = {
   onMenuOpen?: () => void;
   onMenuClose?: () => void;
 
-  // Glass
+  // Glass για toggle & panel
   useGlassToggle?: boolean;
   toggleGlassProps?: Partial<GlassProps>;
-  iconOnlyToggle?: boolean;
+  useGlassPanel?: boolean;
+  panelGlassProps?: Partial<GlassProps>;
 
-  // NEW: UX flags
-  showInternalHeader?: boolean;   // κρύβει το εσωτερικό header (logo+toggle) για να μη διπλασιάζεται με το site header
-  showPrelayers?: boolean;        // κρύβει τα “μπλε” prelayers (default: false αν useGlassPanel)
+  // Συμπεριφορές/flags
+  iconOnlyToggle?: boolean;       // δείξε μόνο το (+) χωρίς label
+  showInternalHeader?: boolean;   // κρύψε/δείξε το εσωτερικό header (logo+toggle)
+  showPrelayers?: boolean;        // αν θα δείχνει τα “μπλε” prelayers (default: false όταν useGlassPanel)
 };
 
 export default function StaggeredMenu({
@@ -52,18 +55,16 @@ export default function StaggeredMenu({
   isFixed = false,
   onMenuOpen,
   onMenuClose,
+
   useGlassToggle = true,
   toggleGlassProps,
   useGlassPanel = true,
   panelGlassProps,
+
+  iconOnlyToggle = true,
   showInternalHeader = false,
   showPrelayers,
-  iconOnlyToggle = true, // << default: μόνο εικονίδιο
-
 }: Props) {
-  // default: όταν υπάρχει glass panel, κρύψε prelayers
-  const shouldShowPrelayers = showPrelayers ?? !useGlassPanel;
-
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -84,6 +85,8 @@ export default function StaggeredMenu({
   const toggleBtnRef = useRef<HTMLButtonElement | null>(null);
   const busyRef = useRef(false);
   const itemEntranceTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  const shouldShowPrelayers = (showPrelayers ?? !useGlassPanel) === true;
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -319,10 +322,10 @@ export default function StaggeredMenu({
     }
     animateIcon(target);
     animateColor(target);
-    animateText(target);
-  }, [playOpen, playClose, animateIcon, animateColor, animateText, onMenuOpen, onMenuClose]);
+    if (!iconOnlyToggle) animateText(target);
+  }, [playOpen, playClose, animateIcon, animateColor, animateText, onMenuOpen, onMenuClose, iconOnlyToggle]);
 
-  // Toggle button (επαναχρησιμοποιείται)
+  // Το κουμπί toggle (με ή χωρίς κείμενο)
   const ToggleButton = (
     <button
       ref={toggleBtnRef}
@@ -333,21 +336,21 @@ export default function StaggeredMenu({
       onClick={toggleMenu}
       type="button"
     >
-        {!iconOnlyToggle && (
-      <span ref={textWrapRef} className="sm-toggle-textWrap" aria-hidden="true">
-        <span ref={textInnerRef} className="sm-toggle-textInner">
-          {textLines.map((l, i) => (
-            <span className="sm-toggle-line" key={i}>{l}</span>
-          ))}
+      {!iconOnlyToggle && (
+        <span ref={textWrapRef} className="sm-toggle-textWrap" aria-hidden="true">
+          <span ref={textInnerRef} className="sm-toggle-textInner">
+            {textLines.map((l, i) => (
+              <span className="sm-toggle-line" key={i}>{l}</span>
+            ))}
+          </span>
         </span>
+      )}
+      <span ref={iconRef} className="sm-icon" aria-hidden="true">
+        <span ref={plusHRef} className="sm-icon-line" />
+        <span ref={plusVRef} className="sm-icon-line sm-icon-line-v" />
       </span>
-    )}
-    <span ref={iconRef} className="sm-icon" aria-hidden="true">
-      <span ref={plusHRef} className="sm-icon-line" />
-      <span ref={plusVRef} className="sm-icon-line sm-icon-line-v" />
-    </span>
-  </button>
-);
+    </button>
+  );
 
   return (
     <div
@@ -356,7 +359,7 @@ export default function StaggeredMenu({
       data-position={position}
       data-open={open || undefined}
     >
-      {/* προ-στρώσεις (μπλε) — κρυφές όταν θέλουμε καθαρό glass */}
+      {/* Προ-στρώσεις (μπλε) — εμφανίζονται μόνο αν ζητηθεί */}
       {shouldShowPrelayers && (
         <div ref={preLayersRef} className="sm-prelayers" aria-hidden="true">
           {(() => {
@@ -371,50 +374,25 @@ export default function StaggeredMenu({
         </div>
       )}
 
-      {/* ΕΣΩΤΕΡΙΚΟ HEADER (logo + toggle) — το κρατάμε hidden για να μη διπλασιάζεται με το site header */}
-      {showInternalHeader && (
-        <header className="staggered-menu-header" aria-label="Main navigation header">
-          <div className="sm-logo" aria-label="Logo">
-            <img src={logoUrl} alt="Logo" className="sm-logo-img" draggable={false} width={110} height={24} />
-          </div>
-          {useGlassToggle ? (
-            <GlassSurface
-              width={44}
-              height={44}
-              borderRadius={999}
-              backgroundOpacity={0.12}
-              saturation={1.6}
-              displace={0.6}
-              distortionScale={-120}
-              brightness={70}
-              opacity={0.9}
-              className={`sm-toggle-glass ${toggleGlassProps?.className || ""}`}
-              style={{ padding: 0, ...(toggleGlassProps?.style || {}) }}
-              {...toggleGlassProps}
-            >
-              {ToggleButton}
-            </GlassSurface>
-          ) : (
-            ToggleButton
-          )}
-        </header>
-      )}
-
-      {/* Χρησιμοποιούμε ΜΟΝΟ το toggle κουμπί όταν το component μπαίνει στο site header (εξωτερικό) */}
+      {/* ΜΟΝΟ το toggle (το εσωτερικό header παραμένει κρυφό εκτός αν ζητηθεί) */}
       {!showInternalHeader && (useGlassToggle ? (
         <GlassSurface
-          width={44}
-          height={44}
-          borderRadius={999}
-          backgroundOpacity={0.12}
-          saturation={1.6}
-          displace={0.6}
-          distortionScale={-120}
-          brightness={70}
-          opacity={0.9}
+          width={iconOnlyToggle ? 44 : (toggleGlassProps?.width ?? "auto")}
+          height={toggleGlassProps?.height ?? 44}
+          borderRadius={toggleGlassProps?.borderRadius ?? 999}
+          backgroundOpacity={toggleGlassProps?.backgroundOpacity ?? 0.16}
+          saturation={toggleGlassProps?.saturation ?? 1.7}
+          displace={toggleGlassProps?.displace ?? 0.4}
+          distortionScale={toggleGlassProps?.distortionScale ?? -120}
+          brightness={toggleGlassProps?.brightness ?? 76}
+          opacity={toggleGlassProps?.opacity ?? 0.94}
+          forceSvgMode={toggleGlassProps?.forceSvgMode ?? true}
+          mixBlendMode={toggleGlassProps?.mixBlendMode ?? "screen"}
+          redOffset={toggleGlassProps?.redOffset ?? 2}
+          greenOffset={toggleGlassProps?.greenOffset ?? 2}
+          blueOffset={toggleGlassProps?.blueOffset ?? 2}
           className={`sm-toggle-glass ${toggleGlassProps?.className || ""}`}
           style={{ padding: 0, ...(toggleGlassProps?.style || {}) }}
-          {...toggleGlassProps}
         >
           {ToggleButton}
         </GlassSurface>
@@ -423,23 +401,31 @@ export default function StaggeredMenu({
       ))}
 
       {/* PANEL */}
-      <aside id="staggered-menu-panel" ref={panelRef} className={`staggered-menu-panel${useGlassPanel ? " sm-panel--glass" : ""}`} aria-hidden={!open}>
+      <aside
+        id="staggered-menu-panel"
+        ref={panelRef}
+        className={`staggered-menu-panel${useGlassPanel ? " sm-panel--glass" : ""}`}
+        aria-hidden={!open}
+      >
         {useGlassPanel ? (
           <GlassSurface
-            width="100%"
-            height="100%"
-            borderRadius={0}
-            backgroundOpacity={0.12}
-            saturation={1.7}
-            displace={0.6}
-            distortionScale={-140}
-            brightness={72}
-            opacity={0.9}
+            width={panelGlassProps?.width ?? "100%"}
+            height={panelGlassProps?.height ?? "100%"}
+            borderRadius={panelGlassProps?.borderRadius ?? 10}
+            backgroundOpacity={panelGlassProps?.backgroundOpacity ?? 0.16}
+            saturation={panelGlassProps?.saturation ?? 1.8}
+            displace={panelGlassProps?.displace ?? 0.6}
+            distortionScale={panelGlassProps?.distortionScale ?? -140}
+            brightness={panelGlassProps?.brightness ?? 76}
+            opacity={panelGlassProps?.opacity ?? 0.92}
+            forceSvgMode={panelGlassProps?.forceSvgMode ?? true}
+            mixBlendMode={panelGlassProps?.mixBlendMode ?? "screen"}
+            redOffset={panelGlassProps?.redOffset ?? 2}
+            greenOffset={panelGlassProps?.greenOffset ?? 2}
+            blueOffset={panelGlassProps?.blueOffset ?? 2}
             className={`sm-panel-glass ${panelGlassProps?.className || ""}`}
             style={{ padding: 0, ...(panelGlassProps?.style || {}) }}
-            {...panelGlassProps}
           >
-
             <div className="sm-panel-inner sm-panel-inner--on-glass">
               <ul className="sm-panel-list" role="list" data-numbering={displayItemNumbering || undefined}>
                 {items && items.length ? (
@@ -476,9 +462,7 @@ export default function StaggeredMenu({
             </div>
           </GlassSurface>
         ) : (
-          <div className="sm-panel-inner">
-            {/* non-glass fallback */}
-          </div>
+          <div className="sm-panel-inner">{/* non-glass fallback */}</div>
         )}
       </aside>
     </div>
