@@ -307,3 +307,10 @@
     font-size: 2.6rem;
   }
 }
+
+/* --- keep the toggle above the overlay so it can close the menu --- */
+.staggered-menu-wrapper .sm-toggle,
+.staggered-menu-wrapper .sm-toggle-glass {
+  position: relative;
+  z-index: 2200; /* overlay είναι 2050, panel 2100+ */
+}
