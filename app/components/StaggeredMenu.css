@@ -1,3 +1,6 @@
+/* ──────────────────────────────────────────────────────────
+   WRAPPER
+   ────────────────────────────────────────────────────────── */
 .staggered-menu-wrapper {
   position: relative;
   width: 100%;
@@ -5,32 +8,35 @@
   z-index: 250;
 }
 
+/* full-viewport overlay ΜΟΝΟ για το panel */
 .staggered-menu-wrapper.fixed-wrapper {
   position: fixed;
   top: 0; left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 999;           /* πιο ψηλά από το header */
+  z-index: 2000;
   overflow: hidden;
-  pointer-events: none;   /* default: ΔΕΝ πιάνει events */
+
+  /* όταν είναι κλειστό → να μη μπλοκάρει τίποτα */
+  pointer-events: none;
 }
 
+/* ακόμα κι όταν είναι ανοιχτό, το wrapper ΔΕΝ πιάνει clicks.
+   Τα clicks τα παίρνει ΜΟΝΟ το panel. */
 .staggered-menu-wrapper.fixed-wrapper[data-open] {
-  pointer-events: none; /* το wrapper ΟΧΙ */
+  pointer-events: none;
 }
 
-/* Panel αρχικά κρυμμένο χωρίς GSAP (να μην ανοίγει by default) */
-.staggered-menu-wrapper:not([data-open]) .staggered-menu-panel {
-  transform: translateX(100%);    /* δεξιά */
-}
-
-
-/* Internal header (συνήθως off) */
+/* ──────────────────────────────────────────────────────────
+   INTERNAL HEADER (αν το χρησιμοποιήσεις)
+   ────────────────────────────────────────────────────────── */
 .staggered-menu-header {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 2em;
   background: transparent;
   pointer-events: none;
@@ -40,7 +46,9 @@
 .sm-logo { display: flex; align-items: center; user-select: none; }
 .sm-logo-img { display: block; height: 32px; width: auto; object-fit: contain; }
 
-/* Toggle */
+/* ──────────────────────────────────────────────────────────
+   TOGGLE BUTTON
+   ────────────────────────────────────────────────────────── */
 .sm-toggle {
   position: relative;
   display: inline-flex;
@@ -57,58 +65,93 @@
   line-height: 1;
   overflow: visible;
 }
-.sm-toggle.icon-only { width: 44px; height: 44px; border-radius: 999px; padding: 0; justify-content: center; }
-
+.sm-toggle.icon-only {
+  width: 44px; height: 44px;
+  border-radius: 999px;
+  padding: 0;
+  justify-content: center;
+}
 .sm-toggle.icon-only .sm-icon { width: 18px; height: 18px; }
 .sm-toggle:focus-visible { outline: 2px solid #ffffffaa; outline-offset: 4px; border-radius: 4px; }
+
 .sm-toggle-textWrap { position: relative; display: inline-block; height: 1em; overflow: hidden; white-space: nowrap; }
 .sm-toggle-textInner { display: flex; flex-direction: column; line-height: 1; }
-.sm-icon-line { background: currentColor; }
-.sm-icon { position: relative; width: 14px; height: 14px; flex: 0 0 14px; display: inline-flex; align-items: center; justify-content: center; will-change: transform; }
-.sm-icon-line { position: absolute; left: 50%; top: 50%; width: 100%; height: 2px; background: currentColor; border-radius: 2px; transform: translate(-50%, -50%); will-change: transform; }
+.sm-toggle-line { display: block; height: 1em; line-height: 1; }
+
+.sm-icon {
+  position: relative;
+  width: 14px; height: 14px;
+  flex: 0 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+.sm-icon-line {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 100%; height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
 .sm-icon-line.sm-icon-line-v { transform: translate(-50%, -50%) rotate(90deg); }
 .sm-icon-line--dark { background: #111 !important; } /* μαύρο εικονίδιο */
 
+/* glass wrapper του toggle να μην προσθέτει padding */
+.sm-toggle-glass .glass-surface__content { padding: 0; }
 
-/* Panel */
+/* ──────────────────────────────────────────────────────────
+   PANEL (μόνο GSAP θα ορίζει transform)
+   ────────────────────────────────────────────────────────── */
 .staggered-menu-panel {
-  position: absolute; top: 0; right: 0;
+  position: absolute;
+  top: 0; right: 0;
   width: clamp(260px, 38vw, 420px);
   height: 100%;
   background: transparent;
-  padding: 6em 2em 2em 2em;
+  padding: 6em 2em 2em;
   overflow-y: auto;
-  z-index: 1000;
-  pointer-events: auto;
-   transform: translateX(100%);
-          /* panel δέχεται κλικ */
+  z-index: 2100;
+  pointer-events: auto; /* το panel δέχεται clicks */
   will-change: transform;
 }
-[data-position='left'] .staggered-menu-panel { transform: translateX(-100%); }
-[data-position='left'][data-open] .staggered-menu-panel { transform: translateX(0); }
 
+/* ──────────────────────────────────────────────────────────
+   PRELAYERS (ποτέ clicks)
+   ────────────────────────────────────────────────────────── */
+.sm-prelayers {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: clamp(260px, 38vw, 420px);
+  pointer-events: none;
+  z-index: 292;
+}
+[data-position='left'] .sm-prelayers { right: auto; left: 0; }
+.sm-prelayer { position: absolute; top: 0; right: 0; height: 100%; width: 100%; }
 
-/* όταν είναι ανοιχτό, έρχεται μέσα */
-.staggered-menu-wrapper[data-open] .staggered-menu-panel {
-  transform: translateX(0);
+/* ──────────────────────────────────────────────────────────
+   GLASS CONTENT
+   ────────────────────────────────────────────────────────── */
+.sm-panel--glass .sm-panel-glass,
+.sm-panel--glass .glass-surface__content {
+  width: 100%; height: 100%;
 }
 
-/* Pre-layers (μπλε) */
-.sm-prelayers { position: absolute; top: 0; right: 0; bottom: 0; width: clamp(260px, 38vw, 420px); pointer-events: none; z-index: 292; }
-[data-position='left'] .sm-prelayers { right: auto; left: 0; }
-.sm-prelayer { position: absolute; top: 0; right: 0; height: 100%; width: 100%; transform: translateX(0); }
-
-/* Glass content */
-.sm-panel--glass .sm-panel-glass,
-.sm-panel--glass .glass-surface__content { width: 100%; height: 100%; }
-
-
-/* Panel inner + typographic tweaks for readability on glass */
+/* ──────────────────────────────────────────────────────────
+   LIST & TYPOGRAPHY
+   ────────────────────────────────────────────────────────── */
 .sm-panel-inner { flex: 1; display: flex; flex-direction: column; gap: 1.25rem; }
 .sm-panel-inner--on-glass { color: #fff; }
 
-.sm-panel-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.sm-panel-list {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
 .sm-panel-itemWrap { position: relative; overflow: hidden; line-height: 1; }
+
 .sm-panel-item {
   color: #fff;
   text-shadow: 0 2px 6px rgba(0,0,0,.75);
@@ -120,11 +163,11 @@
   display: inline-block;
   text-decoration: none;
   position: relative;
-  padding-left: 22px; /* χώρος για παύλα */
-  padding-right: 1.4em;
+  padding-left: 22px;      /* χώρος για παύλα */
+  padding-right: 1.4em;    /* χώρος για numbering */
   transition: transform .25s ease, color .25s ease;
 }
-/* Αριστερή παύλα (εμφανίζεται στο hover) */
+/* αριστερή παύλα στο hover */
 .sm-panel-item::before {
   content: "";
   position: absolute;
@@ -136,20 +179,18 @@
   opacity: 0;
   transition: width .25s ease, opacity .25s ease;
 }
-.sm-panel-item:hover {
-  transform: translateX(6px);
-}
-.sm-panel-item:hover::before {
-  width: 16px;
-  opacity: 1;
-}
+.sm-panel-item:hover { transform: translateX(6px); }
+.sm-panel-item:hover::before { width: 16px; opacity: 1; }
+
 .sm-panel-itemLabel { display: inline-block; will-change: transform; transform-origin: 50% 100%; }
 
+/* numbering */
 .sm-panel-list[data-numbering] { counter-reset: smItem; }
 .sm-panel-list[data-numbering] .sm-panel-item::after {
   counter-increment: smItem;
   content: counter(smItem, decimal-leading-zero);
-  position: absolute; top: 0.1em; right: 2.8em;
+  position: absolute;
+  top: 0.1em; right: 2.8em;
   font-size: 16px; font-weight: 600;
   color: rgba(255,255,255,.9);
   text-shadow: 0 1px 2px rgba(0,0,0,.6);
@@ -157,7 +198,9 @@
   opacity: var(--sm-num-opacity, 0);
 }
 
-/* Bottom CTA */
+/* ──────────────────────────────────────────────────────────
+   BOTTOM CTA (αντί για socials)
+   ────────────────────────────────────────────────────────── */
 .sm-panel-cta-wrap { margin-top: auto; padding-top: 2rem; }
 .sm-panel-cta {
   display: inline-flex; align-items: center; justify-content: center;
@@ -170,14 +213,18 @@
   box-shadow: 0 6px 24px rgba(0,0,0,.18);
   transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
 }
-.sm-panel-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,0,0,.22); opacity: 0.95; }
+.sm-panel-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  opacity: 0.95;
+}
 
-
-
-/* Toggle glass */
-.sm-toggle-glass .glass-surface__content { padding: 0; }
-
-/* Responsive */
-@media (max-width: 1024px) { .staggered-menu-panel { width: 100%; left: 0; right: 0; } }
-@media (max-width: 640px) { .sm-panel-item { font-size: 2.6rem; } }
-
+/* ──────────────────────────────────────────────────────────
+   RESPONSIVE
+   ────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .staggered-menu-panel { width: 100%; left: 0; right: 0; }
+}
+@media (max-width: 640px) {
+  .sm-panel-item { font-size: 2.6rem; }
+}
