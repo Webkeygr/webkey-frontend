@@ -46,6 +46,15 @@
   line-height: 1;
   overflow: visible;
 }
+.sm-toggle.icon-only {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  padding: 0;
+  justify-content: center;
+  text-shadow: none; /* δεν φαίνεται κείμενο */
+}
+.sm-toggle.icon-only .sm-icon { width: 16px; height: 16px; }
 .sm-toggle:focus-visible { outline: 2px solid #ffffffaa; outline-offset: 4px; border-radius: 4px; }
 .sm-toggle-textWrap { position: relative; display: inline-block; height: 1em; overflow: hidden; white-space: nowrap; }
 .sm-toggle-textInner { display: flex; flex-direction: column; line-height: 1; }
@@ -85,21 +94,41 @@
 .sm-panel-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
 .sm-panel-itemWrap { position: relative; overflow: hidden; line-height: 1; }
 .sm-panel-item {
-  position: relative;
-  color: #fff; /* λευκά γράμματα */
-  text-shadow: 0 1px 2px rgba(0,0,0,.6); /* μαύρη σκιά */
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,.75);
   font-weight: 700;
   font-size: 3.2rem;
-  cursor: pointer;
   line-height: 1.05;
   letter-spacing: -1px;
   text-transform: uppercase;
-  transition: color 0.25s ease;
   display: inline-block;
   text-decoration: none;
-  padding-right: 1.4em;
+  position: relative;
+  padding-left: 22px;     /* χώρος για παύλα */
+  padding-right: 1.4em;   /* χώρος για numbering */
+  transition: transform .25s ease, color .25s ease;
 }
-.sm-panel-item:hover { color: #ffffff; text-shadow: 0 2px 6px rgba(0,0,0,.75); }
+/* Αριστερή παύλα (εμφανίζεται στο hover) */
+.sm-panel-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  width: 0;
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 1px 2px rgba(0,0,0,.7);
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: width .25s ease, opacity .25s ease;
+}
+.sm-panel-item:hover {
+  transform: translateX(6px);
+}
+.sm-panel-item:hover::before {
+  width: 16px;
+  opacity: 1;
+}
 .sm-panel-itemLabel { display: inline-block; will-change: transform; transform-origin: 50% 100%; }
 
 .sm-panel-list[data-numbering] { counter-reset: smItem; }

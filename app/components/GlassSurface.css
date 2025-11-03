@@ -5,6 +5,9 @@
   justify-content: center;
   overflow: hidden;
   transition: opacity 0.26s ease-out;
+  isolation: isolate;            /* Σπάει τα blend artifacts με άλλα layers */
+  backface-visibility: hidden;   /* γλιτώνει τρεμόπαιγμα σε compositing */
+  transform: translateZ(0);      /* κλωτσάει GPU layer για καθαρό redraw */
 }
 
 .glass-surface__filter {

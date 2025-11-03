@@ -29,8 +29,7 @@ type Props = {
   // Glass
   useGlassToggle?: boolean;
   toggleGlassProps?: Partial<GlassProps>;
-  useGlassPanel?: boolean;
-  panelGlassProps?: Partial<GlassProps>;
+  iconOnlyToggle?: boolean;
 
   // NEW: UX flags
   showInternalHeader?: boolean;   // κρύβει το εσωτερικό header (logo+toggle) για να μη διπλασιάζεται με το site header
@@ -59,6 +58,8 @@ export default function StaggeredMenu({
   panelGlassProps,
   showInternalHeader = false,
   showPrelayers,
+  iconOnlyToggle = true, // << default: μόνο εικονίδιο
+
 }: Props) {
   // default: όταν υπάρχει glass panel, κρύψε prelayers
   const shouldShowPrelayers = showPrelayers ?? !useGlassPanel;
@@ -325,28 +326,28 @@ export default function StaggeredMenu({
   const ToggleButton = (
     <button
       ref={toggleBtnRef}
-      className="sm-toggle"
+      className={`sm-toggle ${iconOnlyToggle ? "icon-only" : ""}`}
       aria-label={open ? "Close menu" : "Open menu"}
       aria-expanded={open}
       aria-controls="staggered-menu-panel"
       onClick={toggleMenu}
       type="button"
     >
+        {!iconOnlyToggle && (
       <span ref={textWrapRef} className="sm-toggle-textWrap" aria-hidden="true">
         <span ref={textInnerRef} className="sm-toggle-textInner">
           {textLines.map((l, i) => (
-            <span className="sm-toggle-line" key={i}>
-              {l}
-            </span>
+            <span className="sm-toggle-line" key={i}>{l}</span>
           ))}
         </span>
       </span>
-      <span ref={iconRef} className="sm-icon" aria-hidden="true">
-        <span ref={plusHRef} className="sm-icon-line" />
-        <span ref={plusVRef} className="sm-icon-line sm-icon-line-v" />
-      </span>
-    </button>
-  );
+    )}
+    <span ref={iconRef} className="sm-icon" aria-hidden="true">
+      <span ref={plusHRef} className="sm-icon-line" />
+      <span ref={plusVRef} className="sm-icon-line sm-icon-line-v" />
+    </span>
+  </button>
+);
 
   return (
     <div

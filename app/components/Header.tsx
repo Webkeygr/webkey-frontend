@@ -96,52 +96,61 @@ export default function Header({
 
         {/* TOGGLE: μεγαλύτερο, pill & με σκιά στο text */}
         <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials
-          displayItemNumbering
-          logoUrl={logoSrc}
-          colors={["#B19EEF", "#5227FF"]}
-          /* GLASS */
-          useGlassToggle
-          toggleGlassProps={{
-            width: "auto",
-            height: 44,
-            borderRadius: 999,
-            backgroundOpacity: 0.16,
-            saturation: 1.8,
-            displace: 0.6,
-            distortionScale: -120,
-            brightness: 74,
-            opacity: 0.92,
-            forceSvgMode: true,
-            style: { padding: "0 14px" },
-          }}
-          useGlassPanel
-          panelGlassProps={{
-            width: "100%",
-            height: "100%",
-            borderRadius: 10,           // (4) radius 10px στο panel
-            backgroundOpacity: 0.16,
-            saturation: 1.8,
-            displace: 0.6,
-            distortionScale: -140,
-            brightness: 76,
-            opacity: 0.92,
-            forceSvgMode: true,
-          }}
-          isFixed
-          /* Κρύβουμε εσωτερικό header & prelayers */
-          showInternalHeader={false}
-          showPrelayers={false}
-          /* Χρώμα text + σκιά στο ίδιο το toggle (μέσα στο StaggeredMenu.css) */
-          menuButtonColor="#fff"
-          openMenuButtonColor="#fff"
-          changeMenuColorOnOpen
-          accentColor="#fcec45"
-          className="header-staggered"
-        />
+  position="right"
+  items={menuItems}
+  socialItems={socialItems}
+  displaySocials
+  displayItemNumbering
+  logoUrl={logoSrc}
+  colors={["#B19EEF", "#5227FF"]}
+
+  /* Toggle: στρογγυλό 44x44, μόνο εικονίδιο, full glass */
+  iconOnlyToggle
+  useGlassToggle
+  toggleGlassProps={{
+    width: 44,
+    height: 44,
+    borderRadius: 999,
+    backgroundOpacity: 0.16,
+    saturation: 1.7,
+    displace: 0.4,          // πιο ήπιο για λιγότερα artifacts
+    distortionScale: -120,
+    brightness: 76,
+    opacity: 0.94,
+    forceSvgMode: true,
+    mixBlendMode: "screen", // αποφεύγει “κάψιμο” σε ανοιχτά backgrounds
+    redOffset: 2,
+    greenOffset: 2,
+    blueOffset: 2,
+  }}
+
+  /* Panel: glass + radius 10px, ίδια «παγωμένη» αίσθηση */
+  useGlassPanel
+  panelGlassProps={{
+    width: "100%",
+    height: "100%",
+    borderRadius: 10,
+    backgroundOpacity: 0.16,
+    saturation: 1.8,
+    displace: 0.6,
+    distortionScale: -140,
+    brightness: 76,
+    opacity: 0.92,
+    forceSvgMode: true,
+    mixBlendMode: "screen",
+    redOffset: 2, greenOffset: 2, blueOffset: 2,
+  }}
+
+  /* Συμπεριφορά */
+  isFixed
+  showInternalHeader={false}
+  showPrelayers={false}
+  menuButtonColor="#fff"
+  openMenuButtonColor="#fff"
+  changeMenuColorOnOpen
+  accentColor="#fcec45"
+  className="header-staggered"
+/>
       </div>
     </header>
   );
