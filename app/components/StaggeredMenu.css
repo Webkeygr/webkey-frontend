@@ -12,7 +12,11 @@
   height: 100vh;
   z-index: 999;           /* πιο ψηλά από το header */
   overflow: hidden;
-  pointer-events: auto;   /* default: ΔΕΝ πιάνει events */
+  pointer-events: none;   /* default: ΔΕΝ πιάνει events */
+}
+
+.staggered-menu-wrapper.fixed-wrapper[data-open] {
+  pointer-events: none; /* το wrapper ΟΧΙ */
 }
 
 /* Panel αρχικά κρυμμένο χωρίς GSAP (να μην ανοίγει by default) */
@@ -74,11 +78,20 @@
   background: transparent;
   padding: 6em 2em 2em 2em;
   overflow-y: auto;
-  z-index: 295;
-  pointer-events: auto;          /* panel δέχεται κλικ */
+  z-index: 1000;
+  pointer-events: auto;
+   transform: translateX(100%);
+          /* panel δέχεται κλικ */
   will-change: transform;
 }
-[data-position='left'] .staggered-menu-panel { right: auto; left: 0; }
+[data-position='left'] .staggered-menu-panel { transform: translateX(-100%); }
+[data-position='left'][data-open] .staggered-menu-panel { transform: translateX(0); }
+
+
+/* όταν είναι ανοιχτό, έρχεται μέσα */
+.staggered-menu-wrapper[data-open] .staggered-menu-panel {
+  transform: translateX(0);
+}
 
 /* Pre-layers (μπλε) */
 .sm-prelayers { position: absolute; top: 0; right: 0; bottom: 0; width: clamp(260px, 38vw, 420px); pointer-events: none; z-index: 292; }
