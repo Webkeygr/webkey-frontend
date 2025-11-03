@@ -46,15 +46,12 @@ export default function Hero() {
       />
 
       <div className="hero-inner">
-        <div ref={subtitleRef} className="hero-pill">
-          Creative Digital Studio
-        </div>
         <h1 ref={titleRef} className="hero-title">
           Dare
           <br />
-          <span className="hero-title--indent">Against</span>
+          <span className="hero-title--indent">To</span>
           <br />
-          Normal
+          Differ
         </h1>
         <p className="hero-text">
           Websites, experiences and brands that refuse to blend in.
