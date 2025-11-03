@@ -89,7 +89,7 @@
 .sm-overlay {
   position: fixed;
   inset: 0;
-  background: transparent; /* μπορείς αν θέλεις: rgba(0,0,0,.08) */
+  background: transparent;
   z-index: 2050;
   pointer-events: none;
   opacity: 0;
@@ -102,8 +102,10 @@
 
 /* ───────── Panel (fixed overlay) ───────── */
 .staggered-menu-panel {
-  --sm-item-indent: 22px;
-  --sm-item-rightpad: 1.4em;
+  /* κοινά paddings & ρυθμίσεις στο εσωτερικό */
+  --sm-item-indent: 22px; /* ίδιο με το «dash» των items */
+  --sm-item-rightpad: 1.4em; /* ίδιο με το numbering space */
+  --sm-block-hmargin: 0; /* ίσα left/right margins για list & CTA */
 
   position: absolute;
   top: 0;
@@ -159,26 +161,33 @@
   opacity: 0;
 }
 
-/* ───────── List & Typography ───────── */
+/* ───────── Inner & Typography ───────── */
+/* ΚΕΝΤΡΑΡΙΣΜΑ: βάζουμε τα items ΚΑΙ το CTA στο κάθετο κέντρο */
 .sm-panel-inner {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   height: 100%;
+  justify-content: center; /* <-- κέντρο κατακόρυφα */
 }
 .sm-panel-inner--on-glass {
   color: #fff;
   align-items: center;
 }
 
+/* Η λίστα πλέον δεν χρειάζεται auto-margins για κέντρο */
 .sm-panel-list {
   list-style: none;
-  margin: auto 0;
+  margin: 0; /* πριν: auto 0 */
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* οριζόντιο ίσο margin με το CTA */
+  margin-left: var(--sm-block-hmargin);
+  margin-right: var(--sm-block-hmargin);
 }
+
 .sm-panel-itemWrap {
   position: relative;
   overflow: hidden;
@@ -251,9 +260,13 @@
 }
 
 /* ───────── CTA (bottom) ───────── */
+/* πια δεν το σπρώχνουμε κάτω: θέλουμε κέντρο μαζί με τα items */
 .sm-panel-cta-wrap {
-  margin-top: auto;
-  padding-top: 2rem;
+  margin-top: 0; /* πριν: auto */
+  padding-top: 1rem; /* μικρό διάστημα από τη λίστα */
+  align-self: stretch; /* ώστε το button να μπορεί να γίνει full-width */
+  margin-left: var(--sm-block-hmargin);
+  margin-right: var(--sm-block-hmargin);
 }
 .sm-panel-cta {
   display: block;
