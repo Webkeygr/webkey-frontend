@@ -17,7 +17,7 @@ export default function Iridescence({
   color = [1, 1, 1],
   speed = 1.0,
   amplitude = 0.1,
-  mouseReact = true,
+  mouseReact = false,
   className = "",
 }: IridescenceProps) {
   const ctnDom = useRef<HTMLDivElement | null>(null);
