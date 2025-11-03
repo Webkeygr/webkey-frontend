@@ -1,3 +1,4 @@
+// app/components/GlassSurface.tsx
 "use client";
 
 import { useEffect, useRef, useId } from "react";
@@ -58,7 +59,7 @@ export default function GlassSurface({
   const redChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
   const greenChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
   const blueChannelRef = useRef<SVGFEDisplacementMapElement | null>(null);
-  const gaussianBlurRef = useRef<SVGFESpecularLightingElement | SVGFEGaussianBlurElement | null>(null);
+  const gaussianBlurRef = useRef<SVGFEGaussianBlurElement | null>(null);
 
   const generateDisplacementMap = () => {
     const rect = containerRef.current?.getBoundingClientRect();
@@ -139,25 +140,23 @@ export default function GlassSurface({
     const isWebkit = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
     const isFirefox = /Firefox/.test(navigator.userAgent);
     if (isWebkit || isFirefox) return false;
+
     const div = document.createElement("div");
-    // @ts-expect-error experimental check
-    div.style.backdropFilter = `url(#${filterId})`;
-    return div.style.backdropFilter !== "";
+    const styleAny = div.style as unknown as Record<string, any>;
+    styleAny.backdropFilter = `url(#${filterId})`;
+    return styleAny.backdropFilter !== "";
   };
 
-  const containerStyle: React.CSSProperties = {
+  const containerStyle = {
     ...style,
     width: typeof width === "number" ? `${width}px` : width,
     height: typeof height === "number" ? `${height}px` : height,
     borderRadius: `${borderRadius}px`,
-    // CSS custom props used by the CSS file:
-    // @ts-expect-error custom props
-    "--glass-frost": backgroundOpacity,
-    // @ts-expect-error custom props
-    "--glass-saturation": saturation,
-    // @ts-expect-error custom props
-    "--filter-id": `url(#${filterId})`,
-  };
+    // custom CSS variables (TS-safe με index signature)
+    ["--glass-frost" as any]: backgroundOpacity,
+    ["--glass-saturation" as any]: saturation,
+    ["--filter-id" as any]: `url(#${filterId})`,
+  } as React.CSSProperties;
 
   return (
     <div
@@ -194,7 +193,6 @@ export default function GlassSurface({
               in="dispBlue"
               type="matrix"
               values="0 0 0 0 0
-                      0 0 0 0 0
                       0 0 1 0 0
                       0 0 0 1 0"
               result="blue"
