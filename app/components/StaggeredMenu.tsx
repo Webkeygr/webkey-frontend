@@ -21,10 +21,14 @@ type Props = {
   openMenuButtonColor?: string;
   accentColor?: string;
   changeMenuColorOnOpen?: boolean;
-  isFixed?: boolean;
+
+  /** Το toggle να εμφανίζεται inline (δίπλα στο CTA).
+   * Το panel θα γίνει fixed για να καλύπτει όλο το viewport. */
+  panelFixed?: boolean;
+
   showPrelayers?: boolean;
 
-  /** Glass options (προαιρετικά – χαλαρή τυποποίηση για drop-in χρήση) */
+  /* Glass options */
   useGlassToggle?: boolean;
   iconOnlyToggle?: boolean;
   toggleGlassProps?: any;
@@ -48,7 +52,8 @@ export const StaggeredMenu: React.FC<Props> = ({
   openMenuButtonColor = "#fff",
   accentColor = "#5227FF",
   changeMenuColorOnOpen = true,
-  isFixed = true,
+
+  panelFixed = true,
   showPrelayers = false,
 
   useGlassToggle = true,
@@ -62,7 +67,7 @@ export const StaggeredMenu: React.FC<Props> = ({
   onMenuClose,
 }) => {
   const [open, setOpen] = useState(false);
-  const [animating, setAnimating] = useState(false); // << perf flag (για CSS)
+  const [animating, setAnimating] = useState(false);
   const openRef = useRef(false);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -105,8 +110,7 @@ export const StaggeredMenu: React.FC<Props> = ({
       preLayerElsRef.current = preLayers;
 
       const offscreen = position === "left" ? -100 : 100;
-      // << force3D για καλύτερη απόδοση
-      gsap.set([panel, ...preLayers], { xPercent: offscreen, force3D: true });
+      gsap.set([panel, ...preLayers], { xPercent: offscreen, force3D: true }); // GPU hint
       gsap.set(plusH, { transformOrigin: "50% 50%", rotate: 0 });
       gsap.set(plusV, { transformOrigin: "50% 50%", rotate: 90 });
       gsap.set(icon, { rotate: 0, transformOrigin: "50% 50%" });
@@ -173,8 +177,7 @@ export const StaggeredMenu: React.FC<Props> = ({
     );
 
     if (itemEls.length) {
-      const itemsStartRatio = 0.15;
-      const itemsStart = panelInsertTime + panelDuration * itemsStartRatio;
+      const itemsStart = panelInsertTime + panelDuration * 0.15;
       tl.to(
         itemEls,
         {
@@ -205,11 +208,7 @@ export const StaggeredMenu: React.FC<Props> = ({
       if (socialTitle) {
         tl.to(
           socialTitle,
-          {
-            opacity: 1,
-            duration: 0.5,
-            ease: "power2.out",
-          },
+          { opacity: 1, duration: 0.5, ease: "power2.out" },
           socialsStart
         );
       }
@@ -222,9 +221,7 @@ export const StaggeredMenu: React.FC<Props> = ({
             duration: 0.55,
             ease: "power3.out",
             stagger: { each: 0.08, from: "start" },
-            onComplete: () => {
-              gsap.set(socialLinks, { clearProps: "opacity" });
-            },
+            onComplete: () => gsap.set(socialLinks, { clearProps: "opacity" }),
           },
           socialsStart + 0.04
         );
@@ -238,13 +235,13 @@ export const StaggeredMenu: React.FC<Props> = ({
   const playOpen = useCallback(() => {
     if (busyRef.current) return;
     busyRef.current = true;
-    setAnimating(true); // << enable perf mode
+    setAnimating(true);
 
     const tl = buildOpenTimeline();
     if (tl) {
       tl.eventCallback("onComplete", () => {
         busyRef.current = false;
-        setAnimating(false); // << disable perf mode
+        setAnimating(false);
       });
       tl.play(0);
     } else {
@@ -263,15 +260,15 @@ export const StaggeredMenu: React.FC<Props> = ({
     if (!panel) return;
 
     const all = [...layers, panel];
-    closeTweenRef.current?.kill();
     const offscreen = position === "left" ? -100 : 100;
 
+    closeTweenRef.current?.kill();
     closeTweenRef.current = gsap.to(all, {
       xPercent: offscreen,
       duration: 0.32,
       ease: "power3.in",
       overwrite: "auto",
-      onStart: () => setAnimating(true), // << perf mode on
+      onStart: () => setAnimating(true),
       onComplete: () => {
         const itemEls = Array.from(
           panel.querySelectorAll(".sm-panel-itemLabel")
@@ -294,7 +291,7 @@ export const StaggeredMenu: React.FC<Props> = ({
         if (socialLinks.length) gsap.set(socialLinks, { y: 25, opacity: 0 });
 
         busyRef.current = false;
-        setAnimating(false); // << perf mode off
+        setAnimating(false);
       },
     });
   }, [position]);
@@ -303,21 +300,12 @@ export const StaggeredMenu: React.FC<Props> = ({
     const icon = iconRef.current;
     if (!icon) return;
     spinTweenRef.current?.kill();
-    if (opening) {
-      spinTweenRef.current = gsap.to(icon, {
-        rotate: 225,
-        duration: 0.8,
-        ease: "power4.out",
-        overwrite: "auto",
-      });
-    } else {
-      spinTweenRef.current = gsap.to(icon, {
-        rotate: 0,
-        duration: 0.35,
-        ease: "power3.inOut",
-        overwrite: "auto",
-      });
-    }
+    spinTweenRef.current = gsap.to(icon, {
+      rotate: opening ? 225 : 0,
+      duration: opening ? 0.8 : 0.35,
+      ease: opening ? "power4.out" : "power3.inOut",
+      overwrite: "auto",
+    });
   }, []);
 
   const animateColor = useCallback(
@@ -326,9 +314,8 @@ export const StaggeredMenu: React.FC<Props> = ({
       if (!btn) return;
       colorTweenRef.current?.kill();
       if (changeMenuColorOnOpen) {
-        const targetColor = opening ? openMenuButtonColor : menuButtonColor;
         colorTweenRef.current = gsap.to(btn, {
-          color: targetColor,
+          color: opening ? openMenuButtonColor : menuButtonColor,
           delay: 0.18,
           duration: 0.3,
           ease: "power2.out",
@@ -341,16 +328,10 @@ export const StaggeredMenu: React.FC<Props> = ({
   );
 
   React.useEffect(() => {
-    if (toggleBtnRef.current) {
-      if (changeMenuColorOnOpen) {
-        const targetColor = openRef.current
-          ? openMenuButtonColor
-          : menuButtonColor;
-        gsap.set(toggleBtnRef.current, { color: targetColor });
-      } else {
-        gsap.set(toggleBtnRef.current, { color: menuButtonColor });
-      }
-    }
+    if (!toggleBtnRef.current) return;
+    const target = openRef.current ? openMenuButtonColor : menuButtonColor;
+    const color = changeMenuColorOnOpen ? target : menuButtonColor;
+    gsap.set(toggleBtnRef.current, { color });
   }, [changeMenuColorOnOpen, menuButtonColor, openMenuButtonColor]);
 
   const animateText = useCallback((opening: boolean) => {
@@ -360,23 +341,14 @@ export const StaggeredMenu: React.FC<Props> = ({
 
     const currentLabel = opening ? "Menu" : "Close";
     const targetLabel = opening ? "Close" : "Menu";
-    const cycles = 3;
-    const seq = [currentLabel];
-    let last = currentLabel;
-    for (let i = 0; i < cycles; i++) {
-      last = last === "Menu" ? "Close" : "Menu";
-      seq.push(last);
-    }
-    if (last !== targetLabel) seq.push(targetLabel);
-    seq.push(targetLabel);
-    setTextLines(seq);
+    const seq = [currentLabel, targetLabel, targetLabel]; // πιο light cycling
 
+    setTextLines(seq);
     gsap.set(inner, { yPercent: 0 });
-    const lineCount = seq.length;
-    const finalShift = ((lineCount - 1) / lineCount) * 100;
+    const finalShift = ((seq.length - 1) / seq.length) * 100;
     textCycleAnimRef.current = gsap.to(inner, {
       yPercent: -finalShift,
-      duration: 0.5 + lineCount * 0.07,
+      duration: 0.55,
       ease: "power4.out",
     });
   }, []);
@@ -405,7 +377,6 @@ export const StaggeredMenu: React.FC<Props> = ({
     onMenuClose,
   ]);
 
-  /* ---------- Render ---------- */
   const ToggleButton = (
     <button
       ref={toggleBtnRef}
@@ -415,6 +386,7 @@ export const StaggeredMenu: React.FC<Props> = ({
       aria-controls="staggered-menu-panel"
       onClick={toggleMenu}
       type="button"
+      title={open ? "Close menu" : "Open menu"}
     >
       {!iconOnlyToggle && (
         <span
@@ -443,11 +415,7 @@ export const StaggeredMenu: React.FC<Props> = ({
 
   return (
     <div
-      className={
-        (className ? className + " " : "") +
-        "staggered-menu-wrapper" +
-        (isFixed ? " fixed-wrapper" : "")
-      }
+      className={(className ? className + " " : "") + "staggered-menu-wrapper"}
       style={
         accentColor
           ? ({ ["--sm-accent"]: accentColor } as React.CSSProperties)
@@ -455,11 +423,31 @@ export const StaggeredMenu: React.FC<Props> = ({
       }
       data-position={position}
       data-open={open || undefined}
-      data-animating={animating || undefined} // << για CSS perf mode
+      data-animating={animating || undefined}
     >
-      {/* προ-στρώσεις (προαιρετικές) */}
+      {/* Toggle: inline, δίπλα στο CTA */}
+      {useGlassToggle ? (
+        <div className="sm-toggle-glass">
+          <GlassSurface
+            width={44}
+            height={44}
+            borderRadius={999}
+            {...toggleGlassProps}
+          >
+            {ToggleButton}
+          </GlassSurface>
+        </div>
+      ) : (
+        ToggleButton
+      )}
+
+      {/* Προ-στρώσεις (optional) */}
       {showPrelayers && (
-        <div ref={preLayersRef} className="sm-prelayers" aria-hidden="true">
+        <div
+          ref={preLayersRef}
+          className={`sm-prelayers${panelFixed ? " panel-fixed" : ""}`}
+          aria-hidden="true"
+        >
           {(() => {
             const raw =
               colors && colors.length
@@ -477,27 +465,11 @@ export const StaggeredMenu: React.FC<Props> = ({
         </div>
       )}
 
-      {/* Το toggle κουμπί – glass αν ζητηθεί */}
-      {useGlassToggle ? (
-        <div className="sm-toggle-glass">
-          <GlassSurface
-            width={44}
-            height={44}
-            borderRadius={999}
-            {...toggleGlassProps}
-          >
-            {ToggleButton}
-          </GlassSurface>
-        </div>
-      ) : (
-        ToggleButton
-      )}
-
-      {/* PANEL (glass wrapper προαιρετικό) */}
+      {/* PANEL: fixed για overlay */}
       <aside
         id="staggered-menu-panel"
         ref={panelRef}
-        className="staggered-menu-panel"
+        className={`staggered-menu-panel${panelFixed ? " panel-fixed" : ""}`}
         aria-hidden={!open}
       >
         {useGlassPanel ? (
@@ -530,7 +502,7 @@ export const StaggeredMenu: React.FC<Props> = ({
                 )}
               </ul>
 
-              {/* Bottom CTA αντί για socials */}
+              {/* Bottom CTA */}
               <div className="sm-panel-cta-wrap">
                 <a
                   href="/contact"
@@ -543,7 +515,7 @@ export const StaggeredMenu: React.FC<Props> = ({
             </div>
           </GlassSurface>
         ) : (
-          <div className="sm-panel-inner">{/* ίδια markup χωρίς glass */}</div>
+          <div className="sm-panel-inner">{/* no-glass fallback */}</div>
         )}
       </aside>
     </div>

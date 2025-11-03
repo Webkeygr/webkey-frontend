@@ -1,57 +1,10 @@
 /* ───────── Wrapper ───────── */
 .staggered-menu-wrapper {
   position: relative;
-  width: 100%;
-  height: 100%;
+  display: inline-flex; /* ώστε το toggle να κάθεται στη σειρά με το CTA */
+  align-items: center;
+  gap: 16px;
   z-index: 250;
-}
-
-/* Fullscreen container για το panel */
-.staggered-menu-wrapper.fixed-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 2000;
-  overflow: hidden;
-
-  /* ΚΛΕΙΣΤΟ: να ΜΗΝ πιάνει events */
-  pointer-events: none;
-}
-
-/* ΑΝΟΙΧΤΟ: να πιάνει events (για να είναι clickable το panel) */
-.staggered-menu-wrapper.fixed-wrapper[data-open] {
-  pointer-events: auto;
-}
-
-/* ───────── Internal header (optional) ───────── */
-.staggered-menu-header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2em;
-  background: transparent;
-  pointer-events: none;
-  z-index: 290;
-}
-.staggered-menu-header > * {
-  pointer-events: auto;
-}
-.sm-logo {
-  display: flex;
-  align-items: center;
-  user-select: none;
-}
-.sm-logo-img {
-  display: block;
-  height: 32px;
-  width: auto;
-  object-fit: contain;
 }
 
 /* ───────── Toggle ───────── */
@@ -142,13 +95,9 @@
   padding: 0;
 }
 
-/* ───────── Panel ─────────  (transform ΜΟΝΟ από GSAP) */
+/* ───────── Panel (fixed overlay) ─────────  */
+/* ΤΟ transform το κάνει ΜΟΝΟ το GSAP */
 .staggered-menu-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: clamp(260px, 38vw, 420px);
-  height: 100%;
   background: transparent;
   padding: 6em 2em 2em;
   overflow-y: auto;
@@ -157,24 +106,29 @@
   will-change: transform;
   contain: paint; /* repaint scope */
   visibility: hidden; /* FOUC guard */
+
+  /* default non-fixed (αν θες ποτέ) */
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: clamp(260px, 38vw, 420px);
+  height: 100%;
+}
+.staggered-menu-panel.panel-fixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: auto;
+  bottom: 0;
+  width: clamp(260px, 38vw, 420px);
+  height: 100vh;
 }
 
 .staggered-menu-wrapper[data-open] .staggered-menu-panel {
   visibility: visible;
 }
 
-/* Perf mode: όσο κινείται, απενεργοποιούμε το βαρύ SVG filter */
-.staggered-menu-wrapper[data-animating] .glass-surface__filter {
-  opacity: 0;
-}
-.staggered-menu-wrapper[data-animating] .sm-panel-cta {
-  box-shadow: none;
-}
-.staggered-menu-wrapper[data-animating] .sm-panel-item {
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
-}
-
-/* Pre-layers */
+/* Προ-στρώσεις (όταν ζητηθούν) */
 .sm-prelayers {
   position: absolute;
   top: 0;
@@ -182,7 +136,13 @@
   bottom: 0;
   width: clamp(260px, 38vw, 420px);
   pointer-events: none;
-  z-index: 292;
+  z-index: 2099;
+}
+.sm-prelayers.panel-fixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
 [data-position="left"] .sm-prelayers {
   right: auto;
@@ -196,19 +156,23 @@
   width: 100%;
 }
 
-/* Glass fill */
-.sm-panel--glass .sm-panel-glass,
-.sm-panel--glass .glass-surface__content {
-  width: 100%;
-  height: 100%;
+/* Perf mode: όσο κινείται, απενεργοποιούμε το βαρύ SVG filter */
+.staggered-menu-wrapper[data-animating] .glass-surface__filter {
+  opacity: 0;
+}
+.staggered-menu-wrapper[data-animating] .sm-panel-cta {
+  box-shadow: none;
+}
+.staggered-menu-wrapper[data-animating] .sm-panel-item {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
 /* ───────── List & Typography ───────── */
 .sm-panel-inner {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  height: 100%;
 }
 .sm-panel-inner--on-glass {
   color: #fff;
@@ -227,6 +191,8 @@
   overflow: hidden;
   line-height: 1;
 }
+
+/* GPU-friendly hover: translate3d + scaleX bar (όχι width) */
 .sm-panel-item {
   color: #fff;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
@@ -240,7 +206,10 @@
   position: relative;
   padding-left: 22px; /* παύλα */
   padding-right: 1.4em; /* numbering */
-  transition: transform 0.25s ease, color 0.25s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0.6, 0.2, 1);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 .sm-panel-item::before {
   content: "";
@@ -248,24 +217,27 @@
   left: 0;
   top: 50%;
   height: 2px;
-  width: 0;
+  width: 16px;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
-  transform: translateY(-50%);
+  transform-origin: left center;
+  transform: translate3d(0, -50%, 0) scaleX(0);
   opacity: 0;
-  transition: width 0.25s ease, opacity 0.25s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0.6, 0.2, 1),
+    opacity 0.18s linear;
 }
 .sm-panel-item:hover {
-  transform: translateX(6px);
+  transform: translate3d(6px, 0, 0);
 }
 .sm-panel-item:hover::before {
-  width: 16px;
+  transform: translate3d(0, -50%, 0) scaleX(1);
   opacity: 1;
 }
+
 .sm-panel-itemLabel {
   display: inline-block;
-  will-change: transform;
   transform-origin: 50% 100%;
+  will-change: transform;
 }
 
 /* numbering */
@@ -286,7 +258,7 @@
   opacity: var(--sm-num-opacity, 0);
 }
 
-/* ───────── Bottom CTA (full-width) ───────── */
+/* Bottom CTA full-width */
 .sm-panel-cta-wrap {
   margin-top: auto;
   padding-top: 2rem;
@@ -296,7 +268,7 @@
   width: 100%;
   height: 52px;
   line-height: 52px;
-  padding: 0 22px; /* ίδιο left padding με items */
+  padding: 0 22px;
   border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.9);
   color: #fff;
@@ -314,9 +286,10 @@
   opacity: 0.95;
 }
 
-/* ───────── Responsive ───────── */
+/* Responsive */
 @media (max-width: 1024px) {
-  .staggered-menu-panel {
+  .staggered-menu-panel,
+  .staggered-menu-panel.panel-fixed {
     width: 100%;
     left: 0;
     right: 0;
