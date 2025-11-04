@@ -197,8 +197,8 @@ export default function Iridescence({
   speed = 0.6,
   scale = 0.68,            // ↓ γεμίζει αισθητά
   opacity = 1.0,
-  colorA = "#FF00F2",
-  colorB = "#0090FF",
+  colorA = "#00eeffff",
+  colorB = "#ff00f2ff",
   vibrance = 1.80,
   gamma = 0.70,
 
