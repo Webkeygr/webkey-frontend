@@ -110,8 +110,8 @@ export default function Iridescence({
   waveWidth,
   backgroundFill = "#ffffff",  // ΛΕΥΚΟ background (αντί για μαύρο)
   blur = 10,
-  speed = "fast",
-  waveOpacity = 0.5,
+  speed = 1.5,
+  waveOpacity = 0.7,
   colorA,
   colorB,
 }: IridescenceProps) {
