@@ -3,93 +3,137 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./Iridescence.css";
 
-/**
- * Inline 3D value-noise ([-1,1]) για wavy φόντο χωρίς extra package.
+/** ---- Inline Simplex Noise 3D (χωρίς dependency) ----
+ * Επιστρέφει τιμή ~[-1,1]. Αρκετά κοντά στο πακέτο `simplex-noise`
+ * ώστε το αποτέλεσμα/κίνηση να ταιριάζει οπτικά με το demo.
  */
-function createNoise3D() {
-  const hash = (x: number, y: number, z: number) => {
-    let n = x * 15731 + y * 789221 + z * 1376312589;
-    n = (n << 13) ^ n;
-    const t = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff;
-    return t / 0x7fffffff;
+function createSimplex3D() {
+  const F3 = 1.0 / 3.0;
+  const G3 = 1.0 / 6.0;
+
+  // pseudo-random permutation (σταθερός σπόρος για σταθερό pattern)
+  const p = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) p[i] = i;
+  let seed = 1337;
+  const rand = () => ((seed = (seed * 1103515245 + 12345) | 0) >>> 16) & 255;
+  for (let i = 255; i > 0; i--) {
+    const j = rand() % (i + 1);
+    const t = p[i]; p[i] = p[j]; p[j] = t;
+  }
+  const perm = new Uint8Array(512);
+  for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+
+  const dot = (g: number[], x: number, y: number, z: number) => g[0]*x + g[1]*y + g[2]*z;
+  const grad3 = [
+    [1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0],
+    [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1],
+    [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]
+  ];
+
+  return (xin: number, yin: number, zin: number) => {
+    let n0 = 0, n1 = 0, n2 = 0, n3 = 0;
+
+    const s = (xin + yin + zin) * F3;
+    const i = Math.floor(xin + s);
+    const j = Math.floor(yin + s);
+    const k = Math.floor(zin + s);
+
+    const t = (i + j + k) * G3;
+    const X0 = i - t, Y0 = j - t, Z0 = k - t;
+    const x0 = xin - X0, y0 = yin - Y0, z0 = zin - Z0;
+
+    let i1 = 0, j1 = 0, k1 = 0;
+    let i2 = 0, j2 = 0, k2 = 0;
+    if (x0 >= y0) {
+      if (y0 >= z0)      { i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; }
+      else if (x0 >= z0) { i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; }
+      else               { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; }
+    } else {
+      if (y0 < z0)       { i1=0; j1=0; k1=1; i2=0; j2=1; k2=1; }
+      else if (x0 < z0)  { i1=0; j1=1; k1=0; i2=0; j2=1; k2=1; }
+      else               { i1=0; j1=1; k1=0; i2=1; j2=1; k2=0; }
+    }
+
+    const x1 = x0 - i1 + G3, y1 = y0 - j1 + G3, z1 = z0 - k1 + G3;
+    const x2 = x0 - i2 + 2*G3, y2 = y0 - j2 + 2*G3, z2 = z0 - k2 + 2*G3;
+    const x3 = x0 - 1 + 3*G3,  y3 = y0 - 1 + 3*G3,  z3 = z0 - 1 + 3*G3;
+
+    const ii = i & 255, jj = j & 255, kk = k & 255;
+
+    let t0 = 0.6 - x0*x0 - y0*y0 - z0*z0;
+    if (t0 > 0) {
+      t0 *= t0;
+      n0 = t0 * t0 * dot(grad3[perm[ii + perm[jj + perm[kk]]] % 12], x0, y0, z0);
+    }
+
+    let t1 = 0.6 - x1*x1 - y1*y1 - z1*z1;
+    if (t1 > 0) {
+      t1 *= t1;
+      n1 = t1 * t1 * dot(grad3[perm[ii + i1 + perm[jj + j1 + perm[kk + k1]]] % 12], x1, y1, z1);
+    }
+
+    let t2 = 0.6 - x2*x2 - y2*y2 - z2*z2;
+    if (t2 > 0) {
+      t2 *= t2;
+      n2 = t2 * t2 * dot(grad3[perm[ii + i2 + perm[jj + j2 + perm[kk + k2]]] % 12], x2, y2, z2);
+    }
+
+    let t3 = 0.6 - x3*x3 - y3*y3 - z3*z3;
+    if (t3 > 0) {
+      t3 *= t3;
+      n3 = t3 * t3 * dot(grad3[perm[ii + 1 + perm[jj + 1 + perm[kk + 1]]] % 12], x3, y3, z3);
+    }
+
+    // scale ~[-1,1] (τυπική κλίμακα simplex 3D)
+    return 32.0 * (n0 + n1 + n2 + n3);
   };
-  const fade = (t: number) => t * t * (3 - 2 * t);
-  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-  const value3D = (x: number, y: number, z: number) => {
-    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
-    const xf = x - xi, yf = y - yi, zf = z - zi;
-    const u = fade(xf), v = fade(yf), w = fade(zf);
-    const c000 = hash(xi,     yi,     zi);
-    const c100 = hash(xi + 1, yi,     zi);
-    const c010 = hash(xi,     yi + 1, zi);
-    const c110 = hash(xi + 1, yi + 1, zi);
-    const c001 = hash(xi,     yi,     zi + 1);
-    const c101 = hash(xi + 1, yi,     zi + 1);
-    const c011 = hash(xi,     yi + 1, zi + 1);
-    const c111 = hash(xi + 1, yi + 1, zi + 1);
-
-    const x00 = lerp(c000, c100, u);
-    const x10 = lerp(c010, c110, u);
-    const x01 = lerp(c001, c101, u);
-    const x11 = lerp(c011, c111, u);
-    const y0v = lerp(x00, x10, v);
-    const y1v = lerp(x01, x11, v);
-    return (lerp(y0v, y1v, w) * 2 - 1);
-  };
-
-  return (x: number, y: number, z: number) => value3D(x, y, z);
 }
 
 type IridescenceProps = {
   className?: string;
-
-  // Wavy ρυθμίσεις
+  containerClassName?: string;
   colors?: string[];
   waveWidth?: number;
   backgroundFill?: string;
   blur?: number;
   waveOpacity?: number;
-
-  // Συμβατότητα με παλιό API (αν έρχονται από Hero.tsx)
-  speed?: number;  // 0.6 κλπ (χρησιμοποιείται για ρυθμό)
-  scale?: number;
-  opacity?: number;
+  speed?: "slow" | "fast" | number; // δέχομαι και το numeric που ίσως στέλνει το Hero.tsx
   colorA?: string;
   colorB?: string;
-  mouseReact?: boolean;
-  amplitude?: number;
   [key: string]: any;
 };
 
 export default function Iridescence({
   className = "",
+  containerClassName = "",
   colors,
-  waveWidth = 56,
-  backgroundFill = "#ffffff", // ΛΕΥΚΟ φόντο
-  blur = 16,
-  waveOpacity = 0.6,
-
-  // από Hero.tsx συχνά έρχεται speed={0.6}
-  speed = 0.8,
-
-  // αν δοθούν, μπαίνουν πρώτες στην παλέτα
+  waveWidth,
+  backgroundFill = "#ffffff",  // ΛΕΥΚΟ background (αντί για μαύρο)
+  blur = 10,
+  speed = "fast",
+  waveOpacity = 0.5,
   colorA,
   colorB,
 }: IridescenceProps) {
+  const noise = useRef(createSimplex3D()).current;
+
+  // ίδια default παλέτα με το repo (θα μπει πρώτα colorA/B αν δοθούν)
   const waveColors =
-    colors ??
-    [
-      colorA ?? "#0090FF", // cyan/blue
-      colorB ?? "#FF00F2", // magenta
-      "#818cf8",           // indigo
-      "#c084fc",           // purple
-      "#22d3ee",           // cyan
+    colors ?? [
+      colorA ?? "#38bdf8",
+      colorB ?? "#818cf8",
+      "#c084fc",
+      "#e879f9",
+      "#22d3ee",
     ];
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const noise3D = useRef(createNoise3D()).current;
+
+  const getSpeed = () => {
+    if (typeof speed === "number") return Math.max(0.0005, Math.min(0.004, 0.002 * speed));
+    return speed === "fast" ? 0.002 : 0.001;
+    // ακριβώς όπως στο demo για "slow"/"fast"
+  };
 
   // Safari blur fallback
   const [isSafari, setIsSafari] = useState(false);
@@ -103,59 +147,37 @@ export default function Iridescence({
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
-
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let w = 0, h = 0, t = 0, raf = 0;
+    let w: number, h: number, nt = 0, i: number, x: number;
+    let animationId = 0;
 
-    // πιο ορατή κίνηση: baseline 0.002 * speed
-    const timeStep = 0.002 * (typeof speed === "number" ? speed : 1);
-
+    // --- ίδιες διαστάσεις με το demo: window.innerWidth/innerHeight
     const setSize = () => {
-      // Παίρνουμε μέγεθος από τον γονέα.
-      const rect = container.getBoundingClientRect();
-      // Fallback όταν ο γονιός είναι χωρίς ύψος (π.χ. height:100% αλλά ο δικός του γονιός 0px)
-      const fallbackW = window.innerWidth;
-      const fallbackH = Math.max(400, Math.floor(window.innerHeight * 0.7));
-
-      w = canvas.width  = Math.max(1, Math.floor(rect.width  || fallbackW));
-      h = canvas.height = Math.max(1, Math.floor(rect.height || fallbackH));
-
-      // Αν όντως δεν έχει ύψος ο γονιός, δώσε minHeight για να “πιάσει” το 70vh
-      if ((rect.height || 0) < 2) {
-        container.style.minHeight = `${fallbackH}px`;
-      }
-
+      w = ctx.canvas.width = window.innerWidth;
+      h = ctx.canvas.height = window.innerHeight;
       ctx.filter = `blur(${blur}px)`;
     };
-
-    const ro = new ResizeObserver(setSize);
-    ro.observe(container);
     setSize();
 
+    const onResize = () => {
+      w = ctx.canvas.width = window.innerWidth;
+      h = ctx.canvas.height = window.innerHeight;
+      ctx.filter = `blur(${blur}px)`;
+    };
+    window.addEventListener("resize", onResize);
+
     const drawWave = (n: number) => {
-      t += timeStep;
-      for (let i = 0; i < n; i++) {
+      nt += getSpeed();
+      for (i = 0; i < n; i++) {
         ctx.beginPath();
-        ctx.lineWidth = waveWidth;
+        ctx.lineWidth = waveWidth || 50;
         ctx.strokeStyle = waveColors[i % waveColors.length];
-
-        // Ξεκίνα από την αριστερή άκρη με moveTo για καθαρή γραμμή
-        const y0 =
-          noise3D(0 / 800, 0.3 * i, t) * 100 +
-          noise3D(0 / 1200, 0.15 * i, t * 0.5) * 40 +
-          h * 0.5;
-        ctx.moveTo(0, y0);
-
-        for (let x = 5; x < w; x += 5) {
-          const y =
-            noise3D(x / 800, 0.3 * i, t) * 100 +
-            noise3D(x / 1200, 0.15 * i, t * 0.5) * 40 +
-            h * 0.5;
-          ctx.lineTo(x, y);
+        for (x = 0; x < w; x += 5) {
+          const y = noise(x / 800, 0.3 * i, nt) * 100;
+          ctx.lineTo(x, y + h * 0.5);
         }
         ctx.stroke();
         ctx.closePath();
@@ -163,33 +185,34 @@ export default function Iridescence({
     };
 
     const render = () => {
-      // background (λευκό)
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = backgroundFill;
+      ctx.fillStyle = backgroundFill || "#ffffff";
+      ctx.globalAlpha = waveOpacity || 0.5;
       ctx.fillRect(0, 0, w, h);
-
-      // waves
-      ctx.globalAlpha = waveOpacity;
       drawWave(5);
-
-      raf = requestAnimationFrame(render);
+      animationId = requestAnimationFrame(render);
     };
 
-    raf = requestAnimationFrame(render);
+    animationId = requestAnimationFrame(render);
 
     return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("resize", onResize);
     };
-  }, [waveColors, waveWidth, backgroundFill, blur, waveOpacity, speed]);
+  }, [blur, waveOpacity, backgroundFill, waveWidth, waveColors, speed]);
 
   return (
-    <div ref={containerRef} className={`iridescence-container ${className}`}>
+    <div
+      className={`iridescence-container ${containerClassName}`}
+      style={{ minHeight: "100vh" }} // όπως το demo ("h-screen")
+    >
       <canvas
+        className="absolute inset-0 z-0"
         ref={canvasRef}
-        className="absolute inset-0"
+        id="canvas"
         style={isSafari ? { filter: `blur(${blur}px)` } : undefined}
       />
+      {/* Αν το Hero σου βάζει children πάνω από το canvas, κρατάμε και className */}
+      <div className={`relative z-10 ${className}`}></div>
     </div>
   );
 }
