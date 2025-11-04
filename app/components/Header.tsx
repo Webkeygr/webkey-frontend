@@ -13,7 +13,7 @@ type HeaderProps = {
 export default function Header({
   logoSrc = "/images/logo-webkey.svg",
   ctaHref = "/contact",
-  ctaText = "Get a quote",
+  ctaText = "Unleash your idea",
 }: HeaderProps) {
   const items = [
     {
@@ -21,35 +21,35 @@ export default function Header({
       href: "/",
       ariaLabel: "Home",
       rotation: -8,
-      hoverStyles: { bgColor: "#3b82f6", textColor: "#fff" },
+      hoverStyles: { bgColor: "#4FAAFF", textColor: "#fff" },
     },
     {
       label: "about",
       href: "/about",
       ariaLabel: "About",
       rotation: 8,
-      hoverStyles: { bgColor: "#10b981", textColor: "#fff" },
+      hoverStyles: { bgColor: "#70D3F3", textColor: "#fff" },
     },
     {
       label: "services",
       href: "/services",
       ariaLabel: "Services",
       rotation: 8,
-      hoverStyles: { bgColor: "#f59e0b", textColor: "#fff" },
+      hoverStyles: { bgColor: "#F823F4", textColor: "#fff" },
     },
     {
       label: "blog",
       href: "/blog",
       ariaLabel: "Blog",
       rotation: 8,
-      hoverStyles: { bgColor: "#ef4444", textColor: "#fff" },
+      hoverStyles: { bgColor: "#C48CFC", textColor: "#fff" },
     },
     {
       label: "contact",
       href: "/contact",
       ariaLabel: "Contact",
       rotation: -8,
-      hoverStyles: { bgColor: "#8b5cf6", textColor: "#fff" },
+      hoverStyles: { bgColor: "#9DA5FA", textColor: "#fff" },
     },
   ];
 
@@ -57,7 +57,7 @@ export default function Header({
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο */
       logo={
-        <Image src={logoSrc} alt="Webkey" width={188} height={40} priority />
+        <Image src={logoSrc} alt="Webkey" width={250} height={60} priority />
       }
       items={items}
       menuAriaLabel="Toggle navigation"

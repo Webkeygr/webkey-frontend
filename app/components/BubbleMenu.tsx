@@ -45,9 +45,25 @@ export default function BubbleMenu({
 
   const handleToggle = () => setOpen((v) => !v);
 
-  const onOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === overlayRef.current) setOpen(false);
+  // Κλείσιμο όταν κάνεις κλικ εκτός των επιλογών (πάνω στο overlay/backdrop)
+  const handleOverlayPointer = (e: React.MouseEvent<HTMLDivElement>) => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const target = e.target as HTMLElement;
+    // κλείσε αν κλικάραμε το ίδιο το overlay ή το backdrop
+    if (target === overlay || target.classList.contains("bm-backdrop")) {
+      setOpen(false);
+    }
   };
+
+  useEffect(() => {
+    // Κλείσιμο με Esc
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") setOpen(false);
+    };
+    if (open) window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   useEffect(() => {
     const overlay = overlayRef.current!;
@@ -130,7 +146,7 @@ export default function BubbleMenu({
           {logo}
         </div>
 
-        {/* Δεξιά συστάδα: CTA + Toggle */}
+        {/* Δεξιά: CTA + Toggle */}
         <div className="right-cluster">
           {rightSlot ? <div className="cta-bubble">{rightSlot}</div> : null}
 
@@ -158,10 +174,12 @@ export default function BubbleMenu({
       <div
         ref={overlayRef}
         className={overlayCls}
-        onClick={onOverlayClick}
+        onClick={handleOverlayPointer}
         aria-hidden={!open}
       >
+        {/* πιάνει τα κλικ για κλείσιμο */}
         <div className="bm-backdrop" />
+
         <ul className="pill-list" role="menu" aria-label="Menu links">
           {items.map((item, idx) => (
             <li key={idx} role="none" className="pill-col">
@@ -180,7 +198,6 @@ export default function BubbleMenu({
                       item.hoverStyles?.textColor || menuContentColor,
                   } as React.CSSProperties
                 }
-                /* --- FIX: επιστρέφουμε void --- */
                 ref={(el) => {
                   if (el) bubblesRef.current[idx] = el;
                 }}
@@ -188,7 +205,6 @@ export default function BubbleMenu({
               >
                 <span
                   className="pill-label"
-                  /* --- FIX: επιστρέφουμε void --- */
                   ref={(el) => {
                     if (el) labelRefs.current[idx] = el;
                   }}
