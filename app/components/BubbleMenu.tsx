@@ -1,71 +1,94 @@
-// app/components/BubbleMenu.tsx
-// @ts-nocheck
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, ReactNode, CSSProperties } from "react";
 import { gsap } from "gsap";
 import "./BubbleMenu.css";
 
-const DEFAULT_ITEMS = [
+type Item = {
+  label: string;
+  href: string;
+  ariaLabel?: string;
+  rotation?: number;
+  hoverStyles?: { bgColor?: string; textColor?: string };
+};
+
+type Props = {
+  logo: ReactNode;
+  items: Item[];
+  onMenuClick?: (open: boolean) => void;
+  className?: string;
+  style?: CSSProperties;
+  menuAriaLabel?: string;
+  menuBg?: string;
+  menuContentColor?: string;
+  useFixedPosition?: boolean;
+  animationEase?: string;
+  animationDuration?: number;
+  staggerDelay?: number;
+  /** ΝΕΟ: ό,τι θες να μπει δεξιά από το toggle (π.χ. CTA) */
+  rightSlot?: ReactNode;
+};
+
+const FALLBACK_ITEMS: Item[] = [
   {
     label: "home",
-    href: "/",
+    href: "#",
     ariaLabel: "Home",
     rotation: -8,
-    hoverStyles: { bgColor: "#3b82f6", textColor: "#ffffff" },
+    hoverStyles: { bgColor: "#3b82f6", textColor: "#fff" },
   },
   {
     label: "about",
-    href: "/about",
+    href: "#",
     ariaLabel: "About",
     rotation: 8,
-    hoverStyles: { bgColor: "#10b981", textColor: "#ffffff" },
+    hoverStyles: { bgColor: "#10b981", textColor: "#fff" },
   },
   {
     label: "services",
-    href: "/services",
+    href: "#",
     ariaLabel: "Services",
     rotation: 8,
-    hoverStyles: { bgColor: "#f59e0b", textColor: "#ffffff" },
+    hoverStyles: { bgColor: "#f59e0b", textColor: "#fff" },
   },
   {
     label: "blog",
-    href: "/blog",
+    href: "#",
     ariaLabel: "Blog",
     rotation: 8,
-    hoverStyles: { bgColor: "#ef4444", textColor: "#ffffff" },
+    hoverStyles: { bgColor: "#ef4444", textColor: "#fff" },
   },
   {
     label: "contact",
-    href: "/contact",
+    href: "#",
     ariaLabel: "Contact",
     rotation: -8,
-    hoverStyles: { bgColor: "#8b5cf6", textColor: "#ffffff" },
+    hoverStyles: { bgColor: "#8b5cf6", textColor: "#fff" },
   },
 ];
 
 export default function BubbleMenu({
   logo,
-  onMenuClick = undefined, // <-- default: optional
-  className = "", // <-- default: optional
-  style = undefined, // <-- default: optional
+  onMenuClick,
+  className,
+  style,
   menuAriaLabel = "Toggle navigation",
-  menuBg = "#ffffff",
-  menuContentColor = "#111111",
+  menuBg = "#fff",
+  menuContentColor = "#111",
   useFixedPosition = true,
-  items,
+  items = FALLBACK_ITEMS,
   animationEase = "back.out(1.5)",
   animationDuration = 0.5,
   staggerDelay = 0.12,
-}) {
+  rightSlot,
+}: Props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
 
-  const overlayRef = useRef(null);
-  const bubblesRef = useRef([]);
-  const labelRefs = useRef([]);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const bubblesRef = useRef<HTMLAnchorElement[]>([]);
+  const labelRefs = useRef<HTMLSpanElement[]>([]);
 
-  const menuItems = items?.length ? items : DEFAULT_ITEMS;
   const containerClassName = [
     "bubble-menu",
     useFixedPosition ? "fixed" : "absolute",
@@ -81,27 +104,22 @@ export default function BubbleMenu({
     onMenuClick?.(next);
   };
 
-  // click–outside: κλείσιμο όταν πατάς εκτός overlay περιεχομένου
-  useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      const overlay = overlayRef.current as HTMLElement | null;
-      if (!overlay) return;
-      if (isMenuOpen && overlay === e.target) {
-        setIsMenuOpen(false);
-      }
-    };
-    window.addEventListener("mousedown", handle);
-    return () => window.removeEventListener("mousedown", handle);
-  }, [isMenuOpen]);
-
+  // Animate open / close
   useEffect(() => {
     const overlay = overlayRef.current;
     const bubbles = bubblesRef.current.filter(Boolean);
     const labels = labelRefs.current.filter(Boolean);
+
     if (!overlay || !bubbles.length) return;
 
     if (isMenuOpen) {
       gsap.set(overlay, { display: "flex" });
+      gsap.fromTo(
+        overlay,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.25, ease: "power2.out" }
+      );
+
       gsap.killTweensOf([...bubbles, ...labels]);
       gsap.set(bubbles, { scale: 0, transformOrigin: "50% 50%" });
       gsap.set(labels, { y: 24, autoAlpha: 0 });
@@ -132,13 +150,18 @@ export default function BubbleMenu({
       gsap.to(labels, {
         y: 24,
         autoAlpha: 0,
-        duration: 0.2,
+        duration: 0.18,
         ease: "power3.in",
       });
       gsap.to(bubbles, {
         scale: 0,
-        duration: 0.2,
+        duration: 0.18,
         ease: "power3.in",
+      });
+      gsap.to(overlay, {
+        opacity: 0,
+        duration: 0.2,
+        ease: "power2.in",
         onComplete: () => {
           gsap.set(overlay, { display: "none" });
           setShowOverlay(false);
@@ -147,22 +170,20 @@ export default function BubbleMenu({
     }
   }, [isMenuOpen, showOverlay, animationEase, animationDuration, staggerDelay]);
 
+  // Rotation reset on mobile
   useEffect(() => {
     const handleResize = () => {
       if (!isMenuOpen) return;
-      const bubbles = bubblesRef.current.filter(Boolean);
       const isDesktop = window.innerWidth >= 900;
-      bubbles.forEach((bubble, i) => {
-        const item = menuItems[i];
-        if (bubble && item) {
-          const rotation = isDesktop ? item.rotation ?? 0 : 0;
-          gsap.set(bubble, { rotation });
-        }
+      bubblesRef.current.forEach((bubble, i) => {
+        const item = items[i];
+        const rot = isDesktop ? item.rotation ?? 0 : 0;
+        gsap.set(bubble, { rotation: rot });
       });
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isMenuOpen, menuItems]);
+  }, [isMenuOpen, items]);
 
   return (
     <>
@@ -171,41 +192,42 @@ export default function BubbleMenu({
         style={style}
         aria-label="Main navigation"
       >
+        {/* Left: Logo */}
         <div
           className="bubble logo-bubble"
           aria-label="Logo"
           style={{ background: menuBg }}
         >
-          <span className="logo-content">
-            {typeof logo === "string" ? (
-              <img src={logo} alt="Logo" className="bubble-logo" />
-            ) : (
-              logo
-            )}
-          </span>
+          <span className="logo-content">{logo}</span>
         </div>
 
-        <button
-          type="button"
-          className={`bubble toggle-bubble menu-btn ${
-            isMenuOpen ? "open" : ""
-          }`}
-          onClick={handleToggle}
-          aria-label={menuAriaLabel}
-          aria-pressed={isMenuOpen}
-          style={{ background: menuBg }}
-        >
-          <span
-            className="menu-line"
-            style={{ background: menuContentColor }}
-          />
-          <span
-            className="menu-line short"
-            style={{ background: menuContentColor }}
-          />
-        </button>
+        {/* Right: CTA (optional) + Toggle */}
+        <div className="bubble-right">
+          {rightSlot && <div className="bubble cta-bubble">{rightSlot}</div>}
+
+          <button
+            type="button"
+            className={`bubble toggle-bubble menu-btn ${
+              isMenuOpen ? "open" : ""
+            }`}
+            onClick={handleToggle}
+            aria-label={menuAriaLabel}
+            aria-pressed={isMenuOpen}
+            style={{ background: menuBg }}
+          >
+            <span
+              className="menu-line"
+              style={{ background: menuContentColor }}
+            />
+            <span
+              className="menu-line short"
+              style={{ background: menuContentColor }}
+            />
+          </button>
+        </div>
       </nav>
 
+      {/* Fullscreen overlay + items */}
       {showOverlay && (
         <div
           ref={overlayRef}
@@ -213,9 +235,18 @@ export default function BubbleMenu({
             useFixedPosition ? "fixed" : "absolute"
           }`}
           aria-hidden={!isMenuOpen}
+          onClick={(e) => {
+            // click έξω από τα pills => κλείσιμο
+            if (e.target === overlayRef.current) setIsMenuOpen(false);
+          }}
         >
-          <ul className="pill-list" role="menu" aria-label="Menu links">
-            {menuItems.map((item, idx) => (
+          <ul
+            className="pill-list"
+            role="menu"
+            aria-label="Menu links"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {items.map((item, idx) => (
               <li key={idx} role="none" className="pill-col">
                 <a
                   role="menuitem"
@@ -230,13 +261,17 @@ export default function BubbleMenu({
                       "--hover-bg": item.hoverStyles?.bgColor || "#f3f4f6",
                       "--hover-color":
                         item.hoverStyles?.textColor || menuContentColor,
-                    } as any
+                    } as React.CSSProperties
                   }
-                  ref={(el) => el && (bubblesRef.current[idx] = el)}
+                  ref={(el) => {
+                    if (el) bubblesRef.current[idx] = el;
+                  }}
                 >
                   <span
                     className="pill-label"
-                    ref={(el) => el && (labelRefs.current[idx] = el)}
+                    ref={(el) => {
+                      if (el) labelRefs.current[idx] = el;
+                    }}
                   >
                     {item.label}
                   </span>

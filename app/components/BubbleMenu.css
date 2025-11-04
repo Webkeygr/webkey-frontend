@@ -1,18 +1,16 @@
-/* app/components/BubbleMenu.css */
-
+/* ====== Header row ====== */
 .bubble-menu {
   left: 0;
   right: 0;
-  top: 12px; /* ίσια με το header (72px ύψος) */
+  top: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 0 24px; /* ίδιο με header padding */
+  padding: 0 24px;
   pointer-events: none;
-  z-index: 350; /* πάνω από το header (300) */
+  z-index: 120;
 }
-
 .bubble-menu.fixed {
   position: fixed;
 }
@@ -21,23 +19,20 @@
 }
 
 .bubble-menu .bubble {
-  --bubble-size: 48px;
+  --bubble-size: 56px; /* λίγο μεγαλύτερο */
   width: var(--bubble-size);
   height: var(--bubble-size);
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  /* πιο έντονη, ίδια σκιά και για CTA / toggle */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.12);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
 }
 
-.bubble-menu .logo-bubble,
-.bubble-menu .toggle-bubble {
-  will-change: transform;
-}
-
+/* Left logo bubble */
 .bubble-menu .logo-bubble {
   width: auto;
   min-height: var(--bubble-size);
@@ -45,36 +40,51 @@
   padding: 0 16px;
   border-radius: calc(var(--bubble-size) / 2);
   gap: 8px;
+  will-change: transform;
 }
-
-.bubble-menu .toggle-bubble {
-  width: var(--bubble-size);
-  height: var(--bubble-size);
-}
-
-.bubble-menu .bubble-logo {
-  max-height: 60%;
-  max-width: 100%;
-  object-fit: contain;
-  display: block;
-}
-
 .bubble-menu .logo-content {
+  /* +25% περίπου (120 -> 150) */
   --logo-max-height: 60%;
   --logo-max-width: 100%;
+  width: 150px;
+  height: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 100%;
 }
-.bubble-menu .logo-content > .bubble-logo,
 .bubble-menu .logo-content > img,
 .bubble-menu .logo-content > svg {
   max-height: var(--logo-max-height);
   max-width: var(--logo-max-width);
+  display: block;
 }
 
+/* Right cluster */
+.bubble-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+/* CTA bubble (ίδια σκιά) */
+.cta-bubble {
+  padding: 0 16px;
+  border-radius: 999px;
+}
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #111;
+}
+
+/* Toggle */
 .bubble-menu .menu-btn {
   border: none;
   background: #fff;
@@ -85,7 +95,6 @@
   justify-content: center;
   padding: 0;
 }
-
 .bubble-menu .menu-line {
   width: 26px;
   height: 2px;
@@ -106,30 +115,18 @@
   transform: translateY(-4px) rotate(-45deg);
 }
 
-@media (min-width: 768px) {
-  .bubble-menu .bubble {
-    --bubble-size: 56px;
-  }
-  .bubble-menu .logo-bubble {
-    padding: 0 16px;
-  }
-}
-
-/* Overlay (full screen) με τις “pills” */
+/* ====== Overlay + items ====== */
 .bubble-menu-items {
   position: fixed;
   inset: 0;
-  display: none; /* γίνεται flex στο open */
+  display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
-  z-index: 340; /* κάτω από bubbles (350), πάνω από περιεχόμενο */
-}
-.bubble-menu-items.fixed {
-  position: fixed;
-}
-.bubble-menu-items.absolute {
-  position: absolute;
+  pointer-events: auto;
+  z-index: 110;
+  /* Σκοτείνιασμα φόντου */
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
 }
 
 .bubble-menu-items .pill-list {
@@ -144,34 +141,32 @@
   max-width: 1600px;
   margin-left: auto;
   margin-right: auto;
-  pointer-events: auto;
   justify-content: stretch;
 }
-.bubble-menu-items .pill-list .pill-col {
+
+.bubble-menu-items .pill-col {
   display: flex;
   justify-content: center;
   align-items: stretch;
   flex: 0 0 calc(100% / 3);
   box-sizing: border-box;
 }
-.bubble-menu-items .pill-list .pill-col:nth-child(4):nth-last-child(2) {
+
+.bubble-menu-items .pill-col:nth-child(4):nth-last-child(2) {
   margin-left: calc(100% / 6);
 }
-.bubble-menu-items .pill-list .pill-col:nth-child(4):last-child {
+.bubble-menu-items .pill-col:nth-child(4):last-child {
   margin-left: calc(100% / 3);
 }
 
 .bubble-menu-items .pill-link {
   --pill-bg: #ffffff;
   --pill-color: #111;
-  --pill-border: rgba(0, 0, 0, 0.12);
   --item-rot: 0deg;
-  --pill-min-h: 160px;
   --hover-bg: #f3f4f6;
   --hover-color: #111;
-
   width: 100%;
-  min-height: var(--pill-min-h);
+  min-height: 160px;
   padding: clamp(1.5rem, 3vw, 8rem) 0;
   font-size: clamp(1.5rem, 4vw, 4rem);
   font-weight: 400;
@@ -180,17 +175,15 @@
   background: var(--pill-bg);
   color: var(--pill-color);
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.25s ease;
   will-change: transform;
-  box-sizing: border-box;
   white-space: nowrap;
   overflow: hidden;
-  height: 10px;
 }
 
 @media (min-width: 900px) {
@@ -218,26 +211,21 @@
 @media (max-width: 899px) {
   .bubble-menu-items {
     align-items: flex-start;
-    padding-top: 120px; /* απόσταση από header */
+    padding-top: 120px;
   }
   .bubble-menu-items .pill-list {
     row-gap: 16px;
   }
-  .bubble-menu-items .pill-list .pill-col {
+  .bubble-menu-items .pill-col {
     flex: 0 0 100%;
     margin-left: 0 !important;
-    overflow: visible;
   }
   .bubble-menu-items .pill-link {
     font-size: clamp(1.2rem, 3vw, 4rem);
-    padding: clamp(1rem, 2vw, 2rem) 0;
-    min-height: 80px;
-    transform: none !important; /* χωρίς rotation σε mobile */
+    min-height: 96px;
+    transform: none !important;
   }
   .bubble-menu-items .pill-link:hover {
-    transform: scale(1.06) !important;
-  }
-  .bubble-menu-items .pill-link:active {
-    transform: scale(0.94) !important;
+    transform: scale(1.04) !important;
   }
 }
