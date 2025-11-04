@@ -46,9 +46,9 @@ const DEFAULT_ITEMS = [
 
 export default function BubbleMenu({
   logo,
-  onMenuClick,
-  className,
-  style,
+  onMenuClick = undefined, // <-- default: optional
+  className = "", // <-- default: optional
+  style = undefined, // <-- default: optional
   menuAriaLabel = "Toggle navigation",
   menuBg = "#ffffff",
   menuContentColor = "#111111",
@@ -81,7 +81,7 @@ export default function BubbleMenu({
     onMenuClick?.(next);
   };
 
-  // click–outside κλείσιμο
+  // click–outside: κλείσιμο όταν πατάς εκτός overlay περιεχομένου
   useEffect(() => {
     const handle = (e: MouseEvent) => {
       const overlay = overlayRef.current as HTMLElement | null;
