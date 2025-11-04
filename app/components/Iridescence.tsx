@@ -5,33 +5,38 @@ import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
 type IridescenceProps = {
+  // legacy (αγνοούνται)
   color?: [number, number, number];
   mouseReact?: boolean;
   amplitude?: number;
 
+  // εμφάνιση
   speed?: number;
-  scale?: number;      // μικρότερο => πιο “γεμάτο”
-  opacity?: number;    // 0..1
-  colorA?: string;     // #FF00F2
-  colorB?: string;     // #0090FF
+  scale?: number;            // μικρότερο => πιο “γεμάτο”
+  opacity?: number;          // 0..1
+  colorA?: string;           // #FF00F2
+  colorB?: string;           // #0090FF
+  vibrance?: number;         // ενίσχυση χρώματος (1..2)
+  gamma?: number;            // καμπύλη έντασης (0.6..1.2)
   className?: string;
 
-  stretchX?: number;   // >1 απλώνει οριζόντια
-  stretchY?: number;   // <1 πιέζει κάθετα
-  centerX?: number;    // -0.5..0.5
-  centerY?: number;    // -0.5..0.5
+  // σχήμα/θέση (οριζόντια μπάρα)
+  stretchX?: number;         // >1 απλώνει οριζόντια
+  stretchY?: number;         // <1 πιέζει κάθετα
+  centerX?: number;          // -0.5..0.5
+  centerY?: number;          // -0.5..0.5
 
-  // Κάθετη ζώνη (όπως οι κόκκινες γραμμές)
-  bandTopPct?: number;        // 0..1 από πάνω
-  bandBottomPct?: number;     // 0..1 από πάνω
-  bandFeatherPx?: number;     // feather σε px
+  // κάθετη ζώνη
+  bandTopPct?: number;
+  bandBottomPct?: number;
+  bandFeatherPx?: number;
 
-  // Οριζόντιο “παράθυρο” (κόβει αριστερά/δεξιά)
-  winStartPct?: number;       // 0..1 (αριστερό όριο)
-  winEndPct?: number;         // 0..1 (δεξί όριο)
-  winFeatherPx?: number;      // feather σε px
+  // οριζόντιο παράθυρο (συμμετρικό)
+  winStartPct?: number;
+  winEndPct?: number;
+  winFeatherPx?: number;
 
-  // TS συμβατότητα με Hero.tsx
+  // TS συμβατότητα
   cutRadius?: number; cutFeather?: number; cutStrength?: number;
 };
 
@@ -56,8 +61,8 @@ void main() {
 }
 `;
 
-// Plasma (reactbits) + 90° rotation + vertical band + symmetric horizontal window
-// + HANN WINDOW profile (0→1→0) μέσα στο οριζόντιο παράθυρο για λεπτές άκρες.
+// Plasma (reactbits) + 90° rotation + vertical band + symmetric horizontal window + HANN
+// + vibrance & gamma για πιο έντονο αποτέλεσμα
 const fragment = `#version 300 es
 precision highp float;
 
@@ -73,17 +78,18 @@ uniform float uScale;
 uniform float uStretchX;
 uniform float uStretchY;
 uniform vec2  uCenter;
-uniform float uAngle; // 90° = οριζόντιο
+uniform float uAngle;     // 90° οριζόντιο
 
-// Κάθετη ζώνη
 uniform float uBandTop;
 uniform float uBandBottom;
 uniform float uBandFeather;
 
-// Οριζόντιο “παράθυρο”
 uniform float uWinStart;
 uniform float uWinEnd;
 uniform float uWinFeather;
+
+uniform float uVibrance;  // 1..2
+uniform float uGamma;     // 0.6..1.2
 
 out vec4 fragColor;
 
@@ -106,7 +112,7 @@ void mainImage(out vec4 o, vec2 C) {
     p = z * normalize(vec3(C - 0.5*r, r.y));
     p.z -= 4.0;
     S = p;
-    d = p.y - T; // μετά την περιστροφή => οριζόντιο flow
+    d = p.y - T;
 
     p.x += 0.4 * (1.0 + p.y) * sin(d + p.x*0.1) * cos(0.34*d + p.x*0.05);
 
@@ -142,28 +148,31 @@ void main() {
   mainImage(o, fragCoord);
   vec3 rgb = sanitize(o.rgb);
 
+  // ένταση
   float intensity = clamp((rgb.r + rgb.g + rgb.b) / 3.0, 0.0, 1.0);
-  float t = smoothstep(0.2, 0.85, intensity);
+  float iGamma = pow(intensity, uGamma); // πιο “γεμάτη” καμπύλη
+  float t = smoothstep(0.15, 0.95, iGamma);
+
+  // mix χρωμάτων + vibrance
   vec3 plasmaColor = mix(uColorA, uColorB, t);
+  plasmaColor = clamp(plasmaColor * uVibrance, 0.0, 1.0);
 
-  // base alpha (reactbits-like)
-  float alpha = intensity * clamp(uOpacity, 0.0, 1.0);
+  // βάση alpha (δυνατότερο)
+  float alpha = iGamma * clamp(uOpacity, 0.0, 1.0);
 
-  // ----- Vertical band mask -----
+  // ---- κάθετη ζώνη
   float topMask    = smoothstep(uBandTop - uBandFeather, uBandTop, fragCoord.y);
   float bottomMask = 1.0 - smoothstep(uBandBottom, uBandBottom + uBandFeather, fragCoord.y);
   float bandMask = clamp(topMask * bottomMask, 0.0, 1.0);
 
-  // ----- Symmetric horizontal window (start..end) -----
+  // ---- οριζόντιο παράθυρο (συμμετρικό)
   float leftMask  = smoothstep(uWinStart, uWinStart + uWinFeather, fragCoord.x);
   float rightMask = 1.0 - smoothstep(uWinEnd - uWinFeather, uWinEnd, fragCoord.x);
   float windowMask = clamp(leftMask * rightMask, 0.0, 1.0);
 
-  // ----- HANN window profile μέσα στο οριζόντιο παράθυρο -----
-  // τοπική θέση 0..1 μέσα στο [uWinStart, uWinEnd]
+  // ---- Hann window (0→1→0) για λεπτές συμμετρικές άκρες
   float localX = clamp((fragCoord.x - uWinStart) / max(1.0, (uWinEnd - uWinStart)), 0.0, 1.0);
-  // raised-cosine: 0 στα άκρα, 1 στο κέντρο (λεπτό → παχύ → λεπτό)
-  float hann = 0.5 * (1.0 - cos(6.28318530718 * localX)); // 2π * x
+  float hann = 0.5 * (1.0 - cos(6.28318530718 * localX));
 
   alpha *= bandMask * windowMask * hann;
 
@@ -172,27 +181,30 @@ void main() {
 `;
 
 export default function Iridescence({
-  speed = 25,
-  scale = 0.86,
-  opacity = 0.8,
+  // πιο “γεμάτο & έντονο”
+  speed = 0.6,
+  scale = 0.78,            // ↓ γεμίζει
+  opacity = 0.95,          // ↑ ένταση
   colorA = "#FF00F2",
   colorB = "#0090FF",
-  className = "",
+  vibrance = 1.35,         // ↑ κορεσμός/ένταση
+  gamma = 0.85,            // ελαφρά πιο επίπεδη καμπύλη
 
-  stretchX = 1.45,
-  stretchY = 0.65,
+  className = "",
+  stretchX = 1.55,         // λίγο πιο ανοικτό οριζόντια
+  stretchY = 0.80,         // πιο παχύ
   centerX = 0.0,
   centerY = 0.0,
 
   // κάθετη ζώνη
-  bandTopPct = 0.18,
-  bandBottomPct = 0.78,
-  bandFeatherPx = 130,
+  bandTopPct = 0.16,
+  bandBottomPct = 0.80,
+  bandFeatherPx = 110,
 
-  // οριζόντιο παράθυρο — κάνε το λίγο «μέσα» για πιο λεπτές άκρες
-  winStartPct = 0.10,
-  winEndPct   = 0.90,
-  winFeatherPx = 160,
+  // οριζόντιο παράθυρο
+  winStartPct = 0.06,
+  winEndPct   = 0.94,
+  winFeatherPx = 120,
 
   // TS συμβατότητα
   color = [1, 1, 1],
@@ -250,6 +262,9 @@ export default function Iridescence({
         uWinStart: { value: 0 },
         uWinEnd: { value: 0 },
         uWinFeather: { value: winFeatherPx },
+
+        uVibrance: { value: vibrance },
+        uGamma: { value: gamma },
       },
       transparent: true,
     });
@@ -271,11 +286,11 @@ export default function Iridescence({
       uC[0] = centerX * res[0];
       uC[1] = centerY * res[1];
 
-      // κάθετη ζώνη σε pixels
+      // κάθετη ζώνη
       (program.uniforms.uBandTop as any).value = bandTopPct * res[1];
       (program.uniforms.uBandBottom as any).value = bandBottomPct * res[1];
 
-      // οριζόντιο παράθυρο σε pixels
+      // οριζόντιο παράθυρο
       (program.uniforms.uWinStart as any).value = winStartPct * res[0];
       (program.uniforms.uWinEnd as any).value   = winEndPct   * res[0];
     };
@@ -284,7 +299,7 @@ export default function Iridescence({
     ro.observe(containerRef.current!);
     setSize();
 
-    // ~45fps cap
+    // ~45fps
     let raf = 0, last = 0;
     const targetMs = 1000 / 45;
     const t0 = performance.now();
@@ -305,6 +320,7 @@ export default function Iridescence({
     };
   }, [
     speed, scale, opacity, colorA, colorB,
+    vibrance, gamma,
     stretchX, stretchY, centerX, centerY,
     bandTopPct, bandBottomPct, bandFeatherPx,
     winStartPct, winEndPct, winFeatherPx
