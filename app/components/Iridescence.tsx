@@ -4,24 +4,16 @@ import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
-/**
- * Plasma-style φόντο (WebGL2 / GLSL 300 es)
- * - Λευκή βάση
- * - Δύο χρώματα (#FF00F2 / #0090FF)
- * - Mouse "cut" (feathered τρύπα + ελαφριά εκτροπή ροής)
- * Συμβατό με το αρχικό API του Iridescence (props).
- */
 type IridescenceProps = {
-  color?: [number, number, number]; // (κρατιέται για συμβατότητα, δεν επηρεάζει)
+  color?: [number, number, number]; // for API compatibility (not used)
   speed?: number;                    // 0.2..1.5
-  amplitude?: number;                // επηρεάζει ελαφρά τη δύναμη του cut
-  mouseReact?: boolean;              // on/off interaction
+  amplitude?: number;                // affects cutStrength slightly
+  mouseReact?: boolean;              // enable/disable mouse cut
   className?: string;
 
-  // νέα προαιρετικά (όλα έχουν default)
   colorA?: string;   // default #FF00F2
   colorB?: string;   // default #0090FF
-  opacity?: number;  // 0..1 (ένταση plasma πάνω από λευκό)
+  opacity?: number;  // 0..1 intensity over white
   scale?: number;    // 0.8..1.4
   cutRadius?: number;   // px
   cutFeather?: number;  // px
@@ -49,7 +41,7 @@ void main() {
 }
 `;
 
-// WebGL2 fragment (GLSL 300 es) – ασφαλές compile
+// WebGL2 fragment
 const fragment = `#version 300 es
 precision highp float;
 
@@ -95,8 +87,7 @@ void mainImage(out vec4 o, vec2 C) {
 
     p.x += 0.4 * (1.0 + p.y) * sin(d + p.x*0.1) * cos(0.34*d + p.x*0.05);
 
-    // η αρχική γραμμή σε 300es ήταν mat2(cos(p.y+vec4(0,11,33,0)-T));
-    // την αναπτύσσουμε σε 4 στοιχεία για καθαρή συμβατότητα:
+    // explicit mat2 for 300es
     float a = cos(p.y - T + 0.0);
     float b = cos(p.y - T + 11.0);
     float c = cos(p.y - T + 33.0);
@@ -137,11 +128,12 @@ void main() {
   vec3 white = vec3(1.0);
   vec3 finalColor = mix(white, plasmaColor, uOpacity);
 
-  // feathered "hole" στο mouse που αποκαλύπτει το λευκό
+  // ΣΩΣΤΟ feathered mask:
+  // mask = 0 στο κέντρο (λευκό), → 1 έξω (plasma)
   if (uMouseInteractive > 0.5) {
     float dist = length(fragCoord - uMouse);
-    float hole = smoothstep(uCutRadius, uCutRadius - uCutFeather, dist);
-    finalColor = mix(white, finalColor, hole);
+    float mask = smoothstep(uCutRadius - uCutFeather, uCutRadius, dist);
+    finalColor = mix(finalColor, white, 1.0 - mask); // μέσα = λευκό
   }
 
   fragColor = vec4(finalColor, 1.0);
@@ -156,10 +148,10 @@ export default function Iridescence({
   className = "",
   colorA = "#FF00F2",
   colorB = "#0090FF",
-  opacity = 0.9,
-  scale = 1.1,
-  cutRadius = 120,
-  cutFeather = 80,
+  opacity = 0.85,
+  scale = 1.05,
+  cutRadius = 130,
+  cutFeather = 90,
   cutStrength = 0.012,
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -167,7 +159,6 @@ export default function Iridescence({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // ΣΗΜΑΝΤΙΚΟ: WebGL2 context (όπως στο react-bits)
     const renderer = new Renderer({
       webgl: 2,
       alpha: true,
@@ -179,16 +170,13 @@ export default function Iridescence({
     const gl = renderer.gl;
     const canvas = gl.canvas;
 
-    // Γέμισε όλο το hero
     canvas.style.position = "absolute";
     canvas.style.inset = "0";
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.display = "block";
-
     containerRef.current.appendChild(canvas);
 
-    // λευκή βάση (ό,τι “τρύπα” → καθαρό λευκό)
     gl.clearColor(1, 1, 1, 1);
 
     const geometry = new Triangle(gl);
@@ -220,11 +208,7 @@ export default function Iridescence({
       mu[0] = e.clientX - rect.left;
       mu[1] = e.clientY - rect.top;
     };
-    if (mouseReact) {
-      containerRef.current.addEventListener("mousemove", onMouseMove, {
-        passive: true,
-      });
-    }
+    if (mouseReact) containerRef.current.addEventListener("mousemove", onMouseMove, { passive: true });
 
     const setSize = () => {
       const rect = containerRef.current!.getBoundingClientRect();
@@ -240,8 +224,7 @@ export default function Iridescence({
     setSize();
 
     // cap ~45fps
-    let raf = 0;
-    let last = 0;
+    let raf = 0, last = 0;
     const targetMs = 1000 / 45;
     const t0 = performance.now();
 
@@ -249,10 +232,7 @@ export default function Iridescence({
       raf = requestAnimationFrame(loop);
       if (t - last < targetMs) return;
       last = t;
-
-      const timeValue = (t - t0) * 0.001;
-      (program.uniforms.iTime as any).value = timeValue;
-
+      (program.uniforms.iTime as any).value = (t - t0) * 0.001;
       gl.clear(gl.COLOR_BUFFER_BIT);
       renderer.render({ scene: mesh });
     };
@@ -261,9 +241,7 @@ export default function Iridescence({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      if (mouseReact) {
-        containerRef.current?.removeEventListener("mousemove", onMouseMove);
-      }
+      if (mouseReact) containerRef.current?.removeEventListener("mousemove", onMouseMove);
       try { containerRef.current?.removeChild(canvas); } catch {}
     };
   }, [

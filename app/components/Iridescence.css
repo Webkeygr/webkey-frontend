@@ -1,4 +1,3 @@
-/* Γεμίζει ολόκληρο το hero, κάτω από το περιεχόμενο */
 .iridescence-container {
   position: absolute;
   inset: 0;
@@ -7,9 +6,8 @@
   height: 100%;
   display: block;
   overflow: hidden;
-  /* Αν για κάποιο λόγο δεν πάρει WebGL2, θέλουμε καθαρό λευκό */
-  background: #fff;
-  pointer-events: none; /* δεν μπλοκάρει κλικς */
+  background: #fff;     /* fallback white if WebGL fails */
+  pointer-events: none; /* don’t block clicks */
 }
 
 .iridescence-container.interactive {
