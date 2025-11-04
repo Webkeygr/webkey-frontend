@@ -209,8 +209,8 @@ export default function Iridescence({
   gamma = 0.78,
 
   // μωβ ενίσχυση
-  magentaBias = 0.12,     // 0..1 (λίγο προς magenta)
-  purpleBoost = 0.45,     // 0..1 (ισχυρό μωβ στο mid)
+  magentaBias = 0.18,     // 0..1 (λίγο προς magenta)
+  purpleBoost = 0.55,     // 0..1 (ισχυρό μωβ στο mid)
 
   className = "",
   stretchX = 1.55,
@@ -221,7 +221,7 @@ export default function Iridescence({
   // ζώνες
   bandTopPct = 0.10,
   bandBottomPct = 0.90,
-  bandFeatherPx = 110,
+  bandFeatherPx = 130,
 
   winStartPct = 0.04,
   winEndPct   = 0.96,
