@@ -198,7 +198,7 @@ void main() {
 
 export default function Iridescence({
   // πιο «γεμάτο» foundation
-  speed = 0.6,
+  speed = 14.5,
   scale = 0.72,
   opacity = 1.0,
 
