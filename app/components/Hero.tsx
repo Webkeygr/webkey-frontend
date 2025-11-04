@@ -51,11 +51,11 @@ export default function Hero() {
         waveOpacity={0.95} // λίγο πιο έντονο
         colorA="#FF00F2"
         colorB="#0090FF"
-        bandTopPct={0.18}
-        bandBottomPct={0.75}
-        bandFeatherPx={80}
-        ampMainFactor={0.4}
-        ampSubFactor={0.2}
+        bandTopPct={0.22}
+        bandBottomPct={0.7}
+        bandFeatherPx={90}
+        ampMainFactor={0.34}
+        ampSubFactor={0.16}
         yOffsetPct={0.1} // 0 = κέντρο, θετικό προς τα κάτω, αρνητικό προς τα πάνω
       />
 
