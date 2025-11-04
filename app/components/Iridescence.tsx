@@ -4,17 +4,24 @@ import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
+/**
+ * Plasma-style φόντο (WebGL2 / GLSL 300 es)
+ * - Λευκή βάση
+ * - Δύο χρώματα (#FF00F2 / #0090FF)
+ * - Mouse "cut" (feathered τρύπα + ελαφριά εκτροπή ροής)
+ * Συμβατό με το αρχικό API του Iridescence (props).
+ */
 type IridescenceProps = {
-  color?: [number, number, number]; // (κρατείται για συμβατότητα)
-  speed?: number;
-  amplitude?: number;
-  mouseReact?: boolean; // αν θες το “cut” γύρω από το mouse
+  color?: [number, number, number]; // (κρατιέται για συμβατότητα, δεν επηρεάζει)
+  speed?: number;                    // 0.2..1.5
+  amplitude?: number;                // επηρεάζει ελαφρά τη δύναμη του cut
+  mouseReact?: boolean;              // on/off interaction
   className?: string;
 
-  // νέα, όλα με defaults
-  colorA?: string;   // #FF00F2
-  colorB?: string;   // #0090FF
-  opacity?: number;  // 0..1
+  // νέα προαιρετικά (όλα έχουν default)
+  colorA?: string;   // default #FF00F2
+  colorB?: string;   // default #0090FF
+  opacity?: number;  // 0..1 (ένταση plasma πάνω από λευκό)
   scale?: number;    // 0.8..1.4
   cutRadius?: number;   // px
   cutFeather?: number;  // px
@@ -31,42 +38,44 @@ const hexToRgb = (hex: string): [number, number, number] => {
   ];
 };
 
-const vertex = `
+const vertex = `#version 300 es
 precision highp float;
-attribute vec2 position;
-attribute vec2 uv;
-varying vec2 vUv;
-void main(){
+in vec2 position;
+in vec2 uv;
+out vec2 vUv;
+void main() {
   vUv = uv;
   gl_Position = vec4(position, 0.0, 1.0);
 }
 `;
 
-const fragment = `
+// WebGL2 fragment (GLSL 300 es) – ασφαλές compile
+const fragment = `#version 300 es
 precision highp float;
 
 uniform vec2  iResolution;
 uniform float iTime;
 
-uniform vec3  uColorA;
-uniform vec3  uColorB;
-uniform float uOpacity;
-uniform float uSpeed;
-uniform float uScale;
+uniform vec3  uColorA;      // #FF00F2
+uniform vec3  uColorB;      // #0090FF
+uniform float uOpacity;     // 0..1
+uniform float uSpeed;       // κίνηση
+uniform float uScale;       // κλίμακα
 
-uniform vec2  uMouse;
-uniform float uCutRadius;
-uniform float uCutFeather;
-uniform float uCutStrength;
-uniform float uMouseInteractive;
+uniform vec2  uMouse;            // pixel coords
+uniform float uCutRadius;        // px
+uniform float uCutFeather;       // px
+uniform float uCutStrength;      // 0..0.03
+uniform float uMouseInteractive; // 0/1
 
-varying vec2 vUv;
+out vec4 fragColor;
 
-void mainImage(out vec4 o, vec2 C){
+void mainImage(out vec4 o, vec2 C) {
   vec2 center = iResolution * 0.5;
   C = (C - center) / uScale + center;
 
-  if(uMouseInteractive > 0.5){
+  // εκτροπή ροής γύρω από το mouse (σαν “κοπή”)
+  if (uMouseInteractive > 0.5) {
     vec2  d    = C - uMouse;
     float dist = length(d) + 1e-6;
     float fall = exp(-dist / max(uCutRadius, 1.0));
@@ -75,45 +84,67 @@ void mainImage(out vec4 o, vec2 C){
   }
 
   float i, d, z, T = iTime * uSpeed;
-  vec4 ocol; vec3 O, p, S;
+  vec4  ocol;
+  vec3  O, p, S;
 
   for (vec2 r = iResolution, Q; ++i < 60.; O += ocol.w/d*ocol.xyz) {
-    p = z*normalize(vec3(C-.5*r, r.y));
+    p = z * normalize(vec3(C - 0.5*r, r.y));
     p.z -= 4.0;
     S = p;
     d = p.y - T;
 
-    p.x += 0.4*(1.0+p.y)*sin(d + p.x*0.1)*cos(0.34*d + p.x*0.05);
-    Q = p.xz *= mat2(cos(p.y+vec4(0,11,33,0)-T));
-    z += d = abs(sqrt(length(Q*Q)) - 0.25*(5.0+S.y))/3.0 + 8e-4;
-    ocol = 1.0 + sin(S.y + p.z*0.5 + S.z - length(S-p) + vec4(2.0,1.0,0.0,8.0));
+    p.x += 0.4 * (1.0 + p.y) * sin(d + p.x*0.1) * cos(0.34*d + p.x*0.05);
+
+    // η αρχική γραμμή σε 300es ήταν mat2(cos(p.y+vec4(0,11,33,0)-T));
+    // την αναπτύσσουμε σε 4 στοιχεία για καθαρή συμβατότητα:
+    float a = cos(p.y - T + 0.0);
+    float b = cos(p.y - T + 11.0);
+    float c = cos(p.y - T + 33.0);
+    float d2= cos(p.y - T + 0.0);
+    mat2 R = mat2(a, b, c, d2);
+
+    Q = (R * p.xz);
+    p.xz = Q;
+
+    z += d = abs(sqrt(dot(Q, Q)) - 0.25 * (5.0 + S.y)) / 3.0 + 8e-4;
+    ocol = 1.0 + sin(S.y + p.z*0.5 + S.z - length(S - p) + vec4(2.0, 1.0, 0.0, 8.0));
   }
 
-  o.xyz = tanh(O/1e4);
+  o.xyz = tanh(O / 1e4);
   o.w   = 1.0;
 }
 
-void main(){
-  vec2 fragCoord = vec2(vUv.x * iResolution.x, vUv.y * iResolution.y);
+bool finite1(float x){ return !(isnan(x) || isinf(x)); }
+vec3 sanitize(vec3 c){
+  return vec3(
+    finite1(c.r) ? c.r : 0.0,
+    finite1(c.g) ? c.g : 0.0,
+    finite1(c.b) ? c.b : 0.0
+  );
+}
 
+void main() {
+  vec2 fragCoord = gl_FragCoord.xy;
   vec4 o = vec4(0.0);
   mainImage(o, fragCoord);
-  vec3 rgb = o.rgb;
+  vec3 rgb = sanitize(o.rgb);
 
+  // 2-color palette (A→B) πάνω σε λευκή βάση
   float t = clamp((rgb.r + rgb.g + rgb.b) / 3.0, 0.0, 1.0);
   t = smoothstep(0.2, 0.85, t);
-  vec3 plasma = mix(uColorA, uColorB, t);
+  vec3 plasmaColor = mix(uColorA, uColorB, t);
 
   vec3 white = vec3(1.0);
-  vec3 finalColor = mix(white, plasma, uOpacity);
+  vec3 finalColor = mix(white, plasmaColor, uOpacity);
 
-  if(uMouseInteractive > 0.5){
+  // feathered "hole" στο mouse που αποκαλύπτει το λευκό
+  if (uMouseInteractive > 0.5) {
     float dist = length(fragCoord - uMouse);
     float hole = smoothstep(uCutRadius, uCutRadius - uCutFeather, dist);
     finalColor = mix(white, finalColor, hole);
   }
 
-  gl_FragColor = vec4(finalColor, 1.0);
+  fragColor = vec4(finalColor, 1.0);
 }
 `;
 
@@ -136,9 +167,11 @@ export default function Iridescence({
   useEffect(() => {
     if (!containerRef.current) return;
 
+    // ΣΗΜΑΝΤΙΚΟ: WebGL2 context (όπως στο react-bits)
     const renderer = new Renderer({
-      antialias: false,
+      webgl: 2,
       alpha: true,
+      antialias: false,
       dpr: Math.min(window.devicePixelRatio || 1, 1.5),
       powerPreference: "low-power",
       preserveDrawingBuffer: false,
@@ -146,7 +179,7 @@ export default function Iridescence({
     const gl = renderer.gl;
     const canvas = gl.canvas;
 
-    // ΚΡΙΣΙΜΟ: κάνε το canvas να γεμίσει ΑΠΟ ΑΚΡΗ ΣΕ ΑΚΡΗ το container
+    // Γέμισε όλο το hero
     canvas.style.position = "absolute";
     canvas.style.inset = "0";
     canvas.style.width = "100%";
@@ -155,7 +188,7 @@ export default function Iridescence({
 
     containerRef.current.appendChild(canvas);
 
-    // λευκή βάση
+    // λευκή βάση (ό,τι “τρύπα” → καθαρό λευκό)
     gl.clearColor(1, 1, 1, 1);
 
     const geometry = new Triangle(gl);
@@ -177,6 +210,7 @@ export default function Iridescence({
         uMouseInteractive: { value: mouseReact ? 1.0 : 0.0 },
       },
     });
+
     const mesh = new Mesh(gl, { geometry, program });
 
     const onMouseMove = (e: MouseEvent) => {
@@ -205,6 +239,7 @@ export default function Iridescence({
     ro.observe(containerRef.current!);
     setSize();
 
+    // cap ~45fps
     let raf = 0;
     let last = 0;
     const targetMs = 1000 / 45;
@@ -214,7 +249,10 @@ export default function Iridescence({
       raf = requestAnimationFrame(loop);
       if (t - last < targetMs) return;
       last = t;
-      (program.uniforms.iTime as any).value = (t - t0) * 0.001;
+
+      const timeValue = (t - t0) * 0.001;
+      (program.uniforms.iTime as any).value = timeValue;
+
       gl.clear(gl.COLOR_BUFFER_BIT);
       renderer.render({ scene: mesh });
     };
@@ -223,7 +261,9 @@ export default function Iridescence({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      if (mouseReact) containerRef.current?.removeEventListener("mousemove", onMouseMove);
+      if (mouseReact) {
+        containerRef.current?.removeEventListener("mousemove", onMouseMove);
+      }
       try { containerRef.current?.removeChild(canvas); } catch {}
     };
   }, [
@@ -232,7 +272,6 @@ export default function Iridescence({
     cutRadius, cutFeather, cutStrength
   ]);
 
-  // ΣΗΜΑΝΤΙΚΟ: absolute + inset:0 + σωστά z-index/pointer-events
   return (
     <div
       ref={containerRef}

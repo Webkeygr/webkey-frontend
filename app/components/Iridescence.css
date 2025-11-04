@@ -1,17 +1,17 @@
-/* Γεμίζει ολόκληρο το hero */
+/* Γεμίζει ολόκληρο το hero, κάτω από το περιεχόμενο */
 .iridescence-container {
-  position: absolute;   /* πριν ήταν relative -> έβγαινε σαν "κουτί" */
-  inset: 0;             /* από άκρη σε άκρη */
-  z-index: 0;           /* κάτω από το hero περιεχόμενο */
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   width: 100%;
   height: 100%;
   display: block;
   overflow: hidden;
-  pointer-events: none; /* default: να μην μπλοκάρει κλικς */
-  background: #fff;     /* fallback λευκό αν δεν τρέξει WebGL */
+  /* Αν για κάποιο λόγο δεν πάρει WebGL2, θέλουμε καθαρό λευκό */
+  background: #fff;
+  pointer-events: none; /* δεν μπλοκάρει κλικς */
 }
 
-/* Αν θες mouse interaction, επιτρέπουμε events */
 .iridescence-container.interactive {
   pointer-events: auto;
 }
