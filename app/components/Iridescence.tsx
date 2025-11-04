@@ -158,10 +158,18 @@ type IridescenceProps = {
   bandBottomPct?: number;
   bandFeatherPx?: number;
 
-  /** ΝΕΑ props για “φούσκωμα” */
   ampMainFactor?: number; // default 0.38
   ampSubFactor?: number; // default 0.18
-  yOffsetPct?: number; // -1..1, μετατοπίζει το baseline μέσα στη ζώνη (0 = κέντρο)
+  yOffsetPct?: number; // -1..1 μέσα στη ζώνη
+
+  /** Συμβατότητα με παλιό API του Hero – αγνοούνται εσωτερικά */
+  mouseReact?: boolean;
+  amplitude?: number;
+  opacity?: number;
+  scale?: number;
+  cutRadius?: number;
+  cutFeather?: number;
+  cutStrength?: number;
 };
 
 export default function Iridescence({
@@ -272,10 +280,8 @@ export default function Iridescence({
       const bottomY = Math.max(0, Math.min(h, h * bandBottomPct));
       const bandHeight = Math.max(1, bottomY - topY);
 
-      // baseline στο κέντρο + προαιρετικό offset
-      const baselineY = topY + bandHeight * (0.5 + yOffsetPct / 2); // yOffsetPct -1..1
+      const baselineY = topY + bandHeight * (0.5 + yOffsetPct / 2); // -1..1 -> [-0.5..0.5]
 
-      // “φούσκωμα” με βάση το ύψος της ζώνης και τους factors
       const amp1 = bandHeight * ampMainFactor;
       const amp2 = bandHeight * ampSubFactor;
 
