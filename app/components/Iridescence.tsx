@@ -195,12 +195,12 @@ void main() {
 export default function Iridescence({
   // “γεμάτο & έντονο”
   speed = 0.6,
-  scale = 0.72,            // ↓ γεμίζει αισθητά
+  scale = 0.68,            // ↓ γεμίζει αισθητά
   opacity = 1.0,
   colorA = "#FF00F2",
   colorB = "#0090FF",
-  vibrance = 1.45,
-  gamma = 0.78,
+  vibrance = 1.80,
+  gamma = 0.70,
 
   className = "",
   stretchX = 1.55,
@@ -216,7 +216,7 @@ export default function Iridescence({
   // φαρδύ, αλλά με ζωντανές άκρες
   winStartPct = 0.04,
   winEndPct   = 0.96,
-  winFeatherPx = 100,
+  winFeatherPx = 60,
 
   // TS συμβατότητα
   color = [1, 1, 1],
