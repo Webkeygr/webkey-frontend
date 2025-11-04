@@ -154,7 +154,7 @@ export default function Iridescence({
   className = "",
   stretchX = 1.45,     // πλατύτερο
   stretchY = 0.65,     // χαμηλότερο
-  centerX = 0.1,       // κέντρο
+  centerX = 0.3,       // κέντρο
   centerY = 0.0,       // κέντρο
   cutRadius, cutFeather, cutStrength, // TS συμβατότητα
 }: IridescenceProps) {
