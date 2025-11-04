@@ -39,9 +39,11 @@ export default function Hero() {
       {/* Minimal, low-lag wallpaper */}
       <Iridescence
         className="hero-iridescence"
-        color={[1, 1, 1]}
+        //color={[1, 1, 1]}
         mouseReact={false}
-        amplitude={0.06}  // ήρεμη αναπνοή
+        amplitude={0.08}
+        intensity={1.35}  // ↑ πιο έντονο
+        sharpness={5.8}   // ↑ πιο “κοφτό”/ζωντανό edge
         speed={0.4}       // χαμηλή ταχύτητα
       />
 

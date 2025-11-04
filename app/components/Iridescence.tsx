@@ -5,23 +5,25 @@ import { Renderer, Program, Mesh, Triangle, Color } from "ogl";
 import "./Iridescence.css";
 
 type IridescenceProps = {
-  color?: [number, number, number]; // global tint
-  speed?: number;                   // ρυθμός “αναπνοής”
-  amplitude?: number;               // ένταση κίνησης
-  mouseReact?: boolean;             // off για minimal
+  color?: [number, number, number];
+  speed?: number;
+  amplitude?: number;
+  mouseReact?: boolean;
   className?: string;
-
-  /** Ένταση χρώματος (0.7–1.3) */
+  /** Πόσο έντονα μπαίνουν τα χρώματα (0.7–1.6) */
   intensity?: number;
+  /** Οξύτητα των “λωβών” (3.0–9.0). Μεγαλύτερο = πιο “κοφτό”/ζωντανό. */
+  sharpness?: number;
 };
 
 export default function Iridescence({
   color = [1, 1, 1],
-  speed = 0.45,
-  amplitude = 0.06,
+  speed = 0.5,
+  amplitude = 0.08,
   mouseReact = false,
   className = "",
-  intensity = 1.0,
+  intensity = 1.25,
+  sharpness = 5.2,
 }: IridescenceProps) {
   const ctnDom = useRef<HTMLDivElement | null>(null);
   const mousePos = useRef({ x: 0.5, y: 0.5 });
@@ -30,22 +32,22 @@ export default function Iridescence({
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
 
-    // --- Light CSS fallback (mobile / reduced motion) ---
+    // --- Light fallback για mobile / reduced motion ---
     const prefersReduced =
       typeof window !== "undefined" &&
       (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
         window.matchMedia("(pointer: coarse)").matches);
 
     if (prefersReduced) {
-      // Off-white βάση + μεγάλος “θολός” λόφος κάτω-δεξιά (magenta→cyan) + ζεστός τόνος επάνω
+      // Off-white βάση + έντονος “λόφος” κάτω-δεξιά σε 3 τόνους
       ctn.style.backgroundImage =
-        "radial-gradient(70vmax 70vmax at 78% 62%, rgba(255,90,170,0.32) 0%, rgba(116,190,255,0.28) 45%, rgba(255,255,255,0) 70%)," +
-        "radial-gradient(60vmax 60vmax at 48% 16%, rgba(245,220,200,0.35) 0%, rgba(255,255,255,0) 60%)," +
-        "linear-gradient(180deg, #f0f1f4 0%, #f6f7f9 100%)";
+        "radial-gradient(65vmax 65vmax at 78% 62%, rgba(255,95,180,0.55) 0%, rgba(170,120,255,0.45) 35%, rgba(110,200,255,0.35) 60%, rgba(255,255,255,0) 76%)," +
+        "radial-gradient(60vmax 60vmax at 46% 14%, rgba(248,226,206,0.35) 0%, rgba(255,255,255,0) 60%)," +
+        "linear-gradient(180deg, #f2f3f6 0%, #f7f8fa 100%)";
       return;
     }
 
-    // --- WebGL (ελαφρύ) ---
+    // --- WebGL (ελαφρύ & δυναμικό) ---
     const renderer = new Renderer({
       dpr: Math.min(window.devicePixelRatio || 1, 1.5),
       antialias: false,
@@ -54,7 +56,7 @@ export default function Iridescence({
       preserveDrawingBuffer: false,
     });
     const gl = renderer.gl;
-    gl.clearColor(1, 1, 1, 1); // λευκή/φωτεινή βάση
+    gl.clearColor(1, 1, 1, 1);
 
     const geometry = new Triangle(gl);
 
@@ -62,84 +64,89 @@ export default function Iridescence({
       attribute vec2 position;
       attribute vec2 uv;
       varying vec2 vUv;
-      void main() {
+      void main(){
         vUv = uv;
         gl_Position = vec4(position, 0.0, 1.0);
       }
     `;
 
-    // --- Fragment: off-white background + big blurry magenta/cyan hill bottom-right + warm top-center ---
+    // “Strong KOTA-style” iridescent hill
     const fragment = `
       precision highp float;
       varying vec2 vUv;
 
-      uniform vec2 uRes;
+      uniform vec2  uRes;
       uniform float uTime;
       uniform float uSpeed;
       uniform float uAmp;
       uniform vec3  uTint;
-      uniform float uInt; // intensity
+      uniform float uInt;
+      uniform float uSharp;
 
-      // Off-white βάση (πολύ ελαφρύ γκρι/μπλε)
-      const vec3 base1 = vec3(0.945, 0.95, 0.965);
-      const vec3 base2 = vec3(0.975, 0.976, 0.985);
+      // φωτεινή ουδέτερη βάση
+      const vec3 baseA = vec3(0.952, 0.956, 0.970);
+      const vec3 baseB = vec3(0.980, 0.982, 0.990);
 
-      // Χρώματα “λόφου”
-      const vec3 warm   = vec3(1.00, 0.92, 0.86); // beige/peach
-      const vec3 magenta= vec3(1.00, 0.45, 0.75);
-      const vec3 cyan   = vec3(0.52, 0.78, 1.00);
+      // iridescent παλέτα
+      const vec3 C_MAG = vec3(1.00, 0.45, 0.78); // magenta
+      const vec3 C_VIO = vec3(0.74, 0.55, 1.00); // violet
+      const vec3 C_CYN = vec3(0.54, 0.81, 1.00); // cyan
+      const vec3 C_WARM= vec3(1.00, 0.92, 0.86); // warm beige
 
-      float hash(vec2 p){ return fract(sin(dot(p, vec2(27.168, 91.17))) * 43758.5453); }
-      float gauss(vec2 p, vec2 c, float k){
+      float hash(vec2 p){ return fract(sin(dot(p, vec2(27.168,91.17))) * 43758.5453); }
+
+      // “Gaussian-like” αλλά με ρυθμιζόμενο falloff (uSharp)
+      float lobe(vec2 p, vec2 c, float k){
         vec2 d = p - c;
+        // k ~ sharpness: 3..9
         return exp(-k * dot(d, d));
       }
 
       void main(){
         vec2 res = uRes;
         vec2 uv = vUv;
+        vec3 col = mix(baseA, baseB, smoothstep(0.0, 1.0, uv.y)); // διακριτική κάθετη βάση
 
-        // ελαφρύς διακριτικός κάθετος φωτισμός στη βάση
-        vec3 col = mix(base1, base2, smoothstep(0.0, 1.0, uv.y));
-
-        // aspect-correct space για “κύκλους”
+        // aspect-correct coordinates για κυκλικές θολώσεις
         float aspect = res.x / max(res.y, 1.0);
         vec2 p = uv; p.x *= aspect;
 
         float t = uTime * 0.06 * uSpeed;
 
-        // --- Θέσεις λόφων ---
-        // ζεστός τόνος επάνω-κέντρο
-        vec2 cWarm = vec2(0.48 * aspect, 0.16);
-        // μεγάλος λόφος κάτω-δεξιά (κοινό κέντρο για magenta/cyan)
+        // Κέντρα:
+        // ζεστή ανάσα ψηλά-κέντρο
+        vec2 cWarm = vec2(0.47 * aspect, 0.14);
+        // “λόφος” κάτω-δεξιά (κοινό κέντρο, μικρές αποκλίσεις)
         vec2 cHill = vec2(0.80 * aspect, 0.62);
 
-        // “αναπνοή” (πολύ διακριτική)
-        float breathe = 1.0 + 0.02 * sin(t * 1.1);
+        // Aπαλή αναπνοή και μικρή “ολίσθηση” του λόφου
+        float breathe = 1.0 + 0.03 * sin(t * 1.1);
+        vec2 drift = vec2(0.018 * uAmp * sin(t*0.8), 0.018 * uAmp * cos(t*0.6));
 
-        // ζεστός τόνος
-        float wWarm = gauss(p, cWarm, 6.0) * 0.45 * uInt;
+        // ζέστη
+        float wWarm = lobe(p, cWarm, 6.0) * 0.55 * uInt;
 
-        // magenta core + cyan halo (διαφορετικές εκθέσεις για φαρδιές θολώσεις)
-        float wMag = gauss(p, cHill + vec2(0.00, 0.00), 3.6) * 1.10 * uInt * breathe;
-        float wCyn = gauss(p, cHill + vec2(0.00, -0.02), 1.6) * 0.65 * uInt;
+        // 3 “στρώσεις” του λόφου με διαφορετικές οξύτητες, ώστε να φαίνεται έντονο
+        float wMag = lobe(p, cHill + drift + vec2( 0.00,  0.00), uSharp)     * 1.25 * uInt * breathe;
+        float wVio = lobe(p, cHill + drift + vec2(-0.01, -0.01), uSharp*0.8) * 0.90 * uInt;
+        float wCyn = lobe(p, cHill + drift + vec2( 0.00, -0.02), uSharp*0.55)* 0.85 * uInt;
 
-        // αργή μετατόπιση για “ζωντανό” blurry edge (χωρίς να αποσπά)
-        float driftX = 0.02 * uAmp * sin(t*0.7);
-        float driftY = 0.02 * uAmp * cos(t*0.5);
-        wMag *= 1.0 - 0.08 * length(p - (cHill + vec2(driftX,driftY)));
-        wCyn *= 1.0 - 0.05 * length(p - (cHill + vec2(driftX,driftY)));
+        // λίγο “σκληραίνουμε” το falloff με power για πιο ζωντανά χείλη
+        wMag = pow(wMag, 1.0);
+        wVio = pow(wVio, 1.1);
+        wCyn = pow(wCyn, 1.2);
 
-        // μίξεις (κρατάμε πάντα φωτεινή τη βάση)
-        col = mix(col, warm,   clamp(wWarm, 0.0, 1.0));
-        col = mix(col, magenta,clamp(wMag,  0.0, 1.0));
-        col = mix(col, cyan,   clamp(wCyn,  0.0, 1.0));
+        // μίξεις — κρατάμε τη βάση φωτεινή αλλά δίνουμε ένταση στον λόφο
+        col = mix(col, C_WARM, clamp(wWarm, 0.0, 1.0));
+        col = mix(col, C_MAG,  clamp(wMag,  0.0, 1.0));
+        col = mix(col, C_VIO,  clamp(wVio,  0.0, 1.0));
+        col = mix(col, C_CYN,  clamp(wCyn,  0.0, 1.0));
 
-        // ελαφρύτατο noise για να σπάσει banding (χωρίς να “γκριζάρει”)
-        float n = (hash(vUv * res + t) - 0.5) * 0.008;
+        // ανεπαίσθητο noise για banding (χωρίς να “γκριζάρει”)
+        float n = (hash(vUv * res + t) - 0.5) * 0.007;
         col += n;
 
-        // Global tint (συμβατότητα με prop)
+        // global tint για συμβατότητα
         col *= uTint;
 
         gl_FragColor = vec4(col, 1.0);
@@ -156,6 +163,7 @@ export default function Iridescence({
         uAmp: { value: amplitude },
         uTint: { value: new Color(...color) },
         uInt: { value: intensity },
+        uSharp: { value: sharpness },
       },
     });
 
@@ -186,7 +194,7 @@ export default function Iridescence({
     }
     if (mouseReact) ctn.addEventListener("mousemove", onMouse);
 
-    // cap ~45fps για βελούδινη κίνηση + λιγότερο lag
+    // cap ~45fps
     let rafId = 0;
     let last = 0;
     const targetMs = 1000 / 45;
@@ -212,7 +220,7 @@ export default function Iridescence({
       if (ctn.contains(gl.canvas)) ctn.removeChild(gl.canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [color, speed, amplitude, mouseReact, intensity]);
+  }, [color, speed, amplitude, mouseReact, intensity, sharpness]);
 
   return <div ref={ctnDom} className={`iridescence-container ${className}`} />;
 }
