@@ -36,13 +36,13 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className="hero">
-      {/* ΝΕΟ BACKGROUND */}
+      {/* Minimal, low-lag wallpaper */}
       <Iridescence
         className="hero-iridescence"
         color={[1, 1, 1]}
         mouseReact={false}
-        amplitude={0}
-        speed={1.0}
+        amplitude={0.06}  // ήρεμη αναπνοή
+        speed={0.4}       // χαμηλή ταχύτητα
       />
 
       <div className="hero-inner">
@@ -51,7 +51,7 @@ export default function Hero() {
           <br />
           Differ
         </h1>
-        <p className="hero-text">
+        <p ref={subtitleRef} className="hero-text">
           Websites, experiences and brands that refuse to blend in.
         </p>
       </div>
