@@ -5,23 +5,29 @@ import { Renderer, Program, Mesh, Triangle, Color } from "ogl";
 import "./Iridescence.css";
 
 type IridescenceProps = {
-  /** global tint, κρατάμε το API όπως ήταν */
-  color?: [number, number, number];
-  /** πιο χαμηλή ταχύτητα για minimal look */
-  speed?: number;
-  /** μικρή μετατόπιση για “ζωντάνια” */
-  amplitude?: number;
-  /** προαιρετικό – default off */
-  mouseReact?: boolean;
+  color?: [number, number, number]; // global tint (παραμένει για συμβατότητα)
+  speed?: number;                   // κίνηση κυματισμού
+  amplitude?: number;               // ένταση “αναπνοής”
+  mouseReact?: boolean;             // προαιρετικό
   className?: string;
+
+  /** ΝΕΑ προαιρετικά για το “κύμα” (κρατάνε default αν δεν τα δώσεις) */
+  angleDeg?: number;    // γωνία διαγώνιου κύματος (μοίρες). default: -35
+  bandEdge?: number;    // που “ξεκινά” από δεξιά (0..1). default: 0.62
+  bandWidth?: number;   // πλάτος κύματος (0..1). default: 0.35
+  intensity?: number;   // πόσο έντονα μπαίνουν τα χρώματα (0..1.3). default: 1
 };
 
 export default function Iridescence({
   color = [1, 1, 1],
-  speed = 0.4,       // ↓ πιο “ήσυχο”
-  amplitude = 0.06,  // ↓ λίγο “αναπνέον”
+  speed = 0.45,
+  amplitude = 0.06,
   mouseReact = false,
   className = "",
+  angleDeg = -35,
+  bandEdge = 0.62,
+  bandWidth = 0.35,
+  intensity = 1.0,
 }: IridescenceProps) {
   const ctnDom = useRef<HTMLDivElement | null>(null);
   const mousePos = useRef({ x: 0.5, y: 0.5 });
@@ -30,21 +36,25 @@ export default function Iridescence({
     if (!ctnDom.current) return;
     const ctn = ctnDom.current;
 
-    // Fallback για mobile/reduced motion → καθαρό CSS gradient (χωρίς WebGL)
+    // --- Light CSS fallback (mobile/reduced motion) ---
     const prefersReduced =
       typeof window !== "undefined" &&
       (window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
         window.matchMedia("(pointer: coarse)").matches);
 
     if (prefersReduced) {
+      // Φωτεινό, με διακριτικό διαγώνιο χρώμα δεξιά
       ctn.style.background =
-        "radial-gradient(60vmax 60vmax at 22% 28%, rgba(88,92,160,0.35) 0%, rgba(0,0,0,0) 55%)," +
-        "radial-gradient(70vmax 70vmax at 78% 42%, rgba(140,92,170,0.30) 0%, rgba(0,0,0,0) 50%)," +
-        "linear-gradient(160deg, #06060a, #0b0b0f)";
-      return; // stop here – no GL
+        "linear-gradient(180deg, #f7f9ff, #f3f6ff)"; // λευκή βάση
+      ctn.style.maskImage = "";
+      ctn.style.webkitMaskImage = "";
+      ctn.style.backgroundImage =
+        "linear-gradient(160deg, rgba(255,255,255,0) 40%, rgba(105,140,255,0.22) 58%, rgba(176,140,255,0.18) 72%, rgba(255,111,177,0.14) 86%)," +
+        "linear-gradient(180deg, #f7f9ff, #f3f6ff)";
+      return;
     }
 
-    // Renderer με low-power ρυθμίσεις
+    // --- WebGL (ελαφρύ) ---
     const renderer = new Renderer({
       dpr: Math.min(window.devicePixelRatio || 1, 1.5), // cap DPR
       antialias: false,
@@ -53,24 +63,22 @@ export default function Iridescence({
       preserveDrawingBuffer: false,
     });
     const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 1);
-
-    let program: Program | null = null;
+    gl.clearColor(1, 1, 1, 1); // λευκή βάση
 
     const geometry = new Triangle(gl);
 
-    // απλό, βελούδινο fragment – 2 “λοβοί” + 1 διακριτικός
-    const vertexShader = `
+    const vertex = `
       attribute vec2 position;
       attribute vec2 uv;
       varying vec2 vUv;
-      void main() {
+      void main(){
         vUv = uv;
         gl_Position = vec4(position, 0.0, 1.0);
       }
     `;
 
-    const fragmentShader = `
+    // --- Ιριδίζον “κύμα” διαγώνια, με λευκή βάση ---
+    const fragment = `
       precision highp float;
       varying vec2 vUv;
 
@@ -78,77 +86,96 @@ export default function Iridescence({
       uniform float uTime;
       uniform float uSpeed;
       uniform float uAmp;
-      uniform vec3 uTint;
+      uniform vec3  uTint;
 
-      // palette που ταιριάζει στο Webkey (deep blue/purple)
-      vec3 baseA = vec3(0.05, 0.06, 0.10);
-      vec3 lobe1 = vec3(0.30, 0.32, 0.60);
-      vec3 lobe2 = vec3(0.42, 0.32, 0.66);
-      vec3 lobe3 = vec3(0.10, 0.12, 0.22);
+      uniform float uAngle;   // radians
+      uniform float uEdge;    // 0..1 (που ξεκινά)
+      uniform float uWidth;   // 0..1 (πλάτος)
+      uniform float uInt;     // πόσο έντονα τα χρώματα
 
-      // πολύ ελαφρύ hash noise (σβήνει banding χωρίς να “γδέρνει” την GPU)
+      // φωτεινή, ουδέτερη βάση (λευκό με ελαφρύ μπλε)
+      const vec3 baseWhite = vec3(0.975, 0.98, 0.995);
+
+      // τρεις ιριδίζουσες αποχρώσεις (blue → violet → pink)
+      const vec3 c1 = vec3(0.43, 0.62, 1.00); // #6fa0ff περίπου
+      const vec3 c2 = vec3(0.69, 0.55, 1.00); // #b08cff περίπου
+      const vec3 c3 = vec3(1.00, 0.54, 0.77); // #ff6fb1 περίπου
+
       float hash(vec2 p){ return fract(sin(dot(p, vec2(27.168, 91.17))) * 43758.5453); }
 
-      void main() {
-        // normalized coords σε 0..1 και aspect fix
+      mat2 rot(float a){
+        float s = sin(a), c = cos(a);
+        return mat2(c, -s, s, c);
+      }
+
+      void main(){
+        // uv με aspect (για να κρατήσουμε σωστή γωνία)
+        vec2 res = uRes;
         vec2 uv = vUv;
-        vec2 r = uRes;
-        float aspect = r.x / max(r.y, 1.0);
+        float aspect = res.x / max(res.y, 1.0);
         uv.x *= aspect;
 
         float t = uTime * 0.06 * uSpeed;
 
-        // Κέντρα που κινούνται ΑΡΓΑ — αφήνουμε “ελεύθερο χώρο”
-        vec2 c1 = vec2(0.25 * aspect, 0.33) + vec2(sin(t*0.7), cos(t*0.5)) * 0.03 * uAmp;
-        vec2 c2 = vec2(0.78 * aspect, 0.42) + vec2(cos(t*0.6), sin(t*0.4)) * 0.04 * uAmp;
-        vec2 c3 = vec2(0.55 * aspect, 0.82) + vec2(sin(t*0.3), cos(t*0.35)) * 0.02 * uAmp;
+        // μετασχηματισμός για διαγώνιο λωρίδα χρώματος
+        vec2 p = uv - vec2(0.5 * aspect, 0.5);
+        p = rot(uAngle) * p;
 
-        // ομαλή Gaussian “ενέργεια”
-        float f1 = exp(-6.0 * dot(uv - c1, uv - c1));
-        float f2 = exp(-5.0 * dot(uv - c2, uv - c2));
-        float f3 = exp(-8.0 * dot(uv - c3, uv - c3));
+        // band: ομαλή μετάβαση από δεξιά προς τα αριστερά
+        float edge = uEdge * aspect - (aspect - 1.0) * 0.5; // προσαρμογή για aspect
+        float band = smoothstep(edge, edge - uWidth, p.x);
 
-        // ανάμιξη με βάση ένταση — πιο χαμηλές τιμές για MINIMAL
-        vec3 col = baseA;
-        col = mix(col, lobe1, f1 * 0.65);
-        col = mix(col, lobe2, f2 * 0.55);
-        col = mix(col, lobe3, f3 * 0.25);
+        // κύμα (απαλή παλλόμενη μεταβολή μέσα στη λωρίδα)
+        float wave = 0.5 + 0.5 * sin( (p.y * 5.0 + t*1.5) + sin(t*0.7)*0.5 );
+        float w1 = band * (0.35 + 0.25 * wave);     // μπλε κορμός
+        float w2 = band * (0.28 + 0.22 * sin(t*0.9 + p.y*3.2));
+        float w3 = band * (0.20 + 0.18 * cos(t*0.7 + p.y*2.6));
 
-        // ανεπαίσθητο noise για να “μαλακώνει” το gradient χωρίς αισθητό grain
-        float n = (hash(uv * r.xy + t) - 0.5) * 0.02; // ±0.01
+        // αρχική τιμή: φωτεινή λευκή βάση
+        vec3 col = baseWhite;
+
+        // μίξεις — διακριτικές, ώστε να “κυλάει” το χρώμα αλλά να κυριαρχεί το λευκό
+        col = mix(col, c1, clamp(w1 * 0.30 * uInt, 0.0, 1.0));
+        col = mix(col, c2, clamp(w2 * 0.22 * uInt, 0.0, 1.0));
+        col = mix(col, c3, clamp(w3 * 0.18 * uInt, 0.0, 1.0));
+
+        // ελαφρύτατο noise για αποφυγή banding (χωρίς να “γκριζάρει”)
+        float n = (hash(vUv * res + t) - 0.5) * 0.01;
         col += n;
 
-        // global tint (κρατάμε συμβατότητα με prop color)
+        // global tint (κρατάμε το prop)
         col *= uTint;
 
         gl_FragColor = vec4(col, 1.0);
       }
     `;
 
-    program = new Program(gl, {
-      vertex: vertexShader,
-      fragment: fragmentShader,
+    const program = new Program(gl, {
+      vertex,
+      fragment,
       uniforms: {
         uTime: { value: 0 },
         uRes: { value: new Float32Array([gl.canvas.width, gl.canvas.height]) },
         uSpeed: { value: speed },
         uAmp: { value: amplitude },
         uTint: { value: new Color(...color) },
+        uAngle: { value: (angleDeg * Math.PI) / 180 }, // σε radians
+        uEdge: { value: bandEdge },
+        uWidth: { value: bandWidth },
+        uInt: { value: intensity },
       },
     });
 
     const mesh = new Mesh(gl, { geometry, program });
 
-    function resize() {
+    const resize = () => {
       const { clientWidth, clientHeight } = ctn;
       renderer.setSize(clientWidth, clientHeight);
-      if (program) {
-        (program.uniforms.uRes.value as Float32Array)[0] = gl.canvas.width;
-        (program.uniforms.uRes.value as Float32Array)[1] = gl.canvas.height;
-      }
-    }
+      const uRes = program.uniforms.uRes.value as Float32Array;
+      uRes[0] = gl.canvas.width;
+      uRes[1] = gl.canvas.height;
+    };
 
-    // throttle resize με rAF
     let resizeRaf = 0 as unknown as number;
     const onResize = () => {
       cancelAnimationFrame(resizeRaf);
@@ -157,16 +184,16 @@ export default function Iridescence({
     window.addEventListener("resize", onResize, { passive: true });
     resize();
 
-    // mouse (αν ποτέ ενεργοποιηθεί)
-    function handleMouseMove(e: MouseEvent) {
+    function onMouse(e: MouseEvent) {
       const rect = ctn.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;
-      const y = (e.clientY - rect.top) / rect.height;
-      mousePos.current = { x, y };
+      mousePos.current = {
+        x: (e.clientX - rect.left) / rect.width,
+        y: (e.clientY - rect.top) / rect.height,
+      };
     }
-    if (mouseReact) ctn.addEventListener("mousemove", handleMouseMove);
+    if (mouseReact) ctn.addEventListener("mousemove", onMouse);
 
-    // cap FPS ~45 για πιο βελούδινη κίνηση και λιγότερο lag
+    // cap ~45fps για “βελούδινη” κίνηση + λιγότερο lag
     let rafId = 0;
     let last = 0;
     const targetMs = 1000 / 45;
@@ -176,27 +203,24 @@ export default function Iridescence({
       if (now - last < targetMs) return;
       last = now;
 
-      if (program) {
-        // μικρή επίδραση του mouse σε κέντρα (αν mouseReact)
-        const m = mouseReact ? mousePos.current : { x: 0.5, y: 0.5 };
-        // feed time
-        program.uniforms.uTime.value = now * 0.001 + (m.x - 0.5) * 0.1;
-      }
+      // ελάχιστη επιρροή από το mouse αν είναι ενεργό (κρατάμε minimal)
+      const m = mouseReact ? mousePos.current : { x: 0.5, y: 0.5 };
+      program.uniforms.uTime.value = now * 0.001 + (m.x - 0.5) * 0.06;
+
       renderer.render({ scene: mesh });
     };
 
     rafId = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);
 
-    // καθαρισμοί
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
-      if (mouseReact) ctn.removeEventListener("mousemove", handleMouseMove);
+      if (mouseReact) ctn.removeEventListener("mousemove", onMouse);
       if (ctn.contains(gl.canvas)) ctn.removeChild(gl.canvas);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [color, speed, amplitude, mouseReact]);
+  }, [color, speed, amplitude, mouseReact, angleDeg, bandEdge, bandWidth, intensity]);
 
   return <div ref={ctnDom} className={`iridescence-container ${className}`} />;
 }
