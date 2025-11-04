@@ -5,26 +5,34 @@ import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
 type IridescenceProps = {
-  // Συμβατότητα με παλιό API — αγνοούνται:
+  // Συμβατότητα με παλιό API (αγνοούνται):
   color?: [number, number, number];
   mouseReact?: boolean;
   amplitude?: number;
 
-  // Ρυθμίσεις εμφάνισης
-  speed?: number;    // 0.2..1.5
-  scale?: number;    // μικρότερο => πιο "γεμάτο" blob
-  opacity?: number;  // 0..1 (alpha)
-  colorA?: string;   // #FF00F2
-  colorB?: string;   // #0090FF
+  // Appearance
+  speed?: number;     // 0.2..1.5
+  scale?: number;     // μικρότερο => πιο "γεμάτο" blob
+  opacity?: number;   // 0..1 (alpha)
+  colorA?: string;    // #FF00F2
+  colorB?: string;    // #0090FF
   className?: string;
 
-  // Σχήμα/θέση
-  stretchX?: number; // >1 απλώνει οριζόντια
-  stretchY?: number; // <1 πιέζει κάθετα
-  centerX?: number;  // -0.5..0.5 (0 = κέντρο)
-  centerY?: number;  // -0.5..0.5
+  // Σχήμα/θέση blob
+  stretchX?: number;  // >1 απλώνει οριζόντια
+  stretchY?: number;  // <1 πιέζει κάθετα
+  centerX?: number;   // -0.5..0.5 (0 = κέντρο)
+  centerY?: number;   // -0.5..0.5
 
-  // Υπάρχουν μόνο για TS συμβατότητα με Hero.tsx
+  // Ζώνη προβολής (κόβει πάνω/κάτω – σε ποσοστό ύψους)
+  bandTopPct?: number;     // 0..1 από πάνω (π.χ. 0.22)
+  bandBottomPct?: number;  // 0..1 από πάνω (π.χ. 0.72)
+  bandFeatherPx?: number;  // feather px στα όρια (π.χ. 120)
+
+  // Μαλάκωμα δεξιά για να μη φαίνεται «μύτη»
+  rightFadePct?: number;   // 0..0.5 πλάτος fade από δεξί άκρο (π.χ. 0.10)
+
+  // Υπάρχουν μόνο για TS συμβατότητα αν τα περνά το Hero.tsx
   cutRadius?: number; cutFeather?: number; cutStrength?: number;
 };
 
@@ -50,9 +58,11 @@ void main() {
 `;
 
 /* Plasma (reactbits) με:
-   - alpha (για να φαίνεται το λευκό background)
-   - stretch & center για οβάλ blob
-   - ΚΡΙΣΙΜΟ: περιστροφή του χώρου κατά 90° => γίνεται οριζόντιο στο κέντρο
+   - alpha για να φαίνεται το λευκό background
+   - περιστροφή 90° ώστε η κίνηση να είναι οριζόντια
+   - stretch/center για οβάλ "μπάρα" στο κέντρο
+   - "Band mask": εμφανίζει ΜΟΝΟ ανάμεσα σε δύο οριζόντιες γραμμές (με feather)
+   - "Right fade": σβήνει απαλά δεξιά ώστε να μη βγαίνει «μύτη»
 */
 const fragment = `#version 300 es
 precision highp float;
@@ -69,7 +79,14 @@ uniform float uScale;
 uniform float uStretchX;
 uniform float uStretchY;
 uniform vec2  uCenter;
-uniform float uAngle; // σε radians (προεπιλογή: π/2 = 90°)
+uniform float uAngle;          // 90° = οριζόντιο
+
+// Band mask (σε pixels)
+uniform float uBandTop;        // y-top
+uniform float uBandBottom;     // y-bottom
+uniform float uBandFeather;    // px feather
+// Right fade (σε ποσοστό πλάτους)
+uniform float uRightFadePct;   // 0..0.5
 
 out vec4 fragColor;
 
@@ -78,10 +95,10 @@ void mainImage(out vec4 o, vec2 C) {
   vec2 center = iResolution * 0.5 + uCenter;
   vec2 P = (C - center) / uScale;
 
-  // Ανισοτροπικό stretch (οβάλ)
+  // Stretch
   P *= mat2(uStretchX, 0.0, 0.0, uStretchY);
 
-  // ΠΕΡΙΣΤΡΟΦΗ 90° (ή όσο ζητηθεί)
+  // Περιστροφή 90° ώστε η κίνηση να είναι οριζόντια
   float ca = cos(uAngle), sa = sin(uAngle);
   P = mat2(ca, -sa, sa, ca) * P;
 
@@ -96,11 +113,10 @@ void mainImage(out vec4 o, vec2 C) {
     p = z * normalize(vec3(C - 0.5*r, r.y));
     p.z -= 4.0;
     S = p;
-    d = p.y - T; // το αρχικό phase (κάθετο) — τώρα έχει “γίνει” οριζόντιο λόγω της περιστροφής
+    d = p.y - T; // μετά την περιστροφή, αυτό αντιστοιχεί σε οριζόντιο flow
 
     p.x += 0.4 * (1.0 + p.y) * sin(d + p.x*0.1) * cos(0.34*d + p.x*0.05);
 
-    // explicit mat2 για 300es
     float a = cos(p.y - T + 0.0);
     float b = cos(p.y - T + 11.0);
     float c = cos(p.y - T + 33.0);
@@ -133,33 +149,63 @@ void main() {
   mainImage(o, fragCoord);
   vec3 rgb = sanitize(o.rgb);
 
+  // Ένταση & palette
   float intensity = clamp((rgb.r + rgb.g + rgb.b) / 3.0, 0.0, 1.0);
   float t = smoothstep(0.2, 0.85, intensity);
   vec3 plasmaColor = mix(uColorA, uColorB, t);
 
+  // Βασικό alpha (όπως reactbits)
   float alpha = intensity * clamp(uOpacity, 0.0, 1.0);
+
+  // -------- Band mask (top/bottom με feather) --------
+  // 0 στο έξω-μπάντα, 1 μέσα στη ζώνη
+  float topFeather    = uBandFeather;
+  float bottomFeather = uBandFeather;
+  float topMask    = smoothstep(uBandTop - topFeather, uBandTop, fragCoord.y);
+  float bottomMask = 1.0 - smoothstep(uBandBottom, uBandBottom + bottomFeather, fragCoord.y);
+  float bandMask = clamp(topMask * bottomMask, 0.0, 1.0);
+
+  // -------- Right fade (για να μη βγαίνει μυτερό) --------
+  float rightEdge = iResolution.x;
+  float fadeStart = rightEdge * (1.0 - clamp(uRightFadePct, 0.0, 0.5));
+  float rightMask = 1.0 - smoothstep(fadeStart, rightEdge, fragCoord.x);
+
+  // Τελικό alpha = βασικό * band * (0.7 + 0.3*rightMask)  (ελαφρύ σβήσιμο δεξιά)
+  alpha *= bandMask * mix(1.0, rightMask, 0.7);
+
   fragColor = vec4(plasmaColor, alpha);
 }
 `;
 
 export default function Iridescence({
-  color = [1, 1, 1],
-  mouseReact = false,
-  amplitude = 0,
+  // defaults για «γεμάτη» οριζόντια μπάρα στο κέντρο
   speed = 0.6,
-  scale = 0.86,        // πιο "γεμάτο"
+  scale = 0.86,
   opacity = 0.8,
   colorA = "#FF00F2",
   colorB = "#0090FF",
   className = "",
-  stretchX = 1.45,     // πλατύτερο
-  stretchY = 0.65,     // χαμηλότερο
-  centerX = 0.0,       // κέντρο
-  centerY = 0.0,       // κέντρο
-  cutRadius, cutFeather, cutStrength, // TS συμβατότητα
+  stretchX = 1.45,
+  stretchY = 0.65,
+  centerX = 0.0,
+  centerY = 0.0,
+
+  // Ζώνη ανάμεσα στις «κόκκινες» γραμμές (προσαρμόζεις όπως θέλεις)
+  bandTopPct = 0.22,
+  bandBottomPct = 0.72,
+  bandFeatherPx = 120,
+
+  // Σβήσιμο δεξιά για να μη φαίνεται μυτερό
+  rightFadePct = 0.10,
+
+  // TS συμβατότητα
+  color = [1, 1, 1],
+  mouseReact = false,
+  amplitude = 0,
+  cutRadius, cutFeather, cutStrength,
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  void cutRadius; void cutFeather; void cutStrength;
+  void color; void mouseReact; void amplitude; void cutRadius; void cutFeather; void cutStrength;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -182,7 +228,7 @@ export default function Iridescence({
     canvas.style.display = "block";
     containerRef.current.appendChild(canvas);
 
-    gl.clearColor(1, 1, 1, 1); // λευκή βάση
+    gl.clearColor(1, 1, 1, 1); // λευκό υπόβαθρο
 
     const geometry = new Triangle(gl);
     const program = new Program(gl, {
@@ -198,8 +244,12 @@ export default function Iridescence({
         uScale: { value: scale },
         uStretchX: { value: stretchX },
         uStretchY: { value: stretchY },
-        uCenter: { value: new Float32Array([0, 0]) }, // ενημερώνεται στο resize
-        uAngle: { value: Math.PI * 0.5 },             // 90° → οριζόντιο
+        uCenter: { value: new Float32Array([0, 0]) }, // set on resize
+        uAngle: { value: Math.PI * 0.5 },             // 90°
+        uBandTop: { value: 0 },
+        uBandBottom: { value: 0 },
+        uBandFeather: { value: bandFeatherPx },
+        uRightFadePct: { value: rightFadePct },
       },
       transparent: true,
     });
@@ -216,12 +266,14 @@ export default function Iridescence({
       res[0] = gl.drawingBufferWidth;
       res[1] = gl.drawingBufferHeight;
 
-      // μετατόπιση κέντρου σε pixels (π.χ. 0.1 => 10% του πλάτους)
-      const cx = centerX * res[0];
-      const cy = centerY * res[1];
+      // Κέντρο σε pixels
       const uC = program.uniforms.uCenter.value as Float32Array;
-      uC[0] = cx;
-      uC[1] = cy;
+      uC[0] = centerX * res[0];
+      uC[1] = centerY * res[1];
+
+      // Band σε pixels
+      (program.uniforms.uBandTop as any).value = bandTopPct * res[1];
+      (program.uniforms.uBandBottom as any).value = bandBottomPct * res[1];
     };
 
     const ro = new ResizeObserver(setSize);
@@ -247,7 +299,10 @@ export default function Iridescence({
       ro.disconnect();
       try { containerRef.current?.removeChild(canvas); } catch {}
     };
-  }, [speed, scale, opacity, colorA, colorB, stretchX, stretchY, centerX, centerY]);
+  }, [
+    speed, scale, opacity, colorA, colorB, stretchX, stretchY,
+    centerX, centerY, bandTopPct, bandBottomPct, bandFeatherPx, rightFadePct
+  ]);
 
   return <div ref={containerRef} className={`iridescence-container ${className ?? ""}`} />;
 }
