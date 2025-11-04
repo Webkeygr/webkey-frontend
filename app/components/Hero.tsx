@@ -51,6 +51,9 @@ export default function Hero() {
   waveOpacity={0.65}      // λίγο πιο έντονο
   colorA="#FF00F2"
   colorB="#0090FF"
+  bandTopPct={0.22}
+  bandBottomPct={0.66}
+  bandFeatherPx={100}
       />
 
       <div className="hero-inner">
