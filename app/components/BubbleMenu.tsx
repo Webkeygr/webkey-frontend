@@ -22,7 +22,6 @@ type Props = {
   animationEase?: string;
   animationDuration?: number;
   staggerDelay?: number;
-  /** θα εμφανιστεί δεξιά από το toggle (π.χ. CTA) */
   rightSlot?: React.ReactNode;
 };
 
@@ -44,15 +43,12 @@ export default function BubbleMenu({
   const bubblesRef = useRef<HTMLAnchorElement[]>([]);
   const labelRefs = useRef<HTMLSpanElement[]>([]);
 
-  // toggle
   const handleToggle = () => setOpen((v) => !v);
 
-  // κλείσιμο με click εκτός (πάνω στο backdrop)
   const onOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === overlayRef.current) setOpen(false);
   };
 
-  // animation (χωρίς απο-μοντάρισμα -> φεύγει το “flash”)
   useEffect(() => {
     const overlay = overlayRef.current!;
     const bubbles = bubblesRef.current.filter(Boolean);
@@ -60,15 +56,11 @@ export default function BubbleMenu({
     if (!overlay || !bubbles.length) return;
 
     if (open) {
-      // δείξε overlay ομαλά (opacity, όχι display)
       gsap.set(overlay, { autoAlpha: 1, pointerEvents: "auto" });
-
-      // προετοιμασία
       gsap.killTweensOf([...bubbles, ...labels]);
       gsap.set(bubbles, { scale: 0, transformOrigin: "50% 50%" });
       gsap.set(labels, { y: 24, autoAlpha: 0 });
 
-      // pills + labels με μικρό τυχαίο “jitter” για ζωντάνια
       bubbles.forEach((bubble, i) => {
         const delay = i * staggerDelay + gsap.utils.random(-0.04, 0.04);
         const tl = gsap.timeline({ delay });
@@ -106,7 +98,6 @@ export default function BubbleMenu({
     }
   }, [open, animationEase, animationDuration, staggerDelay]);
 
-  // rotation: σε desktop κρατάμε το rotation, σε mobile = 0
   useEffect(() => {
     const applyRot = () => {
       const isDesktop = window.innerWidth >= 900;
@@ -134,7 +125,7 @@ export default function BubbleMenu({
   return (
     <>
       <nav className={containerCls} aria-label="Main navigation">
-        {/* LOGO χωρίς pill */}
+        {/* Logo χωρίς pill */}
         <div className="logo-plain" aria-label="Logo">
           {logo}
         </div>
@@ -163,7 +154,7 @@ export default function BubbleMenu({
         </div>
       </nav>
 
-      {/* OVERLAY πάντα στο DOM – σκοτεινιάζει + κρατά τα pills */}
+      {/* Overlay – μόνιμα mounted για smooth fade */}
       <div
         ref={overlayRef}
         className={overlayCls}
@@ -189,12 +180,18 @@ export default function BubbleMenu({
                       item.hoverStyles?.textColor || menuContentColor,
                   } as React.CSSProperties
                 }
-                ref={(el) => el && (bubblesRef.current[idx] = el)}
+                /* --- FIX: επιστρέφουμε void --- */
+                ref={(el) => {
+                  if (el) bubblesRef.current[idx] = el;
+                }}
                 onClick={() => setOpen(false)}
               >
                 <span
                   className="pill-label"
-                  ref={(el) => el && (labelRefs.current[idx] = el)}
+                  /* --- FIX: επιστρέφουμε void --- */
+                  ref={(el) => {
+                    if (el) labelRefs.current[idx] = el;
+                  }}
                 >
                   {item.label}
                 </span>
