@@ -146,7 +146,7 @@ export default function Iridescence({
   color = [1, 1, 1],
   mouseReact = false,
   amplitude = 0,
-  speed = 0.9,
+  speed = 2.5,
   scale = 1.20,        // πιο "γεμάτο"
   opacity = 0.8,
   colorA = "#FF00F2",
