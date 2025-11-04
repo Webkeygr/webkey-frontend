@@ -47,13 +47,13 @@ export default function Hero() {
   cutRadius={130}         // μεγαλύτερο κενό γύρω από mouse
   cutFeather={90}         // πιο "σκληρό" κόψιμο => μικρότερο feather
   cutStrength={0.012}     // 0..0.02 πόσο σπρώχνει το flow γύρω από mouse
-  waveWidth={95}          // πιο “παχύ” – άπλωμα
+  waveWidth={68}          // πιο “παχύ” – άπλωμα
   waveOpacity={0.95}      // λίγο πιο έντονο
   colorA="#FF00F2"
   colorB="#0090FF"
-  bandTopPct={0.10}
-  bandBottomPct={0.35}
-  bandFeatherPx={100}
+  bandTopPct={0.05}
+  bandBottomPct={0.92}
+  bandFeatherPx={60}
       />
 
       <div className="hero-inner">
