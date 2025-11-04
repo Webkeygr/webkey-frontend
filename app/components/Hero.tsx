@@ -39,21 +39,24 @@ export default function Hero() {
       {/* Minimal, low-lag wallpaper */}
       <Iridescence
         className="hero-iridescence"
-  mouseReact={true}       // on/off το "cut"
-  speed={1.9}
-  amplitude={0.1}
-  opacity={0.9}           // 0..1 πόσο έντονο πάνω από λευκό
-  scale={1.1}             // 0.9 πιο "γεμάτο", 1.2 πιο αραιό
-  cutRadius={130}         // μεγαλύτερο κενό γύρω από mouse
-  cutFeather={90}         // πιο "σκληρό" κόψιμο => μικρότερο feather
-  cutStrength={0.012}     // 0..0.02 πόσο σπρώχνει το flow γύρω από mouse
-  waveWidth={68}          // πιο “παχύ” – άπλωμα
-  waveOpacity={0.95}      // λίγο πιο έντονο
-  colorA="#FF00F2"
-  colorB="#0090FF"
-  bandTopPct={0.05}
-  bandBottomPct={0.92}
-  bandFeatherPx={60}
+        mouseReact={true} // on/off το "cut"
+        speed={1.9}
+        amplitude={0.1}
+        opacity={0.9} // 0..1 πόσο έντονο πάνω από λευκό
+        scale={1.1} // 0.9 πιο "γεμάτο", 1.2 πιο αραιό
+        cutRadius={130} // μεγαλύτερο κενό γύρω από mouse
+        cutFeather={90} // πιο "σκληρό" κόψιμο => μικρότερο feather
+        cutStrength={0.012} // 0..0.02 πόσο σπρώχνει το flow γύρω από mouse
+        waveWidth={68} // πιο “παχύ” – άπλωμα
+        waveOpacity={0.95} // λίγο πιο έντονο
+        colorA="#FF00F2"
+        colorB="#0090FF"
+        bandTopPct={0.05}
+        bandBottomPct={0.92}
+        bandFeatherPx={60}
+        ampMainFactor={0.55}
+        ampSubFactor={0.3}
+        yOffsetPct={0.0} // 0 = κέντρο, θετικό προς τα κάτω, αρνητικό προς τα πάνω
       />
 
       <div className="hero-inner">
