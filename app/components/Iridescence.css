@@ -1,6 +1,9 @@
 .iridescence-container {
+  position: relative;
   width: 100%;
   height: 100%;
   display: block;
-  background: transparent;
+  overflow: hidden;
+  /* fallback σε καθαρό λευκό αν δεν πάρει μπροστά WebGL */
+  background: #ffffff;
 }
