@@ -146,14 +146,14 @@ export default function Iridescence({
   color = [1, 1, 1],
   mouseReact = false,
   amplitude = 0,
-  speed = 12.1,
-  scale = 0.89,        // πιο "γεμάτο"
-  opacity = 1,
+  speed = 12.5,
+  scale = 0.86,        // πιο "γεμάτο"
+  opacity = 0.8,
   colorA = "#FF00F2",
   colorB = "#0090FF",
   className = "",
-  stretchX = 0.25,     // πλατύτερο
-  stretchY = 0.15,     // χαμηλότερο
+  stretchX = 1.45,     // πλατύτερο
+  stretchY = 0.65,     // χαμηλότερο
   centerX = 0.0,       // κέντρο
   centerY = 0.0,       // κέντρο
   cutRadius, cutFeather, cutStrength, // TS συμβατότητα
