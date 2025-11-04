@@ -152,7 +152,7 @@ export default function Iridescence({
   colorA = "#FF00F2",
   colorB = "#0090FF",
   className = "",
-  stretchX = 0.35,     // πλατύτερο
+  stretchX = 2.5,     // πλατύτερο
   stretchY = 0.45,     // χαμηλότερο
   centerX = 0.0,       // κέντρο
   centerY = 0.0,       // κέντρο
