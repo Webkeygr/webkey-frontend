@@ -4,27 +4,21 @@ import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
-/**
- * Reactbits Plasma-style (WebGL2 / GLSL 300 es)
- * - Λευκή βάση
- * - 2 χρώματα (A→B) με opacity πάνω απ’ το λευκό
- * - Χωρίς mouse interaction (εντελώς off)
- */
 type IridescenceProps = {
-  // Συμβατότητα με το παλιό API (αγνοούνται εδώ):
+  // συμβατότητα με παλιό API (αγνοούνται):
   color?: [number, number, number];
-  mouseReact?: boolean;  // αγνοείται (off)
-  amplitude?: number;    // αγνοείται
+  mouseReact?: boolean;
+  amplitude?: number;
 
-  // Χρήσιμα props (όλα προαιρετικά):
-  speed?: number;        // 0.2..1.5 (ρυθμός κίνησης)
-  scale?: number;        // 0.8..1.4 (κλίμακα μοτίβου)
-  opacity?: number;      // 0..1 (ένταση plasma πάνω από λευκό)
-  colorA?: string;       // default #FF00F2
-  colorB?: string;       // default #0090FF
+  // χρήσιμα:
+  speed?: number;    // 0.2..1.5
+  scale?: number;    // 0.8..1.4
+  opacity?: number;  // 0..1 (πόση διαφάνεια έχει το plasma)
+  colorA?: string;   // #FF00F2
+  colorB?: string;   // #0090FF
   className?: string;
 
-  // Προστίθενται μόνο για να μην “γκρινιάζει” το TypeScript στο Hero.tsx (δεν χρησιμοποιούνται)
+  // υπαρκτά για TS συμβατότητα αν τα περνά το Hero.tsx
   cutRadius?: number;
   cutFeather?: number;
   cutStrength?: number;
@@ -51,7 +45,10 @@ void main() {
 }
 `;
 
-// Πιστό plasma shader (reactbits) + 2-color palette πάνω από λευκό
+/* Reactbits Plasma core, αλλά:
+   - 2-color palette (uColorA → uColorB)
+   - ΛΕΥΚΟ background μέσω ALPHA: alpha ~ ένταση * uOpacity
+*/
 const fragment = `#version 300 es
 precision highp float;
 
@@ -82,7 +79,6 @@ void mainImage(out vec4 o, vec2 C) {
 
     p.x += 0.4 * (1.0 + p.y) * sin(d + p.x*0.1) * cos(0.34*d + p.x*0.05);
 
-    // explicit mat2 για 300es
     float a = cos(p.y - T + 0.0);
     float b = cos(p.y - T + 11.0);
     float c = cos(p.y - T + 33.0);
@@ -115,42 +111,43 @@ void main() {
   mainImage(o, fragCoord);
   vec3 rgb = sanitize(o.rgb);
 
-  // map σε 2-color palette (A→B) και μετά πάνω από λευκό
-  float t = clamp((rgb.r + rgb.g + rgb.b) / 3.0, 0.0, 1.0);
-  t = smoothstep(0.2, 0.85, t);
+  // ένταση (0..1)
+  float intensity = clamp((rgb.r + rgb.g + rgb.b) / 3.0, 0.0, 1.0);
+
+  // palette A→B με ελαφρύ S-curve
+  float t = smoothstep(0.2, 0.85, intensity);
   vec3 plasmaColor = mix(uColorA, uColorB, t);
 
-  vec3 white = vec3(1.0);
-  vec3 finalColor = mix(white, plasmaColor, clamp(uOpacity, 0.0, 1.0));
+  // ΧΡΩΜΑ & ALPHA όπως στο reactbits: μόνο τα έντονα σημεία είναι ορατά
+  float alpha = intensity * clamp(uOpacity, 0.0, 1.0);
 
-  fragColor = vec4(finalColor, 1.0);
+  fragColor = vec4(plasmaColor, alpha);
 }
 `;
 
 export default function Iridescence({
   color = [1, 1, 1],
-  mouseReact = false, // ζητήθηκε off
-  amplitude = 0,      // αγνοείται
+  mouseReact = false,
+  amplitude = 0,
   speed = 0.6,
-  scale = 1.1,
-  opacity = 0.9,
+  scale = 1.0,
+  opacity = 0.8,
   colorA = "#FF00F2",
   colorB = "#0090FF",
   className = "",
-  // τα cut* υπάρχουν μόνο για TS συμβατότητα με Hero.tsx
   cutRadius,
   cutFeather,
   cutStrength,
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  void cutRadius; void cutFeather; void cutStrength; // silence unused vars
+  void cutRadius; void cutFeather; void cutStrength; // TS silence
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     const renderer = new Renderer({
-      webgl: 2,                    // WebGL2 όπως στο reactbits
-      alpha: true,
+      webgl: 2,
+      alpha: true,                 // ΠΡΕΠΕΙ να είναι true για να δουλέψει το alpha
       antialias: false,
       dpr: Math.min(window.devicePixelRatio || 1, 1.5),
       powerPreference: "low-power",
@@ -159,7 +156,7 @@ export default function Iridescence({
     const gl = renderer.gl;
     const canvas = gl.canvas;
 
-    // Γεμίζει από άκρη σε άκρη τον wrapper (hero)
+    // κατεβάζουμε το canvas full-bleed στο hero
     canvas.style.position = "absolute";
     canvas.style.inset = "0";
     canvas.style.width = "100%";
@@ -168,7 +165,7 @@ export default function Iridescence({
 
     containerRef.current.appendChild(canvas);
 
-    // λευκή βάση
+    // Άσπρο από κάτω (φαίνεται όπου το alpha είναι χαμηλό)
     gl.clearColor(1, 1, 1, 1);
 
     const geometry = new Triangle(gl);
@@ -184,6 +181,7 @@ export default function Iridescence({
         uSpeed: { value: speed * 0.4 },
         uScale: { value: scale },
       },
+      transparent: true, // για να σεβαστεί το alpha στο blending
     });
 
     const mesh = new Mesh(gl, { geometry, program });
@@ -201,16 +199,14 @@ export default function Iridescence({
     ro.observe(containerRef.current!);
     setSize();
 
-    // cap ~45fps για ομαλή κίνηση & λιγότερο lag
+    // cap ~45fps
     let raf = 0, last = 0;
     const targetMs = 1000 / 45;
     const t0 = performance.now();
-
     const loop = (t: number) => {
       raf = requestAnimationFrame(loop);
       if (t - last < targetMs) return;
       last = t;
-
       (program.uniforms.iTime as any).value = (t - t0) * 0.001;
       gl.clear(gl.COLOR_BUFFER_BIT);
       renderer.render({ scene: mesh });
@@ -224,10 +220,5 @@ export default function Iridescence({
     };
   }, [speed, scale, opacity, colorA, colorB]);
 
-  return (
-    <div
-      ref={containerRef}
-      className={`iridescence-container ${className ?? ""}`}
-    />
-  );
+  return <div ref={containerRef} className={`iridescence-container ${className ?? ""}`} />;
 }
