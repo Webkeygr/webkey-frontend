@@ -8,21 +8,26 @@ import "./Iridescence.css";
  * Reactbits Plasma-style (WebGL2 / GLSL 300 es)
  * - Λευκή βάση
  * - 2 χρώματα (A→B) με opacity πάνω απ’ το λευκό
- * - Χωρίς mouse interaction
+ * - Χωρίς mouse interaction (εντελώς off)
  */
 type IridescenceProps = {
   // Συμβατότητα με το παλιό API (αγνοούνται εδώ):
   color?: [number, number, number];
-  mouseReact?: boolean;
-  amplitude?: number;
+  mouseReact?: boolean;  // αγνοείται (off)
+  amplitude?: number;    // αγνοείται
 
   // Χρήσιμα props (όλα προαιρετικά):
-  speed?: number;       // 0.2..1.5 (ρυθμός κίνησης)
-  scale?: number;       // 0.8..1.4 (κλίμακα μοτίβου)
-  opacity?: number;     // 0..1 (ένταση plasma πάνω από λευκό)
-  colorA?: string;      // default #FF00F2
-  colorB?: string;      // default #0090FF
+  speed?: number;        // 0.2..1.5 (ρυθμός κίνησης)
+  scale?: number;        // 0.8..1.4 (κλίμακα μοτίβου)
+  opacity?: number;      // 0..1 (ένταση plasma πάνω από λευκό)
+  colorA?: string;       // default #FF00F2
+  colorB?: string;       // default #0090FF
   className?: string;
+
+  // Προστίθενται μόνο για να μην “γκρινιάζει” το TypeScript στο Hero.tsx (δεν χρησιμοποιούνται)
+  cutRadius?: number;
+  cutFeather?: number;
+  cutStrength?: number;
 };
 
 const hexToRgb = (hex: string): [number, number, number] => {
@@ -124,16 +129,21 @@ void main() {
 
 export default function Iridescence({
   color = [1, 1, 1],
-  mouseReact = false, // αγνοείται (ζητήθηκε off)
-  amplitude = 0,
+  mouseReact = false, // ζητήθηκε off
+  amplitude = 0,      // αγνοείται
   speed = 0.6,
   scale = 1.1,
   opacity = 0.9,
   colorA = "#FF00F2",
   colorB = "#0090FF",
   className = "",
+  // τα cut* υπάρχουν μόνο για TS συμβατότητα με Hero.tsx
+  cutRadius,
+  cutFeather,
+  cutStrength,
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  void cutRadius; void cutFeather; void cutStrength; // silence unused vars
 
   useEffect(() => {
     if (!containerRef.current) return;
