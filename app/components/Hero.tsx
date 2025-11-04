@@ -42,9 +42,9 @@ export default function Hero() {
         //color={[1, 1, 1]}
         mouseReact={false}
         amplitude={0.08}
-        intensity={1.90}  // ↑ πιο έντονο
+        intensity={2.90}  // ↑ πιο έντονο
         sharpness={5.8}   // ↑ πιο “κοφτό”/ζωντανό edge
-        speed={0.9}       // χαμηλή ταχύτητα
+        speed={1.5}       // χαμηλή ταχύτητα
       />
 
       <div className="hero-inner">
