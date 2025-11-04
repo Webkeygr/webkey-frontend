@@ -172,7 +172,7 @@ void main() {
 `;
 
 export default function Iridescence({
-  speed = 0.6,
+  speed = 25,
   scale = 0.86,
   opacity = 0.8,
   colorA = "#FF00F2",
