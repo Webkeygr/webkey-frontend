@@ -5,7 +5,7 @@ import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
 type IridescenceProps = {
-  // legacy (αγνοούνται)
+  // legacy (αγνοούνται στο shader)
   color?: [number, number, number];
   mouseReact?: boolean;
   amplitude?: number;
@@ -16,17 +16,17 @@ type IridescenceProps = {
   opacity?: number;          // 0..1
   colorA?: string;           // #FF00F2
   colorB?: string;           // #0090FF
-  vibrance?: number;         // ενίσχυση χρώματος (1..2)
-  gamma?: number;            // καμπύλη έντασης (0.6..1.2)
+  vibrance?: number;         // 1..2
+  gamma?: number;            // 0.6..1.2
   className?: string;
 
   // σχήμα/θέση (οριζόντια μπάρα)
-  stretchX?: number;         // >1 απλώνει οριζόντια
-  stretchY?: number;         // <1 πιέζει κάθετα
-  centerX?: number;          // -0.5..0.5
-  centerY?: number;          // -0.5..0.5
+  stretchX?: number;
+  stretchY?: number;
+  centerX?: number;
+  centerY?: number;
 
-  // κάθετη ζώνη
+  // κάθετη ζώνη (band)
   bandTopPct?: number;
   bandBottomPct?: number;
   bandFeatherPx?: number;
@@ -61,8 +61,7 @@ void main() {
 }
 `;
 
-// Plasma (reactbits) + 90° rotation + vertical band + symmetric horizontal window + HANN
-// + vibrance & gamma για πιο έντονο αποτέλεσμα
+// Plasma (reactbits) οριζόντιο + band/window + HANN plateau + vibrance/gamma + rim boost
 const fragment = `#version 300 es
 precision highp float;
 
@@ -78,7 +77,7 @@ uniform float uScale;
 uniform float uStretchX;
 uniform float uStretchY;
 uniform vec2  uCenter;
-uniform float uAngle;     // 90° οριζόντιο
+uniform float uAngle;     // 90° = οριζόντιο
 
 uniform float uBandTop;
 uniform float uBandBottom;
@@ -88,8 +87,8 @@ uniform float uWinStart;
 uniform float uWinEnd;
 uniform float uWinFeather;
 
-uniform float uVibrance;  // 1..2
-uniform float uGamma;     // 0.6..1.2
+uniform float uVibrance;
+uniform float uGamma;
 
 out vec4 fragColor;
 
@@ -148,63 +147,76 @@ void main() {
   mainImage(o, fragCoord);
   vec3 rgb = sanitize(o.rgb);
 
-  // ένταση
+  // ένταση + πιο “γεμάτη” καμπύλη
   float intensity = clamp((rgb.r + rgb.g + rgb.b) / 3.0, 0.0, 1.0);
-  float iGamma = pow(intensity, uGamma); // πιο “γεμάτη” καμπύλη
-  float t = smoothstep(0.15, 0.95, iGamma);
+  float iGamma = pow(intensity, uGamma);
+  float t = smoothstep(0.10, 0.98, iGamma);
+
+  // θερμό υποτόνισμα στο πολύ ανοιχτό (ώστε να ροζίζει ελαφρά)
+  vec3 warm = vec3(0.98, 0.96, 0.93);
+  vec3 baseMix = mix(vec3(1.0), warm, smoothstep(0.0, 0.35, iGamma) * 0.25);
 
   // mix χρωμάτων + vibrance
-  vec3 plasmaColor = mix(uColorA, uColorB, t);
-  plasmaColor = clamp(plasmaColor * uVibrance, 0.0, 1.0);
+  vec3 plasma = mix(uColorA, uColorB, t);
+  plasma = clamp(plasma * uVibrance, 0.0, 1.0);
+  plasma = mix(baseMix, plasma, t);
 
-  // βάση alpha (δυνατότερο)
+  // derivatives για “rim”
+  float gx = dFdx(iGamma);
+  float gy = dFdy(iGamma);
+  float edge = clamp(length(vec2(gx, gy)) * 2.2, 0.0, 1.0);
+  float rim = smoothstep(0.08, 0.28, edge);       // φωτεινό περίγραμμα
+  plasma += rim * 0.18;                           // μικρό bloom
+
+  // βάση alpha
   float alpha = iGamma * clamp(uOpacity, 0.0, 1.0);
 
-  // ---- κάθετη ζώνη
+  // κάθετη ζώνη
   float topMask    = smoothstep(uBandTop - uBandFeather, uBandTop, fragCoord.y);
   float bottomMask = 1.0 - smoothstep(uBandBottom, uBandBottom + uBandFeather, fragCoord.y);
   float bandMask = clamp(topMask * bottomMask, 0.0, 1.0);
 
-  // ---- οριζόντιο παράθυρο (συμμετρικό)
+  // οριζόντιο παράθυρο
   float leftMask  = smoothstep(uWinStart, uWinStart + uWinFeather, fragCoord.x);
   float rightMask = 1.0 - smoothstep(uWinEnd - uWinFeather, uWinEnd, fragCoord.x);
   float windowMask = clamp(leftMask * rightMask, 0.0, 1.0);
 
-  // ---- Hann window (0→1→0) για λεπτές συμμετρικές άκρες
+  // Hann window (πιο πλατύ plateau)
   float localX = clamp((fragCoord.x - uWinStart) / max(1.0, (uWinEnd - uWinStart)), 0.0, 1.0);
   float hann = 0.5 * (1.0 - cos(6.28318530718 * localX));
+  hann = pow(hann, 0.6); // πλατύτερο κέντρο
 
   alpha *= bandMask * windowMask * hann;
 
-  fragColor = vec4(plasmaColor, alpha);
+  fragColor = vec4(plasma, alpha);
 }
 `;
 
 export default function Iridescence({
-  // πιο “γεμάτο & έντονο”
+  // “γεμάτο & έντονο”
   speed = 0.6,
-  scale = 0.78,            // ↓ γεμίζει
-  opacity = 0.95,          // ↑ ένταση
+  scale = 0.72,            // ↓ γεμίζει αισθητά
+  opacity = 1.0,
   colorA = "#FF00F2",
   colorB = "#0090FF",
-  vibrance = 1.35,         // ↑ κορεσμός/ένταση
-  gamma = 0.85,            // ελαφρά πιο επίπεδη καμπύλη
+  vibrance = 1.45,
+  gamma = 0.78,
 
   className = "",
-  stretchX = 1.55,         // λίγο πιο ανοικτό οριζόντια
-  stretchY = 0.80,         // πιο παχύ
+  stretchX = 1.55,
+  stretchY = 0.92,         // πιο παχύ κέντρο
   centerX = 0.0,
   centerY = 0.0,
 
-  // κάθετη ζώνη
-  bandTopPct = 0.16,
-  bandBottomPct = 0.80,
+  // μεγαλύτερη κάθετη ζώνη για παρουσία
+  bandTopPct = 0.10,
+  bandBottomPct = 0.90,
   bandFeatherPx = 110,
 
-  // οριζόντιο παράθυρο
-  winStartPct = 0.06,
-  winEndPct   = 0.94,
-  winFeatherPx = 120,
+  // φαρδύ, αλλά με ζωντανές άκρες
+  winStartPct = 0.04,
+  winEndPct   = 0.96,
+  winFeatherPx = 100,
 
   // TS συμβατότητα
   color = [1, 1, 1],
@@ -286,11 +298,11 @@ export default function Iridescence({
       uC[0] = centerX * res[0];
       uC[1] = centerY * res[1];
 
-      // κάθετη ζώνη
+      // band σε pixels
       (program.uniforms.uBandTop as any).value = bandTopPct * res[1];
       (program.uniforms.uBandBottom as any).value = bandBottomPct * res[1];
 
-      // οριζόντιο παράθυρο
+      // window σε pixels
       (program.uniforms.uWinStart as any).value = winStartPct * res[0];
       (program.uniforms.uWinEnd as any).value   = winEndPct   * res[0];
     };
@@ -299,7 +311,7 @@ export default function Iridescence({
     ro.observe(containerRef.current!);
     setSize();
 
-    // ~45fps
+    // ~45fps cap
     let raf = 0, last = 0;
     const targetMs = 1000 / 45;
     const t0 = performance.now();
