@@ -21,12 +21,12 @@ type IridescenceProps = {
   centerX?: number;    // -0.5..0.5
   centerY?: number;    // -0.5..0.5
 
-  // Κάθετη ζώνη (όρια όπως οι κόκκινες γραμμές)
+  // Κάθετη ζώνη (όπως οι κόκκινες γραμμές)
   bandTopPct?: number;        // 0..1 από πάνω
   bandBottomPct?: number;     // 0..1 από πάνω
   bandFeatherPx?: number;     // feather σε px
 
-  // ΝΕΟ: Οριζόντιο “παράθυρο” με συμμετρικό feather (κόβει α/δ)
+  // Οριζόντιο “παράθυρο” (κόβει αριστερά/δεξιά)
   winStartPct?: number;       // 0..1 (αριστερό όριο)
   winEndPct?: number;         // 0..1 (δεξί όριο)
   winFeatherPx?: number;      // feather σε px
@@ -56,7 +56,8 @@ void main() {
 }
 `;
 
-// Plasma (reactbits) + rotation 90° + vertical band + NEW horizontal window mask (symmetrical)
+// Plasma (reactbits) + 90° rotation + vertical band + symmetric horizontal window
+// + HANN WINDOW profile (0→1→0) μέσα στο οριζόντιο παράθυρο για λεπτές άκρες.
 const fragment = `#version 300 es
 precision highp float;
 
@@ -72,7 +73,7 @@ uniform float uScale;
 uniform float uStretchX;
 uniform float uStretchY;
 uniform vec2  uCenter;
-uniform float uAngle; // 90° για οριζόντιο
+uniform float uAngle; // 90° = οριζόντιο
 
 // Κάθετη ζώνη
 uniform float uBandTop;
@@ -87,14 +88,11 @@ uniform float uWinFeather;
 out vec4 fragColor;
 
 void mainImage(out vec4 o, vec2 C) {
-  // κέντρο + scale
   vec2 center = iResolution * 0.5 + uCenter;
   vec2 P = (C - center) / uScale;
 
-  // stretch
   P *= mat2(uStretchX, 0.0, 0.0, uStretchY);
 
-  // rotate 90°
   float ca = cos(uAngle), sa = sin(uAngle);
   P = mat2(ca, -sa, sa, ca) * P;
 
@@ -156,20 +154,24 @@ void main() {
   float bottomMask = 1.0 - smoothstep(uBandBottom, uBandBottom + uBandFeather, fragCoord.y);
   float bandMask = clamp(topMask * bottomMask, 0.0, 1.0);
 
-  // ----- Symmetric horizontal window (start..end with same feather both sides) -----
+  // ----- Symmetric horizontal window (start..end) -----
   float leftMask  = smoothstep(uWinStart, uWinStart + uWinFeather, fragCoord.x);
   float rightMask = 1.0 - smoothstep(uWinEnd - uWinFeather, uWinEnd, fragCoord.x);
   float windowMask = clamp(leftMask * rightMask, 0.0, 1.0);
 
-  // Συνδυασμός: εμφανίζεται μόνο μέσα στη ζώνη ΚΑΙ στο συμμετρικό παράθυρο
-  alpha *= bandMask * windowMask;
+  // ----- HANN window profile μέσα στο οριζόντιο παράθυρο -----
+  // τοπική θέση 0..1 μέσα στο [uWinStart, uWinEnd]
+  float localX = clamp((fragCoord.x - uWinStart) / max(1.0, (uWinEnd - uWinStart)), 0.0, 1.0);
+  // raised-cosine: 0 στα άκρα, 1 στο κέντρο (λεπτό → παχύ → λεπτό)
+  float hann = 0.5 * (1.0 - cos(6.28318530718 * localX)); // 2π * x
+
+  alpha *= bandMask * windowMask * hann;
 
   fragColor = vec4(plasmaColor, alpha);
 }
 `;
 
 export default function Iridescence({
-  // εμφάνιση
   speed = 0.6,
   scale = 0.86,
   opacity = 0.8,
@@ -177,21 +179,20 @@ export default function Iridescence({
   colorB = "#0090FF",
   className = "",
 
-  // σχήμα/θέση
   stretchX = 1.45,
   stretchY = 0.65,
   centerX = 0.0,
   centerY = 0.0,
 
-  // κάθετη ζώνη (προσαρμόζεται στις κόκκινες γραμμές)
-  bandTopPct = 0.18,        // λίγο πιο πάνω από το “Dare”
-  bandBottomPct = 0.78,     // συμμετρικά κάτω
+  // κάθετη ζώνη
+  bandTopPct = 0.18,
+  bandBottomPct = 0.78,
   bandFeatherPx = 130,
 
-  // συμμετρικό οριζόντιο παράθυρο (κόβει αριστερά/δεξιά, χωρίς “μύτη”)
-  winStartPct = 0.06,       // 6% από αριστερά αρχίζει
-  winEndPct   = 0.94,       // 94% τελειώνει
-  winFeatherPx = 140,       // ίσο feather αριστερά/δεξιά
+  // οριζόντιο παράθυρο — κάνε το λίγο «μέσα» για πιο λεπτές άκρες
+  winStartPct = 0.10,
+  winEndPct   = 0.90,
+  winFeatherPx = 160,
 
   // TS συμβατότητα
   color = [1, 1, 1],
@@ -270,11 +271,11 @@ export default function Iridescence({
       uC[0] = centerX * res[0];
       uC[1] = centerY * res[1];
 
-      // band σε pixels
+      // κάθετη ζώνη σε pixels
       (program.uniforms.uBandTop as any).value = bandTopPct * res[1];
       (program.uniforms.uBandBottom as any).value = bandBottomPct * res[1];
 
-      // window σε pixels
+      // οριζόντιο παράθυρο σε pixels
       (program.uniforms.uWinStart as any).value = winStartPct * res[0];
       (program.uniforms.uWinEnd as any).value   = winEndPct   * res[0];
     };
