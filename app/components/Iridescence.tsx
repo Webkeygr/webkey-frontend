@@ -4,62 +4,38 @@ import React, { useEffect, useRef, useState } from "react";
 import "./Iridescence.css";
 
 /**
- * Μικρό, inline 3D value-noise ([-1,1]) ώστε να ΜΗΝ χρειαζόμαστε το package "simplex-noise".
- * Δεν είναι simplex, αλλά για wavy φόντο δίνει το ίδιο "organic" αποτέλεσμα.
+ * Inline 3D value-noise ([-1,1]) για wavy φόντο χωρίς extra package.
  */
 function createNoise3D() {
-  // hash: επιστρέφει [0,1)
   const hash = (x: number, y: number, z: number) => {
-    // γρήγορο Integer hash
     let n = x * 15731 + y * 789221 + z * 1376312589;
     n = (n << 13) ^ n;
     const t = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff;
     return t / 0x7fffffff;
   };
-
-  // smoothstep/ fade
   const fade = (t: number) => t * t * (3 - 2 * t);
-
-  // lerp
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-  // value noise 3D (trilinear)
   const value3D = (x: number, y: number, z: number) => {
-    const xi = Math.floor(x);
-    const yi = Math.floor(y);
-    const zi = Math.floor(z);
-
-    const xf = x - xi;
-    const yf = y - yi;
-    const zf = z - zi;
-
-    const u = fade(xf);
-    const v = fade(yf);
-    const w = fade(zf);
-
-    const x0 = xi, x1 = xi + 1;
-    const y0 = yi, y1 = yi + 1;
-    const z0 = zi, z1 = zi + 1;
-
-    const c000 = hash(x0, y0, z0);
-    const c100 = hash(x1, y0, z0);
-    const c010 = hash(x0, y1, z0);
-    const c110 = hash(x1, y1, z0);
-    const c001 = hash(x0, y0, z1);
-    const c101 = hash(x1, y0, z1);
-    const c011 = hash(x0, y1, z1);
-    const c111 = hash(x1, y1, z1);
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    const xf = x - xi, yf = y - yi, zf = z - zi;
+    const u = fade(xf), v = fade(yf), w = fade(zf);
+    const c000 = hash(xi,     yi,     zi);
+    const c100 = hash(xi + 1, yi,     zi);
+    const c010 = hash(xi,     yi + 1, zi);
+    const c110 = hash(xi + 1, yi + 1, zi);
+    const c001 = hash(xi,     yi,     zi + 1);
+    const c101 = hash(xi + 1, yi,     zi + 1);
+    const c011 = hash(xi,     yi + 1, zi + 1);
+    const c111 = hash(xi + 1, yi + 1, zi + 1);
 
     const x00 = lerp(c000, c100, u);
     const x10 = lerp(c010, c110, u);
     const x01 = lerp(c001, c101, u);
     const x11 = lerp(c011, c111, u);
-
     const y0v = lerp(x00, x10, v);
     const y1v = lerp(x01, x11, v);
-
-    const val = lerp(y0v, y1v, w);
-    return val * 2 - 1; // [-1,1]
+    return (lerp(y0v, y1v, w) * 2 - 1);
   };
 
   return (x: number, y: number, z: number) => value3D(x, y, z);
@@ -76,7 +52,7 @@ type IridescenceProps = {
   waveOpacity?: number;
 
   // Συμβατότητα με παλιό API (αν έρχονται από Hero.tsx)
-  speed?: number; // 0.6 κλπ
+  speed?: number;  // 0.6 κλπ (χρησιμοποιείται για ρυθμό)
   scale?: number;
   opacity?: number;
   colorA?: string;
@@ -94,7 +70,7 @@ export default function Iridescence({
   blur = 16,
   waveOpacity = 0.6,
 
-  // από Hero.tsx συνήθως έρχεται speed={0.6}
+  // από Hero.tsx συχνά έρχεται speed={0.6}
   speed = 0.8,
 
   // αν δοθούν, μπαίνουν πρώτες στην παλέτα
@@ -133,18 +109,26 @@ export default function Iridescence({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let w = 0,
-      h = 0,
-      t = 0,
-      raf = 0;
+    let w = 0, h = 0, t = 0, raf = 0;
 
-    // map speed (0.8 ≈ “γρήγορα”, 0.4 ≈ “αργά”)
-    const timeStep = 0.0015 * (typeof speed === "number" ? speed : 1);
+    // πιο ορατή κίνηση: baseline 0.002 * speed
+    const timeStep = 0.002 * (typeof speed === "number" ? speed : 1);
 
     const setSize = () => {
+      // Παίρνουμε μέγεθος από τον γονέα.
       const rect = container.getBoundingClientRect();
-      w = (canvas.width = Math.max(1, Math.floor(rect.width)));
-      h = (canvas.height = Math.max(1, Math.floor(rect.height)));
+      // Fallback όταν ο γονιός είναι χωρίς ύψος (π.χ. height:100% αλλά ο δικός του γονιός 0px)
+      const fallbackW = window.innerWidth;
+      const fallbackH = Math.max(400, Math.floor(window.innerHeight * 0.7));
+
+      w = canvas.width  = Math.max(1, Math.floor(rect.width  || fallbackW));
+      h = canvas.height = Math.max(1, Math.floor(rect.height || fallbackH));
+
+      // Αν όντως δεν έχει ύψος ο γονιός, δώσε minHeight για να “πιάσει” το 70vh
+      if ((rect.height || 0) < 2) {
+        container.style.minHeight = `${fallbackH}px`;
+      }
+
       ctx.filter = `blur(${blur}px)`;
     };
 
@@ -159,14 +143,20 @@ export default function Iridescence({
         ctx.lineWidth = waveWidth;
         ctx.strokeStyle = waveColors[i % waveColors.length];
 
-        for (let x = 0; x < w; x += 5) {
-          // “οργανικό” κύμα με 2 κλίμακες θορύβου
+        // Ξεκίνα από την αριστερή άκρη με moveTo για καθαρή γραμμή
+        const y0 =
+          noise3D(0 / 800, 0.3 * i, t) * 100 +
+          noise3D(0 / 1200, 0.15 * i, t * 0.5) * 40 +
+          h * 0.5;
+        ctx.moveTo(0, y0);
+
+        for (let x = 5; x < w; x += 5) {
           const y =
             noise3D(x / 800, 0.3 * i, t) * 100 +
-            noise3D(x / 1200, 0.15 * i, t * 0.5) * 40;
-          ctx.lineTo(x, y + h * 0.5);
+            noise3D(x / 1200, 0.15 * i, t * 0.5) * 40 +
+            h * 0.5;
+          ctx.lineTo(x, y);
         }
-
         ctx.stroke();
         ctx.closePath();
       }
