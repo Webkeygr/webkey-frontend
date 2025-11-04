@@ -3,9 +3,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import StaggeredMenu from "./StaggeredMenu";
+import BubbleMenu from "./BubbleMenu";
 import GlassSurface from "./GlassSurface";
-import { useMemo } from "react";
 
 type HeaderProps = {
   logoSrc?: string;
@@ -18,15 +17,43 @@ export default function Header({
   ctaHref = "/contact",
   ctaText = "Get a quote",
 }: HeaderProps) {
-  const menuItems = useMemo(
-    () => [
-      { label: "Home", ariaLabel: "Go to home page", link: "/" },
-      { label: "About", ariaLabel: "Learn about us", link: "/about" },
-      { label: "Services", ariaLabel: "View our services", link: "/services" },
-      { label: "Contact", ariaLabel: "Get in touch", link: "/contact" },
-    ],
-    []
-  );
+  const items = [
+    {
+      label: "home",
+      href: "/",
+      ariaLabel: "Home",
+      rotation: -8,
+      hoverStyles: { bgColor: "#3b82f6", textColor: "#fff" },
+    },
+    {
+      label: "about",
+      href: "/about",
+      ariaLabel: "About",
+      rotation: 8,
+      hoverStyles: { bgColor: "#10b981", textColor: "#fff" },
+    },
+    {
+      label: "services",
+      href: "/services",
+      ariaLabel: "Services",
+      rotation: 8,
+      hoverStyles: { bgColor: "#f59e0b", textColor: "#fff" },
+    },
+    {
+      label: "blog",
+      href: "/blog",
+      ariaLabel: "Blog",
+      rotation: 8,
+      hoverStyles: { bgColor: "#ef4444", textColor: "#fff" },
+    },
+    {
+      label: "contact",
+      href: "/contact",
+      ariaLabel: "Contact",
+      rotation: -8,
+      hoverStyles: { bgColor: "#8b5cf6", textColor: "#fff" },
+    },
+  ];
 
   return (
     <header
@@ -60,7 +87,7 @@ export default function Header({
         <Image src={logoSrc} alt="Webkey" width={132} height={28} priority />
       </Link>
 
-      {/* Right cluster: CTA + Menu toggle */}
+      {/* Right cluster: CTA + BubbleMenu */}
       <div
         style={{
           display: "flex",
@@ -71,7 +98,7 @@ export default function Header({
           pointerEvents: "auto",
         }}
       >
-        {/* CTA (GlassSurface fully on) */}
+        {/* CTA (μένει ως έχει) */}
         <GlassSurface
           width="auto"
           height={44}
@@ -98,56 +125,17 @@ export default function Header({
           </Link>
         </GlassSurface>
 
-        {/* Menu */}
-        <StaggeredMenu
-          className="header-staggered"
-          position="right"
-          items={menuItems}
-          displayItemNumbering
-          logoUrl={logoSrc}
-          colors={["#B19EEF", "#5227FF"]}
-          iconOnlyToggle
-          /* circular glass toggle */
-          useGlassToggle
-          toggleGlassProps={{
-            width: 44,
-            height: 44,
-            borderRadius: 999,
-            backgroundOpacity: 0.16,
-            saturation: 1.7,
-            displace: 0.4,
-            distortionScale: -120,
-            brightness: 76,
-            opacity: 0.94,
-            forceSvgMode: true,
-            mixBlendMode: "screen",
-            redOffset: 2,
-            greenOffset: 2,
-            blueOffset: 2,
-          }}
-          /* glass panel without green cast on mobile/tablet */
-          useGlassPanel
-          panelGlassProps={{
-            width: "100%",
-            height: "100%",
-            borderRadius: 10,
-            backgroundOpacity: 0.16,
-            saturation: 1.2,
-            displace: 0.6,
-            distortionScale: -140,
-            brightness: 76,
-            opacity: 0.92,
-            forceSvgMode: true,
-            mixBlendMode: "normal", // κρίσιμο για να μη «πρασινίζει» με το overlay
-            redOffset: 0,
-            greenOffset: 0,
-            blueOffset: 0,
-          }}
-          showPrelayers={false}
-          menuButtonColor="#fff"
-          openMenuButtonColor="#fff"
-          changeMenuColorOnOpen
-          accentColor="#fcec45"
+        {/* Bubble Menu */}
+        <BubbleMenu
+          logo={<Image src={logoSrc} alt="Webkey" width={120} height={28} />}
+          items={items}
+          menuAriaLabel="Toggle navigation"
+          menuBg="#ffffff"
+          menuContentColor="#111111"
+          useFixedPosition={true} /* overlay full-viewport */
+          animationEase="back.out(1.5)"
+          animationDuration={0.5}
+          staggerDelay={0.12}
         />
       </div>
     </header>
