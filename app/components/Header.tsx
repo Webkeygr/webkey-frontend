@@ -1,4 +1,3 @@
-// app/components/Header.tsx
 "use client";
 
 import Image from "next/image";
@@ -56,8 +55,9 @@ export default function Header({
 
   return (
     <BubbleMenu
+      /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο */
       logo={
-        <Image src={logoSrc} alt="Webkey" width={150} height={32} priority />
+        <Image src={logoSrc} alt="Webkey" width={188} height={40} priority />
       }
       items={items}
       menuAriaLabel="Toggle navigation"
@@ -67,6 +67,7 @@ export default function Header({
       animationEase="back.out(1.5)"
       animationDuration={0.5}
       staggerDelay={0.12}
+      /* CTA δίπλα από το toggle */
       rightSlot={
         <Link href={ctaHref} className="cta-link" aria-label={ctaText}>
           {ctaText}

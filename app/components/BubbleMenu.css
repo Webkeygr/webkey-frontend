@@ -1,4 +1,4 @@
-/* ====== Header row ====== */
+/* ----- header container ----- */
 .bubble-menu {
   left: 0;
   right: 0;
@@ -9,7 +9,7 @@
   gap: 16px;
   padding: 0 24px;
   pointer-events: none;
-  z-index: 120;
+  z-index: 99;
 }
 .bubble-menu.fixed {
   position: fixed;
@@ -18,153 +18,139 @@
   position: absolute;
 }
 
-.bubble-menu .bubble {
-  --bubble-size: 56px; /* λίγο μεγαλύτερο */
-  width: var(--bubble-size);
-  height: var(--bubble-size);
-  border-radius: 50%;
-  background: #fff;
-  /* πιο έντονη, ίδια σκιά και για CTA / toggle */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22), 0 2px 8px rgba(0, 0, 0, 0.12);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* Logo χωρίς pill */
+.logo-plain {
   pointer-events: auto;
-}
-
-/* Left logo bubble */
-.bubble-menu .logo-bubble {
-  width: auto;
-  min-height: var(--bubble-size);
-  height: var(--bubble-size);
-  padding: 0 16px;
-  border-radius: calc(var(--bubble-size) / 2);
-  gap: 8px;
-  will-change: transform;
-}
-.bubble-menu .logo-content {
-  /* +25% περίπου (120 -> 150) */
-  --logo-max-height: 60%;
-  --logo-max-width: 100%;
-  width: 150px;
-  height: 100%;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  height: var(--logo-height, 56px); /* ~όσο το pill */
 }
-.bubble-menu .logo-content > img,
-.bubble-menu .logo-content > svg {
-  max-height: var(--logo-max-height);
-  max-width: var(--logo-max-width);
+.logo-plain img,
+.logo-plain svg {
+  height: 100%;
+  width: auto;
   display: block;
 }
 
-/* Right cluster */
-.bubble-right {
+/* Δεξιά συστάδα (CTA + toggle) */
+.right-cluster {
   display: inline-flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   pointer-events: auto;
 }
 
-/* CTA bubble (ίδια σκιά) */
-.cta-bubble {
-  padding: 0 16px;
-  border-radius: 999px;
-}
-.cta-link {
+/* CTA “bubble-like” αλλά πιο μεγάλο & χωρίς wrap */
+.cta-bubble .cta-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  padding: 0 16px;
+  height: 48px;
+  padding: 0 20px;
   border-radius: 999px;
-  font-weight: 600;
-  text-decoration: none;
+  background: #fff;
   color: #111;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap; /* να μη σπάει γραμμή */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18); /* ίδια σκιά με toggle */
 }
 
-/* Toggle */
-.bubble-menu .menu-btn {
-  border: none;
+/* Toggle με πιο έντονη σκιά */
+.toggle-bubble {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
   background: #fff;
+  border: none;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
-.bubble-menu .menu-line {
-  width: 26px;
+.menu-line {
+  width: 22px;
   height: 2px;
   background: #111;
   border-radius: 2px;
-  display: block;
-  margin: 0 auto;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-  transform-origin: center;
+  transition: transform 0.28s ease, opacity 0.28s ease;
 }
-.bubble-menu .menu-line + .menu-line {
+.menu-line + .menu-line {
   margin-top: 6px;
 }
-.bubble-menu .menu-btn.open .menu-line:first-child {
+.toggle-bubble.open .menu-line:first-child {
   transform: translateY(4px) rotate(45deg);
 }
-.bubble-menu .menu-btn.open .menu-line:last-child {
+.toggle-bubble.open .menu-line:last-child {
   transform: translateY(-4px) rotate(-45deg);
 }
 
-/* ====== Overlay + items ====== */
+/* ----- overlay (μένει πάντα mounted) ----- */
 .bubble-menu-items {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: 0; /* animate overlay */
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+  z-index: 98;
+}
+.bubble-menu-items.open {
+  opacity: 1;
   pointer-events: auto;
-  z-index: 110;
-  /* Σκοτείνιασμα φόντου */
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(2px);
+}
+/* backdrop που σκοτεινιάζει τη σελίδα */
+.bm-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45); /* αρκετά σκοτεινό */
 }
 
-.bubble-menu-items .pill-list {
+/* ----- pills ----- */
+.pill-list {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0 24px;
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  row-gap: 4px;
+  row-gap: 6px;
   width: 100%;
   max-width: 1600px;
   margin-left: auto;
   margin-right: auto;
+  pointer-events: auto;
   justify-content: stretch;
+  z-index: 1; /* πάνω από backdrop */
 }
-
-.bubble-menu-items .pill-col {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
+.pill-col {
   flex: 0 0 calc(100% / 3);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
   box-sizing: border-box;
 }
-
-.bubble-menu-items .pill-col:nth-child(4):nth-last-child(2) {
+.pill-col:nth-child(4):nth-last-child(2) {
   margin-left: calc(100% / 6);
 }
-.bubble-menu-items .pill-col:nth-child(4):last-child {
+.pill-col:nth-child(4):last-child {
   margin-left: calc(100% / 3);
 }
 
-.bubble-menu-items .pill-link {
-  --pill-bg: #ffffff;
+.pill-link {
+  --pill-bg: #fff;
   --pill-color: #111;
-  --item-rot: 0deg;
   --hover-bg: #f3f4f6;
   --hover-color: #111;
+  --item-rot: 0deg;
+
   width: 100%;
   min-height: 160px;
   padding: clamp(1.5rem, 3vw, 8rem) 0;
@@ -175,57 +161,60 @@
   background: var(--pill-bg);
   color: var(--pill-color);
   text-decoration: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: background 0.3s ease, color 0.3s ease, transform 0.25s ease;
+  transition: background 0.28s ease, color 0.28s ease, transform 0.28s ease;
+  transform: rotate(var(--item-rot));
   will-change: transform;
   white-space: nowrap;
-  overflow: hidden;
+}
+.pill-link:hover {
+  transform: rotate(var(--item-rot)) scale(1.06);
+  background: var(--hover-bg);
+  color: var(--hover-color);
+}
+.pill-link:active {
+  transform: rotate(var(--item-rot)) scale(0.94);
 }
 
-@media (min-width: 900px) {
-  .bubble-menu-items .pill-link {
-    transform: rotate(var(--item-rot));
-  }
-  .bubble-menu-items .pill-link:hover {
-    transform: rotate(var(--item-rot)) scale(1.06);
-    background: var(--hover-bg);
-    color: var(--hover-color);
-  }
-  .bubble-menu-items .pill-link:active {
-    transform: rotate(var(--item-rot)) scale(0.94);
-  }
-}
-
-.bubble-menu-items .pill-link .pill-label {
+.pill-label {
   display: inline-block;
-  will-change: transform, opacity;
   height: 1.2em;
   line-height: 1.2;
+  will-change: transform, opacity;
 }
 
-/* Mobile */
+/* ----- responsive ----- */
 @media (max-width: 899px) {
+  .bubble-menu {
+    padding: 0 16px;
+  }
+  .logo-plain {
+    --logo-height: 52px;
+  }
   .bubble-menu-items {
     align-items: flex-start;
-    padding-top: 120px;
+    padding-top: 110px;
   }
-  .bubble-menu-items .pill-list {
-    row-gap: 16px;
+  .pill-list {
+    row-gap: 14px;
   }
-  .bubble-menu-items .pill-col {
+  .pill-col {
     flex: 0 0 100%;
     margin-left: 0 !important;
   }
-  .bubble-menu-items .pill-link {
-    font-size: clamp(1.2rem, 3vw, 4rem);
-    min-height: 96px;
-    transform: none !important;
+  .pill-link {
+    min-height: 88px;
+    font-size: clamp(1.2rem, 3vw, 2.6rem);
+    transform: none; /* καθόλου rotation στο mobile */
   }
-  .bubble-menu-items .pill-link:hover {
-    transform: scale(1.04) !important;
+  .pill-link:hover {
+    transform: scale(1.06);
+  }
+  .pill-link:active {
+    transform: scale(0.94);
   }
 }
