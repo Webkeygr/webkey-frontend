@@ -5,25 +5,26 @@ import { Renderer, Program, Mesh, Triangle } from "ogl";
 import "./Iridescence.css";
 
 type IridescenceProps = {
-  // (κρατάω για συμβατότητα με το παλιό API — αγνοούνται εδώ)
+  // (κρατάω για συμβατότητα με παλιό API — δεν χρησιμοποιούνται)
   color?: [number, number, number];
   mouseReact?: boolean;
   amplitude?: number;
 
   // χρήσιμα
   speed?: number;    // 0.2..1.5
-  scale?: number;    // μικρότερο = πιο "γεμάτο" blob
+  scale?: number;    // μικρότερο => πιο "γεμάτο" blob
   opacity?: number;  // 0..1 (alpha του plasma)
   colorA?: string;   // #FF00F2
   colorB?: string;   // #0090FF
   className?: string;
 
-  // νέα για σχήμα/θέση blob
+  // σχήμα/θέση blob
   stretchX?: number; // >1 απλώνει οριζόντια
   stretchY?: number; // <1 πιέζει κάθετα
-  centerX?: number;  // -0.5..0.5 μετατόπιση ως ποσοστό πλάτους (0 = κέντρο)
-  centerY?: number;  // -0.5..0.5 μετατόπιση ως ποσοστό ύψους
-  // (τα παρακάτω υπάρχουν μόνο για TS συμβατότητα αν τα περνά το Hero)
+  centerX?: number;  // -0.5..0.5 μετατόπιση (0 = κέντρο)
+  centerY?: number;  // -0.5..0.5 μετατόπιση
+
+  // για TS συμβατότητα αν περνιούνται από Hero
   cutRadius?: number; cutFeather?: number; cutStrength?: number;
 };
 
@@ -48,9 +49,10 @@ void main() {
 }
 `;
 
-/* Plasma (reactbits) αλλά:
-   - κάνει output με alpha (όπως το reactbits) ώστε να φαίνεται το λευκό γύρω
-   - προσθέτω stretch & center shift για οβάλ/οριζόντιο blob στη μέση
+/* Plasma (reactbits) με:
+   - ALPHA όπως το reactbits (λευκό φόντο γύρω)
+   - stretch/center για οβάλ μπάρα
+   - ΟΡΙΖΟΝΤΙΑ ροή (δεξιά → αριστερά)
 */
 const fragment = `#version 300 es
 precision highp float;
@@ -64,20 +66,25 @@ uniform float uOpacity;
 uniform float uSpeed;
 uniform float uScale;
 
-uniform float uStretchX;  // οριζόντιο stretch
-uniform float uStretchY;  // κάθετο stretch
-uniform vec2  uCenter;    // μετατόπιση κέντρου σε pixels
+uniform float uStretchX;
+uniform float uStretchY;
+uniform vec2  uCenter;
+
+uniform float uAxis; // 0: κάθετη (y), 1: οριζόντια (x)
+uniform float uDir;  // 1: δεξιά→αριστερά, -1: αριστερά→δεξιά
 
 out vec4 fragColor;
 
 void mainImage(out vec4 o, vec2 C) {
-  // νέα κεντραρίσματα/στρετσάρισμα για οβάλ blob
+  // κέντρο + ανισοτροπικό stretch (οβάλ μπάρα)
   vec2 center = iResolution * 0.5 + uCenter;
-  vec2 P = (C - center) / uScale;          // scale: μικρότερο => πιο "γεμάτο"
-  P *= mat2(uStretchX, 0.0, 0.0, uStretchY); // anisotropic stretch
+  vec2 P = (C - center) / uScale;
+  P *= mat2(uStretchX, 0.0, 0.0, uStretchY);
   C = P + center;
 
-  float i, d, z, T = iTime * uSpeed;
+  float i, d, z;
+  float T = iTime * uSpeed;
+
   vec4  ocol;
   vec3  O, p, S;
 
@@ -85,7 +92,10 @@ void mainImage(out vec4 o, vec2 C) {
     p = z * normalize(vec3(C - 0.5*r, r.y));
     p.z -= 4.0;
     S = p;
-    d = p.y - T;
+
+    // ΟΡΙΖΟΝΤΙΟΣ άξονας (x) αντί για κάθετο (y)
+    float coord = mix(p.y, p.x, uAxis);     // uAxis=1 => p.x
+    d = coord - (uDir * T);                 // uDir=1 => δεξιά→αριστερά ροή
 
     p.x += 0.4 * (1.0 + p.y) * sin(d + p.x*0.1) * cos(0.34*d + p.x*0.05);
 
@@ -126,7 +136,7 @@ void main() {
   float t = smoothstep(0.2, 0.85, intensity);
   vec3 plasmaColor = mix(uColorA, uColorB, t);
 
-  float alpha = intensity * clamp(uOpacity, 0.0, 1.0); // όπως reactbits
+  float alpha = intensity * clamp(uOpacity, 0.0, 1.0);
   fragColor = vec4(plasmaColor, alpha);
 }
 `;
@@ -135,17 +145,16 @@ export default function Iridescence({
   color = [1, 1, 1],
   mouseReact = false,
   amplitude = 0,
-  // πιο "γεμάτο": scale ↓, και οριζόντιο: stretchX ↑, stretchY ↓
   speed = 0.6,
-  scale = 0.88,        // πριν 1.0 → τώρα πιο μεγάλο blob
+  scale = 0.86,        // λίγο πιο "γεμάτο"
   opacity = 0.8,
   colorA = "#FF00F2",
   colorB = "#0090FF",
   className = "",
-  stretchX = 1.35,     // απλώνει οριζόντια
-  stretchY = 0.75,     // πιέζει κάθετα
-  centerX = 0.0,       // 0 = στη μέση οριζόντια
-  centerY = 0.0,       // 0 = στη μέση κάθετα
+  stretchX = 1.45,     // πλατύτερη οριζόντια μπάρα
+  stretchY = 0.65,     // πιο χαμηλή
+  centerX = 0.0,       // στο κέντρο
+  centerY = 0.0,       // στο κέντρο
   cutRadius, cutFeather, cutStrength, // TS συμβατότητα
 }: IridescenceProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -190,6 +199,8 @@ export default function Iridescence({
         uStretchX: { value: stretchX },
         uStretchY: { value: stretchY },
         uCenter: { value: new Float32Array([0, 0]) }, // θα ενημερωθεί στο resize
+        uAxis: { value: 1.0 }, // 1.0 => οριζόντια (x)
+        uDir:  { value: 1.0 }, // 1.0 => δεξιά→αριστερά
       },
       transparent: true,
     });
@@ -206,7 +217,7 @@ export default function Iridescence({
       res[0] = gl.drawingBufferWidth;
       res[1] = gl.drawingBufferHeight;
 
-      // μετατόπιση κέντρου σε pixels (π.χ. 0.1 => 10% του πλάτους)
+      // μετατόπιση κέντρου σε pixels
       const cx = centerX * res[0];
       const cy = centerY * res[1];
       const uC = program.uniforms.uCenter.value as Float32Array;
@@ -222,7 +233,6 @@ export default function Iridescence({
     let raf = 0, last = 0;
     const targetMs = 1000 / 45;
     const t0 = performance.now();
-
     const loop = (t: number) => {
       raf = requestAnimationFrame(loop);
       if (t - last < targetMs) return;
