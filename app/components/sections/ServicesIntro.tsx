@@ -8,6 +8,9 @@ import Lottie from 'lottie-react';
 
 type LottieData = Record<string, any>;
 
+// πόσο κάτω από το κέντρο να κάτσει το Lottie (px)
+const LOTTIE_OFFSET = 180; // ↑ άλλαξέ το αν θες πιο πάνω/κάτω
+
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
@@ -26,13 +29,9 @@ export default function ServicesIntro() {
    * OUTRO (full):    0.80 → 1.00  (fade-out + up)
    */
   const reveal = useTransform(raw, [0.08, 0.55], [0, 1], { clamp: true });
-
-  // scrub layer opacity: on μέχρι ~0.52, μετά σβήνει ως 0.62
   const scrubOpacity = useTransform(raw, [0.52, 0.62], [1, 0], { clamp: true });
-
-  // full layer opacity: ανάβει στο ίδιο παράθυρο και κάνει hold, μετά σβήνει
-  const fullOpacity = useTransform(raw, [0.52, 0.62, 0.80, 0.95], [0, 1, 1, 0], { clamp: true });
-  const fullY       = useTransform(raw, [0.82, 1.00], [0, -80], { clamp: true });
+  const fullOpacity  = useTransform(raw, [0.52, 0.62, 0.80, 0.95], [0, 1, 1, 0], { clamp: true });
+  const fullY        = useTransform(raw, [0.82, 1.00], [0, -80], { clamp: true });
 
   // smooth blur/dim
   const blurOpacity = useTransform(raw, [0.02, 0.22], [0, 1], { clamp: true });
@@ -59,12 +58,11 @@ export default function ServicesIntro() {
         <motion.div className="absolute inset-0 backdrop-blur-3xl" style={{ opacity: blurOpacity }} />
         <motion.div className="absolute inset-0 bg-black" style={{ opacity: dimOpacity }} />
 
-        {/* === CONTENT LAYER (όλα στοιχισμένα στο κέντρο) === */}
-        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-
-          {/* Scrub layer — absolute CENTER, ώστε να μην “διπλώνει” από κάτω */}
+        {/* === CONTENT (όλα στοιχισμένα στο κέντρο) === */}
+        <div className="relative z-10 h-full">
+          {/* Scrub layer — absolute CENTER */}
           <motion.div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[calc(50%-0px)]"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-6"
             style={{ opacity: scrubOpacity }}
             aria-hidden="true"
           >
@@ -84,6 +82,7 @@ export default function ServicesIntro() {
           {/* Full layer — absolute CENTER, κάνει hold + outro */}
           <motion.h1
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none
+                       text-center px-6
                        font-[900] leading-[0.95] tracking-[-0.02em]
                        text-[clamp(22px,4vw,70px)] md:text-[clamp(32px,5vw,90px)]
                        text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
@@ -92,10 +91,15 @@ export default function ServicesIntro() {
             Οι υπηρεσίες μας
           </motion.h1>
 
-          {/* Lottie — να φαίνεται κυρίως στο hold/outro (δένω με fullOpacity) */}
+          {/* Lottie — στο σημείο του κόκκινου τετραγώνου (κάτω από το κέντρο) */}
           <motion.div
-            className="mt-8 md:mt-10 w-[148px] md:w-[168px] opacity-80"
-            style={{ opacity: fullOpacity }}
+            className="absolute w-[148px] md:w-[168px] opacity-80 pointer-events-none"
+            style={{
+              opacity: fullOpacity,
+              left: '50%',
+              top: `calc(50% + ${LOTTIE_OFFSET}px)`,
+              transform: 'translateX(-50%)',
+            }}
           >
             {lottieData ? <Lottie animationData={lottieData} loop autoplay /> : null}
           </motion.div>
