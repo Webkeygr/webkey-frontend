@@ -1,40 +1,60 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionValue,
+} from 'framer-motion';
 import { FlowButton } from '../ui/FlowButton';
 
-export default function ServicesCards() {
+export default function ServicesCards({
+  parentProgress,
+}: {
+  parentProgress?: MotionValue<number>;
+}) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
+  // Το δικό της scroll για το sticky/κίνηση
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ['start start', 'end end'],
   });
-  const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
+  const local = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
+
+  // GATE: Ελέγχουμε πότε θα ΦΑΝΕΙ η κάρτα βάσει του progress του τίτλου.
+  // Ο τίτλος σβήνει στο ~0.95 -> εδώ ξεκινά το fade-in της κάρτας.
+  const gateOpacity = parentProgress
+    ? useTransform(parentProgress, [0.945, 0.985], [0, 1], { clamp: true })
+    : (1 as unknown as MotionValue<number>); // αν δεν περαστεί, πάντα ορατή
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full -mt-[26vh]"   // μπαίνει λίγο πιο νωρίς
-      style={{ height: '200vh' }}               // περισσότερο runway για sticky αίσθηση
+      className="relative w-full -mt-[26vh]" // ξεκινά λίγο πριν, αλλά είναι κρυφή μέχρι να σβήσει ο τίτλος
+      style={{ height: '200vh' }}
     >
-      <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
+      <motion.div
+        className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
+        style={{ opacity: gateOpacity }}
+      >
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-          <Card progress={prog} />
+          <Card progress={local} />
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }
 
-function Card({ progress }: { progress: any }) {
-  // πιο ήπιο mapping για να «κάθεται» στο κέντρο περισσότερο
+function Card({ progress }: { progress: MotionValue<number> }) {
+  // Κίνηση/διάρκεια ενώ είναι sticky
   const y = useTransform(progress, [0.0, 0.25, 0.85, 1.0], [160, 0, 0, -120], { clamp: true });
-  const opacity = useTransform(progress, [0.0, 0.07, 0.9, 1.0], [0, 1, 1, 0], { clamp: true });
+  const bodyOpacity = useTransform(progress, [0.0, 0.07, 0.9, 1.0], [0, 1, 1, 0], { clamp: true });
 
   return (
-    <motion.article className="relative h-[78vh] sm:h-[76vh] lg:h-[74vh]" style={{ y, opacity }}>
+    <motion.article className="relative h-[78vh] sm:h-[76vh] lg:h-[74vh]" style={{ y, opacity: bodyOpacity }}>
       <div
         className="
           group relative w-full h-full
@@ -48,13 +68,13 @@ function Card({ progress }: { progress: any }) {
         <div className="relative h-[60%] overflow-hidden rounded-t-[54px]">
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            src="/videos/web-dev.mp4" // public/videos/web-dev.mp4
+            src="/videos/web-dev.mp4"  // βάλε το αρχείο εδώ: public/videos/web-dev.mp4
             autoPlay
             loop
             muted
             playsInline
           />
-          {/* overlay & κουμπιά ΜΟΝΟ πάνω στο video */}
+          {/* overlay & κουμπιά μόνο πάνω στο video */}
           <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
