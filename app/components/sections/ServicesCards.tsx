@@ -8,25 +8,29 @@ import { FlowButton } from '../ui/FlowButton';
 export default function ServicesCards() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  // Scroll μόνο για το ΜΟΝΟ section της κάρτας
+  // Scroll μόνο για το section της κάρτας
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ['start start', 'end end'],
   });
-  const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
+  const prog = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 22,
+    mass: 0.35,
+  });
 
-  // Εμφανίζεται νωρίτερα (γλιστράει επάνω στον τίτλο που σβήνει)
+  // Εμφανίζεται νωρίτερα ώστε να «γλιστρά» πάνω στον τίτλο
   return (
     <section
       ref={wrapRef}
-      className="relative w-full -mt-[22vh]" // μπαίνει λίγο πριν τελειώσει ο τίτλος
-      style={{ height: '140vh' }}           // runway για sticky αίσθηση
+      className="relative w-full -mt-[22vh]"
+      style={{ height: '140vh' }} // runway για sticky αίσθηση
     >
-      {/* sticky viewport – ΧΩΡΙΣ extra blur/overlay, για να συνεχίζει το φόντο του hero */}
+      {/* ΧΩΡΙΣ extra overlay/blur — συνεχίζει το φόντο του hero */}
       <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
-        {/* container: max 1900px, 60px δεξιά/αριστερά, 50px πάνω/κάτω */}
+        {/* container: max 1900px, 60px πλευρικά, 50px πάνω/κάτω */}
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-          <Card(progress={prog} />
+          <Card progress={prog} />
         </div>
       </div>
     </section>
@@ -34,9 +38,13 @@ export default function ServicesCards() {
 }
 
 function Card({ progress }: { progress: any }) {
-  // Μπαίνει → κάθεται στο κέντρο → φεύγει (ήπια)
-  const y = useTransform(progress, [0.0, 0.2, 0.85, 1.0], [120, 0, -10, -120], { clamp: true });
-  const opacity = useTransform(progress, [0.0, 0.05, 0.85, 1.0], [0, 1, 1, 0], { clamp: true });
+  // Μπαίνει → κάθεται στο κέντρο → βγαίνει ελαφρά προς τα πάνω
+  const y = useTransform(progress, [0.0, 0.2, 0.85, 1.0], [120, 0, -10, -120], {
+    clamp: true,
+  });
+  const opacity = useTransform(progress, [0.0, 0.05, 0.85, 1.0], [0, 1, 1, 0], {
+    clamp: true,
+  });
 
   return (
     <motion.article
@@ -52,29 +60,27 @@ function Card({ progress }: { progress: any }) {
           overflow-hidden
         "
       >
-        {/* VIDEO AREA (επάνω), καμπύλη μάσκα με μεγάλο radius */}
+        {/* VIDEO AREA με καμπύλη μάσκα */}
         <div className="relative h-[60%] overflow-hidden rounded-t-[54px]">
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            src="/videos/web-dev.mp4" // <-- ΒΑΛΕ το αρχείο σου εδώ (public/videos/web-dev.mp4)
+            src="/videos/web-dev.mp4" // <-- βάλ’ το αρχείο εδώ (public/videos/web-dev.mp4)
             autoPlay
             loop
             muted
             playsInline
           />
 
-          {/* overlay ΜΟΝΟ στο video area, εμφανίζεται στο hover */}
+          {/* Overlay & κουμπιά ΜΟΝΟ πάνω στο video (στο hover) */}
           <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
-
-          {/* 4 κουμπιά μέσα στο video (grid 2x2) – εμφανίζονται στο hover */}
-          <div
-            className="
-              absolute inset-0 flex items-center justify-center
-              opacity-0 transition-opacity duration-500 group-hover:opacity-100
-            "
-          >
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {['Websites & Platforms', 'Web Applications', 'E-Commerce', 'Performance & SEO'].map((t) => (
+              {[
+                'Websites & Platforms',
+                'Web Applications',
+                'E-Commerce',
+                'Performance & SEO',
+              ].map((t) => (
                 <button
                   key={t}
                   className="
@@ -90,14 +96,14 @@ function Card({ progress }: { progress: any }) {
             </div>
           </div>
 
-          {/* CTA buttons στο κάτω μέρος του video (επίσης στο hover) */}
+          {/* CTA buttons κάτω από το video (στο hover) */}
           <div className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 opacity-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
             <FlowButton text="See details" />
             <FlowButton text="Get a quote" />
           </div>
         </div>
 
-        {/* ΚΕΙΜΕΝΟ */}
+        {/* Κείμενα */}
         <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 text-left lg:grid lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-8">
             <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
