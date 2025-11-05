@@ -18,17 +18,17 @@ export default function ServicesIntro() {
   });
   const raw = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.2 });
 
-  // Τίτλος
+  // ΤΙΤΛΟΣ
   const reveal       = useTransform(raw, [0.08, 0.55], [0, 1], { clamp: true });
   const scrubOpacity = useTransform(raw, [0.52, 0.62], [1, 0], { clamp: true });
   const fullOpacity  = useTransform(raw, [0.52, 0.62, 0.80, 0.95], [0, 1, 1, 0], { clamp: true });
   const fullY        = useTransform(raw, [0.82, 1.00], [0, -80], { clamp: true });
 
-  // Blur πάνω από το hero
+  // BLUR/Dim
   const blurOpacity = useTransform(raw, [0.02, 0.22], [0, 1], { clamp: true });
   const dimOpacity  = useTransform(raw, [0.10, 0.35], [0, 0.12], { clamp: true });
 
-  // Lottie
+  // LOTTIE
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
     (async () => {
@@ -45,12 +45,11 @@ export default function ServicesIntro() {
   return (
     <section ref={wrapRef} className="relative h-[360vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Blur / dim (absolute) */}
         <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
         <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: dimOpacity }} />
 
-        {/* Τίτλος */}
         <div className="relative z-10 h-full">
+          {/* scrub layer */}
           <motion.div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-6"
             style={{ opacity: scrubOpacity }}
@@ -69,6 +68,7 @@ export default function ServicesIntro() {
             </TextScrub>
           </motion.div>
 
+          {/* full layer */}
           <motion.h1
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none
                        text-center px-6
@@ -80,6 +80,7 @@ export default function ServicesIntro() {
             Οι υπηρεσίες μας
           </motion.h1>
 
+          {/* lottie κάτω από τίτλο */}
           <motion.div
             className="absolute w-[148px] md:w-[168px] opacity-80 pointer-events-none"
             style={{
@@ -94,8 +95,8 @@ export default function ServicesIntro() {
         </div>
       </div>
 
-      {/* >>> ΠΕΡΝΑΜΕ το progress του τίτλου στις κάρτες <<< */}
-      <ServicesCards parentProgress={raw} />
+      {/* >>> Περνάμε και το fullOpacity του τίτλου <<< */}
+      <ServicesCards parentProgress={raw} titleFullOpacity={fullOpacity} />
     </section>
   );
 }

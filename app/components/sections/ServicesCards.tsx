@@ -12,12 +12,14 @@ import { FlowButton } from '../ui/FlowButton';
 
 export default function ServicesCards({
   parentProgress,
+  titleFullOpacity,
 }: {
   parentProgress?: MotionValue<number>;
+  titleFullOpacity?: MotionValue<number>;
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  // Το δικό της scroll για το sticky/κίνηση
+  // Το τοπικό progress για το sticky/κίνηση της κάρτας
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ['start start', 'end end'],
@@ -25,19 +27,19 @@ export default function ServicesCards({
   const local = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
 
   /**
-   * GATE ορατότητας με πιο «χαλαρά» thresholds:
-   * - Ο τίτλος έχει πρακτικά σβήσει γύρω στο ~0.90..0.94 στο parentProgress.
-   * - Εδώ ανάβουμε την κάρτα στο 0.88 ➜ 0.94 για να είμαστε safe σε διάφορα viewports.
+   * GATE ορατότητας: βασίζεται ΑΠΕΥΘΕΙΑΣ στο opacity του full τίτλου.
+   * - Όταν full title opacity ~0.15 ➜ 0.00, ανοίγουμε την κάρτα 0 ➜ 1.
+   * - Έτσι σε όλα τα viewports η κάρτα έρχεται αμέσως ΜΕΤΑ το fade-out του τίτλου.
    */
-  const gateOpacity = parentProgress
-    ? useTransform(parentProgress, [0.88, 0.94], [0, 1], { clamp: true })
-    : (1 as unknown as MotionValue<number>);
+  const gateOpacity = titleFullOpacity
+    ? useTransform(titleFullOpacity, [0.15, 0.02], [0, 1], { clamp: true })
+    : useTransform(parentProgress ?? 0 as any, [0.88, 0.94], [0, 1], { clamp: true });
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full -mt-[24vh]"   // ξεκινά λίγο πριν, αλλά είναι κρυφή μέχρι να σβήσει ο τίτλος
-      style={{ height: '200vh' }}
+      className="relative w-full -mt-[34vh]"   // ξεκινά νωρίτερα ώστε να υπάρχει χώρος για sticky
+      style={{ height: '240vh' }}
     >
       <motion.div
         className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
@@ -67,18 +69,18 @@ function Card({ progress }: { progress: MotionValue<number> }) {
           overflow-hidden
         "
       >
-        {/* VIDEO AREA (mask επάνω μέρος) */}
+        {/* VIDEO AREA (masked top) */}
         <div className="relative h-[60%] overflow-hidden rounded-t-[54px]">
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            src="/videos/web-dev.mp4"   // βάλ’ το αρχείο εδώ: public/videos/web-dev.mp4
+            src="/videos/web-dev.mp4"     // βάλε το αρχείο στο public/videos/web-dev.mp4
             autoPlay
             loop
             muted
             playsInline
           />
 
-          {/* overlay μόνο στο video + κουμπιά */}
+          {/* overlay μόνο πάνω στο video + κουμπιά */}
           <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
