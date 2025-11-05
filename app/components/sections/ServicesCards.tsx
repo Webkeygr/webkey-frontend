@@ -1,8 +1,8 @@
+// app/components/sections/ServicesCards.tsx
 'use client';
 
 import { useRef } from 'react';
 import {
-  AnimatePresence,
   motion,
   useScroll,
   useSpring,
@@ -11,44 +11,47 @@ import {
 } from 'framer-motion';
 import { FlowButton } from '../ui/FlowButton';
 
-export default function ServicesCards({ visible }: { visible: boolean }) {
+export default function ServicesCards({
+  parentProgress,
+}: {
+  parentProgress: MotionValue<number>;
+}) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  // Τοπικό progress για sticky/κίνηση κάρτας
+  // Τοπικό progress μόνο για την κίνηση της κάρτας (sticky)
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ['start start', 'end end'],
   });
   const local = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
 
+  /**
+   * ΟΡΑΤΟΤΗΤΑ ΚΑΡΤΑΣ = συνάρτηση του ΙΔΙΟΥ raw progress με τον τίτλο:
+   * - Ο τίτλος έχει ήδη σβήσει ~0.83
+   * - Κάρτα: opacity 0 → 1 από 0.80 → 0.86 του raw (ομαλό overlap, ΠΟΤΕ πριν τον τίτλο)
+   */
+  const gateOpacity = useTransform(parentProgress, [0.80, 0.86], [0, 1], { clamp: true });
+
   return (
     <section
       ref={wrapRef}
-      className="relative w-full -mt-[34vh]"   // ξεκινά λίγο πριν, αλλά δεν θα ΦΑΝΕΙ μέχρι να γίνει visible
-      style={{ height: '240vh' }}
+      className="relative w-full -mt-[48vh]"   // section «παρών» λίγο νωρίτερα αλλά αόρατος μέχρι 0.80
+      style={{ height: '240vh' }}              // αρκετός χώρος για sticky “hold”
     >
-      <AnimatePresence>
-        {visible && (
-          <motion.div
-            key="cards-sticky"
-            className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
-            <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-              <Card progress={local} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.div
+        className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
+        style={{ opacity: gateOpacity }}
+      >
+        <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
+          <Card progress={local} />
+        </div>
+      </motion.div>
     </section>
   );
 }
 
 function Card({ progress }: { progress: MotionValue<number> }) {
-  // κίνηση όσο είναι sticky
+  // ήπια κίνηση όσο είναι sticky
   const y           = useTransform(progress, [0.0, 0.25, 0.85, 1.0], [160, 0, 0, -120], { clamp: true });
   const bodyOpacity = useTransform(progress, [0.0, 0.07, 0.9, 1.0], [0, 1, 1, 0], { clamp: true });
 
@@ -67,14 +70,14 @@ function Card({ progress }: { progress: MotionValue<number> }) {
         <div className="relative h-[60%] overflow-hidden rounded-t-[54px]">
           <video
             className="absolute inset-0 h-full w-full object-cover"
-            src="/videos/web-dev.mp4"   // βάλ’ το αρχείο στο public/videos/web-dev.mp4
+            src="/videos/web-dev.mp4"     // βάλε το αρχείο στο public/videos/web-dev.mp4
             autoPlay
             loop
             muted
             playsInline
           />
 
-          {/* overlay + κουμπιά ΜΟΝΟ πάνω στο video */}
+          {/* overlay & κουμπιά ΜΟΝΟ πάνω στο video */}
           <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
             <div className="grid grid-cols-2 gap-4 sm:gap-6">
@@ -94,14 +97,14 @@ function Card({ progress }: { progress: MotionValue<number> }) {
             </div>
           </div>
 
-          {/* CTA */}
+          {/* CTA κάτω από το video */}
           <div className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 opacity-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
             <FlowButton text="See details" />
             <FlowButton text="Get a quote" />
           </div>
         </div>
 
-        {/* ΚΕΙΜΕΝΟ */}
+        {/* Κείμενο */}
         <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 text-left lg:grid lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-8">
             <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
