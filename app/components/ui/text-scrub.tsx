@@ -42,6 +42,8 @@ export function TextScrub({
         const opacity = useTransform(progress, [start, end], [0, 1], { clamp: true });
         const y = useTransform(progress, [start, end], [20, 0], { clamp: true });
         const blur = useTransform(progress, [start, end], [8, 0], { clamp: true });
+        // ✅ Μετατρέπουμε το blur (MotionValue<number>) σε CSS string:
+        const filter = useTransform(blur, (b) => `blur(${b}px)`);
 
         const wrapperClass = per === 'line' ? 'block' : 'inline-block whitespace-pre';
 
@@ -49,7 +51,7 @@ export function TextScrub({
           <motion.span
             key={`${per}-${i}-${segment}`}
             className={`${wrapperClass} ${segmentWrapperClassName}`}
-            style={{ opacity, y, filter: blur.to((b) => `blur(${b}px)`) }}
+            style={{ opacity, y, filter }}
           >
             {per === 'line' ? (
               <span className="block">{segment}</span>
