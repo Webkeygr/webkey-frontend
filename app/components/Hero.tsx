@@ -1,3 +1,4 @@
+// app/components/Hero.tsx
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -7,7 +8,7 @@ import Iridescence from "./Iridescence";
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
   const titleRef = useRef<HTMLHeadingElement | null>(null);
-  const subtitleRef = useRef<HTMLDivElement | null>(null);
+  const subtitleRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -35,31 +36,35 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="hero">
-      {/* Minimal, low-lag wallpaper */}
-      <Iridescence
-        className="hero-iridescence"
-        mouseReact={true} // on/off το "cut"
-        speed={1.9}
-        amplitude={0.1}
-        opacity={0.9} // 0..1 πόσο έντονο πάνω από λευκό
-        scale={1.1} // 0.9 πιο "γεμάτο", 1.2 πιο αραιό
-        cutRadius={130} // μεγαλύτερο κενό γύρω από mouse
-        cutFeather={90} // πιο "σκληρό" κόψιμο => μικρότερο feather
-        cutStrength={0.012} // 0..0.02 πόσο σπρώχνει το flow γύρω από mouse
-        waveWidth={58} // πιο “παχύ” – άπλωμα
-        waveOpacity={0.95} // λίγο πιο έντονο
-        colorA="#FF00F2"
-        colorB="#0090FF"
-        bandTopPct={0.22}
-        bandBottomPct={0.7}
-        bandFeatherPx={90}
-        ampMainFactor={0.34}
-        ampSubFactor={0.16}
-        yOffsetPct={0.1} // 0 = κέντρο, θετικό προς τα κάτω, αρνητικό προς τα πάνω
-      />
+    <section ref={heroRef} className="hero relative min-h-screen">
+      {/* === FIXED BACKGROUND (μένει παντού πίσω από το site) === */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <Iridescence
+          className="hero-iridescence w-full h-full"
+          mouseReact={true}
+          speed={1.9}
+          amplitude={0.1}
+          // — props που ήδη χρησιμοποιείς στο custom Iridescence σου —
+          opacity={0.9}
+          scale={1.1}
+          cutRadius={130}
+          cutFeather={90}
+          cutStrength={0.012}
+          waveWidth={58}
+          waveOpacity={0.95}
+          colorA="#FF00F2"
+          colorB="#0090FF"
+          bandTopPct={0.22}
+          bandBottomPct={0.7}
+          bandFeatherPx={90}
+          ampMainFactor={0.34}
+          ampSubFactor={0.16}
+          yOffsetPct={0.1}
+        />
+      </div>
 
-      <div className="hero-inner">
+      {/* === Hero content (scrolls κανονικά πάνω από το fixed φόντο) === */}
+      <div className="hero-inner relative z-10 flex min-h-screen flex-col items-center justify-center text-center px-6">
         <h1 ref={titleRef} className="hero-title">
           Dare to
           <br />
