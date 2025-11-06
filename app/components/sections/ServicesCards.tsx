@@ -16,7 +16,7 @@ export default function ServicesCards({
 }: {
   parentProgress: MotionValue<number>;
 }) {
-  // Το κρατάμε για μελλοντικό stacking (η 1η κάρτα δεν «σπρώχνεται» από αυτό)
+  // local progress (κρατιέται για επόμενες κάρτες – δεν σπρώχνει την 1η)
   const secRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: secRef,
@@ -24,23 +24,22 @@ export default function ServicesCards({
   });
   const local = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
-  /**
-   * GATE: μέχρι να φύγει ο τίτλος, η κάρτα είναι αόρατη (όχι opacity — καθαρό visibility)
-   * Ρύθμισε το threshold αν θες (0.90 → πιο αργά, 0.86 → πιο νωρίς)
-   */
-  const visible = useTransform(parentProgress, (v) => (v >= 0.90 ? 'visible' : 'hidden'));
+  // 1) Ανοίγουμε ορατότητα λίγο ΠΡΙΝ την κίνηση για να μη «σκάει» ξαφνικά
+  const visible = useTransform(parentProgress, (v) =>
+    v >= 0.86 ? 'visible' : 'hidden'
+  );
 
-  /**
-   * SLIDE-IN χωρίς fade, σε μικρό παράθυρο ώστε να «σκάει» καθαρά από κάτω.
-   * Παίξε μόνο με τα δύο thresholds αν χρειαστεί.
-   */
-  const entryYRaw = useTransform(parentProgress, [0.90, 0.96], [220, 0], { clamp: true });
-  const entryY = useSpring(entryYRaw, { stiffness: 160, damping: 22, mass: 0.7 });
+  // 2) Καθαρό slide-in από κάτω, ΧΩΡΙΣ fade
+  //    Στενό παράθυρο ώστε να φαίνεται «γλίστρημα»
+  const entryYRaw = useTransform(parentProgress, [0.86, 0.94], [260, 0], {
+    clamp: true,
+  });
+  const entryY = useSpring(entryYRaw, { stiffness: 170, damping: 22, mass: 0.7 });
 
   return (
-    // Μεγαλύτερο ύψος ώστε το sticky να κρατάει την κάρτα στο κέντρο όσο χρειάζεται
-    <section ref={secRef} className="relative w-full min-h-[340vh]">
-      {/* Sticky layer ΚΕΝΤΡΑΡΙΣΜΕΝΟ με top-1/2 -translate-y-1/2 (δεν «φεύγει» στο τέλος) */}
+    // Μεγάλο ύψος για να κρατάει το sticky στο κέντρο ως το τέλος
+    <section ref={secRef} className="relative w-full min-h-[420vh]">
+      {/* Κεντράρισμα με sticky top-1/2 -translate-y-1/2 (δεν «σκαρφαλώνει» προς τα πάνω) */}
       <div className="sticky top-1/2 -translate-y-1/2 z-[70] h-screen will-change-transform">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
           <Card progress={local} entryY={entryY} visible={visible} />
@@ -49,8 +48,6 @@ export default function ServicesCards({
     </section>
   );
 }
-
-/* ---------------- Card ---------------- */
 
 function Card({
   progress,
@@ -61,21 +58,23 @@ function Card({
   entryY: MotionValue<number>;
   visible: MotionValue<'visible' | 'hidden'>;
 }) {
-  // Καμία επιπλέον κάθετη κίνηση όσο είναι sticky
-  const yStable = useTransform(progress, [0, 1], [0, 0], { clamp: true });
+  // δεν προσθέτουμε άλλο y όσο είναι sticky
+  // (κρατάμε το hook για μελλοντικές κάρτες)
+  useTransform(progress, [0, 1], [0, 0]);
 
   return (
     <motion.article
-      className="group/card relative h-[78vh] sm:h-[76vh] lg:h-[74vh] will-change-transform"
+      className="group/card relative h-[78vh] sm:h-[76vh] lg:h-[74vh]"
       style={{
-        y: entryY,            // μόνο το slide-in από κάτω
-        visibility: visible,  // καθαρό gate για να μη φαίνεται πριν την ώρα της
+        y: entryY,            // μόνο slide-in
+        visibility: visible,  // hard gate: δεν φαίνεται πριν την ώρα της
+        willChange: 'transform',
       }}
     >
-      {/* Γυάλινο υπόστρωμα */}
+      {/* glass υπόστρωμα */}
       <div className="absolute inset-0 rounded-[28px] bg-white/70 backdrop-blur-[10px] shadow-[0_30px_80px_rgba(0,0,0,0.15)] border border-white/60" />
 
-      {/* Hover-buttons */}
+      {/* hover actions */}
       <div className="pointer-events-none absolute top-4 right-4 flex gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
         <button className="pointer-events-auto px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-900 text-white/90 hover:text-white hover:bg-black/90">
           Details
@@ -85,28 +84,19 @@ function Card({
         </button>
       </div>
 
-      {/* Περιεχόμενο */}
+      {/* περιεχόμενο */}
       <div className="relative z-[1] h-full grid grid-cols-12 gap-6 p-6 sm:p-8 lg:p-12">
-        {/* Αριστερά: meta / actions */}
         <div className="col-span-12 lg:col-span-4 flex flex-col justify-between">
           <div className="flex flex-wrap gap-2">
-            <span className="px-3 py-1 rounded-full bg-black/90 text-white text-xs tracking-wide">
-              Core Service
-            </span>
-            <span className="px-3 py-1 rounded-full bg-neutral-900/80 text-white text-xs tracking-wide">
-              Next.js 16
-            </span>
-            <span className="px-3 py-1 rounded-full bg-neutral-800/80 text-white text-xs tracking-wide">
-              Headless WP
-            </span>
+            <span className="px-3 py-1 rounded-full bg-black/90 text-white text-xs">Core Service</span>
+            <span className="px-3 py-1 rounded-full bg-neutral-900/80 text-white text-xs">Next.js 16</span>
+            <span className="px-3 py-1 rounded-full bg-neutral-800/80 text-white text-xs">Headless WP</span>
           </div>
-
           <div className="mt-6">
             <FlowButton text="Start your project" />
           </div>
         </div>
 
-        {/* Δεξιά: τίτλος/κείμενο + glass video patch */}
         <div className="lg:col-span-8">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
             Web development
@@ -116,7 +106,7 @@ function Card({
             και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.
           </p>
 
-          {/* Γυάλινο θολωτό panel με video */}
+          {/* glass panel με video */}
           <div className="relative mt-8">
             <div className="relative overflow-hidden rounded-2xl border border-white/50 bg-white/40 backdrop-blur-[6px] shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
               <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/30 via-transparent to-white/40" />
