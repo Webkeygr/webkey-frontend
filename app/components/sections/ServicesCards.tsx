@@ -16,8 +16,8 @@ export default function ServicesCards() {
   return (
     <section
       ref={wrapRef}
-      className="relative w-full mt-[200vh]"   // μπαίνει λίγο πιο νωρίς
-      style={{ height: '200vh' }}               // περισσότερο runway για sticky αίσθηση
+      className="relative w-full mt-[300vh]"   // μπαίνει λίγο πιο νωρίς
+      style={{ height: '300vh' }}               // περισσότερο runway για sticky αίσθηση
     >
       <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">

@@ -44,7 +44,7 @@ export default function ServicesIntro() {
   }, []);
 
   return (
-    <section ref={wrapRef} className="relative h-[450vh]">
+    <section ref={wrapRef} className="relative h-[550vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* === BLUR πάνω από το fixed hero (ABSOLUTE, όχι fixed) === */}
         <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
