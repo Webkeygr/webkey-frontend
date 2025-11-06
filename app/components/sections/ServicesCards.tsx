@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, useScroll, useSpring, useTransform, vh } from 'framer-motion';
 import { FlowButton } from '../ui/FlowButton';
 
 /* -------------------------------------------------------------------------- */
@@ -13,6 +13,12 @@ type CardContent = {
   description: string;
   videoSrc: string;
   tags: string[];
+  timing?: {
+    enterFrom?: number; // 0..1 (μέσα στο segment)
+    enterTo?: number;   // 0..1 (> enterFrom)
+    holdTo?: number;    // 0..1 (> enterTo)
+    offsetPx?: number;  // πόσο κάτω ξεκινά (px)
+  };
 };
 
 // 👉 Η 1η κάρτα είναι όπως την είχες.
@@ -25,6 +31,12 @@ const CARDS_DATA: CardContent[] = [
       'Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.',
     videoSrc: '/videos/web-dev.mp4', // public/videos/web-dev.mp4
     tags: ['Websites & Platforms', 'Web Applications', 'E-Commerce', 'Performance & SEO'],
+    timing: {
+      enterFrom: 0.65,
+      enterTo:   0.88,
+      holdTo:    0.98,
+      offsetPx:  160,
+    },
   },
   {
     id: 'card-2',
@@ -33,6 +45,13 @@ const CARDS_DATA: CardContent[] = [
       'Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.', // ← περιγραφή 2ης κάρτας
     videoSrc: '/videos/ui-ux.mp4', // ← path video 2ης κάρτας
     tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'], // ← κουμπιά/ετικέτες 2ης κάρτας
+    timing: {
+      // π.χ. να μπαίνει πιο αργά και να «κάθεται» περισσότερο
+      enterFrom: 0.72,
+      enterTo:   0.90,
+      holdTo:    0.985,
+      offsetPx:  200,
+    },
   },
 ];
 
@@ -46,7 +65,7 @@ export default function ServicesCards() {
   const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
 
   // Κάθε κάρτα «καταναλώνει» 300vh runway (ίδιο με πριν).
-  const PER_CARD_VH = 600;
+  const PER_CARD_VH = 800vh;
 
   return (
     <section
@@ -93,24 +112,21 @@ function CardLayer({
   const segStart = index * SEG;
   const segEnd = (index + 1) * SEG;
 
-  // ΡΥΘΜΙΣΕΙΣ ΕΙΣΟΔΟΥ/OVERLAP (ίδια «ταχύτητα», η 2η μπαίνει πριν σβήσει η 1η)
-  const ENTRY_OFFSET_PX = 160; // πόσο κάτω ξεκινά το slide-in
-  const ENTER_FROM = 0.70;     // πότε ξεκινά το slide-in (μέσα στο segment)
-  const ENTER_TO = 0.92;       // πότε «κουμπώνει» στο 0
-  const HOLD_TO = 0.96;        // μέχρι πότε μένει opacity=1
-  // (fade-out συμβαίνει από HOLD_TO μέχρι segEnd)
+  // ✅ Per-card timings με defaults (αν δεν δοθούν στο data.timing)
+  const DEFAULTS = { enterFrom: 0.70, enterTo: 0.92, holdTo: 0.96, offsetPx: 160 };
+  const t = { ...DEFAULTS, ...(data as any).timing };
 
-  // Από σχετικό (0..1 του segment) σε απόλυτο (0..1 όλης της ενότητας)
-  const enterStart = segStart + SEG * ENTER_FROM;
-  const enterEnd = segStart + SEG * ENTER_TO;
-  const holdEnd = segStart + SEG * HOLD_TO;
-  const fadeEnd = segEnd;
+  // Από "σχετικό" (0..1 του segment) σε "απόλυτο" (0..1 όλης της ενότητας)
+  const enterStart = segStart + SEG * t.enterFrom;
+  const enterEnd   = segStart + SEG * t.enterTo;
+  const holdEnd    = segStart + SEG * t.holdTo;
+  const fadeEnd    = segEnd;
 
   // y: καθαρό slide-in από κάτω → 0 και μένει κεντραρισμένη
   const y = useTransform(
     progress,
     [enterStart, enterEnd, fadeEnd],
-    [ENTRY_OFFSET_PX, 0, 0],
+    [t.offsetPx, 0, 0],
     { clamp: true }
   );
 
@@ -122,20 +138,18 @@ function CardLayer({
     { clamp: true }
   );
 
-  // Η ενεργή κάρτα να είναι «πάνω» (για ομαλό overlap)
-  const zIndex = useTransform(progress, (t: number) =>
-    t >= segStart && t < segEnd ? 40 + index : 20 + index
+  // Η ενεργή κάρτα "πάνω" για ομαλό overlap
+  const zIndex = useTransform(progress, (tt: number) =>
+    tt >= segStart && tt < segEnd ? 40 + index : 20 + index
   );
 
   return (
-    <motion.article
-      className="absolute inset-0"
-      style={{ y, opacity, zIndex }}
-    >
+    <motion.article className="absolute inset-0" style={{ y, opacity, zIndex }}>
       <CardBody data={data} />
     </motion.article>
   );
 }
+
 
 /* -------------------------------------------------------------------------- */
 /*  ΙΔΙΟ layout/κλάσεις με την 1η κάρτα — απλώς περνάμε data                  */
