@@ -17,7 +17,7 @@ export default function ServicesCards() {
     <section
       ref={wrapRef}
       className="relative w-full mt-[500vh]"   // μπαίνει λίγο πιο νωρίς
-      style={{ height: '500vh' }}               // περισσότερο runway για sticky αίσθηση
+      style={{ height: '300vh' }}               // περισσότερο runway για sticky αίσθηση
     >
       <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
@@ -30,7 +30,7 @@ export default function ServicesCards() {
 
 function Card({ progress }: { progress: any }) {
   // πιο ήπιο mapping για να «κάθεται» στο κέντρο περισσότερο
-  const y = useTransform(progress, [0.96, 0.99, 0.85, 1.0], [160, 0, 0, 0], { clamp: true });
+  const y = useTransform(progress, [0.0, 0.25, 0.85, 1.0], [160, 0, 0, 0], { clamp: true });
   const opacity = useTransform(progress, [0.0, 0.07, 0.9, 1.0], [0, 1, 1, 0], { clamp: true });
 
   return (
