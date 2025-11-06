@@ -100,7 +100,7 @@ export default function ServicesIntro() {
 
       {/* FIXED seam eraser – μικρή λωρίδα blur στο κάτω μέρος για να μη φαίνεται κόψιμο */}
       <motion.div
-        className="fixed left-0 right-0 bottom-0 h-24 md:h-28 pointer-events-none backdrop-blur-3xl z-[6]"
+        className="fixed left-0 right-0 bottom-0 h-24 md:h-28 pointer-events-none backdrop-blur-3xl z-10"
         style={{ opacity: blurOpacity }}
       />
 
