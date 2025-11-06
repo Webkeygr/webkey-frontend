@@ -14,36 +14,33 @@ import { FlowButton } from '../ui/FlowButton';
 export default function ServicesCards({
   parentProgress,
 }: {
-  parentProgress: MotionValue<number>;
+  // ✅ το prop είναι ΠΡΟΑΙΡΕΤΙΚΟ. Αν δεν σταλεί από το ServicesIntro, κάνουμε fallback.
+  parentProgress?: MotionValue<number>;
 }) {
-  // Το κρατάμε για τις επόμενες κάρτες (stacking). Η 1η δεν «σπρώχνεται» από αυτό.
+  // Τοπικό progress του section για fallback/stacking
   const secRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: secRef,
     offset: ['start end', 'end start'],
   });
-  const local = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
+  const localSpring = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
-  // ── GATE ────────────────────────────────────────────────────────────────────
-  // Κρατά την κάρτα τελείως κρυφή μέχρι να φύγει ο τίτλος.
-  // ↑ Βάλε πιο μεγάλο threshold αν θες κι ΕΠΙΠΛΕΟΝ καθυστέρηση.
-  const visible = useTransform(
-    parentProgress,
-    (v) => (v >= 0.935 ? 'visible' : 'hidden')
-  );
+  // ✅ Αν δώσεις parentProgress από το ServicesIntro θα χρησιμοποιηθεί.
+  //    Αλλιώς, χρησιμοποιούμε το τοπικό localSpring για να δουλεύει κανονικά.
+  const drive = parentProgress ?? localSpring;
 
-  // ── ΕΙΣΟΔΟΣ (μόνο slide-in, ΧΩΡΙΣ fade) ────────────────────────────────────
-  // Πολύ αργό παράθυρο ώστε να μην «αγγίζει» τον τίτλο.
-  // Αν ακόμη εμφανίζεται νωρίς, ανέβασε τα 0.935/0.985 λίγο (π.χ. 0.945/0.99).
-  const entryYRaw = useTransform(parentProgress, [0.935, 0.985], [260, 0], {
-    clamp: true,
-  });
+  // ── GATE με visibility (όχι fade) για να μην «πατάει» πάνω στον τίτλο ──
+  // Ρύθμισε τα thresholds αν τη θες πιο αργά/νωρίς.
+  const visible = useTransform(drive, (v) => (v >= 0.935 ? 'visible' : 'hidden'));
+
+  // ── SLIDE-IN από κάτω, χωρίς opacity changes ──
+  const entryYRaw = useTransform(drive, [0.935, 0.985], [260, 0], { clamp: true });
   const entryY = useSpring(entryYRaw, { stiffness: 170, damping: 22, mass: 0.7 });
 
   return (
-    // Μεγάλο runway ώστε να παραμένει καρφωμένη στο κέντρο μέχρι να τελειώσει το section
+    // Μεγάλο runway ώστε να παραμένει κεντραρισμένη ως το τέλος του section
     <section ref={secRef} className="relative w-full min-h-[360vh]">
-      {/* Sticky centered: δεν κουνάμε το wrapper, μόνο την κάρτα */}
+      {/* Sticky centered: δεν κουνάμε τον wrapper, μόνο την κάρτα */}
       <div className="sticky top-1/2 -translate-y-1/2 z-[70] h-screen will-change-transform">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
           <Card entryY={entryY} visible={visible} />
