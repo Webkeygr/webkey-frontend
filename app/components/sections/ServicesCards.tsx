@@ -34,7 +34,7 @@ const CARDS_DATA: CardContent[] = [
     timing: {
       enterFrom: 0.65,
       enterTo:   0.88,
-      holdTo:    0.98,
+      holdTo:    2.0,
       offsetPx:  160,
     },
   },
@@ -47,9 +47,9 @@ const CARDS_DATA: CardContent[] = [
     tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'], // ← κουμπιά/ετικέτες 2ης κάρτας
     timing: {
       // π.χ. να μπαίνει πιο αργά και να «κάθεται» περισσότερο
-      enterFrom: 0.72,
+      enterFrom: 0.55,
       enterTo:   0.90,
-      holdTo:    0.985,
+      holdTo:    2.0,
       offsetPx:  200,
     },
   },
