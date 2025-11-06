@@ -14,53 +14,52 @@ import { FlowButton } from '../ui/FlowButton';
 export default function ServicesCards({
   parentProgress,
 }: {
-  // ✅ το prop είναι ΠΡΟΑΙΡΕΤΙΚΟ. Αν δεν σταλεί από το ServicesIntro, κάνουμε fallback.
+  // Προαιρετικό: αν το δώσεις από το ServicesIntro συγχρονιζόμαστε με τον τίτλο.
+  // Αλλιώς κάνουμε fallback σε τοπικό scroll της ενότητας.
   parentProgress?: MotionValue<number>;
 }) {
-  // Τοπικό progress του section για fallback/stacking
+  // Fallback local progress (για όταν δεν δίνεται parentProgress)
   const secRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: secRef,
+    // 0 στο "όταν το section ακουμπήσει το κάτω μέρος του viewport",
+    // 1 στο "όταν φύγει όλο από πάνω"
     offset: ['start end', 'end start'],
   });
   const localSpring = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
-  // ✅ Αν δώσεις parentProgress από το ServicesIntro θα χρησιμοποιηθεί.
-  //    Αλλιώς, χρησιμοποιούμε το τοπικό localSpring για να δουλεύει κανονικά.
+  // Ό,τι από τα δύο υπάρχει: parent ή local
   const drive = parentProgress ?? localSpring;
 
-  // ── GATE με visibility (όχι fade) για να μην «πατάει» πάνω στον τίτλο ──
-  // Ρύθμισε τα thresholds αν τη θες πιο αργά/νωρίς.
-  const visible = useTransform(drive, (v) => (v >= 0.935 ? 'visible' : 'hidden'));
-
-  // ── SLIDE-IN από κάτω, χωρίς opacity changes ──
-  const entryYRaw = useTransform(drive, [0.935, 0.985], [260, 0], { clamp: true });
-  const entryY = useSpring(entryYRaw, { stiffness: 170, damping: 22, mass: 0.7 });
+  /**
+   * SLIDE-IN ΧΩΡΙΣ FADE:
+   * - Κρατάμε την κάρτα πολύ κάτω από το κέντρο (π.χ. 80vh) ώστε να είναι εκτός οθόνης,
+   * - και τη φέρνουμε στο 0 μόλις αργήσει αρκετά το drive.
+   * - Αν τη βλέπεις ακόμα νωρίς, ανέβασε είτε το αρχικό offset ('110vh'),
+   *   είτε τα thresholds (π.χ. [0.94, 0.99]).
+   */
+  const entryY = useSpring(
+    useTransform(drive, [0.92, 0.985], ['80vh', 0], { clamp: true }),
+    { stiffness: 170, damping: 22, mass: 0.7 }
+  );
 
   return (
-    // Μεγάλο runway ώστε να παραμένει κεντραρισμένη ως το τέλος του section
     <section ref={secRef} className="relative w-full min-h-[360vh]">
-      {/* Sticky centered: δεν κουνάμε τον wrapper, μόνο την κάρτα */}
+      {/* Sticky κέντρο — δεν του βάζουμε δικό του y/opacity, μόνο η κάρτα κινείται */}
       <div className="sticky top-1/2 -translate-y-1/2 z-[70] h-screen will-change-transform">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-          <Card entryY={entryY} visible={visible} />
+          <Card y={entryY} />
         </div>
       </div>
     </section>
   );
 }
 
-function Card({
-  entryY,
-  visible,
-}: {
-  entryY: MotionValue<number>;
-  visible: MotionValue<'visible' | 'hidden'>;
-}) {
+function Card({ y }: { y: MotionValue<string | number> }) {
   return (
     <motion.article
       className="group/card relative h-[78vh] sm:h-[76vh] lg:h-[74vh]"
-      style={{ y: entryY, visibility: visible }}
+      style={{ y }}
     >
       {/* Γυάλινο υπόστρωμα */}
       <div className="absolute inset-0 rounded-[28px] bg-white/70 backdrop-blur-[10px] shadow-[0_30px_80px_rgba(0,0,0,0.15)] border border-white/60" />
@@ -97,7 +96,7 @@ function Card({
             και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.
           </p>
 
-          {/* Glass panel με video (προσαρμόζεις src κατά βούληση) */}
+          {/* Glass panel με video */}
           <div className="relative mt-8">
             <div className="relative overflow-hidden rounded-2xl border border-white/50 bg-white/40 backdrop-blur-[6px] shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
               <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/30 via-transparent to-white/40" />
