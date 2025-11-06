@@ -7,17 +7,18 @@ import { FlowButton } from '../ui/FlowButton';
 export default function ServicesCards() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
+  // Ξεκίνα την πρόοδο όταν το section μπει στο viewport (όχι από την κορυφή της σελίδας)
   const { scrollYProgress } = useScroll({
     target: wrapRef,
-    offset: ['start start', 'end end'],
+    offset: ['start end', 'end start'],
   });
   const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full -mt-[26vh]"   // μπαίνει λίγο πιο νωρίς
-      style={{ height: '200vh' }}               // περισσότερο runway για sticky αίσθηση
+      className="relative w-full"               // ❌ αφαιρέθηκε το -mt-[26vh]
+      style={{ height: '240vh' }}              // λίγο μεγαλύτερο runway για sticky αίσθηση
     >
       <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
@@ -29,9 +30,9 @@ export default function ServicesCards() {
 }
 
 function Card({ progress }: { progress: any }) {
-  // πιο ήπιο mapping για να «κάθεται» στο κέντρο περισσότερο
-  const y = useTransform(progress, [0.0, 0.25, 0.85, 1.0], [160, 0, 0, -120], { clamp: true });
-  const opacity = useTransform(progress, [0.0, 0.07, 0.9, 1.0], [0, 1, 1, 0], { clamp: true });
+  // ⏰ Καθυστέρηση εμφάνισης: 0.82→0.92 (ρυθμιζόμενο)
+  const y = useTransform(progress, [0.82, 0.92], [180, 0], { clamp: true });
+  const opacity = useTransform(progress, [0.82, 0.92, 1.0], [0, 1, 1], { clamp: true });
 
   return (
     <motion.article className="relative h-[78vh] sm:h-[76vh] lg:h-[74vh]" style={{ y, opacity }}>
