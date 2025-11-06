@@ -26,19 +26,19 @@ export default function ServicesCards({
 
   // 1) Ανοίγουμε ορατότητα λίγο ΠΡΙΝ την κίνηση για να μη «σκάει» ξαφνικά
   const visible = useTransform(parentProgress, (v) =>
-    v >= 0.86 ? 'visible' : 'hidden'
+    v >= 0.88 ? 'visible' : 'hidden'
   );
 
   // 2) Καθαρό slide-in από κάτω, ΧΩΡΙΣ fade
   //    Στενό παράθυρο ώστε να φαίνεται «γλίστρημα»
-  const entryYRaw = useTransform(parentProgress, [0.86, 0.94], [260, 0], {
+  const entryYRaw = useTransform(parentProgress, [0.88, 0.96], [260, 0], {
     clamp: true,
   });
   const entryY = useSpring(entryYRaw, { stiffness: 170, damping: 22, mass: 0.7 });
 
   return (
     // Μεγάλο ύψος για να κρατάει το sticky στο κέντρο ως το τέλος
-    <section ref={secRef} className="relative w-full min-h-[420vh]">
+    <section ref={secRef} className="relative w-full min-h-[460vh]">
       {/* Κεντράρισμα με sticky top-1/2 -translate-y-1/2 (δεν «σκαρφαλώνει» προς τα πάνω) */}
       <div className="sticky top-1/2 -translate-y-1/2 z-[70] h-screen will-change-transform">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
