@@ -16,9 +16,7 @@ export default function ServicesCards({
 }: {
   parentProgress: MotionValue<number>;
 }) {
-  /**
-   * Local progress για μελλοντικό stacking (η 1η κάρτα δεν το χρησιμοποιεί για κίνηση).
-   */
+  // Το κρατάμε για μελλοντικό stacking (η 1η κάρτα δεν «σπρώχνεται» από αυτό)
   const secRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: secRef,
@@ -27,25 +25,25 @@ export default function ServicesCards({
   const local = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
   /**
-   * SLIDE-IN από κάτω, ΧΩΡΙΣ fade.
-   * Δουλεύουμε ΜΟΝΟ με parentProgress, που έρχεται από το ServicesIntro.
-   * - Τοποθετούμε το παράθυρο αρκετά αργά ώστε να έχει χαθεί εντελώς ο τίτλος.
-   *   Δοκιμασμένες τιμές: 0.92 → 0.985
-   * - Αν χρειαστεί μικρορύθμιση, άλλαξε μόνο αυτά τα δύο thresholds.
+   * GATE: μέχρι να φύγει ο τίτλος, η κάρτα είναι αόρατη (όχι opacity — καθαρό visibility)
+   * Ρύθμισε το threshold αν θες (0.90 → πιο αργά, 0.86 → πιο νωρίς)
    */
-  const entryYRaw = useTransform(parentProgress, [0.92, 0.985], [220, 0], {
-    clamp: true,
-  });
-  // ελαφρύ spring για πιο “ζωντανό” slide χωρίς να φαίνεται fade
+  const visible = useTransform(parentProgress, (v) => (v >= 0.90 ? 'visible' : 'hidden'));
+
+  /**
+   * SLIDE-IN χωρίς fade, σε μικρό παράθυρο ώστε να «σκάει» καθαρά από κάτω.
+   * Παίξε μόνο με τα δύο thresholds αν χρειαστεί.
+   */
+  const entryYRaw = useTransform(parentProgress, [0.90, 0.96], [220, 0], { clamp: true });
   const entryY = useSpring(entryYRaw, { stiffness: 160, damping: 22, mass: 0.7 });
 
   return (
-    // Μεγαλύτερο ύψος για να κρατάει το sticky την κάρτα στο κέντρο μέχρι το τέλος
-    <section ref={secRef} className="relative w-full min-h-[320vh]">
-      {/* Sticky wrapper – δεν του δίνουμε δικό του y/opacity για να μη «σπάει» το sticky */}
-      <div className="sticky top-0 z-[60] h-screen flex items-center justify-center">
+    // Μεγαλύτερο ύψος ώστε το sticky να κρατάει την κάρτα στο κέντρο όσο χρειάζεται
+    <section ref={secRef} className="relative w-full min-h-[340vh]">
+      {/* Sticky layer ΚΕΝΤΡΑΡΙΣΜΕΝΟ με top-1/2 -translate-y-1/2 (δεν «φεύγει» στο τέλος) */}
+      <div className="sticky top-1/2 -translate-y-1/2 z-[70] h-screen will-change-transform">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-          <Card progress={local} entryY={entryY} />
+          <Card progress={local} entryY={entryY} visible={visible} />
         </div>
       </div>
     </section>
@@ -57,26 +55,27 @@ export default function ServicesCards({
 function Card({
   progress,
   entryY,
+  visible,
 }: {
   progress: MotionValue<number>;
   entryY: MotionValue<number>;
+  visible: MotionValue<'visible' | 'hidden'>;
 }) {
-  /**
-   * Η 1η κάρτα μένει σταθερή όσο είναι sticky.
-   * Δεν της δίνουμε άλλο y από το local progress (μηδενικό εύρος).
-   */
+  // Καμία επιπλέον κάθετη κίνηση όσο είναι sticky
   const yStable = useTransform(progress, [0, 1], [0, 0], { clamp: true });
 
   return (
     <motion.article
       className="group/card relative h-[78vh] sm:h-[76vh] lg:h-[74vh] will-change-transform"
-      // ΜΟΝΗ κίνηση: το slide-in από κάτω με parentProgress
-      style={{ y: entryY }}
+      style={{
+        y: entryY,            // μόνο το slide-in από κάτω
+        visibility: visible,  // καθαρό gate για να μη φαίνεται πριν την ώρα της
+      }}
     >
       {/* Γυάλινο υπόστρωμα */}
       <div className="absolute inset-0 rounded-[28px] bg-white/70 backdrop-blur-[10px] shadow-[0_30px_80px_rgba(0,0,0,0.15)] border border-white/60" />
 
-      {/* Hover buttons που αποκαλύπτονται στο hover της κάρτας */}
+      {/* Hover-buttons */}
       <div className="pointer-events-none absolute top-4 right-4 flex gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
         <button className="pointer-events-auto px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-900 text-white/90 hover:text-white hover:bg-black/90">
           Details
@@ -107,7 +106,7 @@ function Card({
           </div>
         </div>
 
-        {/* Δεξιά: τίτλος/κείμενο + γυάλινο video patch */}
+        {/* Δεξιά: τίτλος/κείμενο + glass video patch */}
         <div className="lg:col-span-8">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
             Web development
