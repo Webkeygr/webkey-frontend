@@ -16,7 +16,7 @@ export default function ServicesCards({
 }: {
   parentProgress: MotionValue<number>;
 }) {
-  // Κρατάμε local progress για μελλοντικές κάρτες/stacking (δεν μετακινεί την 1η)
+  // Local progress (κρατιέται για επόμενες κάρτες/stacking – δεν μετακινεί την 1η)
   const secRef = useRef<HTMLDivElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: secRef,
@@ -25,44 +25,46 @@ export default function ServicesCards({
   const local = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
   /**
-   * ΕΙΣΟΔΟΣ ΚΑΡΤΑΣ: καθαρό slide-in χωρίς fade.
-   * Όσο ο τίτλος «φεύγει», χαρτογραφούμε 0.80→0.88 σε 160px→0px.
-   * Έτσι πριν το 0.80 η κάρτα μένει κάτω από το viewport (clamp: true).
+   * SLIDE-IN Είσοδος της κάρτας ΜΕΤΑ τον τίτλο.
+   * - Δεν αλλάζουμε opacity (καθόλου fade).
+   * - Το y ζωντανεύει από 160px → 0px στο στενό παράθυρο 0.88 → 0.96.
+   *   Αν χρειαστεί πιο αργά/νωρίς, πείραξε μόνο αυτά τα δύο thresholds.
    */
-  const introY = useTransform(parentProgress, [0.80, 0.88], [160, 0], {
+  const entryY = useTransform(parentProgress, [0.88, 0.96], [160, 0], {
     clamp: true,
   });
 
   return (
     <section ref={secRef} className="relative w-full min-h-[200vh]">
-      {/* Sticky wrapper της κάρτας – πάντα centered κατακόρυφα */}
-      <motion.div
-        className="sticky top-0 z-[40] h-screen flex items-center justify-center"
-        style={{ y: introY }}
-      >
+      {/* Sticky wrapper – το αφήνουμε ΑΚΙΝΗΤΟ (δεν του δίνουμε y/opacity) */}
+      <div className="sticky top-0 z-[40] h-screen flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-          <Card progress={local} />
+          <Card progress={local} entryY={entryY} />
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
 
 /* ---------------- Card ---------------- */
 
-function Card({ progress }: { progress: MotionValue<number> }) {
+function Card({
+  progress,
+  entryY,
+}: {
+  progress: MotionValue<number>;
+  entryY: MotionValue<number>;
+}) {
   /**
-   * ΠΡΙΝ: η κάρτα είχε και δεύτερο y animation που στο τέλος πήγαινε -120,
-   * με αποτέλεσμα να «ανεβαίνει» και να μη μένει κεντραρισμένη.
-   * ΤΩΡΑ: κρατάμε την κάρτα στάσιμη (y=0) όσο είναι sticky.
-   * Αν θες ήπιο ζωντάνεμα αργότερα, βάζουμε μικρό εύρος (π.χ. 8px).
+   * Κρατάμε την κάρτα σταθερή όσο είναι sticky (y από local = 0).
+   * Η ΜΟΝΑΔΙΚΗ μετατόπιση είναι το entryY (slide-in) που έρχεται από το parentProgress.
    */
-  const y = useTransform(progress, [0, 1], [0, 0], { clamp: true });
+  const yStable = useTransform(progress, [0, 1], [0, 0], { clamp: true });
 
   return (
     <motion.article
-      className="group/card relative h-[78vh] sm:h-[76vh] lg:h-[74vh]"
-      style={{ y }}
+      className="group/card relative h-[78vh] sm:h-[76vh] lg:h-[74vh] will-change-transform"
+      style={{ y: entryY /* slide-in */ }}
     >
       {/* Γυάλινο υπόστρωμα */}
       <div className="absolute inset-0 rounded-[28px] bg-white/70 backdrop-blur-[10px] shadow-[0_30px_80px_rgba(0,0,0,0.15)] border border-white/60" />
