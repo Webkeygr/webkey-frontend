@@ -33,7 +33,7 @@ export default function ServicesCards({
    * - Για να μην «κόβει» καθόλου, βάζουμε καθυστέρηση: 0.92 → 0.985
    * - Μετατόπιση από 220px κάτω → 0px (έρχεται από κάτω και «κάθεται» στο κέντρο)
    */
-  const rawEntryY = useTransform(parentProgress, [0.935, 0.99], [220, 0], { clamp: true });
+  const rawEntryY = useTransform(parentProgress, [1.4, 1.2], [220, 0], { clamp: true });
   const entryY = useSpring(rawEntryY, { stiffness: 140, damping: 22, mass: 0.7 });
 
   return (
