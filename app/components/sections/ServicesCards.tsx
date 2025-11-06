@@ -67,12 +67,16 @@ export default function ServicesCards() {
     target: wrapRef,
     offset: ['start end', 'end start'], // ξεκίνα λίγο πριν «τελειώσει» ο τίτλος
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of d0bb65e (services cards fix v1)
+=======
 >>>>>>> parent of d0bb65e (services cards fix v1)
 =======
 >>>>>>> parent of d0bb65e (services cards fix v1)
   });
   const local = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   // 1) Ανοίγουμε ορατότητα λίγο ΠΡΙΝ την κίνηση για να μη «σκάει» ξαφνικά
@@ -98,6 +102,11 @@ export default function ServicesCards() {
   // ελαφρύ spring για buttery κίνηση
   const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.3 });
 
+=======
+  // ελαφρύ spring για buttery κίνηση
+  const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.3 });
+
+>>>>>>> parent of d0bb65e (services cards fix v1)
 =======
   // ελαφρύ spring για buttery κίνηση
   const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.3 });
@@ -147,6 +156,7 @@ function Card({
 }) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   // δεν προσθέτουμε άλλο y όσο είναι sticky
   // (κρατάμε το hook για μελλοντικές κάρτες)
   useTransform(progress, [0, 1], [0, 0]);
@@ -160,6 +170,8 @@ function Card({
         willChange: 'transform',
       }}
 =======
+=======
+>>>>>>> parent of d0bb65e (services cards fix v1)
 =======
 >>>>>>> parent of d0bb65e (services cards fix v1)
   // εύρος προόδου που «ανήκει» σε αυτή την κάρτα
@@ -192,6 +204,9 @@ function Card({
       className="absolute inset-0 mx-auto flex items-center justify-center"
       style={{ y, opacity, scale, pointerEvents: index === 0 ? 'auto' : 'none' }}
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of d0bb65e (services cards fix v1)
+=======
 >>>>>>> parent of d0bb65e (services cards fix v1)
 =======
 >>>>>>> parent of d0bb65e (services cards fix v1)
