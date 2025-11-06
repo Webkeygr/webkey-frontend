@@ -46,7 +46,7 @@ export default function ServicesCards() {
   const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
 
   // Κάθε κάρτα «καταναλώνει» 300vh runway (ίδιο με πριν).
-  const PER_CARD_VH = 300;
+  const PER_CARD_VH = 600;
 
   return (
     <section
