@@ -33,12 +33,12 @@ export default function ServicesCards({
    * - Για να μην «κόβει» καθόλου, βάζουμε καθυστέρηση: 0.92 → 0.985
    * - Μετατόπιση από 220px κάτω → 0px (έρχεται από κάτω και «κάθεται» στο κέντρο)
    */
-  const rawEntryY = useTransform(parentProgress, [0.92, 0.985], [220, 0], { clamp: true });
+  const rawEntryY = useTransform(parentProgress, [0.935, 0.99], [220, 0], { clamp: true });
   const entryY = useSpring(rawEntryY, { stiffness: 140, damping: 22, mass: 0.7 });
 
   return (
     // ↑ Μεγαλύτερο ύψος ώστε το sticky να κρατάει την κάρτα στο κέντρο μέχρι το τέλος
-    <section ref={secRef} className="relative w-full min-h-[320vh]">
+    <section ref={secRef} className="relative w-full min-h-[360vh]">
       {/* Sticky wrapper – δεν έχει δικό του y/opacity για να μη χαλάει το sticky */}
       <div className="sticky top-0 z-[40] h-screen flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
