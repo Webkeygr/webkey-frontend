@@ -17,7 +17,7 @@ export default function ServicesCards() {
     <section
       ref={wrapRef}
       className="relative w-full mt-[180vh]"   // μπαίνει λίγο πιο νωρίς
-      style={{ height: '180vh' }}               // περισσότερο runway για sticky αίσθηση
+      style={{ height: '100vh' }}               // περισσότερο runway για sticky αίσθηση
     >
       <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
@@ -72,12 +72,6 @@ function Card({ progress }: { progress: any }) {
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* CTA κάτω από το video */}
-          <div className="absolute inset-x-0 bottom-5 flex items-center justify-center gap-4 opacity-0 translate-y-4 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
-            <FlowButton text="See details" />
-            <FlowButton text="Get a quote" />
           </div>
         </div>
 
