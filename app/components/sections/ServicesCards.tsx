@@ -30,7 +30,7 @@ export default function ServicesCards() {
 
 function Card({ progress }: { progress: any }) {
   // πιο ήπιο mapping για να «κάθεται» στο κέντρο περισσότερο
-  const y = useTransform(progress, [0.96, 0.99, 0.995, 1.0], [160, 0, 0, 0], { clamp: true });
+  const y = useTransform(progress, [0.96, 0.99, 0.85, 1.0], [160, 0, 0, 0], { clamp: true });
   const opacity = useTransform(progress, [0.0, 0.07, 0.9, 1.0], [0, 1, 1, 0], { clamp: true });
 
   return (
