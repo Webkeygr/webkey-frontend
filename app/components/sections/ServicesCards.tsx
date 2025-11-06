@@ -39,7 +39,7 @@ export default function ServicesCards({
       style={{ height: '240vh' }}              // αρκετός χώρος για sticky “hold”
     >
       <motion.div
-        className="sticky top-0 h-screen overflow-hidden flex items-center justify-center"
+      className="sticky top-0 z-[30] h-screen overflow-hidden flex items-center justify-center"
         style={{ opacity: gateOpacity }}
       >
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
