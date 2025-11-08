@@ -23,7 +23,7 @@
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  height: var(--logo-height, 56px); /* ~όσο το pill */
+  height: var(--logo-height, 100px); /* ~όσο το pill */
 }
 .logo-plain img,
 .logo-plain svg {
