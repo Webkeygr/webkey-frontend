@@ -66,9 +66,9 @@ export default function Hero() {
       {/* === Hero content (scrolls κανονικά πάνω από το fixed φόντο) === */}
       <div className="hero-inner relative z-10 flex min-h-screen flex-col items-center justify-center text-center px-6">
         <h1 ref={titleRef} className="hero-title">
-          Dare to
+          The Key
           <br />
-          Differ
+          to the Future
         </h1>
         <p ref={subtitleRef} className="hero-text">
           Websites, experiences and brands that refuse to blend in.
