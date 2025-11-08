@@ -37,14 +37,13 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className="hero relative min-h-screen">
-      {/* === FIXED BACKGROUND (μένει παντού πίσω από το site) === */}
+      {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
           className="hero-iridescence w-full h-full"
           mouseReact={true}
           speed={1.9}
           amplitude={0.1}
-          // — props που ήδη χρησιμοποιείς στο custom Iridescence σου —
           opacity={0.9}
           scale={1.1}
           cutRadius={130}
@@ -63,14 +62,28 @@ export default function Hero() {
         />
       </div>
 
-      {/* === Hero content (scrolls κανονικά πάνω από το fixed φόντο) === */}
-      <div className="hero-inner relative z-10 flex min-h-screen flex-col items-center justify-center text-center px-6">
+      {/* === Hero content === */}
+      <div
+        className="
+          hero-inner relative z-10 flex min-h-screen flex-col
+          items-start justify-center text-left
+          pl-6 md:pl-16 pr-6
+        "
+      >
         <h1 ref={titleRef} className="hero-title">
           The Key
           <br />
           to the Future
         </h1>
-        <p ref={subtitleRef} className="hero-text">
+
+        {/* Κάτω-αριστερά, μαύρο */}
+        <p
+          ref={subtitleRef}
+          className="
+            hero-text text-black
+            absolute left-6 md:left-16 bottom-8
+          "
+        >
           Websites, experiences and brands that refuse to blend in.
         </p>
       </div>
