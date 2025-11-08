@@ -57,7 +57,14 @@ export default function Header({
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο */
       logo={
-        <Image src={logoSrc} alt="Webkey" width={250} height={60} priority />
+        <Image
+          src={logoSrc}
+          alt="Webkey"
+          width={250}
+          height={100}
+          priority
+          style={{ paddingTop: 20 }}
+        />
       }
       items={items}
       menuAriaLabel="Toggle navigation"
