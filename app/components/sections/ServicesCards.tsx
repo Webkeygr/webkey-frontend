@@ -84,6 +84,9 @@ export default function ServicesCards() {
   // Fast: μικρότερο runway/κάρτα (όπως πριν)
   const PER_CARD_VH = 520;
 
+  // 🔹 ΝΕΟ: ομαλό fade-in για το overlay των καρτών (cross-fade)
+  const overlayOpacity = useTransform(prog, [0.0, 0.08, 0.2], [0, 0, 1]);
+
   return (
     <section
       ref={wrapRef}
@@ -91,11 +94,14 @@ export default function ServicesCards() {
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* BLUR/DIM overlay — μένει όσο οι κάρτες είναι στη σκηνή */}
-        <div className="absolute inset-0 z-[5] pointer-events-none">
+        {/* BLUR/DIM overlay — μένει όσο οι κάρτες είναι στη σκηνή, με ομαλό fade-in */}
+        <motion.div
+          className="absolute inset-0 z-[5] pointer-events-none"
+          style={{ opacity: overlayOpacity }}
+        >
           <div className="absolute inset-0 backdrop-blur-3xl" />
           <div className="absolute inset-0 bg-black/10" />
-        </div>
+        </motion.div>
 
         {/* Περιεχόμενο καρτών πάνω από το overlay */}
         <div className="relative z-[10] h-full flex items-center justify-center">
@@ -158,16 +164,13 @@ function CardLayer({
   const holdEnd = segStart + SEG * t.holdTo;
 
   // Αν υπάρχει επόμενη κάρτα: ξεκίνα το fade της ΤΩΡΙΝΗΣ ΜΟΝΟ όταν η επόμενη "κάτσει"
-  // δηλαδή όταν η επόμενη φτάσει το enterEnd της.
   const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
   const nextEnterEndAbs = next ? (index + 1) * SEG + SEG * next.enterTo : null;
 
-  // Το fadeStart είναι στο max(holdEnd, nextEnterEndAbs) ώστε:
-  // - να μείνει σίγουρα full μέχρι να "κάτσει" η επόμενη
-  // - αλλά να μη σβήσει νωρίτερα από το δικό της hold
+  // Το fadeStart είναι στο max(holdEnd, nextEnterEndAbs)
   const fadeStart = Math.min(
     Math.max(holdEnd, nextEnterEndAbs ?? holdEnd),
-    segEnd + SEG * overlapNext // μην ξεπερνάμε το fadeEnd
+    segEnd + SEG * overlapNext
   );
 
   // fade-out λίγο ΜΕΣΑ στο επόμενο segment (αν οριστεί overlap)
