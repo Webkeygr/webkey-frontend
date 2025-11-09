@@ -12,24 +12,23 @@ const LOTTIE_OFFSET = 180;
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  // Πιο “snappy” αίσθηση αλλά όχι απότομα (fast)
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ["start start", "end end"],
   });
 
-  // Snappy spring (ή βάλε κατευθείαν scrollYProgress αν θες ultra-snappy)
+  // Fast/snappy feeling
   const raw = useSpring(scrollYProgress, {
     stiffness: 200,
     damping: 16,
     mass: 0.12,
   });
-  // const raw = scrollYProgress; // εναλλακτικά ultra-snappy
+  // εναλλακτικά ultra-snappy:
+  // const raw = scrollYProgress;
 
-  // Fast: ο τίτλος αποκαλύπτεται νωρίς, κρατάει λίγο “πλατό”, μετά φεύγει
+  // Τίτλος: γρήγορη αποκάλυψη, μικρό hold, μετά έξοδος
   const reveal = useTransform(raw, [0.02, 0.28], [0, 1], { clamp: true });
   const scrubOpacity = useTransform(raw, [0.3, 0.38], [1, 0], { clamp: true });
-  //        in     →   hold plateau  ←    → out
   const fullOpacity = useTransform(
     raw,
     [0.38, 0.48, 0.64, 0.72],
@@ -38,7 +37,7 @@ export default function ServicesIntro() {
   );
   const fullY = useTransform(raw, [0.62, 0.78], [0, -50], { clamp: true });
 
-  // Blur/Dim νωρίς και γρήγορα (για να “μπαίνει” η σκηνή)
+  // Blur/Dim: νωρίς & γρήγορα
   const blurOpacity = useTransform(raw, [0.0, 0.1], [0, 1], { clamp: true });
   const dimOpacity = useTransform(raw, [0.05, 0.16], [0, 0.12], {
     clamp: true,
@@ -59,10 +58,10 @@ export default function ServicesIntro() {
   }, []);
 
   return (
-    // Κόβουμε το συνολικό ύψος της εισαγωγής για λιγότερα scrolls (από 900 → 620vh)
+    // Fast: μικρότερο συνολικό ύψος εισαγωγής
     <section ref={wrapRef} className="relative h-[620vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR / DIM === */}
+        {/* === BLUR / DIM (για το hero) === */}
         <motion.div
           className="absolute inset-0 backdrop-blur-3xl z-[5]"
           style={{ opacity: blurOpacity }}
@@ -122,7 +121,7 @@ export default function ServicesIntro() {
         </div>
       </div>
 
-      {/* Οι κάρτες ακολουθούν */}
+      {/* Κάρτες */}
       <ServicesCards />
     </section>
   );
