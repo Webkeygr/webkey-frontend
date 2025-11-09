@@ -84,8 +84,12 @@ export default function ServicesCards() {
   // Fast: μικρότερο runway/κάρτα (όπως πριν)
   const PER_CARD_VH = 520;
 
-  // 🔹 ΝΕΟ: ομαλό fade-in για το overlay των καρτών (cross-fade)
-  const overlayOpacity = useTransform(prog, [0.0, 0.08, 0.2], [0, 0, 1]);
+  // ✅ ΝΕΟ: κρατά το overlay full (1) μέχρι το τέλος των καρτών
+  const overlayOpacity = useTransform(
+    prog,
+    [0.0, 0.08, 0.2, 1.0],
+    [0, 0, 1, 1]
+  );
 
   return (
     <section
@@ -94,7 +98,7 @@ export default function ServicesCards() {
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* BLUR/DIM overlay — μένει όσο οι κάρτες είναι στη σκηνή, με ομαλό fade-in */}
+        {/* BLUR/DIM overlay — μένει όσο οι κάρτες είναι στη σκηνή, με ομαλό fade-in και πλήρη διάρκεια */}
         <motion.div
           className="absolute inset-0 z-[5] pointer-events-none"
           style={{ opacity: overlayOpacity }}
