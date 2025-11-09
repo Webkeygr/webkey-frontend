@@ -7,22 +7,26 @@ import { FlowButton } from "../ui/FlowButton";
 /* -------------------------------------------------------------------------- */
 /*  ΠΕΡΙΕΧΟΜΕΝΟ ΚΑΡΤΩΝ (μόνο εδώ πειράζεις για τίτλο/κείμενο/video/tags)       */
 /* -------------------------------------------------------------------------- */
+type CardTiming = {
+  enterFrom?: number; // 0..1 (μέσα στο segment)
+  enterTo?: number; // 0..1 (> enterFrom)
+  holdTo?: number; // 0..1 (>= enterTo)
+  offsetPx?: number; // πόσο κάτω ξεκινά (px)
+  overlapNext?: number; // 0..0.4 πόσο κρατά μέσα στο επόμενο segment (stacking)
+  instantOpacity?: boolean; // αν true: full opacity από την αρχή του enter (χωρίς fade-in)
+};
+
 type CardContent = {
   id: string;
   title: string;
   description: string;
   videoSrc: string;
   tags: string[];
-  timing?: {
-    enterFrom?: number; // 0..1 (μέσα στο segment)
-    enterTo?: number; // 0..1 (> enterFrom)
-    holdTo?: number; // 0..1 (>= enterTo)
-    offsetPx?: number; // πόσο κάτω ξεκινά (px)
-    overlapNext?: number; // 0..0.4 πόσο κρατά μέσα στο επόμενο segment (stacking)
-  };
+  timing?: CardTiming;
 };
 
-// 👉 2 κάρτες με stacking μεταξύ τους (η 2η ξεκινά πριν σβήσει η 1η)
+// 👉 2 κάρτες με stacking: η 2η ξεκινά πριν σβήσει η 1η
+//    και μπαίνει από ΚΑΤΩ με full opacity όσο ανεβαίνει.
 const CARDS_DATA: CardContent[] = [
   {
     id: "card-1",
@@ -38,10 +42,11 @@ const CARDS_DATA: CardContent[] = [
     ],
     timing: {
       enterFrom: 0.3,
-      enterTo: 0.52,
-      holdTo: 0.94,
+      enterTo: 0.52, // όταν “κάθεται” πλήρως
+      holdTo: 0.94, // κρατά full μέχρι σχεδόν το τέλος του segment της
       offsetPx: 120,
-      overlapNext: 0.22, // stacking window μέσα στο επόμενο segment
+      overlapNext: 0.22, // λίγο μέσα στο επόμενο segment για stacking
+      // instantOpacity: default false (κάνει κανονικό fade-in)
     },
   },
   {
@@ -53,9 +58,10 @@ const CARDS_DATA: CardContent[] = [
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
       enterFrom: 0.1, // ξεκινά νωρίς στο δικό της segment
-      enterTo: 0.4,
+      enterTo: 0.4, // όταν “κάθεται” στη θέση της
       holdTo: 0.92,
-      offsetPx: 140,
+      offsetPx: 900, // μεγάλο ώστε να έρχεται από έξω-κάτω (offscreen)
+      instantOpacity: true, // full opacity από την αρχή της ανόδου
       // overlapNext αν θες stacking και με 3η κ.ο.κ.
     },
   },
@@ -75,7 +81,7 @@ export default function ServicesCards() {
   });
   // ή: const prog = scrollYProgress;
 
-  // Fast: μικρότερο runway/κάρτα
+  // Fast: μικρότερο runway/κάρτα (όπως πριν)
   const PER_CARD_VH = 520;
 
   return (
@@ -103,6 +109,7 @@ export default function ServicesCards() {
                   total={CARDS_DATA.length}
                   progress={prog}
                   data={data}
+                  nextTiming={CARDS_DATA[i + 1]?.timing}
                 />
               ))}
             </div>
@@ -114,18 +121,20 @@ export default function ServicesCards() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Layer ανά κάρτα: ίδιο layout, δικό της timing (slide-in, hold, fade-out)   */
+/*  Layer ανά κάρτα: slide-in, hold, (ελεγχόμενο) fade-out με stacking        */
 /* -------------------------------------------------------------------------- */
 function CardLayer({
   index,
   total,
   progress,
   data,
+  nextTiming,
 }: {
   index: number;
   total: number;
   progress: any;
   data: CardContent;
+  nextTiming?: CardTiming;
 }) {
   // Μοίρασμα progress 0..1 σε segments ανά κάρτα
   const SEG = 1 / total;
@@ -133,20 +142,35 @@ function CardLayer({
   const segEnd = (index + 1) * SEG;
 
   // Defaults + stacking overlap
-  const DEFAULTS = {
+  const DEFAULTS: Required<CardTiming> = {
     enterFrom: 0.4,
     enterTo: 0.7,
     holdTo: 0.95,
     offsetPx: 140,
     overlapNext: 0.18,
+    instantOpacity: false,
   };
-  const t = { ...DEFAULTS, ...(data as any).timing };
+  const t = { ...DEFAULTS, ...(data.timing || {}) };
 
   const overlapNext = Math.max(0, Math.min(t.overlapNext ?? 0, 0.4)); // 0..0.4
   const enterStart = segStart + SEG * t.enterFrom;
   const enterEnd = segStart + SEG * t.enterTo;
   const holdEnd = segStart + SEG * t.holdTo;
-  // fade-out λίγο ΜΕΣΑ στο επόμενο segment για stacking
+
+  // Αν υπάρχει επόμενη κάρτα: ξεκίνα το fade της ΤΩΡΙΝΗΣ ΜΟΝΟ όταν η επόμενη "κάτσει"
+  // δηλαδή όταν η επόμενη φτάσει το enterEnd της.
+  const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
+  const nextEnterEndAbs = next ? (index + 1) * SEG + SEG * next.enterTo : null;
+
+  // Το fadeStart είναι στο max(holdEnd, nextEnterEndAbs) ώστε:
+  // - να μείνει σίγουρα full μέχρι να "κάτσει" η επόμενη
+  // - αλλά να μη σβήσει νωρίτερα από το δικό της hold
+  const fadeStart = Math.min(
+    Math.max(holdEnd, nextEnterEndAbs ?? holdEnd),
+    segEnd + SEG * overlapNext // μην ξεπερνάμε το fadeEnd
+  );
+
+  // fade-out λίγο ΜΕΣΑ στο επόμενο segment (αν οριστεί overlap)
   const fadeEnd = Math.min(segEnd + SEG * overlapNext, 1);
 
   // y: slide-in από κάτω → 0 (μένει κεντραρισμένη)
@@ -157,15 +181,21 @@ function CardLayer({
     { clamp: true }
   );
 
-  // opacity: 0→1 όσο μπαίνει, κρατάει 1, μετά σβήνει ως το fadeEnd
-  const opacity = useTransform(
-    progress,
-    [enterStart, enterEnd, holdEnd, fadeEnd],
-    [0, 1, 1, 0],
-    { clamp: true }
-  );
+  // opacity:
+  // - Αν instantOpacity: full=1 από την αρχή του enter μέχρι το fadeStart, μετά 0 έως fadeEnd.
+  // - Αλλιώς: 0→1 στο enter, κρατά 1 μέχρι fadeStart, μετά 0 έως fadeEnd.
+  const opacity = t.instantOpacity
+    ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], {
+        clamp: true,
+      })
+    : useTransform(
+        progress,
+        [enterStart, enterEnd, fadeStart, fadeEnd],
+        [0, 1, 1, 0],
+        { clamp: true }
+      );
 
-  // ενεργή κάρτα “πάνω” για καθαρό overlap
+  // Ενεργή κάρτα “πάνω” για καθαρό overlap
   const zIndex = useTransform(progress, (tt: number) =>
     tt >= segStart && tt < segEnd ? 40 + index : 20 + index
   );
