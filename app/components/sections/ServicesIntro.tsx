@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { TextScrub } from '../ui/text-scrub';
-import Lottie from 'lottie-react';
-import ServicesCards from '@/app/components/sections/ServicesCards';
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { TextScrub } from "../ui/text-scrub";
+import Lottie from "lottie-react";
+import ServicesCards from "@/app/components/sections/ServicesCards";
 
 type LottieData = Record<string, any>;
 const LOTTIE_OFFSET = 180;
@@ -12,30 +12,45 @@ const LOTTIE_OFFSET = 180;
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  // ΕΠΙΣΤΡΟΦΗ στο αρχικό offset για σωστό timeline του τίτλου
+  // Πιο “snappy” αίσθηση αλλά όχι απότομα (fast)
   const { scrollYProgress } = useScroll({
     target: wrapRef,
-    offset: ['start start', 'end end'],
+    offset: ["start start", "end end"],
   });
-  const raw = useSpring(scrollYProgress, { stiffness: 120, damping: 20, mass: 0.2 });
 
-  // Φάσεις τίτλου (όπως πριν που δούλευε)
-  const reveal       = useTransform(raw, [0.08, 0.55], [0, 1], { clamp: true });
-  const scrubOpacity = useTransform(raw, [0.52, 0.62], [1, 0], { clamp: true });
-  const fullOpacity  = useTransform(raw, [0.52, 0.62, 0.80, 0.95], [0, 1, 1, 0], { clamp: true });
-  const fullY        = useTransform(raw, [0.82, 1.00], [0, -80], { clamp: true });
+  // Snappy spring (ή βάλε κατευθείαν scrollYProgress αν θες ultra-snappy)
+  const raw = useSpring(scrollYProgress, {
+    stiffness: 200,
+    damping: 16,
+    mass: 0.12,
+  });
+  // const raw = scrollYProgress; // εναλλακτικά ultra-snappy
 
-  // Smooth blur/dim (absolute, όπως πριν)
-  const blurOpacity = useTransform(raw, [0.02, 0.22], [0, 1], { clamp: true });
-  const dimOpacity  = useTransform(raw, [0.10, 0.35], [0, 0.12], { clamp: true });
+  // Fast: ο τίτλος αποκαλύπτεται νωρίς, κρατάει λίγο “πλατό”, μετά φεύγει
+  const reveal = useTransform(raw, [0.02, 0.28], [0, 1], { clamp: true });
+  const scrubOpacity = useTransform(raw, [0.3, 0.38], [1, 0], { clamp: true });
+  //        in     →   hold plateau  ←    → out
+  const fullOpacity = useTransform(
+    raw,
+    [0.38, 0.48, 0.64, 0.72],
+    [0, 1, 1, 0],
+    { clamp: true }
+  );
+  const fullY = useTransform(raw, [0.62, 0.78], [0, -50], { clamp: true });
+
+  // Blur/Dim νωρίς και γρήγορα (για να “μπαίνει” η σκηνή)
+  const blurOpacity = useTransform(raw, [0.0, 0.1], [0, 1], { clamp: true });
+  const dimOpacity = useTransform(raw, [0.05, 0.16], [0, 0.12], {
+    clamp: true,
+  });
 
   // Lottie
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
     (async () => {
       try {
-        let r = await fetch('/lottie/scroll-down.json');
-        if (!r.ok) r = await fetch('/lottie/scroll%20down.json');
+        let r = await fetch("/lottie/scroll-down.json");
+        if (!r.ok) r = await fetch("/lottie/scroll%20down.json");
         if (r.ok) setLottieData(await r.json());
       } catch {
         setLottieData(null);
@@ -44,11 +59,18 @@ export default function ServicesIntro() {
   }, []);
 
   return (
-    <section ref={wrapRef} className="relative h-[900vh]">
+    // Κόβουμε το συνολικό ύψος της εισαγωγής για λιγότερα scrolls (από 900 → 620vh)
+    <section ref={wrapRef} className="relative h-[620vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR πάνω από το fixed hero (ABSOLUTE, όχι fixed) === */}
-        <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
-        <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: dimOpacity }} />
+        {/* === BLUR / DIM === */}
+        <motion.div
+          className="absolute inset-0 backdrop-blur-3xl z-[5]"
+          style={{ opacity: blurOpacity }}
+        />
+        <motion.div
+          className="absolute inset-0 bg-black z-[4]"
+          style={{ opacity: dimOpacity }}
+        />
 
         {/* === CONTENT === */}
         <div className="relative z-10 h-full">
@@ -88,19 +110,19 @@ export default function ServicesIntro() {
             className="absolute w-[148px] md:w-[168px] opacity-80 pointer-events-none"
             style={{
               opacity: fullOpacity,
-              left: '50%',
+              left: "50%",
               top: `calc(50% + ${LOTTIE_OFFSET}px)`,
-              transform: 'translateX(-50%)',
+              transform: "translateX(-50%)",
             }}
           >
-            {lottieData ? <Lottie animationData={lottieData} loop autoplay /> : null}
+            {lottieData ? (
+              <Lottie animationData={lottieData} loop autoplay />
+            ) : null}
           </motion.div>
         </div>
       </div>
 
-      
-
-      {/* Οι κάρτες (χωρίς έξτρα overlays) */}
+      {/* Οι κάρτες ακολουθούν */}
       <ServicesCards />
     </section>
   );

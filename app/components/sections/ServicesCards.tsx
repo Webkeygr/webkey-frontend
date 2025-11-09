@@ -1,12 +1,9 @@
-'use client';
+"use client";
 
-import { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform, vh } from 'framer-motion';
-import { FlowButton } from '../ui/FlowButton';
+import { useRef } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { FlowButton } from "../ui/FlowButton";
 
-/* -------------------------------------------------------------------------- */
-/*  ΠΕΡΙΕΧΟΜΕΝΟ ΚΑΡΤΩΝ (μόνο εδώ πειράζεις για τίτλο/κείμενο/video/tags)       */
-/* -------------------------------------------------------------------------- */
 type CardContent = {
   id: string;
   title: string;
@@ -14,43 +11,46 @@ type CardContent = {
   videoSrc: string;
   tags: string[];
   timing?: {
-    enterFrom?: number; // 0..1 (μέσα στο segment)
-    enterTo?: number;   // 0..1 (> enterFrom)
-    holdTo?: number;    // 0..1 (> enterTo)
-    offsetPx?: number;  // πόσο κάτω ξεκινά (px)
+    enterFrom?: number; // 0..1 μέσα στο segment της κάρτας
+    enterTo?: number; // 0..1 (> enterFrom)
+    holdTo?: number; // 0..1 (>= enterTo)
+    offsetPx?: number; // px: από πόσο κάτω ξεκινά το slide-in
   };
 };
 
-// 👉 Η 1η κάρτα είναι όπως την είχες.
-// 👉 Η 2η κάρτα: άλλαξε απλώς τις τιμές στο δεύτερο object.
 const CARDS_DATA: CardContent[] = [
   {
-    id: 'card-1',
-    title: 'Web development',
+    id: "card-1",
+    title: "Web development",
     description:
-      'Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.',
-    videoSrc: '/videos/web-dev.mp4', // public/videos/web-dev.mp4
-    tags: ['Websites & Platforms', 'Web Applications', 'E-Commerce', 'Performance & SEO'],
+      "Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.",
+    videoSrc: "/videos/web-dev.mp4",
+    tags: [
+      "Websites & Platforms",
+      "Web Applications",
+      "E-Commerce",
+      "Performance & SEO",
+    ],
     timing: {
-      enterFrom: 0.65,
-      enterTo:   0.88,
-      holdTo:    2.0,
-      offsetPx:  160,
+      // Fast είσοδος + ικανό hold για να προλάβει ο χρήστης να δει
+      enterFrom: 0.3,
+      enterTo: 0.52,
+      holdTo: 0.9,
+      offsetPx: 120,
     },
   },
   {
-    id: 'card-2',
-    title: 'UI / UX design', // ← ΒΑΛΕ εδώ τον τίτλο της 2ης κάρτας
+    id: "card-2",
+    title: "UI / UX design",
     description:
-      'Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.', // ← περιγραφή 2ης κάρτας
-    videoSrc: '/videos/ui-ux.mp4', // ← path video 2ης κάρτας
-    tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'], // ← κουμπιά/ετικέτες 2ης κάρτας
+      "Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.",
+    videoSrc: "/videos/ui-ux.mp4",
+    tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
-      // π.χ. να μπαίνει πιο αργά και να «κάθεται» περισσότερο
-      enterFrom: 0.55,
-      enterTo:   0.90,
-      holdTo:    2.0,
-      offsetPx:  200,
+      enterFrom: 0.32,
+      enterTo: 0.56,
+      holdTo: 0.92,
+      offsetPx: 140,
     },
   },
 ];
@@ -60,22 +60,29 @@ export default function ServicesCards() {
 
   const { scrollYProgress } = useScroll({
     target: wrapRef,
-    offset: ['start start', 'end end'],
+    offset: ["start start", "end end"],
   });
-  const prog = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.35 });
 
-  // Κάθε κάρτα «καταναλώνει» 300vh runway (ίδιο με πριν).
-  const PER_CARD_VH = 800;
+  // Snappy αλλά smooth (ίδιο feeling με τον τίτλο)
+  const prog = useSpring(scrollYProgress, {
+    stiffness: 200,
+    damping: 18,
+    mass: 0.18,
+  });
+  // ή: const prog = scrollYProgress;
+
+  // Fast: λιγότερο runway ανά κάρτα
+  const PER_CARD_VH = 520;
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full mt-[500vh]"   // ΔΕΝ αλλάζω αυτό που έχεις
-      style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }} // 300vh * πλήθος καρτών
+      // Λιγότερη καθυστέρηση πριν μπουν οι κάρτες (από 500vh → 260vh)
+      className="relative w-full mt-[260vh]"
+      style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex items-center justify-center">
         <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-          {/* Wrapper με ίδιο ύψος κάρτας όπως πριν */}
           <div className="relative w-full h-[78vh] sm:h-[76vh] lg:h-[74vh]">
             {CARDS_DATA.map((data, i) => (
               <CardLayer
@@ -93,9 +100,6 @@ export default function ServicesCards() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Layer ανά κάρτα: ίδιο layout, δικό της timing (slide-in, hold, fade-out)   */
-/* -------------------------------------------------------------------------- */
 function CardLayer({
   index,
   total,
@@ -107,22 +111,23 @@ function CardLayer({
   progress: any;
   data: CardContent;
 }) {
-  // Μοίρασμα progress 0..1 σε segments ανά κάρτα
   const SEG = 1 / total;
   const segStart = index * SEG;
   const segEnd = (index + 1) * SEG;
 
-  // ✅ Per-card timings με defaults (αν δεν δοθούν στο data.timing)
-  const DEFAULTS = { enterFrom: 0.70, enterTo: 0.92, holdTo: 0.96, offsetPx: 160 };
+  const DEFAULTS = {
+    enterFrom: 0.4,
+    enterTo: 0.7,
+    holdTo: 0.95,
+    offsetPx: 140,
+  };
   const t = { ...DEFAULTS, ...(data as any).timing };
 
-  // Από "σχετικό" (0..1 του segment) σε "απόλυτο" (0..1 όλης της ενότητας)
   const enterStart = segStart + SEG * t.enterFrom;
-  const enterEnd   = segStart + SEG * t.enterTo;
-  const holdEnd    = segStart + SEG * t.holdTo;
-  const fadeEnd    = segEnd;
+  const enterEnd = segStart + SEG * t.enterTo;
+  const holdEnd = segStart + SEG * t.holdTo;
+  const fadeEnd = segEnd;
 
-  // y: καθαρό slide-in από κάτω → 0 και μένει κεντραρισμένη
   const y = useTransform(
     progress,
     [enterStart, enterEnd, fadeEnd],
@@ -130,7 +135,6 @@ function CardLayer({
     { clamp: true }
   );
 
-  // opacity: 0→1 όσο μπαίνει, κρατάει 1, μετά σβήνει μέχρι το τέλος του segment
   const opacity = useTransform(
     progress,
     [enterStart, enterEnd, holdEnd, fadeEnd],
@@ -138,7 +142,6 @@ function CardLayer({
     { clamp: true }
   );
 
-  // Η ενεργή κάρτα "πάνω" για ομαλό overlap
   const zIndex = useTransform(progress, (tt: number) =>
     tt >= segStart && tt < segEnd ? 40 + index : 20 + index
   );
@@ -150,10 +153,6 @@ function CardLayer({
   );
 }
 
-
-/* -------------------------------------------------------------------------- */
-/*  ΙΔΙΟ layout/κλάσεις με την 1η κάρτα — απλώς περνάμε data                  */
-/* -------------------------------------------------------------------------- */
 function CardBody({ data }: { data: CardContent }) {
   return (
     <div
@@ -175,7 +174,6 @@ function CardBody({ data }: { data: CardContent }) {
           muted
           playsInline
         />
-        {/* overlay & κουμπιά ΜΟΝΟ πάνω στο video */}
         <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
@@ -196,7 +194,7 @@ function CardBody({ data }: { data: CardContent }) {
         </div>
       </div>
 
-      {/* ΚΕΙΜΕΝΟ */}
+      {/* TEXT */}
       <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 text-left lg:grid lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-8">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
