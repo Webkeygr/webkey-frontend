@@ -5,12 +5,12 @@ import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { FlowButton } from '../ui/FlowButton';
 
 type CardTiming = {
-  enterFrom?: number;
-  enterTo?: number;
-  holdTo?: number;
-  offsetPx?: number;
-  overlapNext?: number;
-  instantOpacity?: boolean;
+  enterFrom?: number;       // 0..1 στο segment
+  enterTo?: number;         // 0..1 (> enterFrom)
+  holdTo?: number;          // 0..1 (>= enterTo)
+  offsetPx?: number;        // px: ξεκίνημα από κάτω
+  overlapNext?: number;     // 0..0.4: κρατά λίγο μέσα στο επόμενο segment (stacking)
+  instantOpacity?: boolean; // true: full opacity από την αρχή του enter
 };
 
 type CardContent = {
@@ -46,10 +46,10 @@ const CARDS_DATA: CardContent[] = [
     videoSrc: '/videos/ui-ux.mp4',
     tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'],
     timing: {
-      enterFrom: 0.05,
-      enterTo:   0.32,
+      enterFrom: 0.05,   // ξεκινά νωρίς → βλέπεις τη 2η πριν φύγει η 1η
+      enterTo:   0.32,   // “κάθεται” νωρίς
       holdTo:    0.88,
-      offsetPx:  1000,
+      offsetPx:  1000,   // ανεβαίνει από κάτω-κάτω
       instantOpacity: true,
     },
   },
@@ -64,11 +64,8 @@ export default function ServicesCards() {
   });
   const prog = useSpring(scrollYProgress, { stiffness: 200, damping: 18, mass: 0.18 });
 
-  // Λιγότερα sticky scrolls ανά κάρτα
+  // Λιγότερα sticky scrolls ανά κάρτα (~2)
   const PER_CARD_VH = 380;
-
-  // Blur overlay: δεν φαίνεται στο hero, fade-in στην αρχή των καρτών, μετά μένει 1
-  const overlayOpacity = useTransform(prog, [0.00, 0.06, 0.16, 1.00], [0, 0, 1, 1]);
 
   return (
     <section
@@ -77,17 +74,7 @@ export default function ServicesCards() {
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR/DIM overlay — FIXED & full όσο είμαστε στις κάρτες === */}
-        <motion.div
-          className="fixed inset-0 z-[5] pointer-events-none"
-          style={{ opacity: overlayOpacity }}
-          aria-hidden
-        >
-          <div className="absolute inset-0 backdrop-blur-3xl" />
-          <div className="absolute inset-0 bg-black/10" />
-        </motion.div>
-
-        {/* Περιεχόμενο καρτών πάνω από το blur */}
+        {/* Περιεχόμενο καρτών */}
         <div className="relative z-[10] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
             <div className="relative w-full h-[74vh]">
