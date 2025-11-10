@@ -7,17 +7,24 @@ import Lottie from 'lottie-react';
 import ServicesCards from '@/app/components/sections/ServicesCards';
 
 type LottieData = Record<string, any>;
-const GAP_AFTER_TITLE_VH = 90; // 1–2 scrolls καθυστέρηση πριν μπουν οι κάρτες
+const GAP_AFTER_TITLE_VH = 90; // ~1–2 scrolls πριν ξεκινήσουν οι κάρτες
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const cardsStartRef = useRef<HTMLDivElement | null>(null); // sentinel: ακριβώς πριν τις κάρτες
 
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ['start start', 'end end'],
   });
-
   const raw = useSpring(scrollYProgress, { stiffness: 200, damping: 16, mass: 0.12 });
+
+  // progress του "σημείου έναρξης καρτών": όταν το sentinel πλησιάζει το επάνω μέρος
+  const { scrollYProgress: cardsStart } = useScroll({
+    target: cardsStartRef,
+    // 0 => sentinel ακόμα χαμηλά, 1 => sentinel έφτασε ψηλά (ξεκινούν οι κάρτες)
+    offset: ['start 90%', 'start 50%'],
+  });
 
   /* ------------------ ΤΙΤΛΟΣ ------------------ */
   const reveal       = useTransform(raw, [0.02, 0.24], [0, 1], { clamp: true });
@@ -25,13 +32,19 @@ export default function ServicesIntro() {
   const fullOpacity  = useTransform(raw, [0.30, 0.42, 0.50, 0.58], [0, 1, 1, 0], { clamp: true });
   const fullY        = useTransform(raw, [0.50, 0.66], [0, -40], { clamp: true });
 
-  /* ------------------ BLUR / DIM ------------------ */
-  // Ξεκινά σταδιακά όταν μπαίνει ο τίτλος και ΜΕΝΕΙ 1 ως το τέλος του section (πριν τις κάρτες).
-  const blurOpacity = useTransform(raw, [0.00, 0.08, 1.00], [0, 1, 1], { clamp: true });
-  const dimOpacity  = useTransform(raw, [0.04, 0.14, 1.00], [0, 0.12, 0.12], { clamp: true });
+  /* ------------------ BLUR / DIM ------------------
+     1) introBlurBase: μπαίνει σταδιακά όταν μπαίνει ο τίτλος
+     2) cross-fade με τις κάρτες: όσο cardsStart → 1, το intro blur σβήνει
+  -------------------------------------------------- */
+  const introBlurBase = useTransform(raw, [0.00, 0.08], [0, 1], { clamp: true });
+  const introDimBase  = useTransform(raw, [0.04, 0.14], [0, 0.12], { clamp: true });
+  const blurOpacity   = useTransform([introBlurBase, cardsStart], ([b, cs]) => b * (1 - cs));
+  const dimOpacity    = useTransform([introDimBase,  cardsStart], ([d, cs]) => d * (1 - cs));
 
-  /* ------------------ LOTTIE ------------------ */
-  const lottieOpacity = useTransform(raw, [0.22, 0.30, 0.42, 0.58], [0, 0.6, 1, 1], { clamp: true });
+  /* ------------------ LOTTIE ------------------
+     Fade-in νωρίς, και fade-out καθώς πλησιάζουν οι κάρτες (με cardsStart)
+  -------------------------------------------------- */
+  const lottieOpacity = useTransform(cardsStart, [0, 0.3, 0.6, 1], [1, 0.6, 0.2, 0], { clamp: true });
 
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
@@ -47,10 +60,9 @@ export default function ServicesIntro() {
   }, []);
 
   return (
-    // Μεγαλύτερο section ώστε το blur να παραμένει on μέχρι να πιάσουν οι κάρτες
     <section ref={wrapRef} className="relative h-[680vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR / DIM (hero) — ξεκινά με τον τίτλο και κρατά 1 μέχρι να ξεκινήσουν οι κάρτες === */}
+        {/* === BLUR / DIM (intro) — ξεκινά με τίτλο και σβήνει καθώς ξεκινούν οι κάρτες === */}
         <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
         <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: dimOpacity }} />
 
@@ -87,9 +99,9 @@ export default function ServicesIntro() {
             Οι υπηρεσίες μας
           </motion.h1>
 
-          {/* Lottie: χαμηλά στο κέντρο, 15% μικρότερο */}
+          {/* Lottie: χαμηλά στο κέντρο, fade-out πριν τις κάρτες */}
           <motion.div
-            className="absolute w-[126px] md:w-[144px] pointer-events-none"
+            className="absolute w-[126px] md:w-[144px] pointer-events-none z-[3]"
             style={{
               opacity: lottieOpacity,
               left: '50%',
@@ -102,8 +114,11 @@ export default function ServicesIntro() {
         </div>
       </div>
 
-      {/* Spacer: 1–2 scrolls πριν ξεκινήσουν οι κάρτες ώστε ο τίτλος να φαίνεται πλήρως */}
+      {/* Spacer: 1–2 scrolls για να φαίνεται ο τίτλος πλήρως */}
       <div style={{ height: `${GAP_AFTER_TITLE_VH}vh` }} />
+
+      {/* Sentinel: ακριβώς πριν ξεκινήσουν οι κάρτες (το βλέπει το cardsStart) */}
+      <div ref={cardsStartRef} className="h-px" />
 
       {/* Κάρτες */}
       <ServicesCards />
