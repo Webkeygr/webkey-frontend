@@ -50,10 +50,10 @@ const CARDS_DATA: CardContent[] = [
     videoSrc: "/videos/ui-ux.mp4",
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
-      enterFrom: 0.06,
-      enterTo: 0.22,
-      offsetPx: 800,
-      overlapNext: 0.1,
+      enterFrom: 0.02,
+      enterTo: 0.36,
+      offsetPx: 520,
+      overlapNext: 0.14,
     },
   },
 ];
