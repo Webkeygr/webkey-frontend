@@ -8,7 +8,7 @@ import ServicesCards from "@/app/components/sections/ServicesCards";
 
 type LottieData = Record<string, any>;
 
-const LOTTIE_OFFSET = 180;
+const LOTTIE_OFFSET = 120; // μικρότερο, να μένει στο οπτικό πεδίο
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -20,29 +20,28 @@ export default function ServicesIntro() {
   });
 
   /* ---------------- ΤΙΤΛΟΣ ---------------- */
-  const reveal = useTransform(scrollYProgress, [0.08, 0.55], [0, 1]);
-  const scrubOpacity = useTransform(scrollYProgress, [0.52, 0.62], [1, 0]);
+  // αποκαλύπτεται νωρίς…
+  const reveal = useTransform(scrollYProgress, [0.08, 0.5], [0, 1]);
+  // …μένει “scrubbed” μέχρι να κάτσει full
+  const scrubOpacity = useTransform(scrollYProgress, [0.48, 0.6], [1, 0]);
+  // full opacity, κρατάει αρκετά πριν αρχίσουν οι κάρτες
   const fullOpacity = useTransform(
     scrollYProgress,
-    [0.52, 0.62, 0.8, 0.95],
+    [0.58, 0.68, 0.86, 0.96],
     [0, 1, 1, 0]
   );
-  const fullY = useTransform(scrollYProgress, [0.82, 1.0], [0, -80]);
+  const fullY = useTransform(scrollYProgress, [0.86, 1.0], [0, -80]);
 
-  /* ---------------- BLUR & DIM ---------------- */
-  // ξεκινά σταδιακά με τον τίτλο και ΜΕΝΕΙ μέχρι το τέλος των καρτών
+  /* ---------------- ΜΟΝΟ BLUR ---------------- */
+  // ξεκινά σταδιακά με τον τίτλο και ΜΕΝΕΙ
   const blurOpacity = useTransform(scrollYProgress, [0.06, 0.18, 1], [0, 1, 1]);
-  const dimOpacity = useTransform(
-    scrollYProgress,
-    [0.1, 0.25, 1],
-    [0, 0.12, 0.12]
-  );
 
   /* ---------------- LOTTIE ---------------- */
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
     (async () => {
       try {
+        // δοκίμασε 2 ονόματα αρχείων (με και χωρίς κενό)
         let r = await fetch("/lottie/scroll-down.json");
         if (!r.ok) r = await fetch("/lottie/scroll%20down.json");
         if (r.ok) setLottieData(await r.json());
@@ -52,32 +51,32 @@ export default function ServicesIntro() {
     })();
   }, []);
 
+  // πιο φαρδύ παράθυρο εμφάνισης ώστε να “προλάβει” να φανεί
   const lottieOpacity = useTransform(
     scrollYProgress,
-    [0.5, 0.58, 0.65],
+    [0.46, 0.56, 0.72],
     [0, 1, 0]
   );
 
   return (
     <section ref={wrapRef} className="relative h-[900vh]">
       <div className="sticky top-0 h-screen overflow-hidden isolate">
-        {/* === BLUR πάνω από το hero και ΟΛΗ ΤΗΝ ΕΝΟΤΗΤΑ === */}
+        {/* === ΜΟΝΟ BLUR layer (ΚΑΘΟΛΟΥ σκοτείνιασμα) === */}
         <motion.div
-          className="absolute inset-0 z-[3] pointer-events-none"
+          className="absolute inset-0 z-[5] pointer-events-none"
           style={{ opacity: blurOpacity }}
         >
           <div
             className="absolute inset-0"
             style={{
-              backdropFilter: "blur(40px)",
-              WebkitBackdropFilter: "blur(40px)",
-              background: "rgba(255,255,255,0.18)",
+              // ισχυρότερο blur ώστε να "γράφει"
+              backdropFilter: "blur(50px)",
+              WebkitBackdropFilter: "blur(50px)",
+              // ελαφρύ ανοιχτό φιλτράρισμα για να ενεργοποιεί το backdrop
+              background: "rgba(255,255,255,0.12)",
             }}
           />
-          <motion.div
-            className="absolute inset-0 bg-black"
-            style={{ opacity: dimOpacity }}
-          />
+          {/* ΔΕΝ βάζουμε πια dim/darken layer */}
         </motion.div>
 
         {/* === CONTENT === */}
@@ -115,22 +114,30 @@ export default function ServicesIntro() {
 
           {/* Lottie */}
           <motion.div
-            className="absolute w-[126px] md:w-[144px] pointer-events-none z-[6]"
+            className="absolute w-[126px] md:w-[144px] pointer-events-none z-[12] will-change-[opacity,transform]"
             style={{
               opacity: lottieOpacity,
               left: "50%",
               top: `calc(50% + ${LOTTIE_OFFSET}px)`,
               transform: "translateX(-50%)",
             }}
+            aria-hidden="true"
           >
             {lottieData ? (
-              <Lottie animationData={lottieData} loop autoplay />
+              <Lottie
+                animationData={lottieData}
+                loop
+                autoplay
+                rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
+              />
             ) : null}
           </motion.div>
         </div>
       </div>
 
       {/* === ΚΑΡΤΕΣ === */}
+      {/* Δες στο ServicesCards: προσθέτουμε μεγάλο top offset ώστε να
+          ολοκληρωθεί ο τίτλος ΠΡΙΝ ξεκινήσει το πρώτο segment καρτών */}
       <ServicesCards />
     </section>
   );

@@ -22,6 +22,9 @@ type CardContent = {
   timing?: CardTiming;
 };
 
+// Πόσο "κενό" πριν αρχίσουν οι κάρτες (ώστε να προλάβει ο τίτλος)
+const CARDS_OFFSET_VH = 140;
+
 const CARDS_DATA: CardContent[] = [
   {
     id: "card-1",
@@ -36,11 +39,12 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      enterFrom: 0.28,
-      enterTo: 0.5,
-      holdTo: 0.84,
-      offsetPx: 110,
-      overlapNext: 0.3,
+      // μπαίνει λίγο πιο αργά για να έχει ολοκληρωθεί ο τίτλος
+      enterFrom: 0.36,
+      enterTo: 0.58,
+      holdTo: 0.9,
+      offsetPx: 140,
+      overlapNext: 0.24,
     },
   },
   {
@@ -51,10 +55,10 @@ const CARDS_DATA: CardContent[] = [
     videoSrc: "/videos/ui-ux.mp4",
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
-      enterFrom: 0.05, // ξεκινά νωρίς → βλέπεις τη 2η πριν φύγει η 1η
-      enterTo: 0.32, // “κάθεται” νωρίς
+      enterFrom: 0.05,
+      enterTo: 0.32,
       holdTo: 0.88,
-      offsetPx: 1000, // ανεβαίνει από κάτω-κάτω
+      offsetPx: 1000,
       instantOpacity: true,
     },
   },
@@ -73,15 +77,23 @@ export default function ServicesCards() {
     mass: 0.18,
   });
 
-  // Λιγότερα sticky scrolls ανά κάρτα (~2)
+  // ~2 sticky “scrolls” ανά κάρτα
   const PER_CARD_VH = 380;
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full mt-0"
-      style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
+      className="relative w-full"
+      style={{
+        // Συνολικό ύψος = κενό πριν + ύψος καρτών
+        height: `calc(${CARDS_OFFSET_VH}vh + ${
+          CARDS_DATA.length * PER_CARD_VH
+        }vh)`,
+      }}
     >
+      {/* κενό τμήμα ώστε να ολοκληρωθεί ο τίτλος */}
+      <div style={{ height: `${CARDS_OFFSET_VH}vh` }} />
+
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* Περιεχόμενο καρτών */}
         <div className="relative z-[10] h-full flex items-center justify-center">
