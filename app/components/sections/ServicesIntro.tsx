@@ -7,8 +7,7 @@ import Lottie from 'lottie-react';
 import ServicesCards from '@/app/components/sections/ServicesCards';
 
 type LottieData = Record<string, any>;
-const LOTTIE_OFFSET = 180;
-const GAP_AFTER_TITLE_VH = 90; // ✳️ 1–2 scrolls delay πριν ξεκινήσουν οι κάρτες
+const GAP_AFTER_TITLE_VH = 90; // 1–2 scrolls καθυστέρηση πριν τις κάρτες
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -20,24 +19,18 @@ export default function ServicesIntro() {
 
   const raw = useSpring(scrollYProgress, { stiffness: 200, damping: 16, mass: 0.12 });
 
-  /* ------------------ ΤΙΤΛΟΣ ------------------ */
+  /* ΤΙΤΛΟΣ */
   const reveal       = useTransform(raw, [0.02, 0.24], [0, 1], { clamp: true });
   const scrubOpacity = useTransform(raw, [0.26, 0.38], [1, 0], { clamp: true });
   const fullOpacity  = useTransform(raw, [0.30, 0.42, 0.50, 0.58], [0, 1, 1, 0], { clamp: true });
   const fullY        = useTransform(raw, [0.50, 0.66], [0, -40], { clamp: true });
 
-  /* ------------------ BLUR / DIM ------------------ */
-  // ✳️ παραμένει αναμμένο μέχρι τέλους (θα σβήσει όταν τελειώσουν και οι κάρτες)
+  /* BLUR / DIM – ΜΕΝΕΙ ΜΕΧΡΙ ΤΕΛΟΣ ΤΟΥ SECTION */
   const blurOpacity = useTransform(raw, [0.00, 0.08, 1.00], [0, 1, 1], { clamp: true });
   const dimOpacity  = useTransform(raw, [0.04, 0.14, 1.00], [0, 0.12, 0.12], { clamp: true });
 
-  /* ------------------ LOTTIE ------------------ */
-const lottieOpacity = useTransform(
-  raw,
-  [0.22, 0.30, 0.42, 0.58, 0.62, 0.70],
-  [0,    0.6,  1,    1,    0.3,  0],
-  { clamp: true }
-);
+  /* LOTTIE (προαιρετικά: ρυθμίζεται ανεξάρτητα) */
+  const lottieOpacity = useTransform(raw, [0.22, 0.30, 0.42, 0.58], [0, 0.6, 1, 1], { clamp: true });
 
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
@@ -53,10 +46,10 @@ const lottieOpacity = useTransform(
   }, []);
 
   return (
-    // ✳️ λίγο μεγαλύτερο section για να “κρατά” το blur μέχρι να πιάσουν οι κάρτες
+    // Μεγαλύτερο section ώστε το blur του intro να “κρατάει” μέχρι να πιάσουν οι κάρτες
     <section ref={wrapRef} className="relative h-[680vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR / DIM (hero) === */}
+        {/* === BLUR / DIM (hero) — παραμένει ενεργό μέχρι το τέλος του section === */}
         <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
         <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: dimOpacity }} />
 
@@ -93,13 +86,13 @@ const lottieOpacity = useTransform(
             Οι υπηρεσίες μας
           </motion.h1>
 
-          {/* Lottie: χαμηλότερα + 15% μικρότερο */}
+          {/* Lottie: χαμηλά στο κέντρο, 15% μικρότερο */}
           <motion.div
             className="absolute w-[126px] md:w-[144px] pointer-events-none"
             style={{
               opacity: lottieOpacity,
               left: '50%',
-              bottom: '14vh', // νέα θέση — στο περίπου εκεί που έδειξες
+              bottom: '14vh',
               transform: 'translateX(-50%)',
             }}
           >
@@ -108,7 +101,7 @@ const lottieOpacity = useTransform(
         </div>
       </div>
 
-      {/* ✳️ Spacer ώστε ο τίτλος να μείνει πλήρως ορατός 1–2 scrolls πριν μπουν οι κάρτες */}
+      {/* Spacer: 1–2 scrolls πριν ξεκινήσουν οι κάρτες */}
       <div style={{ height: `${GAP_AFTER_TITLE_VH}vh` }} />
 
       {/* Κάρτες */}

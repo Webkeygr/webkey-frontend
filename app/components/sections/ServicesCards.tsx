@@ -63,28 +63,31 @@ export default function ServicesCards() {
     offset: ['start start', 'end end'],
   });
   const prog = useSpring(scrollYProgress, { stiffness: 200, damping: 18, mass: 0.18 });
-  // ή: const prog = scrollYProgress;
 
-  // Λιγότερα sticky scrolls ανά κάρτα
+  // Μικρότερο runway/κάρτα (κρατά ~2 scrolls)
   const PER_CARD_VH = 380;
 
-  // Overlay των καρτών: fade-in νωρίς και μένει full ως το τέλος
-  const overlayOpacity = useTransform(prog, [0.00, 0.08, 0.20, 1.00], [0, 0, 1, 1]);
+  // Overlay: full από την αρχή ώς το τέλος (δεν “ανεβαίνει” γιατί είναι fixed)
+  const overlayOpacity = useTransform(prog, [0, 1], [1, 1]); // σταθερά 1, το κρατάμε motion για συνέπεια
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full mt-0"   // ✳️ καταργήθηκε το μεγάλο mt για να συνεχίσει το blur αδιάκοπα
+      className="relative w-full mt-0"
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* BLUR/DIM overlay — πλήρης διάρκεια */}
-        <motion.div className="fixed inset-0 z-[5] pointer-events-none" style={{ opacity: overlayOpacity }}>
+        {/* === BLUR/DIM overlay — FIXED & FULL για όλη τη διάρκεια των καρτών === */}
+        <motion.div
+          className="fixed inset-0 z-[5] pointer-events-none"
+          style={{ opacity: overlayOpacity }}
+          aria-hidden
+        >
           <div className="absolute inset-0 backdrop-blur-3xl" />
           <div className="absolute inset-0 bg-black/10" />
         </motion.div>
 
-        {/* Περιεχόμενο καρτών */}
+        {/* Περιεχόμενο καρτών πάνω από το blur */}
         <div className="relative z-[10] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
             <div className="relative w-full h-[74vh]">
@@ -138,7 +141,6 @@ function CardLayer({
   const enterEnd   = segStart + SEG * t.enterTo;
   const holdEnd    = segStart + SEG * t.holdTo;
 
-  // Fade της τωρινής ΜΟΝΟ όταν η επόμενη “κάτσει”
   const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
   const nextEnterEndAbs = next ? ((index + 1) * SEG) + SEG * next.enterTo : null;
 
