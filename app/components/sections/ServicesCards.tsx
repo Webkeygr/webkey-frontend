@@ -19,8 +19,8 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-const CARDS_OFFSET_VH = 10; // μικρό κενό → μπαίνει αμέσως η 1η κάρτα
-const PER_CARD_VH = 320; // λίγο πιο γρήγορη ροή
+const CARDS_OFFSET_VH = 10; // καπάκια μετά τον τίτλο
+const PER_CARD_VH = 240; // ΜΙΚΡΟΤΕΡΗ διάρκεια ανά κάρτα → λιγότερα scrolls
 
 const CARDS_DATA: CardContent[] = [
   {
@@ -36,10 +36,10 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      enterFrom: 0.12, // μπαίνει νωρίς στο 1ο segment
-      enterTo: 0.3,
-      offsetPx: 110,
-      overlapNext: 0.14,
+      enterFrom: 0.1, // μπαίνει γρήγορα
+      enterTo: 0.24,
+      offsetPx: 90,
+      overlapNext: 0.12,
     },
   },
   {
@@ -51,9 +51,9 @@ const CARDS_DATA: CardContent[] = [
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
       enterFrom: 0.06,
-      enterTo: 0.28,
-      offsetPx: 900,
-      overlapNext: 0.12,
+      enterTo: 0.22,
+      offsetPx: 800,
+      overlapNext: 0.1,
     },
   },
 ];
@@ -86,7 +86,7 @@ export default function ServicesCards() {
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="relative z-10 h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-            <div className="relative w-full h-[74vh]">
+            <div className="relative w-full h-[68vh]">
               {CARDS_DATA.map((data, i) => (
                 <CardLayer
                   key={data.id}
@@ -119,9 +119,9 @@ function CardLayer({
   const segStart = index * SEG;
 
   const t = {
-    enterFrom: 0.2,
-    enterTo: 0.4,
-    offsetPx: 120,
+    enterFrom: 0.18,
+    enterTo: 0.32,
+    offsetPx: 90,
     overlapNext: 0.12,
     ...(data.timing || {}),
   };
@@ -129,7 +129,7 @@ function CardLayer({
   const enterStart = segStart + SEG * t.enterFrom;
   const enterEnd = segStart + SEG * t.enterTo;
 
-  // Κίνηση μόνο (ΧΩΡΙΣ opacity fades) → opacity πάντα 1
+  // Κίνηση μόνο — opacity πάντα 1
   const y = useTransform(progress, [enterStart, enterEnd], [t.offsetPx, 0], {
     clamp: true,
   });
