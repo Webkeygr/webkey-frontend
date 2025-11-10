@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { TextScrub } from "../ui/text-scrub";
 import Lottie from "lottie-react";
-import BackdropBlurOverlay from "@/app/components/BackdropBlurOverlay";
+import BackdropBlurOverlay from "../BackdropBlurOverlay"; // relative
 
 type LottieData = Record<string, any>;
-const LOTTIE_OFFSET = 120;
+const LOTTIE_OFFSET = 110;
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -17,21 +17,20 @@ export default function ServicesIntro() {
     offset: ["start start", "end end"],
   });
 
-  /* ---------------- ΤΙΤΛΟΣ ---------------- */
-  const reveal = useTransform(scrollYProgress, [0.08, 0.48], [0, 1]);
-  const scrubOpacity = useTransform(scrollYProgress, [0.46, 0.6], [1, 0]);
-  // full τίτλος: “κάθεται” και ΜΕΝΕΙ ως το ΤΕΛΟΣ του intro
+  /* ---- ΤΙΤΛΟΣ: πολύ λιγότερα scrolls ---- */
+  const reveal = useTransform(scrollYProgress, [0.06, 0.26], [0, 1]); // γρήγορο scrub
+  const scrubOpacity = useTransform(scrollYProgress, [0.24, 0.3], [1, 0]); // σβήνει νωρίς
   const fullOpacity = useTransform(
     scrollYProgress,
-    [0.56, 0.66, 0.998, 0.999], // κρατάει γεμάτος μέχρι να φύγουμε από το section
+    [0.3, 0.36, 0.44, 0.46], // μικρό “hold”, αμέσως μετά θα μπει η 1η κάρτα
     [0, 1, 1, 0]
   );
-  const fullY = useTransform(scrollYProgress, [0.998, 1.0], [0, -80]);
+  const fullY = useTransform(scrollYProgress, [0.44, 0.46], [0, -60]); // ελαφρύ lift out
 
-  /* ---------------- BLUR (PORTAL στο <body>) ---------------- */
-  const blurOpacity = useTransform(scrollYProgress, [0.06, 0.18, 1], [0, 1, 1]);
+  /* ---- BLUR (background overlay) ---- */
+  const blurOpacity = useTransform(scrollYProgress, [0.04, 0.12, 1], [0, 1, 1]);
 
-  /* ---------------- LOTTIE ---------------- */
+  /* ---- LOTTIE μαζί με τον τίτλο ---- */
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
     (async () => {
@@ -44,17 +43,16 @@ export default function ServicesIntro() {
       }
     })();
   }, []);
-  // ξεκινά ΜΑΖΙ με τον τίτλο, σβήνει λίγο πριν τελειώσει το intro
   const lottieOpacity = useTransform(
     scrollYProgress,
-    [0.08, 0.12, 0.95],
+    [0.06, 0.1, 0.34],
     [0, 1, 0]
   );
 
   return (
-    <section ref={wrapRef} className="relative h-[1200vh]">
-      {/* ΠΡΑΓΜΑΤΙΚΟ background blur σαν overlay, με portal */}
-      <BackdropBlurOverlay opacity={blurOpacity} zIndex={50} />
+    <section ref={wrapRef} className="relative h-[360vh]">
+      {/* Πίσω από το περιεχόμενο, μπροστά από το hero */}
+      <BackdropBlurOverlay opacity={blurOpacity} zIndex={1} />
 
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="relative z-10 h-full">
@@ -91,7 +89,7 @@ export default function ServicesIntro() {
 
           {/* Lottie */}
           <motion.div
-            className="absolute w-[126px] md:w-[144px] pointer-events-none z-[12] will-change-[opacity,transform]"
+            className="absolute w-[120px] md:w-[140px] pointer-events-none z-[12] will-change-[opacity,transform]"
             style={{
               opacity: lottieOpacity,
               left: "50%",
@@ -101,12 +99,7 @@ export default function ServicesIntro() {
             aria-hidden="true"
           >
             {lottieData ? (
-              <Lottie
-                animationData={lottieData}
-                loop
-                autoplay
-                rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
-              />
+              <Lottie animationData={lottieData} loop autoplay />
             ) : null}
           </motion.div>
         </div>

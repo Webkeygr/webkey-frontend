@@ -21,8 +21,8 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-// ΤΕΡΑΣΤΙΟ κενό ώστε να τελειώσει ο τίτλος προτού φανούν οι κάρτες
-const CARDS_OFFSET_VH = 360;
+// ΜΙΚΡΟ κενό: να μπει αμέσως μετά τον τίτλο
+const CARDS_OFFSET_VH = 40;
 
 const CARDS_DATA: CardContent[] = [
   {
@@ -38,10 +38,10 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      enterFrom: 0.55, // Ακόμη πιο αργά
-      enterTo: 0.72,
-      holdTo: 0.92,
-      offsetPx: 160,
+      enterFrom: 0.18, // Μπαίνει νωρίς στο πρώτο segment
+      enterTo: 0.36,
+      holdTo: 0.8,
+      offsetPx: 120,
       overlapNext: 0.18,
     },
   },
@@ -54,7 +54,7 @@ const CARDS_DATA: CardContent[] = [
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
       enterFrom: 0.06,
-      enterTo: 0.32,
+      enterTo: 0.3,
       holdTo: 0.88,
       offsetPx: 900,
       instantOpacity: true,
@@ -75,7 +75,7 @@ export default function ServicesCards() {
     mass: 0.18,
   });
 
-  const PER_CARD_VH = 380;
+  const PER_CARD_VH = 360;
 
   return (
     <section
@@ -87,11 +87,10 @@ export default function ServicesCards() {
         }vh)`,
       }}
     >
-      {/* τεράστιο κενό για να ολοκληρωθεί ο τίτλος */}
       <div style={{ height: `${CARDS_OFFSET_VH}vh` }} />
 
       <div className="sticky top-0 h-screen overflow-hidden">
-        <div className="relative z-[20] h-full flex items-center justify-center">
+        <div className="relative z-10 h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
             <div className="relative w-full h-[74vh]">
               {CARDS_DATA.map((data, i) => (
@@ -131,53 +130,30 @@ function CardLayer({
   const segEnd = (index + 1) * SEG;
 
   const DEFAULTS: Required<CardTiming> = {
-    enterFrom: 0.4,
-    enterTo: 0.7,
-    holdTo: 0.95,
-    offsetPx: 140,
+    enterFrom: 0.22,
+    enterTo: 0.42,
+    holdTo: 0.9,
+    offsetPx: 120,
     overlapNext: 0.18,
-    instantOpacity: false,
+    instantOpacity: true,
   };
   const t = { ...DEFAULTS, ...(data.timing || {}) };
 
-  const overlapNext = Math.max(0, Math.min(t.overlapNext ?? 0, 0.4));
   const enterStart = segStart + SEG * t.enterFrom;
   const enterEnd = segStart + SEG * t.enterTo;
-  const holdEnd = segStart + SEG * t.holdTo;
 
-  const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
-  const nextMidAbs = next ? (index + 1) * SEG + SEG * 0.5 : null;
+  // Kίνηση μόνο (ΧΩΡΙΣ opacity fades)
+  const y = useTransform(progress, [enterStart, enterEnd], [t.offsetPx, 0], {
+    clamp: true,
+  });
 
-  const fadeStart = Math.min(
-    Math.max(holdEnd, nextMidAbs ?? holdEnd),
-    segEnd + SEG * overlapNext
-  );
-  const fadeEnd = Math.min(segEnd + SEG * overlapNext, 1);
+  // ΠΑΝΤΑ πλήρης αδιαφάνεια
+  const opacity = 1;
 
-  const y = useTransform(
-    progress,
-    [enterStart, enterEnd, fadeEnd],
-    [t.offsetPx, 0, 0],
-    { clamp: true }
-  );
-
-  const opacity = t.instantOpacity
-    ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], {
-        clamp: true,
-      })
-    : useTransform(
-        progress,
-        [enterStart, enterEnd, fadeStart, fadeEnd],
-        [0, 1, 1, 0],
-        { clamp: true }
-      );
-
-  const scale = useTransform(
-    progress,
-    nextMidAbs ? [enterStart, nextMidAbs, fadeEnd] : [enterStart, fadeEnd],
-    nextMidAbs ? [1, 0.96, 0.96] : [1, 1],
-    { clamp: true }
-  );
+  // Ελαφρύ scale κατά την άφιξη και μένει σταθερό
+  const scale = useTransform(progress, [enterStart, enterEnd], [0.98, 1], {
+    clamp: true,
+  });
 
   const zIndex = useTransform(progress, (tt: number) =>
     tt >= segStart && tt < segEnd ? 40 + index : 20 + index
@@ -186,7 +162,7 @@ function CardLayer({
   return (
     <motion.article
       className="absolute inset-0"
-      style={{ y, opacity, scale, zIndex }}
+      style={{ y, scale, zIndex, opacity }}
     >
       <CardBody data={data} />
     </motion.article>
@@ -215,24 +191,8 @@ function CardBody({ data }: { data: CardContent }) {
           muted
           playsInline
         />
+        {/* καμία αλλαγή στο hover overlay */}
         <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-          <div className="grid grid-cols-2 gap-4 sm:gap-6">
-            {data.tags.map((t) => (
-              <button
-                key={t}
-                className="
-                  px-5 sm:px-6 py-3 sm:py-3.5 rounded-2xl
-                  bg-white text-neutral-900 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.35)]
-                  font-medium text-[clamp(12px,1.2vw,16px)]
-                  transition-transform duration-300 hover:-translate-y-0.5
-                "
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* TEXT */}
