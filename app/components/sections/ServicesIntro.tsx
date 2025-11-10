@@ -1,60 +1,108 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { TextScrub } from '../ui/text-scrub';
-import Lottie from 'lottie-react';
-import ServicesCards from '@/app/components/sections/ServicesCards';
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { TextScrub } from "../ui/text-scrub";
+import Lottie from "lottie-react";
+import ServicesCards from "@/app/components/sections/ServicesCards";
 
 type LottieData = Record<string, any>;
 
 /* ---- Tunables ---- */
-const GAP_AFTER_TITLE_VH = 90;      // ~1–2 scrolls πριν ξεκινήσουν οι κάρτες
-const TITLE_REVEAL_START = 0.02;    // πότε ξεκινά το λέξη-λέξη
-const BLUR_FADEIN_LEN   = 0.10;     // πόσο “απαλά” μπαίνει το blur από τον τίτλο
+const GAP_AFTER_TITLE_VH = 90; // ~1–2 scrolls πριν ξεκινήσουν οι κάρτες
+const TITLE_REVEAL_START = 0.02; // πότε ξεκινά το λέξη-λέξη
+const BLUR_FADEIN_LEN = 0.1; // πόσο “απαλά” μπαίνει το blur από τον τίτλο
+const END_FADE_LEN = 0.08; // πόσο “απαλά” θα σβήσει στο τέλος των καρτών
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  /* Progress του intro section */
+  // Sentinel για ΤΕΛΟΣ καρτών (θα το βάλουμε μετά το <ServicesCards/>)
+  const cardsEndRef = useRef<HTMLDivElement | null>(null);
+
+  /* Progress του intro section (για τίτλο & αρχικό fade-in) */
   const { scrollYProgress } = useScroll({
     target: wrapRef,
-    offset: ['start start', 'end end'],
+    offset: ["start start", "end end"],
   });
-  const raw = useSpring(scrollYProgress, { stiffness: 200, damping: 16, mass: 0.12 });
+  const raw = useSpring(scrollYProgress, {
+    stiffness: 200,
+    damping: 16,
+    mass: 0.12,
+  });
+
+  /* Progress του τέλους καρτών — 0: μακριά, 1: έφτασε near-top (ήμαστε στο τέλος) */
+  const { scrollYProgress: cardsEnd } = useScroll({
+    target: cardsEndRef,
+    offset: ["start 100%", "start 55%"], // fine-tune: το δεύτερο ρυθμίζει το “πότε” θα αρχίσει να σβήνει
+  });
 
   /* ------------------ ΤΙΤΛΟΣ ------------------ */
-  const reveal       = useTransform(raw, [TITLE_REVEAL_START, TITLE_REVEAL_START + 0.22], [0, 1], { clamp: true });
-  const scrubOpacity = useTransform(raw, [TITLE_REVEAL_START + 0.24, TITLE_REVEAL_START + 0.36], [1, 0], { clamp: true });
-  const fullOpacity  = useTransform(raw, [TITLE_REVEAL_START + 0.28, TITLE_REVEAL_START + 0.40, TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.56], [0, 1, 1, 0], { clamp: true });
-  const fullY        = useTransform(raw, [TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.64], [0, -40], { clamp: true });
+  const reveal = useTransform(
+    raw,
+    [TITLE_REVEAL_START, TITLE_REVEAL_START + 0.22],
+    [0, 1],
+    { clamp: true }
+  );
+  const scrubOpacity = useTransform(
+    raw,
+    [TITLE_REVEAL_START + 0.24, TITLE_REVEAL_START + 0.36],
+    [1, 0],
+    { clamp: true }
+  );
+  const fullOpacity = useTransform(
+    raw,
+    [
+      TITLE_REVEAL_START + 0.28,
+      TITLE_REVEAL_START + 0.4,
+      TITLE_REVEAL_START + 0.48,
+      TITLE_REVEAL_START + 0.56,
+    ],
+    [0, 1, 1, 0],
+    { clamp: true }
+  );
+  const fullY = useTransform(
+    raw,
+    [TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.64],
+    [0, -40],
+    { clamp: true }
+  );
 
-  /* ------------------ BLUR / DIM (Intro) ------------------
-     Ξεκινά ΜΟΝΟ όταν ξεκινά ο τίτλος και μένει 1 ως το τέλος του Intro.
-     Το “μέχρι το τέλος των καρτών” το αναλαμβάνει επιπλέον overlay μέσα στις κάρτες.
+  /* ------------------ BLUR / DIM ------------------
+     ✳️ Ένα ΚΑΙ ΜΟΝΟ fixed overlay:
+     - fade-in με τον τίτλο
+     - μένει 1 σε όλη τη διάρκεια των καρτών
+     - fade-out μόνο όταν φτάσουμε στο cardsEnd
   -------------------------------------------------- */
-  const introBlurOpacity = useTransform(
+  const startFade = useTransform(
     raw,
     [TITLE_REVEAL_START, TITLE_REVEAL_START + BLUR_FADEIN_LEN],
     [0, 1],
     { clamp: true }
   );
-  const introDimOpacity = useTransform(
-    raw,
-    [TITLE_REVEAL_START + 0.02, TITLE_REVEAL_START + BLUR_FADEIN_LEN + 0.02],
-    [0, 0.12],
-    { clamp: true }
-  );
+
+  // κάνουμε ήπιο fade-out κοντά στο τέλος των καρτών
+  const endFade = useTransform(cardsEnd, [0, 1 - END_FADE_LEN, 1], [1, 1, 0], {
+    clamp: true,
+  });
+
+  // τελικό opacity = startFade * endFade
+  const blurOpacity = useTransform(() => startFade.get() * endFade.get());
+  const dimOpacity = useTransform(() => startFade.get() * endFade.get() * 0.12);
 
   /* ------------------ LOTTIE ------------------
-     Ορατό με τον τίτλο, fade-out ΠΡΙΝ ξεκινήσουν οι κάρτες.
-     (Καθαρά με timeline του Intro, χωρίς sentinel)
+     Ορατό με τον τίτλο, fade-out πριν τις κάρτες (μέσα στο timing του intro).
   -------------------------------------------------- */
   const lottieOpacity = useTransform(
     raw,
-    // in           hold         out (λίγο πριν τις κάρτες)
-    [TITLE_REVEAL_START + 0.02, TITLE_REVEAL_START + 0.20, TITLE_REVEAL_START + 0.36, TITLE_REVEAL_START + 0.46],
-    [0,                       1,                               1,                         0],
+    // in           hold         out (λίγο πριν αρχίσουν οι κάρτες)
+    [
+      TITLE_REVEAL_START + 0.02,
+      TITLE_REVEAL_START + 0.2,
+      TITLE_REVEAL_START + 0.36,
+      TITLE_REVEAL_START + 0.46,
+    ],
+    [0, 1, 1, 0],
     { clamp: true }
   );
 
@@ -63,8 +111,8 @@ export default function ServicesIntro() {
   useEffect(() => {
     (async () => {
       try {
-        let r = await fetch('/lottie/scroll-down.json');
-        if (!r.ok) r = await fetch('/lottie/scroll%20down.json');
+        let r = await fetch("/lottie/scroll-down.json");
+        if (!r.ok) r = await fetch("/lottie/scroll%20down.json");
         if (r.ok) setLottieData(await r.json());
       } catch {
         setLottieData(null);
@@ -75,9 +123,17 @@ export default function ServicesIntro() {
   return (
     <section ref={wrapRef} className="relative h-[680vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR / DIM (intro) — ξεκινά με τον τίτλο === */}
-        <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: introBlurOpacity }} />
-        <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: introDimOpacity }} />
+        {/* === FIXED BLUR/DIM overlay — ενιαίο για intro+cards === */}
+        <motion.div
+          className="fixed inset-0 z-[5] pointer-events-none"
+          style={{ opacity: blurOpacity }}
+        >
+          <div className="absolute inset-0 backdrop-blur-3xl" />
+          <div
+            className="absolute inset-0 bg-black"
+            style={{ opacity: 0.12 }}
+          />
+        </motion.div>
 
         {/* === CONTENT === */}
         <div className="relative z-10 h-full">
@@ -114,15 +170,17 @@ export default function ServicesIntro() {
 
           {/* Lottie: χαμηλά στο κέντρο, 15% μικρότερο */}
           <motion.div
-            className="absolute w-[126px] md:w-[144px] pointer-events-none z-[3]"
+            className="absolute w-[126px] md:w-[144px] pointer-events-none z-[6]"
             style={{
               opacity: lottieOpacity,
-              left: '50%',
-              bottom: '14vh',
-              transform: 'translateX(-50%)',
+              left: "50%",
+              bottom: "14vh",
+              transform: "translateX(-50%)",
             }}
           >
-            {lottieData ? <Lottie animationData={lottieData} loop autoplay /> : null}
+            {lottieData ? (
+              <Lottie animationData={lottieData} loop autoplay />
+            ) : null}
           </motion.div>
         </div>
       </div>
@@ -132,6 +190,9 @@ export default function ServicesIntro() {
 
       {/* Κάρτες */}
       <ServicesCards />
+
+      {/* Sentinel: ΤΕΛΟΣ καρτών — για fade-out του global overlay */}
+      <div ref={cardsEndRef} className="h-px" />
     </section>
   );
 }

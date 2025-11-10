@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { FlowButton } from '../ui/FlowButton';
+import { useRef } from "react";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { FlowButton } from "../ui/FlowButton";
 
 type CardTiming = {
-  enterFrom?: number;       // 0..1 στο segment
-  enterTo?: number;         // 0..1 (> enterFrom)
-  holdTo?: number;          // 0..1 (>= enterTo)
-  offsetPx?: number;        // px: ξεκίνημα από κάτω
-  overlapNext?: number;     // 0..0.4: κρατά λίγο μέσα στο επόμενο segment (stacking)
+  enterFrom?: number; // 0..1 στο segment
+  enterTo?: number; // 0..1 (> enterFrom)
+  holdTo?: number; // 0..1 (>= enterTo)
+  offsetPx?: number; // px: ξεκίνημα από κάτω
+  overlapNext?: number; // 0..0.4: κρατά λίγο μέσα στο επόμενο segment (stacking)
   instantOpacity?: boolean; // true: full opacity από την αρχή του enter
 };
 
@@ -24,32 +24,37 @@ type CardContent = {
 
 const CARDS_DATA: CardContent[] = [
   {
-    id: 'card-1',
-    title: 'Web development',
+    id: "card-1",
+    title: "Web development",
     description:
-      'Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.',
-    videoSrc: '/videos/web-dev.mp4',
-    tags: ['Websites & Platforms', 'Web Applications', 'E-Commerce', 'Performance & SEO'],
+      "Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.",
+    videoSrc: "/videos/web-dev.mp4",
+    tags: [
+      "Websites & Platforms",
+      "Web Applications",
+      "E-Commerce",
+      "Performance & SEO",
+    ],
     timing: {
       enterFrom: 0.28,
-      enterTo:   0.50,
-      holdTo:    0.84,
-      offsetPx:  110,
-      overlapNext: 0.30,
+      enterTo: 0.5,
+      holdTo: 0.84,
+      offsetPx: 110,
+      overlapNext: 0.3,
     },
   },
   {
-    id: 'card-2',
-    title: 'UI / UX design',
+    id: "card-2",
+    title: "UI / UX design",
     description:
-      'Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.',
-    videoSrc: '/videos/ui-ux.mp4',
-    tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'],
+      "Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.",
+    videoSrc: "/videos/ui-ux.mp4",
+    tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
-      enterFrom: 0.05,   // ξεκινά νωρίς → βλέπεις τη 2η πριν φύγει η 1η
-      enterTo:   0.32,   // “κάθεται” νωρίς
-      holdTo:    0.88,
-      offsetPx:  1000,   // ανεβαίνει από κάτω-κάτω
+      enterFrom: 0.05, // ξεκινά νωρίς → βλέπεις τη 2η πριν φύγει η 1η
+      enterTo: 0.32, // “κάθεται” νωρίς
+      holdTo: 0.88,
+      offsetPx: 1000, // ανεβαίνει από κάτω-κάτω
       instantOpacity: true,
     },
   },
@@ -60,16 +65,16 @@ export default function ServicesCards() {
 
   const { scrollYProgress } = useScroll({
     target: wrapRef,
-    offset: ['start start', 'end end'],
+    offset: ["start start", "end end"],
   });
-  const prog = useSpring(scrollYProgress, { stiffness: 200, damping: 18, mass: 0.18 });
+  const prog = useSpring(scrollYProgress, {
+    stiffness: 200,
+    damping: 18,
+    mass: 0.18,
+  });
 
   // Λιγότερα sticky scrolls ανά κάρτα (~2)
   const PER_CARD_VH = 380;
-
-  // === BLUR/DIM overlay για ΟΛΟ το διάστημα των καρτών ===
-  // 0 στο ξεκίνημα των καρτών → 1 πολύ νωρίς → διατηρείται 1 ως το τέλος.
-  const overlayOpacity = useTransform(prog, [0.00, 0.04, 1.00], [0, 1, 1]);
 
   return (
     <section
@@ -78,16 +83,6 @@ export default function ServicesCards() {
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* BLUR/DIM overlay — FIXED για να μην “ανεβαίνει”, και μένει 1 έως τέλους */}
-        <motion.div
-          className="fixed inset-0 z-[5] pointer-events-none"
-          style={{ opacity: overlayOpacity }}
-          aria-hidden
-        >
-          <div className="absolute inset-0 backdrop-blur-3xl" />
-          <div className="absolute inset-0 bg-black/10" />
-        </motion.div>
-
         {/* Περιεχόμενο καρτών */}
         <div className="relative z-[10] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
@@ -129,8 +124,8 @@ function CardLayer({
   const segEnd = (index + 1) * SEG;
 
   const DEFAULTS: Required<CardTiming> = {
-    enterFrom: 0.40,
-    enterTo: 0.70,
+    enterFrom: 0.4,
+    enterTo: 0.7,
     holdTo: 0.95,
     offsetPx: 140,
     overlapNext: 0.18,
@@ -140,12 +135,12 @@ function CardLayer({
 
   const overlapNext = Math.max(0, Math.min(t.overlapNext ?? 0, 0.4));
   const enterStart = segStart + SEG * t.enterFrom;
-  const enterEnd   = segStart + SEG * t.enterTo;
-  const holdEnd    = segStart + SEG * t.holdTo;
+  const enterEnd = segStart + SEG * t.enterTo;
+  const holdEnd = segStart + SEG * t.holdTo;
 
   // Trigger stacking: όταν η ΕΠΟΜΕΝΗ είναι ~στο 50% του δικού της segment
   const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
-  const nextMidAbs = next ? ((index + 1) * SEG) + SEG * 0.50 : null;
+  const nextMidAbs = next ? (index + 1) * SEG + SEG * 0.5 : null;
 
   // Πότε ξεκινά να φεύγει η τωρινή (fade/scale)
   const fadeStart = Math.min(
@@ -155,12 +150,24 @@ function CardLayer({
   const fadeEnd = Math.min(segEnd + SEG * overlapNext, 1);
 
   // Κίνηση από κάτω → θέση
-  const y = useTransform(progress, [enterStart, enterEnd, fadeEnd], [t.offsetPx, 0, 0], { clamp: true });
+  const y = useTransform(
+    progress,
+    [enterStart, enterEnd, fadeEnd],
+    [t.offsetPx, 0, 0],
+    { clamp: true }
+  );
 
   // Opacity
   const opacity = t.instantOpacity
-    ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], { clamp: true })
-    : useTransform(progress, [enterStart, enterEnd, fadeStart, fadeEnd], [0, 1, 1, 0], { clamp: true });
+    ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], {
+        clamp: true,
+      })
+    : useTransform(
+        progress,
+        [enterStart, enterEnd, fadeStart, fadeEnd],
+        [0, 1, 1, 0],
+        { clamp: true }
+      );
 
   // Scale-down (ήπιο stacking)
   const scale = useTransform(
@@ -176,7 +183,10 @@ function CardLayer({
   );
 
   return (
-    <motion.article className="absolute inset-0" style={{ y, opacity, scale, zIndex }}>
+    <motion.article
+      className="absolute inset-0"
+      style={{ y, opacity, scale, zIndex }}
+    >
       <CardBody data={data} />
     </motion.article>
   );
