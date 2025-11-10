@@ -8,67 +8,49 @@ import ServicesCards from "@/app/components/sections/ServicesCards";
 
 type LottieData = Record<string, any>;
 
-/* Tunables */
 const TITLE_REVEAL_START = 0.02;
 const BLUR_FADEIN_LEN = 0.1;
 const GAP_AFTER_TITLE_VH = 90;
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
-
   const { scrollYProgress: sec } = useScroll({
     target: wrapRef,
     offset: ["start start", "end end"],
   });
 
-  /* Title */
+  // ---------------- Title ----------------
   const reveal = useTransform(
     sec,
     [TITLE_REVEAL_START, TITLE_REVEAL_START + 0.22],
-    [0, 1],
-    { clamp: true }
+    [0, 1]
   );
   const scrubOpacity = useTransform(
     sec,
     [TITLE_REVEAL_START + 0.24, TITLE_REVEAL_START + 0.36],
-    [1, 0],
-    { clamp: true }
+    [1, 0]
   );
   const fullOpacity = useTransform(
     sec,
-    [
-      TITLE_REVEAL_START + 0.28,
-      TITLE_REVEAL_START + 0.4,
-      TITLE_REVEAL_START + 0.48,
-      TITLE_REVEAL_START + 0.56,
-    ],
-    [0, 1, 1, 0],
-    { clamp: true }
+    [TITLE_REVEAL_START + 0.28, TITLE_REVEAL_START + 0.56],
+    [0, 1]
   );
   const fullY = useTransform(
     sec,
     [TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.64],
-    [0, -40],
-    { clamp: true }
+    [0, -40]
   );
 
-  /* Blur / Dim overlay */
+  // ---------------- Blur overlay ----------------
+  // Fade in μόλις ξεκινά ο τίτλος και μένει ως το τέλος
   const blurOpacity = useTransform(
     sec,
-    [
-      TITLE_REVEAL_START,
-      TITLE_REVEAL_START + BLUR_FADEIN_LEN,
-      TITLE_REVEAL_START + BLUR_FADEIN_LEN + 0.001,
-      1,
-    ],
-    [0, 1, 1, 1],
-    { clamp: true }
+    [TITLE_REVEAL_START, TITLE_REVEAL_START + BLUR_FADEIN_LEN, 1],
+    [0, 1, 1]
   );
-  const dimOpacity = useTransform(blurOpacity, [0, 1], [0, 0.12], {
-    clamp: true,
-  });
+  const dimOpacity = useTransform(blurOpacity, [0, 1], [0, 0.12]);
 
-  /* Lottie */
+  // ---------------- Lottie ----------------
   const lottieOpacity = useTransform(
     sec,
     [
@@ -76,20 +58,16 @@ export default function ServicesIntro() {
       TITLE_REVEAL_START + 0.18,
       TITLE_REVEAL_START + 0.32,
     ],
-    [0, 1, 0],
-    { clamp: true }
+    [0, 1, 0]
   );
 
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
     (async () => {
       try {
-        let r = await fetch("/lottie/scroll-down.json");
-        if (!r.ok) r = await fetch("/lottie/scroll%20down.json");
+        const r = await fetch("/lottie/scroll-down.json");
         if (r.ok) setLottieData(await r.json());
-      } catch {
-        setLottieData(null);
-      }
+      } catch {}
     })();
   }, []);
 
@@ -97,16 +75,20 @@ export default function ServicesIntro() {
     <section ref={wrapRef} className="relative h-[680vh]">
       {/* === FIXED overlay (blur + dim) === */}
       <motion.div
-        className="fixed inset-0 z-[5] pointer-events-none"
-        style={{ opacity: blurOpacity }}
+        className="fixed inset-0 z-[5] pointer-events-none will-change-transform"
+        style={{
+          opacity: blurOpacity,
+          transform: "translateZ(0)", // force new compositing layer
+        }}
       >
-        {/* ΠΡΑΓΜΑΤΙΚΟ backdrop blur: pseudo glass layer */}
+        {/* Trick: translucent background so backdropFilter has something to blend */}
         <div
           className="absolute inset-0"
           style={{
-            background: "rgba(255,255,255,0.15)",
-            backdropFilter: "blur(40px)",
-            WebkitBackdropFilter: "blur(40px)",
+            backgroundColor: "rgba(255,255,255,0.2)",
+            backdropFilter: "blur(45px)",
+            WebkitBackdropFilter: "blur(45px)",
+            transform: "translateZ(0)", // force GPU layer for Chrome
           }}
         />
         {/* Dim layer */}
@@ -116,14 +98,13 @@ export default function ServicesIntro() {
         />
       </motion.div>
 
+      {/* === Sticky content === */}
       <div className="sticky top-0 h-screen overflow-hidden isolate">
-        {/* === CONTENT === */}
         <div className="relative z-10 h-full">
           {/* Scrub layer */}
           <motion.div
             className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center px-6"
             style={{ opacity: scrubOpacity }}
-            aria-hidden="true"
           >
             <TextScrub
               as="h1"
@@ -140,8 +121,7 @@ export default function ServicesIntro() {
 
           {/* Full title */}
           <motion.h1
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none
-                       text-center px-6
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center
                        font-[900] leading-[0.95] tracking-[-0.02em]
                        text-[clamp(22px,4vw,70px)] md:text-[clamp(32px,5vw,90px)]
                        text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
@@ -167,7 +147,6 @@ export default function ServicesIntro() {
         </div>
       </div>
 
-      {/* gap για smooth transition */}
       <div style={{ height: `${GAP_AFTER_TITLE_VH}vh` }} />
       <ServicesCards />
     </section>
