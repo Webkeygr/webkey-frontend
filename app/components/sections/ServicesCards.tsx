@@ -79,7 +79,7 @@ export default function ServicesCards() {
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* BLUR/DIM overlay — πλήρης διάρκεια */}
-        <motion.div className="absolute inset-0 z-[5] pointer-events-none" style={{ opacity: overlayOpacity }}>
+        <motion.div className="fixed inset-0 z-[5] pointer-events-none" style={{ opacity: overlayOpacity }}>
           <div className="absolute inset-0 backdrop-blur-3xl" />
           <div className="absolute inset-0 bg-black/10" />
         </motion.div>

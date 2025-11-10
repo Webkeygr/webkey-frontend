@@ -32,7 +32,12 @@ export default function ServicesIntro() {
   const dimOpacity  = useTransform(raw, [0.04, 0.14, 1.00], [0, 0.12, 0.12], { clamp: true });
 
   /* ------------------ LOTTIE ------------------ */
-  const lottieOpacity = useTransform(raw, [0.22, 0.30, 0.42, 0.58], [0, 0.6, 1, 1], { clamp: true });
+const lottieOpacity = useTransform(
+  raw,
+  [0.22, 0.30, 0.42, 0.58, 0.62, 0.70],
+  [0,    0.6,  1,    1,    0.3,  0],
+  { clamp: true }
+);
 
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
