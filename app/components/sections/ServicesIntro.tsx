@@ -38,8 +38,8 @@ export default function ServicesIntro() {
   -------------------------------------------------- */
   const introBlurBase = useTransform(raw, [0.00, 0.08], [0, 1], { clamp: true });
   const introDimBase  = useTransform(raw, [0.04, 0.14], [0, 0.12], { clamp: true });
-  const blurOpacity   = useTransform([introBlurBase, cardsStart], ([b, cs]) => b * (1 - cs));
-  const dimOpacity    = useTransform([introDimBase,  cardsStart], ([d, cs]) => d * (1 - cs));
+const blurOpacity = useTransform(() => introBlurBase.get() * (1 - cardsStart.get()));
+const dimOpacity  = useTransform(() => introDimBase.get()  * (1 - cardsStart.get()));
 
   /* ------------------ LOTTIE ------------------
      Fade-in νωρίς, και fade-out καθώς πλησιάζουν οι κάρτες (με cardsStart)
