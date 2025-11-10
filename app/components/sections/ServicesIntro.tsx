@@ -93,7 +93,7 @@ export default function ServicesIntro() {
             style={{
               opacity: lottieOpacity,
               left: '50%',
-              bottome: '14vh'
+              bottome: '14vh',
               transform: 'translateX(-50%)',
             }}
           >
