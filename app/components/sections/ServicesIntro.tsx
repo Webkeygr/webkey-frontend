@@ -16,42 +16,42 @@ const END_FADE_LEN = 0.08; // πόσο “απαλά” θα σβήσει στο
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const cardsEndRef = useRef<HTMLDivElement | null>(null); // sentinel στο ΤΕΛΟΣ καρτών
 
-  // Sentinel για ΤΕΛΟΣ καρτών (θα το βάλουμε μετά το <ServicesCards/>)
-  const cardsEndRef = useRef<HTMLDivElement | null>(null);
-
-  /* Progress του intro section (για τίτλο & αρχικό fade-in) */
-  const { scrollYProgress } = useScroll({
+  /* Progress του section:
+     - rawLinear: ΧΩΡΙΣ spring (για άμεσο blur)
+     - rawSmooth: ΜΕ spring (για τίτλο/Lottie) */
+  const { scrollYProgress: rawLinear } = useScroll({
     target: wrapRef,
     offset: ["start start", "end end"],
   });
-  const raw = useSpring(scrollYProgress, {
+  const rawSmooth = useSpring(rawLinear, {
     stiffness: 200,
     damping: 16,
     mass: 0.12,
   });
 
-  /* Progress του τέλους καρτών — 0: μακριά, 1: έφτασε near-top (ήμαστε στο τέλος) */
+  /* Progress του τέλους καρτών (για fade-out στο τέλος) */
   const { scrollYProgress: cardsEnd } = useScroll({
     target: cardsEndRef,
-    offset: ["start 100%", "start 55%"], // fine-tune: το δεύτερο ρυθμίζει το “πότε” θα αρχίσει να σβήνει
+    offset: ["start 100%", "start 55%"],
   });
 
   /* ------------------ ΤΙΤΛΟΣ ------------------ */
   const reveal = useTransform(
-    raw,
+    rawSmooth,
     [TITLE_REVEAL_START, TITLE_REVEAL_START + 0.22],
     [0, 1],
     { clamp: true }
   );
   const scrubOpacity = useTransform(
-    raw,
+    rawSmooth,
     [TITLE_REVEAL_START + 0.24, TITLE_REVEAL_START + 0.36],
     [1, 0],
     { clamp: true }
   );
   const fullOpacity = useTransform(
-    raw,
+    rawSmooth,
     [
       TITLE_REVEAL_START + 0.28,
       TITLE_REVEAL_START + 0.4,
@@ -62,40 +62,35 @@ export default function ServicesIntro() {
     { clamp: true }
   );
   const fullY = useTransform(
-    raw,
+    rawSmooth,
     [TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.64],
     [0, -40],
     { clamp: true }
   );
 
-  /* ------------------ BLUR / DIM ------------------
-     ✳️ Ένα ΚΑΙ ΜΟΝΟ fixed overlay:
-     - fade-in με τον τίτλο
-     - μένει 1 σε όλη τη διάρκεια των καρτών
-     - fade-out μόνο όταν φτάσουμε στο cardsEnd
-  -------------------------------------------------- */
+  /* ------------------ BLUR / DIM (ένα global, fixed overlay) ------------------
+     - Fade-in ΜΟΛΙΣ ξεκινά ο τίτλος (με rawLinear για άμεση εμφάνιση).
+     - Μένει 1 σε όλη τη διάρκεια των καρτών.
+     - Fade-out ΜΟΝΟ στο τέλος (με cardsEnd). */
   const startFade = useTransform(
-    raw,
+    rawLinear,
     [TITLE_REVEAL_START, TITLE_REVEAL_START + BLUR_FADEIN_LEN],
     [0, 1],
     { clamp: true }
   );
 
-  // κάνουμε ήπιο fade-out κοντά στο τέλος των καρτών
   const endFade = useTransform(cardsEnd, [0, 1 - END_FADE_LEN, 1], [1, 1, 0], {
     clamp: true,
   });
 
-  // τελικό opacity = startFade * endFade
+  // τελικό opacity = startFade * endFade (TS-safe με .get())
   const blurOpacity = useTransform(() => startFade.get() * endFade.get());
   const dimOpacity = useTransform(() => startFade.get() * endFade.get() * 0.12);
 
-  /* ------------------ LOTTIE ------------------
-     Ορατό με τον τίτλο, fade-out πριν τις κάρτες (μέσα στο timing του intro).
-  -------------------------------------------------- */
+  /* ------------------ LOTTIE ------------------ */
   const lottieOpacity = useTransform(
-    raw,
-    // in           hold         out (λίγο πριν αρχίσουν οι κάρτες)
+    rawSmooth,
+    // in           hold         out (λίγο πριν τις κάρτες)
     [
       TITLE_REVEAL_START + 0.02,
       TITLE_REVEAL_START + 0.2,
@@ -123,7 +118,7 @@ export default function ServicesIntro() {
   return (
     <section ref={wrapRef} className="relative h-[680vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === FIXED BLUR/DIM overlay — ενιαίο για intro+cards === */}
+        {/* === FIXED BLUR/DIM overlay — intro → cards → τέλος === */}
         <motion.div
           className="fixed inset-0 z-[5] pointer-events-none"
           style={{ opacity: blurOpacity }}
