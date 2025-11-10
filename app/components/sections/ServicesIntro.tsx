@@ -89,11 +89,11 @@ export default function ServicesIntro() {
 
           {/* Lottie */}
           <motion.div
-            className="absolute w-[148px] md:w-[168px] pointer-events-none"
+            className="absolute w-[126px] md:w-[144px] pointer-events-none"
             style={{
               opacity: lottieOpacity,
               left: '50%',
-              top: `calc(50% + ${LOTTIE_OFFSET}px)`,
+              bottome: '14vh'
               transform: 'translateX(-50%)',
             }}
           >
