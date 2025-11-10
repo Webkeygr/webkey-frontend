@@ -37,8 +37,8 @@ const CARDS_DATA: CardContent[] = [
     ],
     timing: {
       enterFrom: 0.0,
-      enterTo: 0.16,
-      offsetPx: 90,
+      enterTo: 0.09,
+      offsetPx: 70,
       overlapNext: 0.12,
     },
   },

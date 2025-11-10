@@ -25,11 +25,11 @@ export default function ServicesIntro() {
   /* ---- ΤΙΤΛΟΣ: λίγα scrolls, λίγο μεγαλύτερο hold ---- */
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.08, 0.24, 0.43, 0.47],
+    [0.06, 0.22, 0.5, 0.56],
     [0, 1, 1, 0]
   );
   const titleScale = useTransform(scrollYProgress, [0.08, 0.24], [0.985, 1]);
-  const titleY = useTransform(scrollYProgress, [0.43, 0.47], [0, -50]);
+  const titleY = useTransform(scrollYProgress, [0.5, 0.5], [0, -50]);
 
   /* ---- SMOOTH BLUR στο background (όχι overlay) ----
      Widen range + spring για να «μπει» ομαλά.
