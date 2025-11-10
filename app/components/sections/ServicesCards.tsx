@@ -1,19 +1,16 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { FlowButton } from "../ui/FlowButton";
+import { useRef } from 'react';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { FlowButton } from '../ui/FlowButton';
 
-/* -------------------------------------------------------------------------- */
-/*  ΠΕΡΙΕΧΟΜΕΝΟ ΚΑΡΤΩΝ (μόνο εδώ πειράζεις για τίτλο/κείμενο/video/tags)       */
-/* -------------------------------------------------------------------------- */
 type CardTiming = {
-  enterFrom?: number; // 0..1 (μέσα στο segment)
-  enterTo?: number; // 0..1 (> enterFrom)
-  holdTo?: number; // 0..1 (>= enterTo)
-  offsetPx?: number; // πόσο κάτω ξεκινά (px)
-  overlapNext?: number; // 0..0.4 πόσο κρατά μέσα στο επόμενο segment (stacking)
-  instantOpacity?: boolean; // αν true: full opacity από την αρχή του enter (χωρίς fade-in)
+  enterFrom?: number;       // 0..1 στο segment
+  enterTo?: number;         // 0..1 (> enterFrom)
+  holdTo?: number;          // 0..1 (>= enterTo)
+  offsetPx?: number;        // px: ξεκίνημα από κάτω
+  overlapNext?: number;     // 0..0.4: κρατά λίγο μέσα στο επόμενο segment (stacking)
+  instantOpacity?: boolean; // true: full opacity από την αρχή του enter
 };
 
 type CardContent = {
@@ -25,44 +22,37 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-// 👉 2 κάρτες με stacking: η 2η ξεκινά πριν σβήσει η 1η
-//    και μπαίνει από ΚΑΤΩ με full opacity όσο ανεβαίνει.
+// ✳️ Ρυθμίσεις για καθαρό overlap: 2η μπαίνει πριν φύγει η 1η
 const CARDS_DATA: CardContent[] = [
   {
-    id: "card-1",
-    title: "Web development",
+    id: 'card-1',
+    title: 'Web development',
     description:
-      "Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.",
-    videoSrc: "/videos/web-dev.mp4",
-    tags: [
-      "Websites & Platforms",
-      "Web Applications",
-      "E-Commerce",
-      "Performance & SEO",
-    ],
+      'Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.',
+    videoSrc: '/videos/web-dev.mp4',
+    tags: ['Websites & Platforms', 'Web Applications', 'E-Commerce', 'Performance & SEO'],
     timing: {
-      enterFrom: 0.3,
-      enterTo: 0.52, // όταν “κάθεται” πλήρως
-      holdTo: 0.94, // κρατά full μέχρι σχεδόν το τέλος του segment της
-      offsetPx: 120,
-      overlapNext: 0.22, // λίγο μέσα στο επόμενο segment για stacking
-      // instantOpacity: default false (κάνει κανονικό fade-in)
+      enterFrom: 0.28,
+      enterTo:   0.50,   // “κάθεται” νωρίτερα
+      holdTo:    0.84,   // μικρότερο hold για ~2 scrolls
+      offsetPx:  110,
+      overlapNext: 0.30, // μεγαλύτερο overlap στο επόμενο segment
+      // fade της 1ης θα αρχίσει αφού “κάτσει” η 2η (βλ. λογική κάτω)
     },
   },
   {
-    id: "card-2",
-    title: "UI / UX design",
+    id: 'card-2',
+    title: 'UI / UX design',
     description:
-      "Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.",
-    videoSrc: "/videos/ui-ux.mp4",
-    tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
+      'Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.',
+    videoSrc: '/videos/ui-ux.mp4',
+    tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'],
     timing: {
-      enterFrom: 0.1, // ξεκινά νωρίς στο δικό της segment
-      enterTo: 0.4, // όταν “κάθεται” στη θέση της
-      holdTo: 0.92,
-      offsetPx: 900, // μεγάλο ώστε να έρχεται από έξω-κάτω (offscreen)
-      instantOpacity: true, // full opacity από την αρχή της ανόδου
-      // overlapNext αν θες stacking και με 3η κ.ο.κ.
+      enterFrom: 0.05,   // ξεκινά πολύ νωρίς στο segment της → φαίνεται πριν φύγει η 1η
+      enterTo:   0.32,   // “κάθεται” νωρίς
+      holdTo:    0.88,
+      offsetPx:  1000,   // ανεβαίνει από κάτω-κάτω
+      instantOpacity: true, // full opacity όσο ανεβαίνει
     },
   },
 ];
@@ -72,46 +62,34 @@ export default function ServicesCards() {
 
   const { scrollYProgress } = useScroll({
     target: wrapRef,
-    offset: ["start start", "end end"],
+    offset: ['start start', 'end end'],
   });
-  const prog = useSpring(scrollYProgress, {
-    stiffness: 200,
-    damping: 18,
-    mass: 0.18,
-  });
+  const prog = useSpring(scrollYProgress, { stiffness: 200, damping: 18, mass: 0.18 });
   // ή: const prog = scrollYProgress;
 
-  // Fast: μικρότερο runway/κάρτα (όπως πριν)
-  const PER_CARD_VH = 520;
+  // ✳️ Λιγότερα sticky scrolls ανά κάρτα
+  const PER_CARD_VH = 380;
 
-  // ✅ ΝΕΟ: κρατά το overlay full (1) μέχρι το τέλος των καρτών
-  const overlayOpacity = useTransform(
-    prog,
-    [0.0, 0.08, 0.2, 1.0],
-    [0, 0, 1, 1]
-  );
+  // Blur overlay: fade-in νωρίς και ΜΕΝΕΙ full μέχρι το τέλος
+  const overlayOpacity = useTransform(prog, [0.00, 0.08, 0.20, 1.00], [0, 0, 1, 1]);
 
   return (
     <section
       ref={wrapRef}
-      className="relative w-full mt-[260vh]" // λιγότερη καθυστέρηση πριν τις κάρτες
+      className="relative w-full mt-[200vh]"  // μικρότερη καθυστέρηση από τον τίτλο στις κάρτες
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* BLUR/DIM overlay — μένει όσο οι κάρτες είναι στη σκηνή, με ομαλό fade-in και πλήρη διάρκεια */}
-        <motion.div
-          className="absolute inset-0 z-[5] pointer-events-none"
-          style={{ opacity: overlayOpacity }}
-        >
+        {/* BLUR/DIM overlay */}
+        <motion.div className="absolute inset-0 z-[5] pointer-events-none" style={{ opacity: overlayOpacity }}>
           <div className="absolute inset-0 backdrop-blur-3xl" />
           <div className="absolute inset-0 bg-black/10" />
         </motion.div>
 
-        {/* Περιεχόμενο καρτών πάνω από το overlay */}
+        {/* Περιεχόμενο καρτών */}
         <div className="relative z-[10] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
-            {/* Wrapper ίδιας λογικής/ύψους */}
-            <div className="relative w-full h-[78vh] sm:h-[76vh] lg:h-[74vh]">
+            <div className="relative w-full h-[74vh]">
               {CARDS_DATA.map((data, i) => (
                 <CardLayer
                   key={data.id}
@@ -130,9 +108,6 @@ export default function ServicesCards() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Layer ανά κάρτα: slide-in, hold, (ελεγχόμενο) fade-out με stacking        */
-/* -------------------------------------------------------------------------- */
 function CardLayer({
   index,
   total,
@@ -146,15 +121,13 @@ function CardLayer({
   data: CardContent;
   nextTiming?: CardTiming;
 }) {
-  // Μοίρασμα progress 0..1 σε segments ανά κάρτα
   const SEG = 1 / total;
   const segStart = index * SEG;
   const segEnd = (index + 1) * SEG;
 
-  // Defaults + stacking overlap
   const DEFAULTS: Required<CardTiming> = {
-    enterFrom: 0.4,
-    enterTo: 0.7,
+    enterFrom: 0.40,
+    enterTo: 0.70,
     holdTo: 0.95,
     offsetPx: 140,
     overlapNext: 0.18,
@@ -162,47 +135,30 @@ function CardLayer({
   };
   const t = { ...DEFAULTS, ...(data.timing || {}) };
 
-  const overlapNext = Math.max(0, Math.min(t.overlapNext ?? 0, 0.4)); // 0..0.4
+  const overlapNext = Math.max(0, Math.min(t.overlapNext ?? 0, 0.4));
   const enterStart = segStart + SEG * t.enterFrom;
-  const enterEnd = segStart + SEG * t.enterTo;
-  const holdEnd = segStart + SEG * t.holdTo;
+  const enterEnd   = segStart + SEG * t.enterTo;
+  const holdEnd    = segStart + SEG * t.holdTo;
 
-  // Αν υπάρχει επόμενη κάρτα: ξεκίνα το fade της ΤΩΡΙΝΗΣ ΜΟΝΟ όταν η επόμενη "κάτσει"
+  // ✳️ Fade της τωρινής ΜΟΝΟ όταν η επόμενη “κάτσει”
   const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
-  const nextEnterEndAbs = next ? (index + 1) * SEG + SEG * next.enterTo : null;
+  const nextEnterEndAbs = next ? ((index + 1) * SEG) + SEG * next.enterTo : null;
 
-  // Το fadeStart είναι στο max(holdEnd, nextEnterEndAbs)
   const fadeStart = Math.min(
     Math.max(holdEnd, nextEnterEndAbs ?? holdEnd),
     segEnd + SEG * overlapNext
   );
-
-  // fade-out λίγο ΜΕΣΑ στο επόμενο segment (αν οριστεί overlap)
   const fadeEnd = Math.min(segEnd + SEG * overlapNext, 1);
 
-  // y: slide-in από κάτω → 0 (μένει κεντραρισμένη)
-  const y = useTransform(
-    progress,
-    [enterStart, enterEnd, fadeEnd],
-    [t.offsetPx, 0, 0],
-    { clamp: true }
-  );
+  // Κίνηση από κάτω → θέση
+  const y = useTransform(progress, [enterStart, enterEnd, fadeEnd], [t.offsetPx, 0, 0], { clamp: true });
 
-  // opacity:
-  // - Αν instantOpacity: full=1 από την αρχή του enter μέχρι το fadeStart, μετά 0 έως fadeEnd.
-  // - Αλλιώς: 0→1 στο enter, κρατά 1 μέχρι fadeStart, μετά 0 έως fadeEnd.
+  // Opacity με επιλογή instantOpacity
   const opacity = t.instantOpacity
-    ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], {
-        clamp: true,
-      })
-    : useTransform(
-        progress,
-        [enterStart, enterEnd, fadeStart, fadeEnd],
-        [0, 1, 1, 0],
-        { clamp: true }
-      );
+    ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], { clamp: true })
+    : useTransform(progress, [enterStart, enterEnd, fadeStart, fadeEnd], [0, 1, 1, 0], { clamp: true });
 
-  // Ενεργή κάρτα “πάνω” για καθαρό overlap
+  // Active layer on top
   const zIndex = useTransform(progress, (tt: number) =>
     tt >= segStart && tt < segEnd ? 40 + index : 20 + index
   );
@@ -214,9 +170,6 @@ function CardLayer({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  ΙΔΙΟ layout/κλάσεις με την 1η κάρτα — απλώς περνάμε data                  */
-/* -------------------------------------------------------------------------- */
 function CardBody({ data }: { data: CardContent }) {
   return (
     <div
@@ -228,7 +181,7 @@ function CardBody({ data }: { data: CardContent }) {
         overflow-hidden
       "
     >
-      {/* VIDEO AREA */}
+      {/* VIDEO */}
       <div className="relative h-[60%] overflow-hidden rounded-t-[54px]">
         <video
           className="absolute inset-0 h-full w-full object-cover"
@@ -238,7 +191,6 @@ function CardBody({ data }: { data: CardContent }) {
           muted
           playsInline
         />
-        {/* overlay & κουμπιά ΜΟΝΟ πάνω στο video */}
         <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
         <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100">
           <div className="grid grid-cols-2 gap-4 sm:gap-6">
@@ -259,7 +211,7 @@ function CardBody({ data }: { data: CardContent }) {
         </div>
       </div>
 
-      {/* ΚΕΙΜΕΝΟ */}
+      {/* TEXT */}
       <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 text-left lg:grid lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-8">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
