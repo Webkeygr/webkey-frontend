@@ -7,6 +7,12 @@
   height: 100%;
   display: block;
   overflow: hidden;
-  background: #fff;   /* λευκή βάση αν δεν τρέξει WebGL */
+  background: #fff; /* λευκή βάση αν δεν τρέξει WebGL */
   pointer-events: none; /* δεν μπλοκάρει κλικς/hover */
+  filter: blur(var(--hero-blur));
+  will-change: filter;
+}
+
+:root {
+  --hero-blur: 0px;
 }

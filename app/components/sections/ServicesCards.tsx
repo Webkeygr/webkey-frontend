@@ -6,10 +6,8 @@ import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 type CardTiming = {
   enterFrom?: number;
   enterTo?: number;
-  holdTo?: number;
   offsetPx?: number;
   overlapNext?: number;
-  instantOpacity?: boolean;
 };
 
 type CardContent = {
@@ -21,8 +19,8 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-// ΜΙΚΡΟ κενό: να μπει αμέσως μετά τον τίτλο
-const CARDS_OFFSET_VH = 40;
+const CARDS_OFFSET_VH = 10; // μικρό κενό → μπαίνει αμέσως η 1η κάρτα
+const PER_CARD_VH = 320; // λίγο πιο γρήγορη ροή
 
 const CARDS_DATA: CardContent[] = [
   {
@@ -38,11 +36,10 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      enterFrom: 0.18, // Μπαίνει νωρίς στο πρώτο segment
-      enterTo: 0.36,
-      holdTo: 0.8,
-      offsetPx: 120,
-      overlapNext: 0.18,
+      enterFrom: 0.12, // μπαίνει νωρίς στο 1ο segment
+      enterTo: 0.3,
+      offsetPx: 110,
+      overlapNext: 0.14,
     },
   },
   {
@@ -54,10 +51,9 @@ const CARDS_DATA: CardContent[] = [
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
       enterFrom: 0.06,
-      enterTo: 0.3,
-      holdTo: 0.88,
+      enterTo: 0.28,
       offsetPx: 900,
-      instantOpacity: true,
+      overlapNext: 0.12,
     },
   },
 ];
@@ -74,8 +70,6 @@ export default function ServicesCards() {
     damping: 18,
     mass: 0.18,
   });
-
-  const PER_CARD_VH = 360;
 
   return (
     <section
@@ -100,7 +94,6 @@ export default function ServicesCards() {
                   total={CARDS_DATA.length}
                   progress={prog}
                   data={data}
-                  nextTiming={CARDS_DATA[i + 1]?.timing}
                 />
               ))}
             </div>
@@ -111,52 +104,42 @@ export default function ServicesCards() {
   );
 }
 
-/* ------------------------------ Card Layer ------------------------------ */
 function CardLayer({
   index,
   total,
   progress,
   data,
-  nextTiming,
 }: {
   index: number;
   total: number;
   progress: any;
   data: CardContent;
-  nextTiming?: CardTiming;
 }) {
   const SEG = 1 / total;
   const segStart = index * SEG;
-  const segEnd = (index + 1) * SEG;
 
-  const DEFAULTS: Required<CardTiming> = {
-    enterFrom: 0.22,
-    enterTo: 0.42,
-    holdTo: 0.9,
+  const t = {
+    enterFrom: 0.2,
+    enterTo: 0.4,
     offsetPx: 120,
-    overlapNext: 0.18,
-    instantOpacity: true,
+    overlapNext: 0.12,
+    ...(data.timing || {}),
   };
-  const t = { ...DEFAULTS, ...(data.timing || {}) };
 
   const enterStart = segStart + SEG * t.enterFrom;
   const enterEnd = segStart + SEG * t.enterTo;
 
-  // Kίνηση μόνο (ΧΩΡΙΣ opacity fades)
+  // Κίνηση μόνο (ΧΩΡΙΣ opacity fades) → opacity πάντα 1
   const y = useTransform(progress, [enterStart, enterEnd], [t.offsetPx, 0], {
     clamp: true,
   });
-
-  // ΠΑΝΤΑ πλήρης αδιαφάνεια
-  const opacity = 1;
-
-  // Ελαφρύ scale κατά την άφιξη και μένει σταθερό
-  const scale = useTransform(progress, [enterStart, enterEnd], [0.98, 1], {
+  const scale = useTransform(progress, [enterStart, enterEnd], [0.985, 1], {
     clamp: true,
   });
+  const opacity = 1;
 
   const zIndex = useTransform(progress, (tt: number) =>
-    tt >= segStart && tt < segEnd ? 40 + index : 20 + index
+    tt >= segStart && tt < segStart + SEG ? 40 + index : 20 + index
   );
 
   return (
@@ -169,7 +152,6 @@ function CardLayer({
   );
 }
 
-/* ------------------------------- Card Body ------------------------------- */
 function CardBody({ data }: { data: CardContent }) {
   return (
     <div
@@ -191,7 +173,6 @@ function CardBody({ data }: { data: CardContent }) {
           muted
           playsInline
         />
-        {/* καμία αλλαγή στο hover overlay */}
         <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
       </div>
 
