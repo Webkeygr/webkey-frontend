@@ -2,15 +2,14 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { FlowButton } from "../ui/FlowButton";
 
 type CardTiming = {
-  enterFrom?: number; // 0..1 στο segment
-  enterTo?: number; // 0..1 (> enterFrom)
-  holdTo?: number; // 0..1 (>= enterTo)
-  offsetPx?: number; // px: ξεκίνημα από κάτω
-  overlapNext?: number; // 0..0.4: κρατά λίγο μέσα στο επόμενο segment (stacking)
-  instantOpacity?: boolean; // true: full opacity από την αρχή του enter
+  enterFrom?: number;
+  enterTo?: number;
+  holdTo?: number;
+  offsetPx?: number;
+  overlapNext?: number;
+  instantOpacity?: boolean;
 };
 
 type CardContent = {
@@ -22,8 +21,8 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-// Πόσο "κενό" πριν αρχίσουν οι κάρτες (ώστε να προλάβει ο τίτλος)
-const CARDS_OFFSET_VH = 140;
+// πιο πολύ κενό πριν ξεκινήσουν οι κάρτες
+const CARDS_OFFSET_VH = 220;
 
 const CARDS_DATA: CardContent[] = [
   {
@@ -39,12 +38,12 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      // μπαίνει λίγο πιο αργά για να έχει ολοκληρωθεί ο τίτλος
-      enterFrom: 0.36,
-      enterTo: 0.58,
-      holdTo: 0.9,
-      offsetPx: 140,
-      overlapNext: 0.24,
+      // αργεί να εμφανιστεί
+      enterFrom: 0.44,
+      enterTo: 0.64,
+      holdTo: 0.92,
+      offsetPx: 160,
+      overlapNext: 0.22,
     },
   },
   {
@@ -55,10 +54,10 @@ const CARDS_DATA: CardContent[] = [
     videoSrc: "/videos/ui-ux.mp4",
     tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
     timing: {
-      enterFrom: 0.05,
+      enterFrom: 0.06,
       enterTo: 0.32,
       holdTo: 0.88,
-      offsetPx: 1000,
+      offsetPx: 900,
       instantOpacity: true,
     },
   },
@@ -77,7 +76,6 @@ export default function ServicesCards() {
     mass: 0.18,
   });
 
-  // ~2 sticky “scrolls” ανά κάρτα
   const PER_CARD_VH = 380;
 
   return (
@@ -85,17 +83,15 @@ export default function ServicesCards() {
       ref={wrapRef}
       className="relative w-full"
       style={{
-        // Συνολικό ύψος = κενό πριν + ύψος καρτών
         height: `calc(${CARDS_OFFSET_VH}vh + ${
           CARDS_DATA.length * PER_CARD_VH
         }vh)`,
       }}
     >
-      {/* κενό τμήμα ώστε να ολοκληρωθεί ο τίτλος */}
+      {/* κενό πριν τις κάρτες, για να ολοκληρωθεί ο τίτλος */}
       <div style={{ height: `${CARDS_OFFSET_VH}vh` }} />
 
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Περιεχόμενο καρτών */}
         <div className="relative z-[10] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
             <div className="relative w-full h-[74vh]">
@@ -150,18 +146,15 @@ function CardLayer({
   const enterEnd = segStart + SEG * t.enterTo;
   const holdEnd = segStart + SEG * t.holdTo;
 
-  // Trigger stacking: όταν η ΕΠΟΜΕΝΗ είναι ~στο 50% του δικού της segment
   const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
   const nextMidAbs = next ? (index + 1) * SEG + SEG * 0.5 : null;
 
-  // Πότε ξεκινά να φεύγει η τωρινή (fade/scale)
   const fadeStart = Math.min(
     Math.max(holdEnd, nextMidAbs ?? holdEnd),
     segEnd + SEG * overlapNext
   );
   const fadeEnd = Math.min(segEnd + SEG * overlapNext, 1);
 
-  // Κίνηση από κάτω → θέση
   const y = useTransform(
     progress,
     [enterStart, enterEnd, fadeEnd],
@@ -169,7 +162,6 @@ function CardLayer({
     { clamp: true }
   );
 
-  // Opacity
   const opacity = t.instantOpacity
     ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], {
         clamp: true,
@@ -181,7 +173,6 @@ function CardLayer({
         { clamp: true }
       );
 
-  // Scale-down (ήπιο stacking)
   const scale = useTransform(
     progress,
     nextMidAbs ? [enterStart, nextMidAbs, fadeEnd] : [enterStart, fadeEnd],
@@ -189,7 +180,6 @@ function CardLayer({
     { clamp: true }
   );
 
-  // Active layer on top
   const zIndex = useTransform(progress, (tt: number) =>
     tt >= segStart && tt < segEnd ? 40 + index : 20 + index
   );

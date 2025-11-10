@@ -8,32 +8,31 @@ import ServicesCards from "@/app/components/sections/ServicesCards";
 
 type LottieData = Record<string, any>;
 
-const LOTTIE_OFFSET = 120; // μικρότερο, να μένει στο οπτικό πεδίο
+const LOTTIE_OFFSET = 120;
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
-  // scroll tracking
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ["start start", "end end"],
   });
 
   /* ---------------- ΤΙΤΛΟΣ ---------------- */
-  // αποκαλύπτεται νωρίς…
-  const reveal = useTransform(scrollYProgress, [0.08, 0.5], [0, 1]);
-  // …μένει “scrubbed” μέχρι να κάτσει full
-  const scrubOpacity = useTransform(scrollYProgress, [0.48, 0.6], [1, 0]);
-  // full opacity, κρατάει αρκετά πριν αρχίσουν οι κάρτες
+  // Ξεκινά να αποκαλύπτεται από νωρίς
+  const reveal = useTransform(scrollYProgress, [0.08, 0.48], [0, 1]);
+  // Scrub τίτλου: σβήνει λίγο αργότερα
+  const scrubOpacity = useTransform(scrollYProgress, [0.46, 0.6], [1, 0]);
+  // Full τίτλος: κάθεται & κρατάει περισσότερο
   const fullOpacity = useTransform(
     scrollYProgress,
-    [0.58, 0.68, 0.86, 0.96],
+    [0.56, 0.66, 0.92, 0.98],
     [0, 1, 1, 0]
   );
-  const fullY = useTransform(scrollYProgress, [0.86, 1.0], [0, -80]);
+  const fullY = useTransform(scrollYProgress, [0.92, 1.0], [0, -80]);
 
   /* ---------------- ΜΟΝΟ BLUR ---------------- */
-  // ξεκινά σταδιακά με τον τίτλο και ΜΕΝΕΙ
+  // πιο αισθητό blur και σίγουρο trigger
   const blurOpacity = useTransform(scrollYProgress, [0.06, 0.18, 1], [0, 1, 1]);
 
   /* ---------------- LOTTIE ---------------- */
@@ -41,7 +40,6 @@ export default function ServicesIntro() {
   useEffect(() => {
     (async () => {
       try {
-        // δοκίμασε 2 ονόματα αρχείων (με και χωρίς κενό)
         let r = await fetch("/lottie/scroll-down.json");
         if (!r.ok) r = await fetch("/lottie/scroll%20down.json");
         if (r.ok) setLottieData(await r.json());
@@ -51,17 +49,18 @@ export default function ServicesIntro() {
     })();
   }, []);
 
-  // πιο φαρδύ παράθυρο εμφάνισης ώστε να “προλάβει” να φανεί
+  // ΕΜΦΑΝΙΣΗ LOTTIE ΣΥΓΧΡΟΝΑ ΜΕ ΤΟΝ ΤΙΤΛΟ:
+  // on: όταν ξεκινά το scrub, off: πριν «πέσουν» οι κάρτες
   const lottieOpacity = useTransform(
     scrollYProgress,
-    [0.46, 0.56, 0.72],
+    [0.08, 0.12, 0.82],
     [0, 1, 0]
   );
 
   return (
-    <section ref={wrapRef} className="relative h-[900vh]">
-      <div className="sticky top-0 h-screen overflow-hidden isolate">
-        {/* === ΜΟΝΟ BLUR layer (ΚΑΘΟΛΟΥ σκοτείνιασμα) === */}
+    <section ref={wrapRef} className="relative h-[1000vh]">
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* === ΜΟΝΟ BLUR layer === */}
         <motion.div
           className="absolute inset-0 z-[5] pointer-events-none"
           style={{ opacity: blurOpacity }}
@@ -69,14 +68,13 @@ export default function ServicesIntro() {
           <div
             className="absolute inset-0"
             style={{
-              // ισχυρότερο blur ώστε να "γράφει"
-              backdropFilter: "blur(50px)",
-              WebkitBackdropFilter: "blur(50px)",
-              // ελαφρύ ανοιχτό φιλτράρισμα για να ενεργοποιεί το backdrop
-              background: "rgba(255,255,255,0.12)",
+              // πιο δυνατό blur
+              backdropFilter: "blur(60px) saturate(110%)",
+              WebkitBackdropFilter: "blur(60px) saturate(110%)",
+              // λίγο μεγαλύτερο alpha για να «πυροδοτεί» σίγουρα το backdrop
+              background: "rgba(255,255,255,0.22)",
             }}
           />
-          {/* ΔΕΝ βάζουμε πια dim/darken layer */}
         </motion.div>
 
         {/* === CONTENT === */}
@@ -136,8 +134,6 @@ export default function ServicesIntro() {
       </div>
 
       {/* === ΚΑΡΤΕΣ === */}
-      {/* Δες στο ServicesCards: προσθέτουμε μεγάλο top offset ώστε να
-          ολοκληρωθεί ο τίτλος ΠΡΙΝ ξεκινήσει το πρώτο segment καρτών */}
       <ServicesCards />
     </section>
   );
