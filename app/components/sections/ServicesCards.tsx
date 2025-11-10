@@ -19,7 +19,7 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-const CARDS_OFFSET_VH = 10; // καπάκια μετά τον τίτλο
+const CARDS_OFFSET_VH = 0;
 const PER_CARD_VH = 240; // ΜΙΚΡΟΤΕΡΗ διάρκεια ανά κάρτα → λιγότερα scrolls
 
 const CARDS_DATA: CardContent[] = [
@@ -36,8 +36,8 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      enterFrom: 0.1, // μπαίνει γρήγορα
-      enterTo: 0.24,
+      enterFrom: 0.0,
+      enterTo: 0.16,
       offsetPx: 90,
       overlapNext: 0.12,
     },
