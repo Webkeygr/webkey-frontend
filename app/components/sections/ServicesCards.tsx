@@ -5,12 +5,12 @@ import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { FlowButton } from '../ui/FlowButton';
 
 type CardTiming = {
-  enterFrom?: number;
-  enterTo?: number;
-  holdTo?: number;
-  offsetPx?: number;
-  overlapNext?: number;
-  instantOpacity?: boolean;
+  enterFrom?: number;       // 0..1 στο segment
+  enterTo?: number;         // 0..1 (> enterFrom)
+  holdTo?: number;          // 0..1 (>= enterTo)
+  offsetPx?: number;        // px: ξεκίνημα από κάτω
+  overlapNext?: number;     // 0..0.4: κρατά λίγο μέσα στο επόμενο segment (stacking)
+  instantOpacity?: boolean; // true: full opacity από την αρχή του enter
 };
 
 type CardContent = {
@@ -46,10 +46,10 @@ const CARDS_DATA: CardContent[] = [
     videoSrc: '/videos/ui-ux.mp4',
     tags: ['Research', 'Wireframes', 'Prototyping', 'Design Systems'],
     timing: {
-      enterFrom: 0.05,
-      enterTo:   0.32,
+      enterFrom: 0.05,   // ξεκινά νωρίς → βλέπεις την 2η πριν φύγει η 1η
+      enterTo:   0.32,   // “κάθεται” νωρίς
       holdTo:    0.88,
-      offsetPx:  1000,
+      offsetPx:  1000,   // ανεβαίνει από κάτω-κάτω
       instantOpacity: true,
     },
   },
@@ -64,11 +64,11 @@ export default function ServicesCards() {
   });
   const prog = useSpring(scrollYProgress, { stiffness: 200, damping: 18, mass: 0.18 });
 
-  // Μικρότερο runway/κάρτα (κρατά ~2 scrolls)
+  // Λιγότερα sticky scrolls ανά κάρτα
   const PER_CARD_VH = 380;
 
-  // Overlay: full από την αρχή ώς το τέλος (δεν “ανεβαίνει” γιατί είναι fixed)
-  const overlayOpacity = useTransform(prog, [0, 1], [1, 1]); // σταθερά 1, το κρατάμε motion για συνέπεια
+  // Blur overlay: ΔΕΝ φαίνεται στο hero (0), κάνει fade-in στην αρχή των καρτών και μετά μένει 1 μέχρι τέλους
+  const overlayOpacity = useTransform(prog, [0.00, 0.08, 0.18, 1.00], [0, 0, 1, 1]);
 
   return (
     <section
@@ -77,12 +77,12 @@ export default function ServicesCards() {
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR/DIM overlay — FIXED & FULL για όλη τη διάρκεια των καρτών === */}
+        {/* === BLUR/DIM overlay — FIXED & full όσο είμαστε στις κάρτες === */}
         <motion.div
           className="fixed inset-0 z-[5] pointer-events-none"
           style={{ opacity: overlayOpacity }}
           aria-hidden
-        >
+>
           <div className="absolute inset-0 backdrop-blur-3xl" />
           <div className="absolute inset-0 bg-black/10" />
         </motion.div>
@@ -109,6 +109,7 @@ export default function ServicesCards() {
   );
 }
 
+/* --------------------------------- Card Layer -------------------------------- */
 function CardLayer({
   index,
   total,
@@ -141,32 +142,46 @@ function CardLayer({
   const enterEnd   = segStart + SEG * t.enterTo;
   const holdEnd    = segStart + SEG * t.holdTo;
 
+  // === Stacking trigger: όταν η ΕΠΟΜΕΝΗ κάρτα είναι ~στη μέση του segment της
   const next = nextTiming ? { ...DEFAULTS, ...nextTiming } : null;
-  const nextEnterEndAbs = next ? ((index + 1) * SEG) + SEG * next.enterTo : null;
-
+  const nextMidAbs = next ? ((index + 1) * SEG) + SEG * 0.48 : null; // ~μέση του επόμενου segment
   const fadeStart = Math.min(
-    Math.max(holdEnd, nextEnterEndAbs ?? holdEnd),
+    Math.max(holdEnd, nextMidAbs ?? holdEnd),
     segEnd + SEG * overlapNext
   );
   const fadeEnd = Math.min(segEnd + SEG * overlapNext, 1);
 
+  // Κίνηση από κάτω → θέση
   const y = useTransform(progress, [enterStart, enterEnd, fadeEnd], [t.offsetPx, 0, 0], { clamp: true });
 
+  // Opacity:
+  // - Αν instantOpacity: full=1 από την αρχή του enter μέχρι το fadeStart, μετά 0 έως fadeEnd.
+  // - Αλλιώς: 0→1 στο enter, κρατά 1 μέχρι fadeStart, μετά 0 έως fadeEnd.
   const opacity = t.instantOpacity
     ? useTransform(progress, [enterStart, fadeStart, fadeEnd], [1, 1, 0], { clamp: true })
     : useTransform(progress, [enterStart, enterEnd, fadeStart, fadeEnd], [0, 1, 1, 0], { clamp: true });
 
+  // Scale-down στο stacking window (ήπιο 1 → 0.96)
+  const scale = useTransform(
+    progress,
+    nextMidAbs ? [enterStart, nextMidAbs, fadeEnd] : [enterStart, fadeEnd],
+    nextMidAbs ? [1, 0.96, 0.96] : [1, 1], // αν δεν υπάρχει επόμενη κάρτα, δεν σμικραίνουμε
+    { clamp: true }
+  );
+
+  // Active layer on top
   const zIndex = useTransform(progress, (tt: number) =>
     tt >= segStart && tt < segEnd ? 40 + index : 20 + index
   );
 
   return (
-    <motion.article className="absolute inset-0" style={{ y, opacity, zIndex }}>
+    <motion.article className="absolute inset-0" style={{ y, opacity, scale, zIndex }}>
       <CardBody data={data} />
     </motion.article>
   );
 }
 
+/* ------------------------------- Card Body ------------------------------- */
 function CardBody({ data }: { data: CardContent }) {
   return (
     <div

@@ -7,7 +7,7 @@ import Lottie from 'lottie-react';
 import ServicesCards from '@/app/components/sections/ServicesCards';
 
 type LottieData = Record<string, any>;
-const GAP_AFTER_TITLE_VH = 90; // 1–2 scrolls καθυστέρηση πριν τις κάρτες
+const GAP_AFTER_TITLE_VH = 90; // 1–2 scrolls καθυστέρηση πριν μπουν οι κάρτες
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -19,17 +19,18 @@ export default function ServicesIntro() {
 
   const raw = useSpring(scrollYProgress, { stiffness: 200, damping: 16, mass: 0.12 });
 
-  /* ΤΙΤΛΟΣ */
+  /* ------------------ ΤΙΤΛΟΣ ------------------ */
   const reveal       = useTransform(raw, [0.02, 0.24], [0, 1], { clamp: true });
   const scrubOpacity = useTransform(raw, [0.26, 0.38], [1, 0], { clamp: true });
   const fullOpacity  = useTransform(raw, [0.30, 0.42, 0.50, 0.58], [0, 1, 1, 0], { clamp: true });
   const fullY        = useTransform(raw, [0.50, 0.66], [0, -40], { clamp: true });
 
-  /* BLUR / DIM – ΜΕΝΕΙ ΜΕΧΡΙ ΤΕΛΟΣ ΤΟΥ SECTION */
+  /* ------------------ BLUR / DIM ------------------ */
+  // Ξεκινά σταδιακά όταν μπαίνει ο τίτλος και ΜΕΝΕΙ 1 ως το τέλος του section (πριν τις κάρτες).
   const blurOpacity = useTransform(raw, [0.00, 0.08, 1.00], [0, 1, 1], { clamp: true });
   const dimOpacity  = useTransform(raw, [0.04, 0.14, 1.00], [0, 0.12, 0.12], { clamp: true });
 
-  /* LOTTIE (προαιρετικά: ρυθμίζεται ανεξάρτητα) */
+  /* ------------------ LOTTIE ------------------ */
   const lottieOpacity = useTransform(raw, [0.22, 0.30, 0.42, 0.58], [0, 0.6, 1, 1], { clamp: true });
 
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
@@ -46,10 +47,10 @@ export default function ServicesIntro() {
   }, []);
 
   return (
-    // Μεγαλύτερο section ώστε το blur του intro να “κρατάει” μέχρι να πιάσουν οι κάρτες
+    // Μεγαλύτερο section ώστε το blur να παραμένει on μέχρι να πιάσουν οι κάρτες
     <section ref={wrapRef} className="relative h-[680vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR / DIM (hero) — παραμένει ενεργό μέχρι το τέλος του section === */}
+        {/* === BLUR / DIM (hero) — ξεκινά με τον τίτλο και κρατά 1 μέχρι να ξεκινήσουν οι κάρτες === */}
         <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
         <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: dimOpacity }} />
 
@@ -101,7 +102,7 @@ export default function ServicesIntro() {
         </div>
       </div>
 
-      {/* Spacer: 1–2 scrolls πριν ξεκινήσουν οι κάρτες */}
+      {/* Spacer: 1–2 scrolls πριν ξεκινήσουν οι κάρτες ώστε ο τίτλος να φαίνεται πλήρως */}
       <div style={{ height: `${GAP_AFTER_TITLE_VH}vh` }} />
 
       {/* Κάρτες */}
