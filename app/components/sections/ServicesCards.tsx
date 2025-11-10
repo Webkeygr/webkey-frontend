@@ -21,8 +21,8 @@ type CardContent = {
   timing?: CardTiming;
 };
 
-// πιο πολύ κενό πριν ξεκινήσουν οι κάρτες
-const CARDS_OFFSET_VH = 220;
+// ΤΕΡΑΣΤΙΟ κενό ώστε να τελειώσει ο τίτλος προτού φανούν οι κάρτες
+const CARDS_OFFSET_VH = 360;
 
 const CARDS_DATA: CardContent[] = [
   {
@@ -38,12 +38,11 @@ const CARDS_DATA: CardContent[] = [
       "Performance & SEO",
     ],
     timing: {
-      // αργεί να εμφανιστεί
-      enterFrom: 0.44,
-      enterTo: 0.64,
+      enterFrom: 0.55, // Ακόμη πιο αργά
+      enterTo: 0.72,
       holdTo: 0.92,
       offsetPx: 160,
-      overlapNext: 0.22,
+      overlapNext: 0.18,
     },
   },
   {
@@ -88,11 +87,11 @@ export default function ServicesCards() {
         }vh)`,
       }}
     >
-      {/* κενό πριν τις κάρτες, για να ολοκληρωθεί ο τίτλος */}
+      {/* τεράστιο κενό για να ολοκληρωθεί ο τίτλος */}
       <div style={{ height: `${CARDS_OFFSET_VH}vh` }} />
 
       <div className="sticky top-0 h-screen overflow-hidden">
-        <div className="relative z-[10] h-full flex items-center justify-center">
+        <div className="relative z-[20] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
             <div className="relative w-full h-[74vh]">
               {CARDS_DATA.map((data, i) => (
