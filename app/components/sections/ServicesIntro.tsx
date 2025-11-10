@@ -15,7 +15,6 @@ const BLUR_FADEIN_LEN   = 0.10;     // πόσο “απαλά” μπαίνει 
 
 export default function ServicesIntro() {
   const wrapRef = useRef<HTMLDivElement | null>(null);
-  const cardsStartRef = useRef<HTMLDivElement | null>(null); // sentinel: ακριβώς πριν τις κάρτες
 
   /* Progress του intro section */
   const { scrollYProgress } = useScroll({
@@ -24,49 +23,40 @@ export default function ServicesIntro() {
   });
   const raw = useSpring(scrollYProgress, { stiffness: 200, damping: 16, mass: 0.12 });
 
-  /* Progress του σημείου έναρξης καρτών (sentinel) */
-  const { scrollYProgress: cardsStart } = useScroll({
-    target: cardsStartRef,
-    offset: ['start 90%', 'start 50%'], // 0 -> μακριά από top, 1 -> έφτασε ψηλά (ξεκινούν κάρτες)
-  });
-
   /* ------------------ ΤΙΤΛΟΣ ------------------ */
   const reveal       = useTransform(raw, [TITLE_REVEAL_START, TITLE_REVEAL_START + 0.22], [0, 1], { clamp: true });
   const scrubOpacity = useTransform(raw, [TITLE_REVEAL_START + 0.24, TITLE_REVEAL_START + 0.36], [1, 0], { clamp: true });
   const fullOpacity  = useTransform(raw, [TITLE_REVEAL_START + 0.28, TITLE_REVEAL_START + 0.40, TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.56], [0, 1, 1, 0], { clamp: true });
   const fullY        = useTransform(raw, [TITLE_REVEAL_START + 0.48, TITLE_REVEAL_START + 0.64], [0, -40], { clamp: true });
 
-  /* ------------------ BLUR / DIM ------------------
-     Ξεκινά ΜΟΝΟ όταν ξεκινά ο τίτλος και ΜΕΝΕΙ 1 μέχρι το τέλος του scroll (δεν το σβήνουμε στις κάρτες).
+  /* ------------------ BLUR / DIM (Intro) ------------------
+     Ξεκινά ΜΟΝΟ όταν ξεκινά ο τίτλος και μένει 1 ως το τέλος του Intro.
+     Το “μέχρι το τέλος των καρτών” το αναλαμβάνει επιπλέον overlay μέσα στις κάρτες.
   -------------------------------------------------- */
-  const introBlurBase = useTransform(
+  const introBlurOpacity = useTransform(
     raw,
     [TITLE_REVEAL_START, TITLE_REVEAL_START + BLUR_FADEIN_LEN],
     [0, 1],
     { clamp: true }
   );
-  const introDimBase = useTransform(
+  const introDimOpacity = useTransform(
     raw,
     [TITLE_REVEAL_START + 0.02, TITLE_REVEAL_START + BLUR_FADEIN_LEN + 0.02],
     [0, 0.12],
     { clamp: true }
   );
 
-  // ✅ Καμία εξάρτηση από cardsStart: παραμένει on μέχρι τέλους
-  const blurOpacity = introBlurBase;
-  const dimOpacity  = introDimBase;
-
   /* ------------------ LOTTIE ------------------
-     Δεν φαίνεται πριν τον τίτλο. Κάνει fade-in καθώς αποκαλύπτεται ο τίτλος,
-     και fade-out όσο πλησιάζουν οι κάρτες.
+     Ορατό με τον τίτλο, fade-out ΠΡΙΝ ξεκινήσουν οι κάρτες.
+     (Καθαρά με timeline του Intro, χωρίς sentinel)
   -------------------------------------------------- */
-  const lottieIn = useTransform(
+  const lottieOpacity = useTransform(
     raw,
-    [TITLE_REVEAL_START + 0.02, TITLE_REVEAL_START + 0.20],
-    [0, 1],
+    // in           hold         out (λίγο πριν τις κάρτες)
+    [TITLE_REVEAL_START + 0.02, TITLE_REVEAL_START + 0.20, TITLE_REVEAL_START + 0.36, TITLE_REVEAL_START + 0.46],
+    [0,                       1,                               1,                         0],
     { clamp: true }
   );
-  const lottieOpacity = useTransform(() => lottieIn.get() * (1 - cardsStart.get()));
 
   /* Lottie data */
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
@@ -85,9 +75,9 @@ export default function ServicesIntro() {
   return (
     <section ref={wrapRef} className="relative h-[680vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === BLUR / DIM (intro) — ξεκινά με τον τίτλο και ΜΕΝΕΙ on μέχρι τέλος === */}
-        <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
-        <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: dimOpacity }} />
+        {/* === BLUR / DIM (intro) — ξεκινά με τον τίτλο === */}
+        <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: introBlurOpacity }} />
+        <motion.div className="absolute inset-0 bg-black z-[4]" style={{ opacity: introDimOpacity }} />
 
         {/* === CONTENT === */}
         <div className="relative z-10 h-full">
@@ -122,7 +112,7 @@ export default function ServicesIntro() {
             Οι υπηρεσίες μας
           </motion.h1>
 
-          {/* Lottie: χαμηλά στο κέντρο, 15% μικρότερο, fade-in/out όπως ορίστηκε */}
+          {/* Lottie: χαμηλά στο κέντρο, 15% μικρότερο */}
           <motion.div
             className="absolute w-[126px] md:w-[144px] pointer-events-none z-[3]"
             style={{
@@ -139,9 +129,6 @@ export default function ServicesIntro() {
 
       {/* +1–2 scrolls κενό ώστε ο τίτλος να φαίνεται πλήρως πριν τις κάρτες */}
       <div style={{ height: `${GAP_AFTER_TITLE_VH}vh` }} />
-
-      {/* Sentinel: το βλέπει το cardsStart για το lottie fade-out */}
-      <div ref={cardsStartRef} className="h-px" />
 
       {/* Κάρτες */}
       <ServicesCards />

@@ -67,6 +67,10 @@ export default function ServicesCards() {
   // Λιγότερα sticky scrolls ανά κάρτα (~2)
   const PER_CARD_VH = 380;
 
+  // === BLUR/DIM overlay για ΟΛΟ το διάστημα των καρτών ===
+  // 0 στο ξεκίνημα των καρτών → 1 πολύ νωρίς → διατηρείται 1 ως το τέλος.
+  const overlayOpacity = useTransform(prog, [0.00, 0.04, 1.00], [0, 1, 1]);
+
   return (
     <section
       ref={wrapRef}
@@ -74,6 +78,16 @@ export default function ServicesCards() {
       style={{ height: `${CARDS_DATA.length * PER_CARD_VH}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
+        {/* BLUR/DIM overlay — FIXED για να μην “ανεβαίνει”, και μένει 1 έως τέλους */}
+        <motion.div
+          className="fixed inset-0 z-[5] pointer-events-none"
+          style={{ opacity: overlayOpacity }}
+          aria-hidden
+        >
+          <div className="absolute inset-0 backdrop-blur-3xl" />
+          <div className="absolute inset-0 bg-black/10" />
+        </motion.div>
+
         {/* Περιεχόμενο καρτών */}
         <div className="relative z-[10] h-full flex items-center justify-center">
           <div className="relative w-full max-w-[1900px] mx-auto px-6 sm:px-10 lg:px-[60px] py-8 sm:py-10 lg:py-[50px]">
