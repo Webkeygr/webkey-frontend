@@ -6,17 +6,19 @@ export const metadata: Metadata = {
   description: "Creative web studio",
 };
 
-import Hero from "./components/Hero";
-import ServicesIntro from "./components/sections/ServicesIntro";
+// app/services/page.tsx (ή όπου είναι η σελίδα)
+import Header from "@/app/components/Header";
+import Hero from "@/app/components/Hero";
+import ServicesIntro from "@/app/components/sections/ServicesIntro";
+import ServicesCards from "@/app/components/sections/ServicesCards";
 
-export default function HomePage() {
+export default function ServicesPage() {
   return (
-    <main className="page relative">
+    <>
+      <Header />
       <Hero />
       <ServicesIntro />
-      {/* <Services /> */}
-      {/* <Portfolio /> */}
-      {/* <Footer /> */}
-    </main>
+      <ServicesCards />
+    </>
   );
 }

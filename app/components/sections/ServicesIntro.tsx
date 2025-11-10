@@ -4,10 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { TextScrub } from "../ui/text-scrub";
 import Lottie from "lottie-react";
-import ServicesCards from "@/app/components/sections/ServicesCards";
+import BackdropBlurOverlay from "@/app/components/BackdropBlurOverlay";
 
 type LottieData = Record<string, any>;
-
 const LOTTIE_OFFSET = 120;
 
 export default function ServicesIntro() {
@@ -19,22 +18,17 @@ export default function ServicesIntro() {
   });
 
   /* ---------------- ΤΙΤΛΟΣ ---------------- */
-  // Ορατότητα scrub από νωρίς
   const reveal = useTransform(scrollYProgress, [0.08, 0.48], [0, 1]);
-
-  // scrub-layer fade out
   const scrubOpacity = useTransform(scrollYProgress, [0.46, 0.6], [1, 0]);
-
-  // full τίτλος: κρατάει ΠΟΛΥ μέχρι να ξεκινήσουν οι κάρτες
+  // full τίτλος: “κάθεται” και ΜΕΝΕΙ ως το ΤΕΛΟΣ του intro
   const fullOpacity = useTransform(
     scrollYProgress,
-    [0.56, 0.66, 0.985, 0.995], // κρατάει “γεμάτο” σχεδόν μέχρι το τέλος του intro section
+    [0.56, 0.66, 0.998, 0.999], // κρατάει γεμάτος μέχρι να φύγουμε από το section
     [0, 1, 1, 0]
   );
-  const fullY = useTransform(scrollYProgress, [0.985, 1.0], [0, -80]);
+  const fullY = useTransform(scrollYProgress, [0.998, 1.0], [0, -80]);
 
-  /* ---------------- BLUR OVERLAY (FIXED) ---------------- */
-  // Fixed overlay = background blur που δουλεύει πάντα
+  /* ---------------- BLUR (PORTAL στο <body>) ---------------- */
   const blurOpacity = useTransform(scrollYProgress, [0.06, 0.18, 1], [0, 1, 1]);
 
   /* ---------------- LOTTIE ---------------- */
@@ -50,36 +44,19 @@ export default function ServicesIntro() {
       }
     })();
   }, []);
-
-  // Lottie εμφανίζεται ΜΑΖΙ με τον τίτλο
+  // ξεκινά ΜΑΖΙ με τον τίτλο, σβήνει λίγο πριν τελειώσει το intro
   const lottieOpacity = useTransform(
     scrollYProgress,
-    [0.08, 0.12, 0.92],
+    [0.08, 0.12, 0.95],
     [0, 1, 0]
   );
 
   return (
     <section ref={wrapRef} className="relative h-[1200vh]">
-      {/* === FIXED BLUR OVERLAY (πάνω από το background, κάτω από το content) === */}
-      <motion.div
-        className="fixed inset-0 pointer-events-none z-[5]"
-        style={{ opacity: blurOpacity }}
-        aria-hidden="true"
-      >
-        <div
-          className="absolute inset-0"
-          style={{
-            // ΙΣΧΥΡΟΣ blur — ως overlay (δουλεύει πάνω από video/canvas/εικόνες)
-            backdropFilter: "blur(80px) saturate(115%)",
-            WebkitBackdropFilter: "blur(80px) saturate(115%)",
-            // Λίγο alpha για να “πυροδοτεί” σίγουρα το backdrop
-            background: "rgba(255,255,255,0.22)",
-          }}
-        />
-      </motion.div>
+      {/* ΠΡΑΓΜΑΤΙΚΟ background blur σαν overlay, με portal */}
+      <BackdropBlurOverlay opacity={blurOpacity} zIndex={50} />
 
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* === CONTENT === */}
         <div className="relative z-10 h-full">
           {/* Scrub title */}
           <motion.div
@@ -134,9 +111,6 @@ export default function ServicesIntro() {
           </motion.div>
         </div>
       </div>
-
-      {/* === ΚΑΡΤΕΣ === */}
-      <ServicesCards />
     </section>
   );
 }
