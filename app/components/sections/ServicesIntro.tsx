@@ -24,7 +24,6 @@ export default function ServicesIntro() {
   // ✳️ Fast windows ώστε ο τίτλος να "μένει" ~2 scrolls, όχι 5
   const reveal       = useTransform(raw, [0.02, 0.24], [0, 1], { clamp: true });
   const scrubOpacity = useTransform(raw, [0.26, 0.34], [1, 0], { clamp: true });
-  //           in     →  short hold  ←   → out (στενό plateau)
   const fullOpacity  = useTransform(raw, [0.34, 0.42, 0.50, 0.58], [0, 1, 1, 0], { clamp: true });
   const fullY        = useTransform(raw, [0.50, 0.66], [0, -40], { clamp: true });
 
@@ -47,8 +46,8 @@ export default function ServicesIntro() {
   }, []);
 
   return (
-    {/* ✳️ Μικρότερο συνολικό ύψος για λιγότερα sticky scrolls */}
     <section ref={wrapRef} className="relative h-[480vh]">
+      {/* ✳️ Μικρότερο συνολικό ύψος για λιγότερα sticky scrolls */}
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* === BLUR / DIM (hero) === */}
         <motion.div className="absolute inset-0 backdrop-blur-3xl z-[5]" style={{ opacity: blurOpacity }} />
