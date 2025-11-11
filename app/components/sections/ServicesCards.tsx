@@ -184,7 +184,7 @@ function CardBody({ data }: { data: CardContent }) {
       "
     >
       {/* VIDEO */}
-      <div className="relative h-[60%] overflow-hidden rounded-t-[54px]">
+      <div className="relative h-[56%] overflow-hidden rounded-t-[54px]">
         <video
           className="absolute inset-0 h-full w-full object-cover"
           src={data.videoSrc}
@@ -198,7 +198,7 @@ function CardBody({ data }: { data: CardContent }) {
       </div>
 
       {/* TEXT + PILL BUTTONS (centered) */}
-      <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14">
+      <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-20 sm:pb-24 lg:pb-28">
         <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
             {data.title}
@@ -209,7 +209,7 @@ function CardBody({ data }: { data: CardContent }) {
           </p>
 
           {/* Pill buttons row */}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+          <div className="mt-8 mb-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
   {data.tags.slice(0, 4).map((pill, i) => {
     const p = typeof pill === "string" ? { label: pill } : pill;
     const className = `
