@@ -56,6 +56,21 @@ const CARDS_DATA: CardContent[] = [
       overlapNext: 0.14,
     },
   },
+  {
+  id: "card-3",
+  title: "Branding & Content",
+  description:
+    "Χτίζουμε συνεκτική ταυτότητα και περιεχόμενο που κινεί ιστορίες—από naming και guidelines μέχρι παραγωγή assets.",
+  videoSrc: "/videos/branding.mp4", // βάλε το δικό σου path
+  tags: ["Brand Identity", "Guidelines", "Copywriting", "Assets"],
+  timing: {
+    enterFrom: 0.02,   // ξεκινά λίγο μετά την αρχή του segment
+    enterTo:   0.36,   // αρκετό «παράθυρο» για ομαλή άνοδο
+    offsetPx:  1000,   // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
+    overlapNext: 0.14, // (κρατιέται πάνω από τη 2η)
+  },
+},
+
 ];
 
 export default function ServicesCards() {
