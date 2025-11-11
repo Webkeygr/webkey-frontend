@@ -31,7 +31,7 @@ body {
 /* HERO STYLES */
 .hero {
   position: relative;
-  min-height: 100vh;
+  height: 100vh; /* ⬅ δεν ξεπερνά τα 100vh */
   display: flex;
   align-items: center;
   padding: 4rem clamp(2rem, 4vw, 5rem);
@@ -96,7 +96,8 @@ body {
 .hero-text {
   margin-top: 1.6rem;
   max-width: 430px;
-  color: rgba(255, 255, 255, 0.75);
+  /* ⬇ αφαιρέθηκε το λευκό για να ισχύει το text-black από το component */
+  /* color: rgba(255, 255, 255, 0.75); */
   text-shadow: 1px 1px 2px black;
   line-height: 1.5;
 }
@@ -161,5 +162,5 @@ body {
   text-decoration: none;
   color: #111;
   white-space: nowrap;
-  cursor: pointer;   /* για να φαίνεται το “χεράκι” */
+  cursor: pointer; /* για να φαίνεται το “χεράκι” */
 }

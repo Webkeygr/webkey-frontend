@@ -36,7 +36,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="hero relative min-h-screen">
+    <section ref={heroRef} className="hero relative">
       {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
@@ -65,8 +65,9 @@ export default function Hero() {
       {/* === Hero content === */}
       <div
         className="
-          hero-inner relative z-10 flex min-h-screen flex-col
+          hero-inner relative z-10 flex h-full flex-col
           items-start justify-center text-left
+          -translate-y-6 md:-translate-y-10
           pl-6 md:pl-16 pr-6
         "
       >
@@ -84,7 +85,10 @@ export default function Hero() {
             absolute left-6 md:left-16 bottom-8
           "
         >
-          Websites, experiences and brands that refuse to blend in.
+          Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε
+          εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις
+          ξεκινούν. Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μια
+          θέση στο μέλλον.
         </p>
       </div>
     </section>
