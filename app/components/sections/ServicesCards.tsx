@@ -167,6 +167,7 @@ function CardLayer({
   );
 }
 
+/* ------------------------------- Card Body ------------------------------- */
 function CardBody({ data }: { data: CardContent }) {
   return (
     <div
@@ -188,20 +189,42 @@ function CardBody({ data }: { data: CardContent }) {
           muted
           playsInline
         />
-        <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" />
+        {/* ✂️ αφαιρέθηκε το hover dim overlay */}
+        {/* <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" /> */}
       </div>
 
-      {/* TEXT */}
-      <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14 text-left lg:grid lg:grid-cols-12 lg:gap-10">
-        <div className="lg:col-span-8">
+      {/* TEXT + PILL BUTTONS (centered) */}
+      <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-10 sm:pb-12 lg:pb-14">
+        <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
             {data.title}
           </h3>
-          <p className="mt-4 max-w-3xl text-[clamp(14px,1.4vw,20px)] leading-relaxed text-neutral-700">
+
+          <p className="mt-4 text-[clamp(14px,1.4vw,20px)] leading-relaxed text-neutral-700">
             {data.description}
           </p>
+
+          {/* Pill buttons row */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            {data.tags.slice(0, 4).map((t) => (
+              <button
+                key={t}
+                className="
+                  px-5 sm:px-6 py-2.5 rounded-full
+                  bg-white/90 text-neutral-900 border border-black/5
+                  shadow-[0_6px_18px_-10px_rgba(0,0,0,0.25)]
+                  text-[clamp(12px,1.2vw,16px)] font-medium
+                  transition-transform duration-200 will-change-transform
+                  hover:scale-[1.04] hover:shadow-[0_14px_30px_-12px_rgba(0,0,0,0.35)]
+                "
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
