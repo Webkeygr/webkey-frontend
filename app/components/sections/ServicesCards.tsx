@@ -10,12 +10,16 @@ type CardTiming = {
   overlapNext?: number;
 };
 
+type Pill =
+  | string
+  | { label: string; href?: string; onClick?: () => void };
+
 type CardContent = {
   id: string;
   title: string;
   description: string;
   videoSrc: string;
-  tags: string[];
+  tags: Pill[];
   timing?: CardTiming;
 };
 
@@ -206,22 +210,41 @@ function CardBody({ data }: { data: CardContent }) {
 
           {/* Pill buttons row */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-            {data.tags.slice(0, 4).map((t) => (
-              <button
-                key={t}
-                className="
-                  px-5 sm:px-6 py-2.5 rounded-full
-                  bg-white/90 text-neutral-900 border border-black/5
-                  shadow-[0_6px_18px_-10px_rgba(0,0,0,0.25)]
-                  text-[clamp(12px,1.2vw,16px)] font-medium
-                  transition-transform duration-200 will-change-transform
-                  hover:scale-[1.04] hover:shadow-[0_14px_30px_-12px_rgba(0,0,0,0.35)]
-                "
-              >
-                {t}
-              </button>
-            ))}
-          </div>
+  {data.tags.slice(0, 4).map((pill, i) => {
+    const p = typeof pill === "string" ? { label: pill } : pill;
+    const className = `
+      px-5 sm:px-6 py-2.5 rounded-full
+      bg-white/90 text-neutral-900 border border-black/5
+      shadow-[0_6px_18px_-10px_rgba(0,0,0,0.25)]
+      text-[clamp(12px,1.2vw,16px)] font-medium
+      transition-transform duration-200 will-change-transform
+      hover:scale-[1.04] hover:shadow-[0_14px_30px_-12px_rgba(0,0,0,0.35)]
+    `;
+
+    // Link button
+    if (p.href) {
+      return (
+        <a
+          key={i}
+          href={p.href}
+          className={className}
+          target="_self"        // ή "_blank" αν θες νέο tab
+          rel="noopener"
+        >
+          {p.label}
+        </a>
+      );
+    }
+
+    // Action button (ή απλό κουμπί)
+    return (
+      <button key={i} className={className} onClick={p.onClick}>
+        {p.label}
+      </button>
+    );
+  })}
+</div>
+
         </div>
       </div>
     </div>
