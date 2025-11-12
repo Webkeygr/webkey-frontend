@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import BubbleMenu from "./BubbleMenu";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 type HeaderProps = {
   logoSrc?: string;
@@ -74,11 +75,14 @@ export default function Header({
       animationEase="back.out(1.5)"
       animationDuration={0.5}
       staggerDelay={0.12}
-      /* CTA δίπλα από το toggle */
+      /* CTA δίπλα από το toggle + Language Switcher */
       rightSlot={
-        <Link href={ctaHref} className="cta-link" aria-label={ctaText}>
-          {ctaText}
-        </Link>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <Link href={ctaHref} className="cta-link" aria-label={ctaText}>
+            {ctaText}
+          </Link>
+        </div>
       }
     />
   );
