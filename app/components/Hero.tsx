@@ -4,7 +4,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import Iridescence from "./Iridescence";
-import { SplittingText } from "./ui/shadcn-io/splitting-text";
+import TitleReveal from "./ui/title-reveal";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -62,22 +62,17 @@ export default function Hero() {
           pl-6 md:pl-16 pr-6
         "
       >
-        {/* Title — SplittingText ONLY here */}
+        {/* Title with true masked reveal (μόνο στον τίτλο) */}
         <h1 className="hero-title">
-          <SplittingText
-            text={["The Key", "to the Future"]}
-            type="lines"
-            inView={true}
-            motionVariants={{
-              initial: { opacity: 0, y: 60 },
-              animate: { opacity: 1, y: 0 },
-              transition: { duration: 0.6, ease: "easeOut" },
-              stagger: 0.12,
-            }}
+          <TitleReveal
+            lines={["The Key", "to the Future"]}
+            delay={0.1}
+            lineStagger={0.12}
+            /* className εδώ αν θες extra κλάσεις στον wrapper του τίτλου */
           />
         </h1>
 
-        {/* Subtitle stays gsap-only + black */}
+        {/* Κάτω-αριστερά, μαύρο */}
         <p
           ref={subtitleRef}
           className="
