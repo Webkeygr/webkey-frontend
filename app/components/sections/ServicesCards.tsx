@@ -183,8 +183,8 @@ function CardBody({ data }: { data: CardContent }) {
         overflow-hidden
       "
     >
-      {/* VIDEO */}
-      <div className="relative h-[56%] overflow-hidden rounded-t-[54px]">
+      {/* VIDEO: λίγο μικρότερο για να χωρέσουν άνετα τα pills */}
+      <div className="relative h-[52%] overflow-hidden rounded-t-[54px]">
         <video
           className="absolute inset-0 h-full w-full object-cover"
           src={data.videoSrc}
@@ -193,12 +193,10 @@ function CardBody({ data }: { data: CardContent }) {
           muted
           playsInline
         />
-        {/* ✂️ αφαιρέθηκε το hover dim overlay */}
-        {/* <div className="pointer-events-none absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/30" /> */}
       </div>
 
       {/* TEXT + PILL BUTTONS (centered) */}
-      <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-20 sm:pb-24 lg:pb-28">
+      <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-24 sm:pb-28 lg:pb-32">
         <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
             {data.title}
@@ -208,43 +206,32 @@ function CardBody({ data }: { data: CardContent }) {
             {data.description}
           </p>
 
-          {/* Pill buttons row */}
-          <div className="mt-8 mb-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-  {data.tags.slice(0, 4).map((pill, i) => {
-    const p = typeof pill === "string" ? { label: pill } : pill;
-    const className = `
-      px-5 sm:px-6 py-2.5 rounded-full
-      bg-white/90 text-neutral-900 border border-black/5
-      shadow-[0_6px_18px_-10px_rgba(0,0,0,0.25)]
-      text-[clamp(12px,1.2vw,16px)] font-medium
-      transition-transform duration-200 will-change-transform
-      hover:scale-[1.04] hover:shadow-[0_14px_30px_-12px_rgba(0,0,0,0.35)]
-    `;
+          {/* PILL BUTTONS: ίδια διάσταση, wrap αν χρειαστεί, πλήρως κεντραρισμένα */}
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+            {data.tags.map((pill, i) => {
+              const p = typeof pill === "string" ? { label: pill } : pill;
+              const base =
+                "w-full h-12 md:h-12 rounded-full border border-black/5 bg-white/90 text-neutral-900 " +
+                "shadow-[0_6px_18px_-10px_rgba(0,0,0,0.25)] " +
+                "transition-transform duration-200 will-change-transform " +
+                "hover:scale-[1.04] hover:shadow-[0_14px_30px_-12px_rgba(0,0,0,0.35)] " +
+                "px-4 inline-flex items-center justify-center text-center " +
+                "text-[clamp(12px,1.1vw,16px)] font-medium leading-tight whitespace-normal break-words";
 
-    // Link button
-    if (p.href) {
-      return (
-        <a
-          key={i}
-          href={p.href}
-          className={className}
-          target="_self"        // ή "_blank" αν θες νέο tab
-          rel="noopener"
-        >
-          {p.label}
-        </a>
-      );
-    }
-
-    // Action button (ή απλό κουμπί)
-    return (
-      <button key={i} className={className} onClick={p.onClick}>
-        {p.label}
-      </button>
-    );
-  })}
-</div>
-
+              if (p.href) {
+                return (
+                  <a key={i} href={p.href} className={base} rel="noopener">
+                    {p.label}
+                  </a>
+                );
+              }
+              return (
+                <button key={i} className={base} onClick={p.onClick}>
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
