@@ -3,12 +3,13 @@
 import * as React from 'react';
 import {
   motion,
-  type Variants,
-  type TargetAndTransition,
-  type HTMLMotionProps,
   useInView,
-  type UseInViewOptions,
-} from 'motion/react';
+} from 'framer-motion';
+import type {
+  Variants,
+  TargetAndTransition,
+  HTMLMotionProps,
+} from 'framer-motion';
 
 type DefaultSplittingTextProps = {
   motionVariants?: {
@@ -18,7 +19,7 @@ type DefaultSplittingTextProps = {
     stagger?: number;
   };
   inView?: boolean;
-  inViewMargin?: UseInViewOptions['margin'];
+  inViewMargin?: IntersectionObserverInit['rootMargin'];
   inViewOnce?: boolean;
   delay?: number;
 } & HTMLMotionProps<'div'>;
@@ -108,11 +109,10 @@ export const SplittingText: React.FC<SplittingTextProps> = ({
   const localRef = React.useRef<HTMLDivElement>(null);
   React.useImperativeHandle(ref, () => localRef.current as HTMLDivElement);
 
-  const inViewResult = useInView(localRef, {
+  const isInView = !inView || useInView(localRef, {
     once: inViewOnce,
     margin: inViewMargin,
   });
-  const isInView = !inView || inViewResult;
 
   return (
     <motion.span
