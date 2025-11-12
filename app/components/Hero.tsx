@@ -4,23 +4,14 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import Iridescence from "./Iridescence";
+import { SplittingText } from "./ui/shadcn-io/splitting-text";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
-  const titleRef = useRef<HTMLHeadingElement | null>(null);
   const subtitleRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (titleRef.current) {
-        gsap.from(titleRef.current, {
-          y: 80,
-          opacity: 0,
-          duration: 1.1,
-          ease: "power4.out",
-          delay: 0.1,
-        });
-      }
       if (subtitleRef.current) {
         gsap.from(subtitleRef.current, {
           y: 30,
@@ -71,13 +62,22 @@ export default function Hero() {
           pl-6 md:pl-16 pr-6
         "
       >
-        <h1 ref={titleRef} className="hero-title">
-          The Key
-          <br />
-          to the Future
+        {/* Title — SplittingText ONLY here */}
+        <h1 className="hero-title">
+          <SplittingText
+            text={["The Key", "to the Future"]}
+            type="lines"
+            inView={true}
+            motionVariants={{
+              initial: { opacity: 0, y: 60 },
+              animate: { opacity: 1, y: 0 },
+              transition: { duration: 0.6, ease: "easeOut" },
+              stagger: 0.12,
+            }}
+          />
         </h1>
 
-        {/* Κάτω-αριστερά, μαύρο */}
+        {/* Subtitle stays gsap-only + black */}
         <p
           ref={subtitleRef}
           className="
@@ -85,10 +85,8 @@ export default function Hero() {
             absolute left-6 md:left-16 bottom-8
           "
         >
-          Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε
-          εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις
-          ξεκινούν. Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μια
-          θέση στο μέλλον.
+          Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις ξεκινούν.
+Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
         </p>
       </div>
     </section>
