@@ -34,10 +34,10 @@ const CARDS_DATA: CardContent[] = [
       "Κώδικας που πάλλεται. Πλατφόρμες που αναπνέουν. Μεταμορφώνουμε pixels σε εμπειρίες και κάθε scroll σε ένα μικρό ταξίδι φαντασίας.",
     videoSrc: "/videos/web-dev.mp4",
     tags: [
-      "Websites & Platforms",
-      "Web Applications",
+      "Custom Websites",
       "E-Commerce",
-      "Performance & SEO",
+      "Web Applications",
+      "Maintenance & Optimization",
     ],
     timing: {
       enterFrom: 0.0,
@@ -48,11 +48,11 @@ const CARDS_DATA: CardContent[] = [
   },
   {
     id: "card-2",
-    title: "UI / UX design",
+    title: "Branding",
     description:
-      "Σχεδιάζουμε εμπειρίες που ρέουν, micro-interactions που χαμογελούν και flows που μετατρέπουν.",
-    videoSrc: "/videos/ui-ux.mp4",
-    tags: ["Research", "Wireframes", "Prototyping", "Design Systems"],
+      "Δημιουργούμε ταυτότητες που ξεχωρίζουν, συνδυάζοντας στρατηγική, αισθητική και συναίσθημα σε κάθε brand.",
+    videoSrc: "/videos/webkey-logo-srv.mp4",
+    tags: ["Logo Design", "Visual Web Identity", "UI Style Guide", "Content & Brand Voice"],
     timing: {
       enterFrom: 0.02,
       enterTo: 0.36,
@@ -62,11 +62,11 @@ const CARDS_DATA: CardContent[] = [
   },
   {
   id: "card-3",
-  title: "Branding & Content",
+  title: "Digital Marketing",
   description:
-    "Χτίζουμε συνεκτική ταυτότητα και περιεχόμενο που κινεί ιστορίες—από naming και guidelines μέχρι παραγωγή assets.",
-  videoSrc: "/videos/branding.mp4", // βάλε το δικό σου path
-  tags: ["Brand Identity", "Guidelines", "Copywriting", "Assets"],
+    "Αναπτύσσουμε έξυπνες καμπάνιες που αυξάνουν την προβολή, τη δέσμευση και τις πωλήσεις της επιχείρησής σου.",
+  videoSrc: "/videos/webkey-marketing-srv.mp4", // βάλε το δικό σου path
+  tags: ["SEO Optimization", "Google Ads & PPC", "Social Media Marketing", "Email & Content Marketing"],
   timing: {
     enterFrom: 0.02,   // ξεκινά λίγο μετά την αρχή του segment
     enterTo:   0.36,   // αρκετό «παράθυρο» για ομαλή άνοδο
