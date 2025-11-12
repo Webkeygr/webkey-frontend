@@ -1,10 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  motion,
-  useInView,
-} from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import type {
   Variants,
   TargetAndTransition,
@@ -19,7 +16,8 @@ type DefaultSplittingTextProps = {
     stagger?: number;
   };
   inView?: boolean;
-  inViewMargin?: IntersectionObserverInit['rootMargin'];
+  /** rootMargin-τύπου string (π.χ. "0px 0px -10% 0px"). Προαιρετικό. */
+  inViewMargin?: string;
   inViewOnce?: boolean;
   delay?: number;
 } & HTMLMotionProps<'div'>;
@@ -53,7 +51,7 @@ export const SplittingText: React.FC<SplittingTextProps> = ({
   type = 'chars',
   motionVariants = {},
   inView = false,
-  inViewMargin = '0px',
+  inViewMargin,
   inViewOnce = true,
   delay = 0,
   ...props
@@ -109,10 +107,11 @@ export const SplittingText: React.FC<SplittingTextProps> = ({
   const localRef = React.useRef<HTMLDivElement>(null);
   React.useImperativeHandle(ref, () => localRef.current as HTMLDivElement);
 
-  const isInView = !inView || useInView(localRef, {
-    once: inViewOnce,
-    margin: inViewMargin,
-  });
+  // Χτίζουμε options αντικείμενο χωρίς type conflicts
+  const inViewOpts: any = { once: inViewOnce };
+  if (inViewMargin) inViewOpts.margin = inViewMargin as any;
+
+  const isInView = !inView || useInView(localRef, inViewOpts);
 
   return (
     <motion.span
