@@ -22,71 +22,68 @@ export default function LanguageSwitcher({ className = "" }: { className?: strin
   const elHref = useMemo(() => toggleLocale(pathname, "el"), [pathname]);
   const enHref = useMemo(() => toggleLocale(pathname, "en"), [pathname]);
 
-  // target = η άλλη γλώσσα
+  // Το switch σε πάει στην ΑΛΛΗ γλώσσα
   const targetHref = isEnglish ? elHref : enHref;
   const ariaLabel = isEnglish ? "Switch to Greek" : "Switch to English";
 
-  // Κύκλος (full color)
-  const knobFlag = isEnglish
-    ? "url('/images/flags/uk-circle.png')"
-    : "url('/images/flags/gr-circle.png')";
-
-  // Track (ξεχωριστά PNG, γκρι)
+  // Track: ασπρόμαυρο flag της γλώσσας που ΘΑ εμφανιστεί αν μεταβείς;
+  // Στο mockup σου: όταν είσαι EN -> UK στο track, όταν είσαι GR -> GR στο track.
   const trackFlag = isEnglish
-    ? "url('/images/flags/gr-track.png')" // EL inactive στη μπάρα
-    : "url('/images/flags/uk-track.png')"; // EN inactive στη μπάρα
+    ? "url('/images/flags/uk-track.png')" // EN active (πάνω mockup)
+    : "url('/images/flags/gr-track.png')"; // GR active (κάτω mockup)
+
+  const labelBase = "text-xs sm:text-sm tracking-wide";
+  const activeLabel = "font-semibold text-black";
+  const inactiveLabel = "font-normal text-black/60";
 
   return (
     <Link
       href={targetHref}
       aria-label={ariaLabel}
-      className={`inline-flex items-center justify-center ${className}`}
+      className={`inline-flex items-center gap-2 sm:gap-3 ${className}`}
     >
+      {/* GR label */}
+      <span className={`${labelBase} ${!isEnglish ? activeLabel : inactiveLabel}`}>GR</span>
+
+      {/* Slider */}
       <div
         className="
-          relative h-9 w-22 sm:h-10 sm:w-28
+          relative h-7 w-16 sm:h-8 sm:w-20
           rounded-full
-          bg-white/60
-          shadow-[0_12px_30px_rgba(0,0,0,0.25)]
-          backdrop-blur
+          bg-white
+          shadow-[0_10px_25px_rgba(0,0,0,0.18)]
           overflow-hidden
           transition-shadow
-          hover:shadow-[0_16px_40px_rgba(0,0,0,0.35)]
+          hover:shadow-[0_14px_32px_rgba(0,0,0,0.25)]
         "
       >
-        {/* Track με ασπρόμαυρη σημαία της ΜΗ ενεργής γλώσσας */}
-        <div className="absolute inset-0">
-          <div
-            className="
-              absolute inset-0
-              bg-center bg-cover
-              grayscale
-            "
-            style={{ backgroundImage: trackFlag }}
-          />
-          {/* Gradient κοντά στο knob για να ηρεμεί το pattern */}
-          {isEnglish ? (
-            <div className="absolute inset-y-0 left-7 sm:left-9 w-8 sm:w-10 bg-gradient-to-r from-white via-white/80 to-transparent" />
-          ) : (
-            <div className="absolute inset-y-0 right-7 sm:right-9 w-8 sm:w-10 bg-gradient-to-l from-white via-white/80 to-transparent" />
-          )}
-        </div>
+        {/* Track με flag σε grayscale */}
+        <div
+          className="
+            absolute inset-0
+            bg-center bg-cover
+            grayscale
+          "
+          style={{ backgroundImage: trackFlag }}
+        />
 
-        {/* Κυκλάκι με ενεργή σημαία */}
+        {/* Λευκό κυκλάκι */}
         <div
           className={`
             absolute top-1/2 -translate-y-1/2
-            h-10 w-10
+            h-7 w-7 sm:h-[2.1rem] sm:w-[2.1rem]
             rounded-full
-            bg-center bg-cover
-            shadow-[0_10px_25px_rgba(0,0,0,0.4)]
-            border border-white/70
-            transition-transform duration-300 ease-out
-            ${isEnglish ? "left-[-2px] sm:left-[-4px]" : "right-[-2px] sm:right-[-4px]"}
+            bg-white
+            border border-neutral-300
+            shadow-[0_6px_14px_rgba(0,0,0,0.35)]
+            transition-transform duration-250 ease-out
+            ${isEnglish ? "right-0.5" : "left-0.5"}
           `}
-          style={{ backgroundImage: knobFlag }}
         />
       </div>
+
+      {/* EN label */}
+      <span className={`${labelBase} ${isEnglish ? activeLabel : inactiveLabel}`}>EN</span>
     </Link>
   );
 }
