@@ -28,7 +28,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="hero relative">
+    <section ref={heroRef} className="hero relative overflow-hidden">
       {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
@@ -57,32 +57,32 @@ export default function Hero() {
       {/* === Hero content === */}
       <div
         className="
-          hero-inner relative z-10 flex h-full flex-col
-          items-start justify-center text-left
-          -translate-y-2 md:-translate-y-4
-          pl-6 md:pl-16 pr-6
+          hero-inner relative z-10 flex min-h-[90vh] flex-col
+          justify-center
+          px-6 md:px-16
         "
       >
-        {/* Τίτλος */}
-        <h1 className="hero-title">
+        {/* Τίτλος – responsive μέγεθος */}
+        <div className="hero-title leading-[0.85] text-[clamp(3rem,7vw,7rem)]">
           <TitleReveal
             lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
             delay={0.1}
             lineStagger={0.12}
           />
-        </h1>
+        </div>
 
-        {/* Block: κείμενο + CTA, πιο κάτω & πιο δεξιά */}
+        {/* Block: κείμενο + CTA */}
         <div
           ref={subtitleRef}
           className="
-            absolute
-            top-[68%]
-            right-[8%] md:right-[12%]
-            max-w-md
-            text-black
-            text-sm md:text-base
+            mt-6 max-w-md
+            text-black text-sm md:text-base
             space-y-4
+
+            xl:absolute
+            xl:top-[64%]
+            xl:right-[12%]
+            xl:mt-0
           "
         >
           <p>
