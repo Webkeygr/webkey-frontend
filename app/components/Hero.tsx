@@ -77,14 +77,15 @@ export default function Hero() {
                 items-end
               "
             >
-              {/* ΤΙΤΛΟΣ – τεράστιος, αριστερά αλλά πιο κεντρικά overall */}
+              {/* ΤΙΤΛΟΣ – τεράστιος, με Bosch και πιο βαρύ weight */}
               <h1
                 className={`
                   ${bosch.className}
                   hero-title
                   text-left
                   leading-[0.8]
-                  font-normal
+                  font-bold
+                  tracking-tight
                 `}
                 style={{
                   fontSize: "clamp(4rem, 11vw, 12rem)",
