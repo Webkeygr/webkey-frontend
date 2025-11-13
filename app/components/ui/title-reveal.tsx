@@ -38,12 +38,14 @@ export default function TitleReveal({
   return (
     <div className={className}>
       {lines.map((line, index) => (
-        <div key={index} className="overflow-hidden">
+        <div key={index}>
+          {/* ΔΕΝ έχουμε πια overflow-hidden εδώ,
+              για να μην κόβεται η λέξη στα πλάγια */}
           <div
             ref={(el) => {
               if (el) lineRefs.current[index] = el;
             }}
-            className="block whitespace-nowrap" // 👈 ΔΕΝ σπάει ποτέ η γραμμή
+            className="block whitespace-nowrap"
           >
             {line}
           </div>
