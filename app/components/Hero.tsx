@@ -63,71 +63,74 @@ export default function Hero() {
           px-6 md:px-16
         "
       >
-        {/* Κεντρικό box με max-width 1900px */}
+        {/* Εξωτερικό poster box: μέχρι 1900px */}
         <div className="w-full max-w-[1900px] mx-auto">
-          {/* Grid: Αριστερά τίτλος, δεξιά κείμενο+CTA */}
-          <div
-            className="
-              grid
-              grid-cols-[minmax(0,2.4fr)_minmax(0,1.1fr)]
-              gap-6
-              items-end
-            "
-          >
-            {/* ΤΙΤΛΟΣ – πολύ μεγάλος, αριστερός */}
-            <h1
-              className="
-                hero-title
-                text-left
-                leading-[0.8]
-                font-normal
-              "
-              style={{
-                fontSize: "clamp(4rem, 11vw, 12rem)",
-              }}
-            >
-              <TitleReveal
-                lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
-                delay={0.1}
-                lineStagger={0.12}
-              />
-            </h1>
-
-            {/* Δεξιά στήλη: κείμενο + CTA, πιο κοντά στον τίτλο */}
+          {/* Εσωτερικό box πιο στενό στο κέντρο → φέρνει τίτλο + κείμενο πιο μέσα */}
+          <div className="w-full max-w-[1300px] mx-auto">
+            {/* Grid: ~60% τίτλος / 40% κείμενο */}
             <div
-              ref={blockRef}
               className="
-                text-black
-                text-sm md:text-base
-                space-y-4
-                max-w-md
+                grid
+                grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]
+                gap-6
+                items-end
               "
             >
-              <p>
-                Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
-                Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-                ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-                απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
-              </p>
-
-              <Link
-                href="/contact"
+              {/* ΤΙΤΛΟΣ – τεράστιος, αριστερά αλλά πιο κεντρικά overall */}
+              <h1
                 className="
-                  inline-flex items-center justify-center
-                  px-8 py-3
-                  rounded-full
-                  bg-white
-                  text-black text-sm md:text-base font-medium
-                  backdrop-blur
-                  transition
-                  hover:-translate-y-0.5
+                  hero-title
+                  text-left
+                  leading-[0.8]
+                  font-normal
                 "
                 style={{
-                  boxShadow: "0 0 32px rgba(0,0,0,0.24)",
+                  fontSize: "clamp(4rem, 11vw, 12rem)",
                 }}
               >
-                Ξεκλείδωσε το project σου
-              </Link>
+                <TitleReveal
+                  lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
+                  delay={0.1}
+                  lineStagger={0.12}
+                />
+              </h1>
+
+              {/* Δεξιά στήλη: κείμενο + CTA – τώρα πολύ πιο κοντά στο κέντρο */}
+              <div
+                ref={blockRef}
+                className="
+                  text-black
+                  text-sm md:text-base
+                  space-y-4
+                  max-w-md
+                "
+              >
+                <p>
+                  Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
+                  Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
+                  ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
+                  απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
+                </p>
+
+                <Link
+                  href="/contact"
+                  className="
+                    inline-flex items-center justify-center
+                    px-8 py-3
+                    rounded-full
+                    bg-white
+                    text-black text-sm md:text-base font-medium
+                    backdrop-blur
+                    transition
+                    hover:-translate-y-0.5
+                  "
+                  style={{
+                    boxShadow: "0 0 32px rgba(0,0,0,0.24)",
+                  }}
+                >
+                  Ξεκλείδωσε το project σου
+                </Link>
+              </div>
             </div>
           </div>
         </div>
