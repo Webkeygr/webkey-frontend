@@ -6,7 +6,6 @@ import { gsap } from "gsap";
 import Link from "next/link";
 import Iridescence from "./Iridescence";
 import TitleReveal from "./ui/title-reveal";
-import { bosch } from "../fonts";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -77,16 +76,16 @@ export default function Hero() {
                 items-end
               "
             >
-              {/* ΤΙΤΛΟΣ – τεράστιος, με Bosch και πιο βαρύ weight */}
+              {/* ΤΙΤΛΟΣ – τεράστιος, με Bosch & πιο βαρύ */}
               <h1
-                className={`
-                  ${bosch.className}
+                className="
                   hero-title
+                  font-bosch
                   text-left
                   leading-[0.8]
                   font-bold
                   tracking-tight
-                `}
+                "
                 style={{
                   fontSize: "clamp(4rem, 11vw, 12rem)",
                 }}
