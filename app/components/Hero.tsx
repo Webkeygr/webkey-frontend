@@ -3,6 +3,7 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import Link from "next/link";
 import Iridescence from "./Iridescence";
 import TitleReveal from "./ui/title-reveal";
 
@@ -58,7 +59,7 @@ export default function Hero() {
         className="
           hero-inner relative z-10 flex h-full flex-col
           items-start justify-center text-left
-          -translate-y-6 md:-translate-y-10
+          -translate-y-2 md:-translate-y-4
           pl-6 md:pl-16 pr-6
         "
       >
@@ -68,21 +69,38 @@ export default function Hero() {
             lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
             delay={0.1}
             lineStagger={0.12}
-            /* className εδώ αν θες extra κλάσεις στον wrapper του τίτλου */
           />
         </h1>
 
-        {/* Κάτω-αριστερά, μαύρο */}
+        {/* Κείμενο δίπλα στη λέξη "Μέλλον" */}
         <p
           ref={subtitleRef}
           className="
             hero-text text-black
-            absolute left-6 md:left-16 bottom-8
+            absolute
+            right-6 md:right-20
+            top-1/2 md:top-[55%]
+            max-w-md
           "
         >
-          Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις ξεκινούν.
-Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
+          Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε
+          εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις
+          ξεκινούν. Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μια
+          θέση στο μέλλον.
         </p>
+
+        {/* CTA στο κέντρο κάτω */}
+        <div
+          className="
+            absolute
+            left-1/2 bottom-10
+            -translate-x-1/2
+          "
+        >
+          <Link href="/contact" className="cta-link">
+            Ξεκλείδωσε το project σου
+          </Link>
+        </div>
       </div>
     </section>
   );
