@@ -9,12 +9,12 @@ import TitleReveal from "./ui/title-reveal";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
-  const blockRef = useRef<HTMLDivElement | null>(null);
+  const rightBlockRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      if (blockRef.current) {
-        gsap.from(blockRef.current, {
+      if (rightBlockRef.current) {
+        gsap.from(rightBlockRef.current, {
           y: 30,
           opacity: 0,
           duration: 0.8,
@@ -30,11 +30,7 @@ export default function Hero() {
   return (
     <section
       ref={heroRef}
-      className="
-        relative
-        h-[100vh]
-        overflow-hidden
-      "
+      className="relative min-h-[90vh] overflow-hidden"
     >
       {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
@@ -61,46 +57,49 @@ export default function Hero() {
         />
       </div>
 
-      {/* === DESIGN CANVAS (όλα absolute με vw/vh) === */}
-      <div className="relative z-10 h-full w-full">
-        {/* ΤΙΤΛΟΣ - πάντα στις ίδιες αναλογίες */}
+      {/* === HERO CONTENT === */}
+      <div
+        className="
+          relative z-10
+          flex min-h-[90vh]
+          flex-col md:flex-row
+          items-start md:items-center
+          justify-center
+          gap-10 md:gap-16
+          px-6 md:px-16
+        "
+      >
+        {/* ΤΙΤΛΟΣ – responsive, χωρίς κόψιμο */}
         <h1
-          className="hero-title leading-[0.8] font-normal"
-          style={{
-            // περίπου όπως στο KOTA: μεγαλώνει/μικραίνει με το πλάτος
-            fontSize: "min(13vw, 9rem)",
-          }}
-        >
-          <div
-            className="
-              absolute
-              left-[6vw]
-              top-[14vh]
-              space-y-[0.1em]
-            "
-          >
-            <TitleReveal
-              lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
-              delay={0.1}
-              lineStagger={0.12}
-            />
-          </div>
-        </h1>
-
-        {/* BLOCK: κείμενο + CTA, “κολλημένο” σε συγκεκριμένο σημείο */}
-        <div
-          ref={blockRef}
           className="
-            absolute
-            top-[50vh]
-            right-[9vw]
-            max-w-[30vw]
-            text-black
-            space-y-[1.6vh]
+            hero-title
+            text-left
+            leading-[0.88]
+            font-normal
           "
           style={{
-            fontSize: "min(1.1vw, 1rem)", // scalable text
+            // σαν poster: μεγαλώνει/μικραίνει με το πλάτος
+            fontSize: "clamp(3rem, 8vw, 7rem)",
           }}
+        >
+          <TitleReveal
+            lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
+            delay={0.1}
+            lineStagger={0.12}
+          />
+        </h1>
+
+        {/* ΔΕΞΙ BLOCK: κείμενο + CTA */}
+        <div
+          ref={rightBlockRef}
+          className="
+            w-full md:w-auto
+            md:max-w-md
+            text-black
+            text-sm md:text-base
+            space-y-4
+            md:ml-auto
+          "
         >
           <p>
             Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
@@ -113,19 +112,16 @@ export default function Hero() {
             href="/contact"
             className="
               inline-flex items-center justify-center
+              px-8 py-3
               rounded-full
               bg-white
-              text-black font-medium
+              text-black text-sm md:text-base font-medium
               shadow-lg shadow-black/25
               backdrop-blur
               transition
               hover:shadow-xl
               hover:-translate-y-0.5
             "
-            style={{
-              padding: "0.9rem 2.8rem",
-              fontSize: "min(1.05vw, 0.95rem)",
-            }}
           >
             Ξεκλείδωσε το project σου
           </Link>
