@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Webkey — Dare Against Normal",
+  title: "Webkey — Unlock the Digital Future",
   description: "Creative web studio",
 };
 

@@ -65,7 +65,7 @@ export default function Hero() {
         {/* Title with true masked reveal (μόνο στον τίτλο) */}
         <h1 className="hero-title">
           <TitleReveal
-            lines={["The Key", "to the Future"]}
+            lines={["Ξεκλειδώνουμε", "το ψηφιακό", "Μέλλον"]}
             delay={0.1}
             lineStagger={0.12}
             /* className εδώ αν θες extra κλάσεις στον wrapper του τίτλου */
