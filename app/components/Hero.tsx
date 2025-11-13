@@ -63,7 +63,7 @@ export default function Hero() {
           pl-6 md:pl-16 pr-6
         "
       >
-        {/* Title with true masked reveal (μόνο στον τίτλο) */}
+        {/* Τίτλος */}
         <h1 className="hero-title">
           <TitleReveal
             lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
@@ -72,14 +72,14 @@ export default function Hero() {
           />
         </h1>
 
-        {/* Κείμενο δίπλα στη λέξη "Μέλλον" */}
+        {/* Κείμενο – πιο χαμηλά και λίγο πιο αριστερά */}
         <p
           ref={subtitleRef}
           className="
             hero-text text-black
             absolute
-            right-6 md:right-20
-            top-1/2 md:top-[55%]
+            top-[60%]
+            right-[12%] md:right-[18%]
             max-w-md
           "
         >
@@ -89,15 +89,29 @@ export default function Hero() {
           θέση στο μέλλον.
         </p>
 
-        {/* CTA στο κέντρο κάτω */}
+        {/* CTA pill στο κέντρο */}
         <div
           className="
             absolute
-            left-1/2 bottom-10
-            -translate-x-1/2
+            inset-x-0 bottom-10
+            flex justify-center
           "
         >
-          <Link href="/contact" className="cta-link">
+          <Link
+            href="/contact"
+            className="
+              inline-flex items-center justify-center
+              px-8 py-3
+              rounded-full
+              bg-black/85
+              text-white text-sm md:text-base font-medium
+              shadow-lg shadow-black/30
+              backdrop-blur
+              transition
+              hover:bg-black
+              hover:shadow-xl
+            "
+          >
             Ξεκλείδωσε το project σου
           </Link>
         </div>
