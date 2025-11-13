@@ -63,18 +63,18 @@ export default function Hero() {
           px-6 md:px-16
         "
       >
-        {/* Κεντραρισμένο container */}
-        <div className="w-full max-w-6xl mx-auto">
-          {/* Grid: αριστερά τεράστιος τίτλος, δεξιά κείμενο+CTA */}
+        {/* Κεντρικό box με max-width 1900px */}
+        <div className="w-full max-w-[1900px] mx-auto">
+          {/* Grid: Αριστερά τίτλος, δεξιά κείμενο+CTA */}
           <div
             className="
               grid
-              grid-cols-[minmax(0,2.2fr)_minmax(0,1fr)]
+              grid-cols-[minmax(0,2.7fr)_minmax(0,1fr)]
               gap-10
               items-end
             "
           >
-            {/* ΤΙΤΛΟΣ – πολύ μεγάλος, αριστερά στοιχισμένος */}
+            {/* ΤΙΤΛΟΣ – πολύ μεγάλος, αριστερός */}
             <h1
               className="
                 hero-title
@@ -83,7 +83,6 @@ export default function Hero() {
                 font-normal
               "
               style={{
-                // πόστερ-size που κάνει scale με το πλάτος
                 fontSize: "clamp(4rem, 11vw, 12rem)",
               }}
             >
@@ -94,7 +93,7 @@ export default function Hero() {
               />
             </h1>
 
-            {/* Δεξιά στήλη: κείμενο + CTA, κολλημένο στο τέλος του τίτλου */}
+            {/* Δεξιά στήλη: κείμενο + CTA */}
             <div
               ref={blockRef}
               className="
