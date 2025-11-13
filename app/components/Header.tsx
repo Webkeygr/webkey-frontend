@@ -7,14 +7,13 @@ import LanguageSwitcher from "./LanguageSwitcher";
 
 type HeaderProps = {
   logoSrc?: string;
+  // τα κρατάω στο type αν τα χρειαστούμε ξανά, αλλά δεν χρησιμοποιούνται στο header πλέον
   ctaHref?: string;
   ctaText?: string;
 };
 
 export default function Header({
   logoSrc = "/images/logo-webkey.svg",
-  ctaHref = "/contact",
-  ctaText = "Unleash your idea",
 }: HeaderProps) {
   const items = [
     {
@@ -75,13 +74,10 @@ export default function Header({
       animationEase="back.out(1.5)"
       animationDuration={0.5}
       staggerDelay={0.12}
-      /* CTA δίπλα από το toggle + Language Switcher */
+      /* Δίπλα από το toggle βάζουμε μόνο το language switcher */
       rightSlot={
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <Link href={ctaHref} className="cta-link" aria-label={ctaText}>
-            {ctaText}
-          </Link>
         </div>
       }
     />
