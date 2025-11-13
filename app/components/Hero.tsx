@@ -28,14 +28,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section
-      ref={heroRef}
-      className="
-        relative
-        h-[100vh]
-        overflow-hidden
-      "
-    >
+    <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden">
       {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
@@ -61,72 +54,76 @@ export default function Hero() {
         />
       </div>
 
-      {/* === CANVAS === */}
-      <div className="relative z-10 h-full w-full">
-        {/* ΤΙΤΛΟΣ – ακόμα πιο μεγάλος, poster-style */}
-        <h1
-          className="hero-title font-normal leading-[0.8]"
-          style={{
-            fontSize: "min(13vw, 11rem)", // πιο μεγάλο από πριν
-          }}
-        >
-          <div
+      {/* === HERO CONTENT === */}
+      <div
+        className="
+          relative z-10
+          flex min-h-[90vh]
+          flex-col
+          justify-center
+          px-6 md:px-16
+        "
+      >
+        <div className="w-full max-w-6xl mx-auto">
+          {/* ΤΙΤΛΟΣ – πολύ μεγάλος & κεντραρισμένος */}
+          <h1
             className="
-              absolute
-              left-[6vw]
-              top-[12vh]
-              space-y-[0.12em]
+              hero-title
+              text-center
+              leading-[0.8]
+              font-normal
             "
+            style={{
+              // ΠΟΛΥ μεγάλο, αλλά να μην ξεφύγει τελείως σε πολύ wide οθόνες
+              fontSize: "clamp(4rem, 11vw, 12rem)",
+            }}
           >
             <TitleReveal
               lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
               delay={0.1}
               lineStagger={0.12}
             />
-          </div>
-        </h1>
+          </h1>
 
-        {/* Κείμενο + CTA κάτω δεξιά */}
-        <div
-          ref={blockRef}
-          className="
-            absolute
-            right-[8vw]
-            bottom-[12vh]
-            text-black
-            space-y-[2vh]
-          "
-          style={{
-            maxWidth: "460px", // σταθερό max width, δεν ανοίγει άλλο
-            fontSize: "1rem", // σταθερό μέγεθος κειμένου
-          }}
-        >
-          <p>
-            Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
-            Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-            ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς
-            παρουσία στο web, αλλά μια θέση στο μέλλον.
-          </p>
-
-          <Link
-            href="/contact"
+          {/* Κείμενο + CTA στο "τέλος" του τίτλου, κάτω δεξιά */}
+          <div
+            ref={blockRef}
             className="
-              inline-flex items-center justify-center
-              rounded-full
-              bg-white
-              text-black font-medium
-              backdrop-blur
-              transition
-              hover:-translate-y-0.5
+              mt-6
+              max-w-md
+              ml-auto
+              text-left
+              text-black
+              text-sm md:text-base
+              space-y-4
             "
-            style={{
-              padding: "0.9rem 2.8rem",
-              fontSize: "0.95rem",
-              boxShadow: "0 0 32px rgba(0,0,0,0.22)", // σκιά γύρω γύρω
-            }}
           >
-            Ξεκλείδωσε το project σου
-          </Link>
+            <p>
+              Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
+              Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
+              ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς
+              παρουσία στο web, αλλά μια θέση στο μέλλον.
+            </p>
+
+            <Link
+              href="/contact"
+              className="
+                inline-flex items-center justify-center
+                px-8 py-3
+                rounded-full
+                bg-white
+                text-black text-sm md:text-base font-medium
+                backdrop-blur
+                transition
+                hover:-translate-y-0.5
+              "
+              style={{
+                boxShadow: "0 0 32px rgba(0,0,0,0.24)", // σκιά γύρω-γύρω
+              }}
+            >
+              Ξεκλείδωσε το project σου
+            </Link>
+          </div>
         </div>
       </div>
     </section>
