@@ -9,7 +9,7 @@ import TitleReveal from "./ui/title-reveal";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
-  const subtitleRef = useRef<HTMLParagraphElement | null>(null);
+  const subtitleRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -72,44 +72,39 @@ export default function Hero() {
           />
         </h1>
 
-        {/* Κείμενο – πιο χαμηλά και λίγο πιο αριστερά */}
-        <p
+        {/* Block: κείμενο + CTA, πιο κάτω & πιο δεξιά */}
+        <div
           ref={subtitleRef}
           className="
-            hero-text text-black
             absolute
-            top-[60%]
-            right-[12%] md:right-[18%]
+            top-[68%]
+            right-[8%] md:right-[12%]
             max-w-md
+            text-black
+            text-sm md:text-base
+            space-y-4
           "
         >
-          Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε
-          εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις
-          ξεκινούν. Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μια
-          θέση στο μέλλον.
-        </p>
+          <p>
+            Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
+            Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
+            ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
+            απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
+          </p>
 
-        {/* CTA pill στο κέντρο */}
-        <div
-          className="
-            absolute
-            inset-x-0 bottom-10
-            flex justify-center
-          "
-        >
           <Link
             href="/contact"
             className="
               inline-flex items-center justify-center
               px-8 py-3
               rounded-full
-              bg-black/85
-              text-white text-sm md:text-base font-medium
-              shadow-lg shadow-black/30
+              bg-white
+              text-black text-sm md:text-base font-medium
+              shadow-lg shadow-black/25
               backdrop-blur
               transition
-              hover:bg-black
               hover:shadow-xl
+              hover:-translate-y-0.5
             "
           >
             Ξεκλείδωσε το project σου
