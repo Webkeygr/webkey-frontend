@@ -1,61 +1,54 @@
-'use client';
+// app/components/ui/title-reveal.tsx
+"use client";
 
-import { motion } from 'framer-motion';
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
 
 type TitleRevealProps = {
-  /** Σπάσε τον τίτλο σε γραμμές όπως θέλεις να εμφανιστούν */
   lines: string[];
-  /** Καθυστέρηση έναρξης σε δευτερόλεπτα (προαιρετικό) */
   delay?: number;
-  /** Stagger ανά γραμμή σε δευτερόλεπτα (προαιρετικό) */
   lineStagger?: number;
-  /** Κοινές κλάσεις για όλο τον τίτλο (π.χ. μέγεθος γραμματοσειράς) */
   className?: string;
 };
 
 export default function TitleReveal({
   lines,
   delay = 0,
-  lineStagger = 0.12,
-  className = '',
+  lineStagger = 0.1,
+  className = "",
 }: TitleRevealProps) {
+  const lineRefs = useRef<HTMLDivElement[]>([]);
+
+  useEffect(() => {
+    const tl = gsap.timeline({ delay });
+
+    tl.from(lineRefs.current, {
+      yPercent: 110,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power3.out",
+      stagger: lineStagger,
+    });
+
+    return () => {
+      tl.kill();
+    };
+  }, [delay, lineStagger]);
+
   return (
-    <motion.div
-      aria-label={lines.join(' ')}
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: lineStagger,
-            delayChildren: delay,
-          },
-        },
-      }}
-      className={className}
-    >
-      {lines.map((text, i) => (
-        <div
-          key={i}
-          className="overflow-hidden leading-[0.95]" /* μάσκα ανά γραμμή */
-        >
-          <motion.span
-            className="inline-block will-change-transform"
-            variants={{
-              hidden: { y: '110%', skewY: 6, opacity: 0 },
-              visible: {
-                y: '0%',
-                skewY: 0,
-                opacity: 1,
-                transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] },
-              },
+    <div className={className}>
+      {lines.map((line, index) => (
+        <div key={index} className="overflow-hidden">
+          <div
+            ref={(el) => {
+              if (el) lineRefs.current[index] = el;
             }}
+            className="block whitespace-nowrap" // 👈 ΔΕΝ σπάει ποτέ η γραμμή
           >
-            {text}
-          </motion.span>
+            {line}
+          </div>
         </div>
       ))}
-    </motion.div>
+    </div>
   );
 }
