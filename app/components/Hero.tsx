@@ -69,8 +69,8 @@ export default function Hero() {
           <div
             className="
               grid
-              grid-cols-[minmax(0,2.7fr)_minmax(0,1fr)]
-              gap-10
+              grid-cols-[minmax(0,2.4fr)_minmax(0,1.1fr)]
+              gap-6
               items-end
             "
           >
@@ -93,7 +93,7 @@ export default function Hero() {
               />
             </h1>
 
-            {/* Δεξιά στήλη: κείμενο + CTA */}
+            {/* Δεξιά στήλη: κείμενο + CTA, πιο κοντά στον τίτλο */}
             <div
               ref={blockRef}
               className="
@@ -101,7 +101,6 @@ export default function Hero() {
                 text-sm md:text-base
                 space-y-4
                 max-w-md
-                ml-auto
               "
             >
               <p>
