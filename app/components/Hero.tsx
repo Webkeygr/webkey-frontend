@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import Link from "next/link";
 import Iridescence from "./Iridescence";
 import TitleReveal from "./ui/title-reveal";
+import { bosch } from "../fonts";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -78,12 +79,13 @@ export default function Hero() {
             >
               {/* ΤΙΤΛΟΣ – τεράστιος, αριστερά αλλά πιο κεντρικά overall */}
               <h1
-                className="
+                className={`
+                  ${bosch.className}
                   hero-title
                   text-left
                   leading-[0.8]
                   font-normal
-                "
+                `}
                 style={{
                   fontSize: "clamp(4rem, 11vw, 12rem)",
                 }}
