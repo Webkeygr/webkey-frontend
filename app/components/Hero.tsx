@@ -63,11 +63,11 @@ export default function Hero() {
 
       {/* === CANVAS === */}
       <div className="relative z-10 h-full w-full">
-        {/* ΤΙΤΛΟΣ – πολύ μεγάλος, poster-style, scale με το πλάτος */}
+        {/* ΤΙΤΛΟΣ – ακόμα πιο μεγάλος, poster-style */}
         <h1
           className="hero-title font-normal leading-[0.8]"
           style={{
-            fontSize: "min(11vw, 9.5rem)", // ΠΟΛΥ μεγάλο αλλά πάντα να χωράει
+            fontSize: "min(13vw, 11rem)", // πιο μεγάλο από πριν
           }}
         >
           <div
@@ -79,7 +79,6 @@ export default function Hero() {
             "
           >
             <TitleReveal
-              // 3 ξεκάθαρες γραμμές, χωρίς περίεργο break
               lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
               delay={0.1}
               lineStagger={0.12}
@@ -87,26 +86,26 @@ export default function Hero() {
           </div>
         </h1>
 
-        {/* Κείμενο + CTA κάτω δεξιά, δίπλα στο "Μέλλον" */}
+        {/* Κείμενο + CTA κάτω δεξιά */}
         <div
           ref={blockRef}
           className="
             absolute
             right-[8vw]
             bottom-[12vh]
-            max-w-[32vw]
             text-black
             space-y-[2vh]
           "
           style={{
-            fontSize: "min(1.1vw, 1rem)", // scale με το πλάτος
+            maxWidth: "460px", // σταθερό max width, δεν ανοίγει άλλο
+            fontSize: "1rem", // σταθερό μέγεθος κειμένου
           }}
         >
           <p>
             Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
             Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-            ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-            απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
+            ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς
+            παρουσία στο web, αλλά μια θέση στο μέλλον.
           </p>
 
           <Link
@@ -116,15 +115,14 @@ export default function Hero() {
               rounded-full
               bg-white
               text-black font-medium
-              shadow-lg shadow-black/25
               backdrop-blur
               transition
-              hover:shadow-xl
               hover:-translate-y-0.5
             "
             style={{
               padding: "0.9rem 2.8rem",
-              fontSize: "min(1.05vw, 0.95rem)",
+              fontSize: "0.95rem",
+              boxShadow: "0 0 32px rgba(0,0,0,0.22)", // σκιά γύρω γύρω
             }}
           >
             Ξεκλείδωσε το project σου
