@@ -63,21 +63,21 @@ export default function Hero() {
           px-6 md:px-16
         "
       >
-        {/* Εξωτερικό poster box: μέχρι 1900px */}
+        {/* Εξωτερικό poster box: μέχρι 1900px (όπως λες ότι βλέπεις και στο KOTA) */}
         <div className="w-full max-w-[1900px] mx-auto">
-          {/* Εσωτερικό box πιο στενό στο κέντρο → φέρνει τίτλο + κείμενο πιο κοντά, σαν KOTA */}
-          <div className="w-full max-w-[1200px] mx-auto">
-            {/* Grid: ~58% τίτλος / 42% κείμενο, με 1 στήλη σε μικρά widths */}
+          {/* Εσωτερικό box στο κέντρο */}
+          <div className="w-full max-w-[1900px] mx-auto">
+            {/* Grid: τίτλος / κείμενο */}
             <div
               className="
                 grid
                 grid-cols-1
-                lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]
+                lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]
                 gap-6
                 items-end
               "
             >
-              {/* ΤΙΤΛΟΣ – τεράστιος, Bosch, πιο aggressive responsive σαν KOTA */}
+              {/* ΤΙΤΛΟΣ – Bosch, με fixed sizes ανά breakpoint για να “κλειδώνει” το layout */}
               <h1
                 className="
                   hero-title
@@ -89,19 +89,17 @@ export default function Hero() {
                   xl:ml-0
                   lg:ml-[4vw]
                 "
-                style={{
-                  // πιο επιθετικό scale: μικραίνει γρηγορότερα όταν μικραίνει το viewport
-                  fontSize: "clamp(3rem, 8vw, 11rem)",
-                }}
               >
-                <TitleReveal
-                  lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
-                  delay={0.1}
-                  lineStagger={0.12}
-                />
+                <div className="hero-title-size">
+                  <TitleReveal
+                    lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
+                    delay={0.1}
+                    lineStagger={0.12}
+                  />
+                </div>
               </h1>
 
-              {/* Δεξιά στήλη: κείμενο + CTA – έρχεται πιο πολύ προς το κέντρο */}
+              {/* Δεξιά στήλη: κείμενο + CTA */}
               <div
                 ref={blockRef}
                 className="

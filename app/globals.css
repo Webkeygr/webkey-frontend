@@ -178,4 +178,36 @@ body {
   color: #111;
   white-space: nowrap;
   cursor: pointer; /* για να φαίνεται το “χεράκι” */
+  
+  /* Βασικό μέγεθος τίτλου σε μεγάλα desktop – κρατάει το layout ίδιο μέχρι ~1900px */
+.hero-title-size {
+  font-size: 11rem;
+}
+
+/* Λίγο πιο μικρό σε λίγο μικρότερα desktop, αλλά ακόμα ίδια λογική */
+@media (max-width: 1800px) {
+  .hero-title-size {
+    font-size: 10rem;
+  }
+}
+
+@media (max-width: 1600px) {
+  .hero-title-size {
+    font-size: 9rem;
+  }
+}
+
+/* Σε laptop-ish widths */
+@media (max-width: 1400px) {
+  .hero-title-size {
+    font-size: 7.5rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .hero-title-size {
+    font-size: 6rem;
+  }
+}
+
 }
