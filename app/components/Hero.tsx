@@ -28,7 +28,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden">
+    <section ref={heroRef} className="relative overflow-hidden">
       {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
@@ -55,88 +55,74 @@ export default function Hero() {
       </div>
 
       {/* === HERO CONTENT === */}
-      <div
-        className="
-          relative z-10
-          flex min-h-[90vh]
-          items-center justify-center
-          px-6 md:px-16
-        "
-      >
-        {/* Εξωτερικό poster box: μέχρι 1900px (όπως λες ότι βλέπεις και στο KOTA) */}
-        <div className="w-full max-w-[1900px] mx-auto">
-          {/* Εσωτερικό box στο κέντρο */}
-          <div className="w-full max-w-[1900px] mx-auto">
-            {/* Grid: τίτλος / κείμενο */}
-            <div
+      <div className="relative z-10 flex min-h-[88vh] items-end">
+        {/* Εξωτερικό “poster” container – κλειδώνουμε max 1900px όπως θέλεις */}
+        <div className="w-full mx-auto max-w-[1900px] px-[clamp(1.75rem,5vw,6.5rem)]">
+          {/* 12-στηλο grid όπως στο KOTA */}
+          <div className="grid items-end gap-6 md:grid-cols-12">
+            {/* ΤΙΤΛΟΣ – περίπου 7-8 στήλες */}
+            <h1
               className="
-                grid
-                grid-cols-1
-                lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]
-                gap-6
-                items-end
+                hero-title
+                md:col-span-7
+                col-span-12
+                text-left
+                leading-[0.8]
+                font-normal
+              "
+              style={{
+                // Κάνει scale με το πλάτος του viewport
+                // για να μη σπάει το layout όσο μικραίνει το παράθυρο
+                fontSize: "clamp(3.4rem, 8vw, 10.5rem)",
+              }}
+            >
+              <TitleReveal
+                lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
+                delay={0.1}
+                lineStagger={0.12}
+              />
+            </h1>
+
+            {/* ΔΕΞΙΑ ΣΤΗΛΗ – κείμενο + CTA, κουμπώνει περίπου από τη μέση και δεξιά */}
+            <div
+              ref={blockRef}
+              className="
+                md:col-start-7
+                md:col-span-6
+                col-span-12
+                mt-8 md:mt-0
+                text-black
+                text-sm md:text-base
+                max-w-[28rem]
+                space-y-4
               "
             >
-              {/* ΤΙΤΛΟΣ – Bosch, με fixed sizes ανά breakpoint για να “κλειδώνει” το layout */}
-              <h1
-                className="
-                  hero-title
-                  font-bosch
-                  text-left
-                  leading-[0.8]
-                  font-normal
-                  tracking-tight
-                  xl:ml-0
-                  lg:ml-[4vw]
-                "
-              >
-                <div className="hero-title-size">
-                  <TitleReveal
-                    lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
-                    delay={0.1}
-                    lineStagger={0.12}
-                  />
-                </div>
-              </h1>
+              <p>
+                Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
+                Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
+                ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
+                απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
+              </p>
 
-              {/* Δεξιά στήλη: κείμενο + CTA */}
-              <div
-                ref={blockRef}
+              <Link
+                href="/contact"
                 className="
-                  text-black
-                  text-sm md:text-base
-                  space-y-4
-                  max-w-md
-                  lg:mr-[4vw]
-                  lg:justify-self-end
+                  inline-flex items-center justify-center
+                  px-8 py-3
+                  rounded-full
+                  bg-white
+                  text-black text-sm md:text-base font-medium
+                  backdrop-blur
+                  transition
+                  hover:-translate-y-0.5
                 "
+                style={{
+                  // σκιά γύρω από το κουμπί (και “πάνω” και “κάτω” όπως ζήτησες)
+                  boxShadow: "0 0 32px rgba(0,0,0,0.25)",
+                }}
               >
-                <p>
-                  Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
-                  Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-                  ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-                  απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
-                </p>
-
-                <Link
-                  href="/contact"
-                  className="
-                    inline-flex items-center justify-center
-                    px-8 py-3
-                    rounded-full
-                    bg-white
-                    text-black text-sm md:text-base font-medium
-                    backdrop-blur
-                    transition
-                    hover:-translate-y-0.5
-                  "
-                  style={{
-                    boxShadow: "0 0 32px rgba(0,0,0,0.24)",
-                  }}
-                >
-                  Ξεκλείδωσε το project σου
-                </Link>
-              </div>
+                Ξεκλείδωσε το project σου
+              </Link>
             </div>
           </div>
         </div>
