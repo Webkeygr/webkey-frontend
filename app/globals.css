@@ -97,7 +97,7 @@ body {
 
 .hero-title {
   font-size: clamp(15rem, 8vw, 16rem);
-  text-shadow: 1px 1px 2px black;
+  text-shadow: 0 0.04em 0 rgba(0, 0, 0, 0.18);
   line-height: 0.95;
   letter-spacing: -0.04em;
   text-transform: none;

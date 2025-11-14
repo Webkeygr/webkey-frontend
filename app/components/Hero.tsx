@@ -83,7 +83,7 @@ export default function Hero() {
                   font-bosch
                   text-left
                   leading-[0.8]
-                  font-bold
+                  font-normal
                   tracking-tight
                 "
                 style={{
