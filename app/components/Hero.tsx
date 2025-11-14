@@ -28,8 +28,11 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden">
-      {/* === FIXED BACKGROUND === */}
+    <section
+      ref={heroRef}
+      className="relative min-h-[80vh] overflow-hidden"
+    >
+      {/* BACKGROUND WAVES */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
           className="hero-iridescence w-full h-full"
@@ -54,67 +57,56 @@ export default function Hero() {
         />
       </div>
 
-      {/* === HERO CONTENT === */}
-      <div
-        className="
-          relative z-10
-          flex min-h-[90vh]
-          items-center justify-center
-          px-6 md:px-16
-        "
-      >
-        {/* Outer frame μέχρι 1900px */}
+      {/* HERO CONTENT */}
+      <div className="relative z-10 px-6 md:px-16 pt-32 pb-20">
+        {/* outer container μέχρι 1900px */}
         <div className="w-full max-w-[1900px] mx-auto">
-          {/* Inner box στο κέντρο (σαν poster) */}
+          {/* inner container σαν Elementor section */}
           <div className="w-full max-w-[1300px] mx-auto">
-            <div
-              className="
-                grid
-                grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]
-                gap-10
-                items-start
-              "
-            >
-              {/* ΤΙΤΛΟΣ – πολύ μεγάλος, τρεις γραμμές όπως στο mock */}
-              <h1
-                className="
-                  hero-title
-                  text-left
-                  leading-[0.72]
-                  font-normal
-                  select-none
-                "
-                style={{
-                  fontFamily: '"Bosch", system-ui, sans-serif',
-                  // ΠΟΛΥ μεγαλύτερος τίτλος
-                  fontSize: "clamp(6rem, 10vw, 15rem)",
-                }}
-              >
-                <TitleReveal
-                  lines={["Το Κλειδί", "για το Ψηφιακό", "Μέλλον"]}
-                  delay={0.1}
-                  lineStagger={0.12}
-                />
-              </h1>
+            <div className="grid lg:grid-cols-12 gap-x-10">
+              {/* Αριστερή μεγάλη στήλη: 8/12 */}
+              <div className="lg:col-span-8">
+                <h1
+                  className="
+                    hero-title
+                    text-left
+                    leading-[0.8]
+                    font-normal
+                    select-none
+                  "
+                  style={{
+                    // σταθερά ΠΟΛΥ μεγάλο, κοντά στο mockup
+                    fontSize: "8.5rem", // ~136px
+                    fontFamily: '"Bosch", system-ui, sans-serif',
+                  }}
+                >
+                  <TitleReveal
+                    lines={["Το Κλειδί", "για το Ψηφιακό", "Μέλλον"]}
+                    delay={0.1}
+                    lineStagger={0.12}
+                  />
+                </h1>
+              </div>
 
-              {/* Κείμενο + CTA – χαμηλά δίπλα στη λέξη «Μέλλον» */}
+              {/* Δεξιά στήλη: κειμενάκι + CTA */}
               <div
                 ref={blockRef}
                 className="
+                  mt-8
+                  lg:mt-[220px]      /* Σπρώχνει το κείμενο προς τη γραμμή 'Μέλλον' */
+                  lg:col-span-4
+                  lg:col-start-9     /* Το φέρνει πιο δεξιά, δίπλα στον τίτλο */
+                  max-w-md
                   text-black
                   text-sm md:text-base
                   space-y-4
-                  max-w-md
-                  self-center
-                  md:self-end
-                  md:translate-y-6
                 "
               >
                 <p>
                   Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
                   Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
                   ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-                  απλώς την παρουσία στο web, αλλά μία θέση στο μέλλον.
+                  απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.
                 </p>
 
                 <Link
@@ -129,9 +121,7 @@ export default function Hero() {
                     transition
                     hover:-translate-y-0.5
                   "
-                  style={{
-                    boxShadow: "0 0 32px rgba(0,0,0,0.24)",
-                  }}
+                  style={{ boxShadow: "0 0 32px rgba(0,0,0,0.24)" }}
                 >
                   Ξεκλείδωσε το project σου
                 </Link>
