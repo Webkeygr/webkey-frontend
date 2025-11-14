@@ -28,7 +28,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={heroRef} className="relative min-h-screen overflow-hidden">
+    <section ref={heroRef} className="relative min-h-[90vh] overflow-hidden">
       {/* === FIXED BACKGROUND === */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <Iridescence
@@ -58,33 +58,36 @@ export default function Hero() {
       <div
         className="
           relative z-10
-          flex min-h-screen
-          items-start justify-center
+          flex min-h-[90vh]
+          items-center justify-center
           px-6 md:px-16
-          pt-[12vh] md:pt-[10vh]
         "
       >
-        {/* Outer poster box: μέχρι 1900px */}
+        {/* Poster box ως 1900px */}
         <div className="w-full max-w-[1900px] mx-auto">
-          {/* Inner box πιο στενό στο κέντρο */}
+          {/* Inner box στο κέντρο */}
           <div className="w-full max-w-[1300px] mx-auto">
-            {/* Grid: ~60% τίτλος / 40% κείμενο */}
             <div
               className="
                 grid
-                grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]
-                gap-6
+                grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]
+                gap-10
                 items-end
               "
             >
-              {/* ΤΙΤΛΟΣ */}
+              {/* ΤΙΤΛΟΣ – πολύ μεγάλος, αριστερά */}
               <h1
-                className="hero-title text-left leading-[0.78] font-normal select-none"
+                className="
+                  hero-title
+                  text-left
+                  leading-[0.78]
+                  font-normal
+                  select-none
+                "
                 style={{
                   fontFamily: '"Bosch", system-ui, sans-serif',
-                  // περίπου όπως πριν, αλλά λίγο πιο «μαζεμένο»,
-                  // και βασισμένο στο πλάτος του viewport
-                  fontSize: "clamp(4.5rem, 6.8vw, 10.8rem)",
+                  // ΠΟΛΥ μεγαλύτερος τίτλος
+                  fontSize: "clamp(5.5rem, 9vw, 14rem)",
                 }}
               >
                 <TitleReveal
@@ -94,7 +97,7 @@ export default function Hero() {
                 />
               </h1>
 
-              {/* Δεξιά στήλη: κείμενο + CTA */}
+              {/* Δεξιά στήλη – κείμενο + CTA, περίπου δίπλα στο «Μέλλον» */}
               <div
                 ref={blockRef}
                 className="
@@ -102,6 +105,8 @@ export default function Hero() {
                   text-sm md:text-base
                   space-y-4
                   max-w-md
+                  self-center md:self-end
+                  md:mb-[6vh]
                 "
               >
                 <p>
