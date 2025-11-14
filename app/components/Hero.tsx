@@ -65,18 +65,19 @@ export default function Hero() {
       >
         {/* Εξωτερικό poster box: μέχρι 1900px */}
         <div className="w-full max-w-[1900px] mx-auto">
-          {/* Εσωτερικό box πιο στενό στο κέντρο → φέρνει τίτλο + κείμενο πιο μέσα */}
-          <div className="w-full max-w-[1300px] mx-auto">
-            {/* Grid: ~60% τίτλος / 40% κείμενο */}
+          {/* Εσωτερικό box πιο στενό στο κέντρο → φέρνει τίτλο + κείμενο πιο κοντά, σαν KOTA */}
+          <div className="w-full max-w-[1200px] mx-auto">
+            {/* Grid: ~58% τίτλος / 42% κείμενο, με 1 στήλη σε μικρά widths */}
             <div
               className="
                 grid
-                grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]
+                grid-cols-1
+                lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]
                 gap-6
                 items-end
               "
             >
-              {/* ΤΙΤΛΟΣ – τεράστιος, με Bosch & πιο βαρύ */}
+              {/* ΤΙΤΛΟΣ – τεράστιος, Bosch, πιο aggressive responsive σαν KOTA */}
               <h1
                 className="
                   hero-title
@@ -85,9 +86,12 @@ export default function Hero() {
                   leading-[0.8]
                   font-normal
                   tracking-tight
+                  xl:ml-0
+                  lg:ml-[4vw]
                 "
                 style={{
-                  fontSize: "clamp(4rem, 11vw, 12rem)",
+                  // πιο επιθετικό scale: μικραίνει γρηγορότερα όταν μικραίνει το viewport
+                  fontSize: "clamp(3rem, 8vw, 11rem)",
                 }}
               >
                 <TitleReveal
@@ -97,7 +101,7 @@ export default function Hero() {
                 />
               </h1>
 
-              {/* Δεξιά στήλη: κείμενο + CTA – τώρα πολύ πιο κοντά στο κέντρο */}
+              {/* Δεξιά στήλη: κείμενο + CTA – έρχεται πιο πολύ προς το κέντρο */}
               <div
                 ref={blockRef}
                 className="
@@ -105,6 +109,8 @@ export default function Hero() {
                   text-sm md:text-base
                   space-y-4
                   max-w-md
+                  lg:mr-[4vw]
+                  lg:justify-self-end
                 "
               >
                 <p>
