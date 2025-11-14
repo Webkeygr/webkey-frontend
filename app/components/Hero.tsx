@@ -63,41 +63,41 @@ export default function Hero() {
           px-6 md:px-16
         "
       >
-        {/* Poster box ως 1900px */}
+        {/* Outer frame μέχρι 1900px */}
         <div className="w-full max-w-[1900px] mx-auto">
-          {/* Inner box στο κέντρο */}
+          {/* Inner box στο κέντρο (σαν poster) */}
           <div className="w-full max-w-[1300px] mx-auto">
             <div
               className="
                 grid
                 grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]
                 gap-10
-                items-end
+                items-start
               "
             >
-              {/* ΤΙΤΛΟΣ – πολύ μεγάλος, αριστερά */}
+              {/* ΤΙΤΛΟΣ – πολύ μεγάλος, τρεις γραμμές όπως στο mock */}
               <h1
                 className="
                   hero-title
                   text-left
-                  leading-[0.78]
+                  leading-[0.72]
                   font-normal
                   select-none
                 "
                 style={{
                   fontFamily: '"Bosch", system-ui, sans-serif',
                   // ΠΟΛΥ μεγαλύτερος τίτλος
-                  fontSize: "clamp(5.5rem, 9vw, 14rem)",
+                  fontSize: "clamp(6rem, 10vw, 15rem)",
                 }}
               >
                 <TitleReveal
-                  lines={["Το κλειδί", "για το Ψηφιακό", "Μέλλον"]}
+                  lines={["Το Κλειδί", "για το Ψηφιακό", "Μέλλον"]}
                   delay={0.1}
                   lineStagger={0.12}
                 />
               </h1>
 
-              {/* Δεξιά στήλη – κείμενο + CTA, περίπου δίπλα στο «Μέλλον» */}
+              {/* Κείμενο + CTA – χαμηλά δίπλα στη λέξη «Μέλλον» */}
               <div
                 ref={blockRef}
                 className="
@@ -105,15 +105,16 @@ export default function Hero() {
                   text-sm md:text-base
                   space-y-4
                   max-w-md
-                  self-center md:self-end
-                  md:mb-[6vh]
+                  self-center
+                  md:self-end
+                  md:translate-y-6
                 "
               >
                 <p>
                   Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
                   Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
                   ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-                  απλώς παρουσία στο web, αλλά μια θέση στο μέλλον.
+                  απλώς την παρουσία στο web, αλλά μία θέση στο μέλλον.
                 </p>
 
                 <Link
