@@ -28,12 +28,9 @@ export default function Hero() {
   }, []);
 
   return (
-    <section
-      ref={heroRef}
-      className="relative min-h-[80vh] overflow-hidden"
-    >
+    <section ref={heroRef} className="hero-wrapper">
       {/* BACKGROUND WAVES */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
+      <div className="hero-bg">
         <Iridescence
           className="hero-iridescence w-full h-full"
           mouseReact={true}
@@ -57,123 +54,49 @@ export default function Hero() {
         />
       </div>
 
-      {/* HERO CONTENT */}
-      <div className="relative z-10 px-6 md:px-16 pt-32 pb-20">
-        {/* ΚΟΚΚΙΝΟ BOX – max-width 1900px */}
-        <div className="w-full max-w-[1900px] mx-auto flex flex-col gap-y-4">
-          {/* Μπλε box #1 – «Το Κλειδί» */}
-          <div className="w-full">
-            <h1
-              className="
-                hero-title
-                text-left
-                leading-[0.9]
-                font-normal
-                select-none
-              "
-              style={{
-                fontSize: "16rem",
-                fontFamily: '"Bosch", system-ui, sans-serif',
-              }}
-            >
+      {/* ΚΕΝΤΡΙΚΟ CONTAINER (το “κόκκινο” box σου) */}
+      <div className="hero-inner">
+        {/* Γραμμή 1: Το Κλειδί */}
+        <div className="hero-line hero-line-1">
+          <h1 className="hero-title">
+            <TitleReveal lines={["Το Κλειδί"]} delay={0.1} lineStagger={0.12} />
+          </h1>
+        </div>
+
+        {/* Γραμμή 2: για το Ψηφιακό */}
+        <div className="hero-line hero-line-2">
+          <h1 className="hero-title">
+            <TitleReveal
+              lines={["για το Ψηφιακό"]}
+              delay={0.2}
+              lineStagger={0.12}
+            />
+          </h1>
+        </div>
+
+        {/* Γραμμή 3: Μέλλον + κειμενάκι δίπλα */}
+        <div className="hero-bottom-row">
+          <div className="hero-line hero-line-3">
+            <h1 className="hero-title">
               <TitleReveal
-                lines={["Το Κλειδί"]}
-                delay={0.1}
+                lines={["Μέλλον"]}
+                delay={0.3}
                 lineStagger={0.12}
               />
             </h1>
           </div>
 
-          {/* Μπλε box #2 – «για το Ψηφιακό» */}
-          <div className="w-full">
-            <h1
-              className="
-                hero-title
-                text-left
-                leading-[0.9]
-                font-normal
-                select-none
-              "
-              style={{
-                fontSize: "16rem",
-                fontFamily: '"Bosch", system-ui, sans-serif',
-              }}
-            >
-              <TitleReveal
-                lines={["για το Ψηφιακό"]}
-                delay={0.2}
-                lineStagger={0.12}
-              />
-            </h1>
-          </div>
+          <div ref={blockRef} className="hero-text-block">
+            <p>
+              Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
+              Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
+              ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
+              απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.
+            </p>
 
-          {/* Μπλε box #3 – «Μέλλον» (αριστερά) + κείμενο/CTA (δεξιά) */}
-          <div
-            className="
-              w-full
-              flex flex-col
-              lg:flex-row lg:items-end lg:justify-between
-              gap-8
-            "
-          >
-            {/* Αριστερό μέρος: «Μέλλον» */}
-            <div className="lg:flex-1">
-              <h1
-                className="
-                  hero-title
-                  text-left
-                  leading-[0.9]
-                  font-normal
-                  select-none
-                "
-                style={{
-                  fontSize: "16rem",
-                  fontFamily: '"Bosch", system-ui, sans-serif',
-                }}
-              >
-                <TitleReveal
-                  lines={["Μέλλον"]}
-                  delay={0.3}
-                  lineStagger={0.12}
-                />
-              </h1>
-            </div>
-
-            {/* Δεξί μέρος: κειμενάκι + CTA */}
-            <div
-              ref={blockRef}
-              className="
-                lg:flex-none
-                max-w-md
-                text-black
-                text-sm md:text-base
-                space-y-4
-              "
-            >
-              <p>
-                Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
-                Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-                ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-                απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.
-              </p>
-
-              <Link
-                href="/contact"
-                className="
-                  inline-flex items-center justify-center
-                  px-8 py-3
-                  rounded-full
-                  bg-white
-                  text-black text-sm md:text-base font-medium
-                  backdrop-blur
-                  transition
-                  hover:-translate-y-0.5
-                "
-                style={{ boxShadow: "0 0 32px rgba(0,0,0,0.24)" }}
-              >
-                Ξεκλείδωσε το project σου
-              </Link>
-            </div>
+            <Link href="/contact" className="hero-cta">
+              Ξεκλείδωσε το project σου
+            </Link>
           </div>
         </div>
       </div>

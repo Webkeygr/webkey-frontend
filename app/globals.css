@@ -18,6 +18,8 @@
     --foreground: #ededed;
   }
 }
+
+/* === BOSCH FONT === */
 @font-face {
   font-family: "Bosch";
   src: url("/fonts/Bosch.woff2") format("woff2"),
@@ -34,6 +36,7 @@
     sans-serif;
 }
 
+/* === BODY === */
 body {
   background: var(--background);
   color: var(--foreground);
@@ -41,93 +44,10 @@ body {
   min-height: 100vh;
 }
 
-/* 👉 από εδώ και κάτω βάζουμε το δικό μας styling */
+/* ===================================================== */
+/* ===============  MAINTENANCE STYLES  ================ */
+/* ===================================================== */
 
-/* HERO STYLES */
-.hero {
-  position: relative;
-  height: 100vh; /* ⬅ δεν ξεπερνά τα 100vh */
-  display: flex;
-  align-items: center;
-  padding: 4rem clamp(2rem, 4vw, 5rem);
-  overflow: hidden;
-}
-
-.hero-iridescence {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-      circle at 30% 30%,
-      #fdec46 0%,
-      rgba(13, 35, 54, 0) 40%
-    ),
-    radial-gradient(circle at 80% 60%, #ff5b6b 0%, rgba(255, 255, 255, 0) 45%),
-    linear-gradient(160deg, #06060a 0%, #0b0b0f 60%, #0b0b0f 100%);
-  filter: drop-shadow(0 0 60px rgba(253, 236, 70, 0.25));
-  z-index: 0;
-  transform-origin: center;
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
-}
-
-.hero-pill {
-  display: inline-flex;
-  gap: 0.5rem;
-  align-items: center;
-  background: rgba(6, 6, 10, 0.2);
-  border: 1px solid rgba(253, 236, 70, 0.35);
-  backdrop-filter: blur(16px);
-  color: #fdec46;
-  padding: 0.4rem 1.4rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 1.5rem;
-}
-
-.hero-title {
-  font-size: clamp(15rem, 8vw, 16rem);
-  text-shadow: 0 0.04em 0 rgba(0, 0, 0, 0.18);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  text-transform: none;
-}
-
-.hero-title--indent {
-  display: inline-block;
-  padding-left: 1.5rem; /* ή 2rem ή 3rem */
-}
-
-.hero-text {
-  margin-top: 1.6rem;
-  max-width: 430px;
-  /* ⬇ αφαιρέθηκε το λευκό για να ισχύει το text-black από το component */
-  /* color: rgba(255, 255, 255, 0.75); */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.26);
-  line-height: 1.5;
-}
-
-@media (max-width: 768px) {
-  .hero {
-    padding: 4rem 1.5rem 3rem;
-  }
-
-  .hero-title {
-    font-size: clamp(3.2rem, 14vw, 4.5rem);
-  }
-}
-
-/* Maintenance basic styles */
 .maintenance-wrapper {
   min-height: 100vh;
   display: flex;
@@ -165,6 +85,7 @@ body {
   margin-top: 0.75rem;
 }
 
+/* Βασικό CTA button (γενικό) */
 .cta-btn {
   display: inline-flex;
   align-items: center;
@@ -177,42 +98,143 @@ body {
   text-decoration: none;
   color: #111;
   white-space: nowrap;
-  cursor: pointer; /* για να φαίνεται το “χεράκι” */
-  
-  /* Βασικό μέγεθος τίτλου σε μεγάλα desktop – κρατάει το layout ίδιο μέχρι ~1900px */
-.hero-title-size {
-  font-size: 11rem;
+  cursor: pointer;
 }
 
-/* Λίγο πιο μικρό σε λίγο μικρότερα desktop, αλλά ακόμα ίδια λογική */
-@media (max-width: 1800px) {
-  .hero-title-size {
-    font-size: 10rem;
+/* ===================================================== */
+/* ================  HERO (NEW LAYOUT)  ================ */
+/* ===================================================== */
+
+/* ΕΞΩΤΕΡΙΚΟ SECTION – σαν Section στον Elementor */
+.hero-wrapper {
+  position: relative;
+  min-height: 80vh;
+  overflow: hidden;
+
+  /* Elementor: Section > Advanced > Padding (top right bottom left) */
+  padding: 120px 40px 80px 40px;
+}
+
+/* Background container (σταθερό fullscreen) */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Iridescence να γεμίζει όλο το background */
+.hero-iridescence {
+  width: 100%;
+  height: 100%;
+}
+
+/* Κεντρικό “κόκκινο” box – max-width 1900px */
+.hero-inner {
+  max-width: 1900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px; /* Abstand μεταξύ των τριών γραμμών */
+}
+
+/* Κοινές ρυθμίσεις για κάθε γραμμή τίτλου */
+.hero-line {
+  /* Αν θες padding ανά γραμμή, το πειράζεις στα hero-line-1,2,3 */
+}
+
+/* Βασικός τίτλος – μέγεθος, γραμματοσειρά, κλπ */
+.hero-title {
+  margin: 0;
+  font-family: "Bosch", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 0.9;
+  color: #e7e7e7;
+  text-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  user-select: none;
+
+  /* Elementor: Typography > Size (responsive με clamp)
+     clamp(MIN, FLUID, MAX) */
+  font-size: clamp(32px, 5.5vw, 120px);
+}
+
+/* ===== ΡΥΘΜΙΣΕΙΣ ΑΝΑ ΓΡΑΜΜΗ (σαν 3 headings στον Elementor) ===== */
+
+/* Γραμμή 1: "Το Κλειδί" */
+.hero-line-1 {
+  /* Elementor: Padding πάνω/κάτω αυτής της γραμμής */
+  padding: 0 0 8px 0;
+}
+
+/* Γραμμή 2: "για το Ψηφιακό" */
+.hero-line-2 {
+  padding: 0 0 8px 0;
+}
+
+/* Γραμμή 3: "Μέλλον" */
+.hero-line-3 {
+  /* λίγο padding δεξιά, για να ανοίξει από το κείμενο */
+  padding: 0 32px 0 0;
+}
+
+/* ===== Κάτω σειρά: Μέλλον + κειμενάκι δίπλα ===== */
+
+.hero-bottom-row {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+/* Σε desktop: αριστερά το "Μέλλον", δεξιά το κείμενο/CTA */
+@media (min-width: 1024px) {
+  .hero-bottom-row {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .hero-line-3 {
+    flex: 1 1 auto;
+  }
+
+  .hero-text-block {
+    flex: 0 0 380px; /* πλάτος δεξιάς στήλης – σαν column width */
   }
 }
 
-@media (max-width: 1600px) {
-  .hero-title-size {
-    font-size: 9rem;
-  }
+/* Κειμενάκι + CTA δεξιά */
+.hero-text-block {
+  max-width: 420px;
+  font-size: 14px;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+
+  /* Elementor: Column > Advanced > Padding */
+  padding: 0;
 }
 
-/* Σε laptop-ish widths */
-@media (max-width: 1400px) {
-  .hero-title-size {
-    font-size: 7.5rem;
-  }
+/* CTA του hero */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 32px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.24);
+  transition: transform 0.15s ease;
 }
 
-@media (max-width: 1200px) {
-  .hero-title-size {
-    font-size: 6rem;
-  }
-}
-@media screen and (min-width: 1920px) {
-  .hero-title {
-    font-size: 10.5rem; /* ίδιο με το max του clamp */
-  }
-}
-
+.hero-cta:hover {
+  transform: translateY(-2px);
 }
