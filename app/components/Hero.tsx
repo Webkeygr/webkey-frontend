@@ -72,7 +72,7 @@ export default function Hero() {
                 select-none
               "
               style={{
-                fontSize: "7.5rem",
+                fontSize: "12rem",
                 fontFamily: '"Bosch", system-ui, sans-serif',
               }}
             >
