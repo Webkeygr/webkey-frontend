@@ -72,7 +72,7 @@ export default function Hero() {
                 select-none
               "
               style={{
-                fontSize: "12rem",
+                fontSize: "16rem",
                 fontFamily: '"Bosch", system-ui, sans-serif',
               }}
             >
@@ -95,7 +95,7 @@ export default function Hero() {
                 select-none
               "
               style={{
-                fontSize: "7.5rem",
+                fontSize: "16rem",
                 fontFamily: '"Bosch", system-ui, sans-serif',
               }}
             >
@@ -127,7 +127,7 @@ export default function Hero() {
                   select-none
                 "
                 style={{
-                  fontSize: "7.5rem",
+                  fontSize: "16rem",
                   fontFamily: '"Bosch", system-ui, sans-serif',
                 }}
               >
