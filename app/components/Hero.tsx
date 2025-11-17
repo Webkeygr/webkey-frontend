@@ -57,7 +57,7 @@ export default function Hero() {
       <div className="hero-inner">
         {/* Γραμμή 1 */}
         <div className="hero-line hero-line-1">
-          <h1 className="hero-title font-bosch">testT</h1>
+          <h1 className="hero-title font-bosch">Το κλειδί</h1>
         </div>
 
         {/* Γραμμή 2 */}
