@@ -156,7 +156,7 @@ body {
 
   /* Elementor: Typography > Size (responsive με clamp)
      clamp(MIN, FLUID, MAX) */
-  font-size: clamp(64px, 8vw, 150px);
+  font-size: clamp(64px, 8vw, 280px);
 }
 
 /* ===== ΡΥΘΜΙΣΕΙΣ ΑΝΑ ΓΡΑΜΜΗ (σαν 3 headings στον Elementor) ===== */
