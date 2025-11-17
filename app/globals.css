@@ -123,7 +123,7 @@ body {
   /* Elementor: Section > Advanced > Padding (Top / Right / Bottom / Left)
      Χρησιμοποιούμε clamp για να κρατάει παρόμοιο layout σε διάφορα widths. */
   padding-block: clamp(80px, 40vh, 140px); /* πάνω / κάτω */
-  padding-inline: clamp(100px, 20vw, 0px); /* δεξιά / αριστερά */
+  padding-inline: clamp(100px, 40vw, 0px); /* δεξιά / αριστερά */
 }
 
 /* Background container (σταθερό fullscreen) */
