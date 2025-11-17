@@ -164,7 +164,7 @@ body {
 /* Γραμμή 1: "Το Κλειδί" */
 .hero-line-1 {
   /* Elementor: Padding πάνω/κάτω αυτής της γραμμής */
-  padding: 50px 0 50px 400px;
+  padding: 50px 0 10px 400px;
 }
 
 /* Γραμμή 2: "για το Ψηφιακό" */
@@ -175,7 +175,7 @@ body {
 /* Γραμμή 3: "Μέλλον" */
 .hero-line-3 {
   /* λίγο padding δεξιά, για να ανοίξει από το κείμενο */
-  padding: 0 32px 0 0;
+  padding: 0 32px 0 450px;
 }
 
 /* ===== Κάτω σειρά: Μέλλον + κειμενάκι δίπλα ===== */
@@ -215,7 +215,12 @@ body {
   row-gap: 16px;
 
   /* Elementor: Column > Advanced > Padding */
-  padding: 0;
+  padding: 0 32px 0 -150px;
+}
+
+.hero-text-block p {
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 /* CTA του hero */
