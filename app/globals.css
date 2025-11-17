@@ -205,17 +205,18 @@ body {
 @media (min-width: 1024px) {
   .hero-bottom-row {
     flex-direction: row;
-    align-items: flex-end;
-    justify-content: flex-start; /* κρατάει τα στοιχεία στο “μπλοκ” τους */
-    column-gap: 40px; /* απόσταση ανάμεσα σε “Μέλλον” και κείμενο */
+    align-items: flex-start; /* 👈 ΜΟΝΟ αυτό άλλαξε */
+    justify-content: flex-start;
+    column-gap: 40px;
   }
 
   .hero-line-3 {
-    flex: 0 0 auto; /* να μην τεντώνει */
+    flex: 0 0 auto;
   }
 
   .hero-text-block {
-    flex: 0 0 420px; /* πλάτος της στήλης κειμένου */
+    flex: 0 0 420px;
+    margin-top: 50px; /* εδώ πειράζεις όσο θέλεις το πόσο κατεβαίνει ΜΟΝΟ το κείμενο */
   }
 }
 
