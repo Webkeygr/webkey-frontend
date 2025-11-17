@@ -183,7 +183,7 @@ body {
 
 /* Γραμμή 2: "για το Ψηφιακό" */
 .hero-line-2 {
-  padding: 0 0 8px 80px;
+  padding: 0 0 0px 80px;
 }
 
 /* Γραμμή 3: "Μέλλον" (μέσα στο hero-bottom-row) */
@@ -236,9 +236,14 @@ body {
     - αύξησε/μείωσε το LEFT (4ο νούμερο)
     - ή παίξε και με το column-gap στο .hero-bottom-row
   */
-  padding: 50px 24px 40px 0;
+  padding: 0px 24px 40px 0;
 }
 
+@media (min-width: 1024px) {
+  .hero-text-block {
+    margin-top: 40px; /* παίξε εδώ: 20px, 30px, 50px κτλ */
+  }
+}
 .hero-text-block p {
   font-size: 14px;
   line-height: 1.5;
