@@ -157,7 +157,7 @@ body {
 /* Βασικός τίτλος – μέγεθος, γραμματοσειρά, κλπ */
 .hero-title {
   margin: 0;
-  font-family: "Bosch", system-ui, sans-serif;
+  /*font-family: "Bosch", system-ui, sans-serif;*/
   font-weight: 400;
   line-height: 0.9;
   color: #000000;
