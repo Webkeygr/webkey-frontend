@@ -50,6 +50,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="el">
+      {/* ✅ Προσθέσαμε head με preload για τη γραμματοσειρά */}
+      <head>
+        <link
+          rel="preload"
+          href="/fonts/ITC-Bold.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
+
       <body>
         <Header />
         {/* ΧΩΡΙΣ padding-top -> το header κάνει overlap πάνω στο hero */}
