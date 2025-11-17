@@ -215,7 +215,7 @@ body {
   row-gap: 16px;
 
   /* Elementor: Column > Advanced > Padding */
-  padding: 0 32px 0 -500px;
+  padding: 0 32px 400px -500px;
 }
 
 .hero-text-block p {
