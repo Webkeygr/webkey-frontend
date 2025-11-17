@@ -167,7 +167,7 @@ body {
 
   /* Elementor: Typography > Size (responsive με clamp)
      Μπορείς να αλλάξεις το MIN/FLUID/MAX όπως θες. */
-  font-size: clamp(64px, 12vw, 260px);
+  font-size: clamp(64px, 9vw, 160px);
 }
 
 /* ===== ΡΥΘΜΙΣΕΙΣ ΑΝΑ ΓΡΑΜΜΗ (σαν 3 headings στον Elementor) ===== */
