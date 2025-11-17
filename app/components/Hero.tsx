@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import Link from "next/link";
 import Iridescence from "./Iridescence";
-import TitleReveal from "./ui/title-reveal";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
@@ -19,7 +18,7 @@ export default function Hero() {
           opacity: 0,
           duration: 0.8,
           ease: "power2.out",
-          delay: 0.5,
+          delay: 0.7,
         });
       }
     }, heroRef);
@@ -29,10 +28,10 @@ export default function Hero() {
 
   return (
     <section ref={heroRef} className="hero-wrapper">
-      {/* BACKGROUND WAVES */}
+      {/* FIXED BACKGROUND */}
       <div className="hero-bg">
         <Iridescence
-          className="hero-iridescence w-full h-full"
+          className="hero-iridescence"
           mouseReact={true}
           speed={1.9}
           amplitude={0.1}
@@ -54,44 +53,30 @@ export default function Hero() {
         />
       </div>
 
-      {/* ΚΕΝΤΡΙΚΟ CONTAINER (το “κόκκινο” box σου) */}
+      {/* HERO CONTENT */}
       <div className="hero-inner">
-        {/* Γραμμή 1: Το Κλειδί */}
+        {/* Γραμμή 1 */}
         <div className="hero-line hero-line-1">
-          <h1 className="hero-title">
-            <TitleReveal lines={["Το Κλειδί"]} delay={0.1} lineStagger={0.12} />
-          </h1>
+          <h1 className="hero-title font-bosch">Το Κλειδί</h1>
         </div>
 
-        {/* Γραμμή 2: για το Ψηφιακό */}
+        {/* Γραμμή 2 */}
         <div className="hero-line hero-line-2">
-          <h1 className="hero-title">
-            <TitleReveal
-              lines={["για το Ψηφιακό"]}
-              delay={0.2}
-              lineStagger={0.12}
-            />
-          </h1>
+          <h1 className="hero-title font-bosch">για το Ψηφιακό</h1>
         </div>
 
-        {/* Γραμμή 3: Μέλλον + κειμενάκι δίπλα */}
+        {/* Γραμμή 3 + Text block */}
         <div className="hero-bottom-row">
           <div className="hero-line hero-line-3">
-            <h1 className="hero-title">
-              <TitleReveal
-                lines={["Μέλλον"]}
-                delay={0.3}
-                lineStagger={0.12}
-              />
-            </h1>
+            <h1 className="hero-title font-bosch">Μέλλον</h1>
           </div>
 
           <div ref={blockRef} className="hero-text-block">
             <p>
               Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
               Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-              ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-              απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.
+              ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς
+              παρουσία στο web, αλλά μια θέση στο μέλλον.
             </p>
 
             <Link href="/contact" className="hero-cta">
