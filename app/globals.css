@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+/* ================== ROOT COLORS & THEMING ================== */
+
 :root {
   --background: #000000;
   --foreground: #e7e7e7;
@@ -19,7 +21,8 @@
   }
 }
 
-/* === BOSCH FONT === */
+/* ================== BOSCH FONT ================== */
+
 @font-face {
   font-family: "Bosch";
   src: url("/fonts/Bosch.woff2") format("woff2"),
@@ -30,13 +33,14 @@
   font-display: swap;
 }
 
-/* Utility class για τον τίτλο */
+/* Utility class για χρήση Bosch όπου θέλεις */
 .font-bosch {
   font-family: "Bosch", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 }
 
-/* === BODY === */
+/* ================== BODY ================== */
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -105,14 +109,21 @@ body {
 /* ================  HERO (NEW LAYOUT)  ================ */
 /* ===================================================== */
 
+/*
+  hero-wrapper = Section στον Elementor
+  hero-inner   = το "κόκκινο" container max-width 1900px
+*/
+
 /* ΕΞΩΤΕΡΙΚΟ SECTION – σαν Section στον Elementor */
 .hero-wrapper {
   position: relative;
   min-height: 80vh;
   overflow: hidden;
 
-  /* Elementor: Section > Advanced > Padding (top right bottom left) */
-  padding: 120px 40px 80px 40px;
+  /* Elementor: Section > Advanced > Padding (Top / Right / Bottom / Left)
+     Χρησιμοποιούμε clamp για να κρατάει παρόμοιο layout σε διάφορα widths. */
+  padding-block: clamp(80px, 10vh, 140px); /* πάνω / κάτω */
+  padding-inline: clamp(24px, 4vw, 64px); /* δεξιά / αριστερά */
 }
 
 /* Background container (σταθερό fullscreen) */
@@ -135,12 +146,12 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  row-gap: 12px; /* Abstand μεταξύ των τριών γραμμών */
+  row-gap: 12px; /* Απόσταση μεταξύ των 3 γραμμών */
 }
 
 /* Κοινές ρυθμίσεις για κάθε γραμμή τίτλου */
 .hero-line {
-  /* Αν θες padding ανά γραμμή, το πειράζεις στα hero-line-1,2,3 */
+  /* Αν θες padding ανά γραμμή, το πειράζεις στα hero-line-1/2/3 */
 }
 
 /* Βασικός τίτλος – μέγεθος, γραμματοσειρά, κλπ */
@@ -155,30 +166,31 @@ body {
   user-select: none;
 
   /* Elementor: Typography > Size (responsive με clamp)
-     clamp(MIN, FLUID, MAX) */
-  font-size: clamp(64px, 8vw, 740px);
+     Μπορείς να αλλάξεις το MIN/FLUID/MAX όπως θες. */
+  font-size: clamp(64px, 8vw, 180px);
 }
 
 /* ===== ΡΥΘΜΙΣΕΙΣ ΑΝΑ ΓΡΑΜΜΗ (σαν 3 headings στον Elementor) ===== */
+/* Εδώ έχεις τον πλήρη “Elementor έλεγχο” για κάθε σειρά */
 
 /* Γραμμή 1: "Το Κλειδί" */
 .hero-line-1 {
-  /* Elementor: Padding πάνω/κάτω αυτής της γραμμής */
-  padding: 50px 0 10px 400px;
+  /* Padding: top right bottom left */
+  padding: 40px 0 8px 260px;
+  /* Αν θέλεις να είναι πιο δεξιά/αριστερά → άλλαξε μόνο το 4ο νούμερο (left). */
 }
 
 /* Γραμμή 2: "για το Ψηφιακό" */
 .hero-line-2 {
-  padding: 0 0 8px 600px;
+  padding: 0 0 8px 320px;
 }
 
-/* Γραμμή 3: "Μέλλον" */
+/* Γραμμή 3: "Μέλλον" (μέσα στο hero-bottom-row) */
 .hero-line-3 {
-  /* λίγο padding δεξιά, για να ανοίξει από το κείμενο */
-  padding: 0 32px 0 450px;
+  padding: 0 0 0 260px;
 }
 
-/* ===== Κάτω σειρά: Μέλλον + κειμενάκι δίπλα ===== */
+/* ===== Κάτω σειρά: “Μέλλον” + κειμενάκι δίπλα ===== */
 
 .hero-bottom-row {
   display: flex;
@@ -193,12 +205,12 @@ body {
   .hero-bottom-row {
     flex-direction: row;
     align-items: flex-end;
-    justify-content: flex-start; /* ✅ δεν τα απλώνει άκρη-άκρη */
+    justify-content: flex-start; /* κρατάει τα στοιχεία στο “μπλοκ” τους */
     column-gap: 40px; /* απόσταση ανάμεσα σε “Μέλλον” και κείμενο */
   }
 
   .hero-line-3 {
-    flex: 0 0 auto; /* να μη σπρώχνει προς τα δεξιά */
+    flex: 0 0 auto; /* να μην τεντώνει */
   }
 
   .hero-text-block {
@@ -206,7 +218,7 @@ body {
   }
 }
 
-/* Κειμενάκι + CTA δεξιά */
+/* Κειμενάκι + CTA δεξιά από το “Μέλλον” */
 .hero-text-block {
   max-width: 420px;
   font-size: 14px;
@@ -215,8 +227,15 @@ body {
   flex-direction: column;
   row-gap: 16px;
 
-  /* Elementor: Column > Advanced > Padding */
-  padding: 0 32px 400px -500px;
+  /*
+    Elementor: Column > Advanced > Padding
+    padding: top right bottom left
+
+    Για να το φέρεις πιο αριστερά/δεξιά:
+    - αύξησε/μείωσε το LEFT (4ο νούμερο)
+    - ή παίξε και με το column-gap στο .hero-bottom-row
+  */
+  padding: 0 24px 40px 0;
 }
 
 .hero-text-block p {
