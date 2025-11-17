@@ -164,12 +164,12 @@ body {
 /* Γραμμή 1: "Το Κλειδί" */
 .hero-line-1 {
   /* Elementor: Padding πάνω/κάτω αυτής της γραμμής */
-  padding: 50px 0 80px 400px;
+  padding: 50px 0 50px 400px;
 }
 
 /* Γραμμή 2: "για το Ψηφιακό" */
 .hero-line-2 {
-  padding: 0 0 8px 0;
+  padding: 0 0 8px 600px;
 }
 
 /* Γραμμή 3: "Μέλλον" */
