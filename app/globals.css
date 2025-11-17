@@ -241,7 +241,7 @@ body {
 
 @media (min-width: 1024px) {
   .hero-text-block {
-    margin-top: 0px; /* παίξε εδώ: 20px, 30px, 50px κτλ */
+    margin-top: 50px; /* παίξε εδώ: 20px, 30px, 50px κτλ */
   }
 }
 .hero-text-block p {
