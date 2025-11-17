@@ -126,16 +126,20 @@ export default function Hero() {
           </div>
 
           <motion.div className="hero-text-block" variants={heroTextVariant}>
-            <p>
-              Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
-              Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-              ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς
-              παρουσία στο web, αλλά μία θέση στο μέλλον.
-            </p>
+            {/* 👇 ΜΟΝΗ ΠΡΟΣΘΗΚΗ: inner wrapper για να ρυθμίζεις padding/margin
+                χωρίς να επηρεάζεις τη λέξη "Μέλλον" */}
+            <div className="hero-text-inner">
+              <p>
+                Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
+                Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
+                ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
+                απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.
+              </p>
 
-            <Link href="/contact" className="hero-cta">
-              Ξεκλείδωσε το project σου
-            </Link>
+              <Link href="/contact" className="hero-cta">
+                Ξεκλείδωσε το project σου
+              </Link>
+            </div>
           </motion.div>
         </motion.div>
       </motion.div>

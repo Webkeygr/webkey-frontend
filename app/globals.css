@@ -239,11 +239,21 @@ body {
   padding: 0px 24px 40px 0;
 }
 
+/* Εσωτερικό wrapper ΜΟΝΟ για το κείμενο + CTA */
+.hero-text-inner {
+  padding-top: 0; /* base value – θα το ανεβάζεις/κατεβάζεις με media queries αν θες */
+}
+
 @media (min-width: 1024px) {
   .hero-text-block {
-    margin-top: 50px; /* παίξε εδώ: 20px, 30px, 50px κτλ */
+    margin-top: 0; /* να μη σπρώχνει προς τα κάτω όλο το block σε σχέση με το "Μέλλον" */
+  }
+
+  .hero-text-inner {
+    padding-top: 50px; /* εδώ ρυθμίζεις πόσο θα κατέβει ΜΟΝΟ το κείμενο/CTA */
   }
 }
+
 .hero-text-block p {
   font-size: 14px;
   line-height: 1.5;
