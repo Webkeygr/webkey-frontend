@@ -176,7 +176,7 @@ body {
 /* Γραμμή 1: "Το Κλειδί" */
 .hero-line-1 {
   /* Padding: top right bottom left */
-  padding: 40px 0 8px 160px;
+  padding: 40px 0 8px 60px;
   /* Αν θέλεις να είναι πιο δεξιά/αριστερά → άλλαξε μόνο το 4ο νούμερο (left). */
 }
 
@@ -187,7 +187,7 @@ body {
 
 /* Γραμμή 3: "Μέλλον" (μέσα στο hero-bottom-row) */
 .hero-line-3 {
-  padding: 0 0 0 160px;
+  padding: 0 0 0 60px;
 }
 
 /* ===== Κάτω σειρά: “Μέλλον” + κειμενάκι δίπλα ===== */
