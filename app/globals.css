@@ -193,15 +193,16 @@ body {
   .hero-bottom-row {
     flex-direction: row;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start; /* ✅ δεν τα απλώνει άκρη-άκρη */
+    column-gap: 40px; /* απόσταση ανάμεσα σε “Μέλλον” και κείμενο */
   }
 
   .hero-line-3 {
-    flex: 1 1 auto;
+    flex: 0 0 auto; /* να μη σπρώχνει προς τα δεξιά */
   }
 
   .hero-text-block {
-    flex: 0 0 380px; /* πλάτος δεξιάς στήλης – σαν column width */
+    flex: 0 0 420px; /* πλάτος της στήλης κειμένου */
   }
 }
 
