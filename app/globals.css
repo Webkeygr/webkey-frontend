@@ -373,7 +373,7 @@ body {
   .hero-title {
     font-size: clamp(60px, 11vw, 74px);
     white-space: normal;
-    line-height: 1.55;
+    line-height: 1.65;
   }
 
   /* Κάτω row πάντα κάθετα */
