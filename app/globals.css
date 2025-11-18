@@ -402,8 +402,8 @@ body {
     margin-top: 20px;
   }
 
-  .hero-line-1 { padding-bottom: 10px; }
-  .hero-line-2 { padding-bottom: 10px; }
+  .hero-line-1 { padding-bottom: 0; }
+  .hero-line-2 { padding-bottom: 0; }
   .hero-line-3 { padding-bottom: 0; }
 
 }
