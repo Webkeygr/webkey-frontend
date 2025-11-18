@@ -373,7 +373,7 @@ body {
   .hero-title {
     font-size: clamp(40px, 11vw, 64px);
     white-space: normal;
-    line-height: 1.50;
+    line-height: 1.55;
   }
 
   /* Κάτω row πάντα κάθετα */
@@ -403,7 +403,8 @@ body {
     margin-top: 20px;
   }
 
-  .hero-line-1 { padding-bottom: 0; }
+  .hero-line-1 { padding-bottom: 0;
+                padding-top: 10px;}
   .hero-line-2 { padding-bottom: 0; }
   .hero-line-3 { padding-bottom: 0; }
 
