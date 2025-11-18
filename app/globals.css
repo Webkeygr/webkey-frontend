@@ -346,3 +346,64 @@ body {
   .hero-line-3 { padding-bottom: 0; }
 
 }
+
+
+@media (max-width: 600px) {
+  /* 20px padding δεξιά–αριστερά, λίγο “αέρας” πάνω/κάτω */
+  .hero-wrapper {
+    padding-inline: 20px;
+    padding-block: 96px 72px;
+  }
+
+  /* Όλα σε μια στήλη, αριστερή στοίχιση */
+  .hero-inner {
+    align-items: flex-start;
+  }
+
+  /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
+  .hero-line-1,
+  .hero-line-2,
+  .hero-line-3 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Τίτλος πιο μικρός, να σπάει σωστά σε γραμμές */
+  .hero-title {
+    font-size: clamp(40px, 11vw, 64px);
+    white-space: normal;
+    line-height: 1.50;
+  }
+
+  /* Κάτω row πάντα κάθετα */
+  .hero-bottom-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .hero-text-block {
+    max-width: 100%;
+    padding: 0 0 32px 0;
+  }
+  .hero-text-block p {
+  font-size: 15px; /* π.χ. 15px ή 16px */
+}
+
+  .hero-text-inner {
+    padding-top: 16px;
+  }
+
+  /* CTA κάτω από το κείμενο, αριστερά, χωρίς extra margin-left */
+  .hero-cta {
+    align-self: flex-start;
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  .hero-line-1 { padding-bottom: 10px; }
+  .hero-line-2 { padding-bottom: 10px; }
+  .hero-line-3 { padding-bottom: 0; }
+
+}
