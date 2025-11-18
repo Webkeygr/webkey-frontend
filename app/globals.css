@@ -275,6 +275,8 @@ body {
   backdrop-filter: blur(12px);
   box-shadow: 0 0 32px rgba(0, 0, 0, 0.24);
   transition: transform 0.15s ease;
+  margin-top: 24px;
+  margin-left: 20px;   /* ➜ το πάει λίγο δεξιά */
 }
 
 .hero-cta:hover {
