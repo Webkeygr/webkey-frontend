@@ -358,6 +358,7 @@ body {
   /* Όλα σε μια στήλη, αριστερή στοίχιση */
   .hero-inner {
     align-items: flex-start;
+    row-gap:0;
   }
 
   /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
