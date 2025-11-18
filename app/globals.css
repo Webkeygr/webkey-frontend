@@ -371,7 +371,7 @@ body {
 
   /* Τίτλος πιο μικρός, να σπάει σωστά σε γραμμές */
   .hero-title {
-    font-size: clamp(40px, 11vw, 64px);
+    font-size: clamp(60px, 11vw, 74px);
     white-space: normal;
     line-height: 1.55;
   }
