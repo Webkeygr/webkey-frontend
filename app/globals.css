@@ -237,7 +237,7 @@ body {
     - αύξησε/μείωσε το LEFT (4ο νούμερο)
     - ή παίξε και με το column-gap στο .hero-bottom-row
   */
-  padding: 0px 24px 40px 0;
+  padding: 0px 0px 40px 0;
 }
 
 /* Εσωτερικό wrapper ΜΟΝΟ για το κείμενο + CTA */
