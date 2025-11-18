@@ -369,11 +369,16 @@ body {
     padding-right: 0;
   }
 
+  .hero-line-2 .hero-title {
+    line-height: 1.1;
+  }
+
+
   /* Τίτλος πιο μικρός, να σπάει σωστά σε γραμμές */
   .hero-title {
     font-size: clamp(60px, 11vw, 74px);
     white-space: normal;
-    line-height: 1.65;
+    line-height: 1.1;
   }
 
   /* Κάτω row πάντα κάθετα */
