@@ -360,7 +360,7 @@ body {
   .hero-inner {
     align-items: flex-start;
     row-gap:0;
-    padding-top:20px;
+    padding-top:5px;
   }
 
   /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
