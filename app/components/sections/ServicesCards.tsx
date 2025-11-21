@@ -24,7 +24,7 @@ type CardContent = {
 };
 
 const CARDS_OFFSET_VH = 0;
-const PER_CARD_VH = 240; // ΜΙΚΡΟΤΕΡΗ διάρκεια ανά κάρτα → λιγότερα scrolls
+const PER_CARD_VH = 160; // ΜΙΚΡΟΤΕΡΗ διάρκεια ανά κάρτα → λιγότερα scrolls
 
 const CARDS_DATA: CardContent[] = [
   {
@@ -55,7 +55,7 @@ const CARDS_DATA: CardContent[] = [
     tags: ["Logo Design", "Visual Web Identity", "UI Style Guide", "Content & Brand Voice"],
     timing: {
       enterFrom: 0.02,
-      enterTo: 0.36,
+      enterTo: 0.18,
       offsetPx: 1000,
       overlapNext: 0.14,
     },
