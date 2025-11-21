@@ -370,7 +370,9 @@ body {
   }
 
   .header-logo {
+    height:auto;
     width: 580px;   /* δοκίμασε 260–300 αν το θες πιο πολύ ή λιγότερο */
+    overflow:auto;
   }
 
   .hero-line-2 .hero-title {
