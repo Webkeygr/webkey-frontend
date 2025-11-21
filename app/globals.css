@@ -380,6 +380,17 @@ body {
     width: 580px;   /* δοκίμασε 260–300 αν το θες πιο πολύ ή λιγότερο */
   }
 
+  .logo-plain img {
+    height: 70px !important;  /* παίξε 60–80px ανάλογα τι σου κάθεται όμορφα */
+    width: auto !important;
+  }
+
+  /* Αν το container του logo έχει περιορισμό πλάτους/ύψους, τον σπάμε */
+  .logo-plain {
+    max-height: none !important;
+    max-width: none !important;
+  }
+
   .hero-line-2 .hero-title {
     line-height: 1.6;
   }
