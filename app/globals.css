@@ -360,6 +360,7 @@ body {
   .hero-inner {
     align-items: flex-start;
     row-gap:0;
+    padding-top:40px;
   }
 
   /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
@@ -430,8 +431,7 @@ body {
     margin-top: 20px;
   }
 
-  .hero-line-1 { padding-bottom: 0;
-                padding-top: 10px;}
+  .hero-line-1 { padding-bottom: 0; }
   .hero-line-2 { padding-bottom: 0; }
   .hero-line-3 { padding-bottom: 0; }
 
