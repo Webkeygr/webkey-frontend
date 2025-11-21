@@ -1,3 +1,4 @@
+// app/components/Header.tsx
 "use client";
 
 import Image from "next/image";
@@ -64,8 +65,7 @@ export default function Header({
           height={100}
           priority
           style={{ paddingTop: 20 }}
-          className="header-logo"   // 👈 ΜΟΝΗ ΠΡΟΣΘΗΚΗ
-
+          className="header-logo"   // 👈 ΠΡΟΣΘΕΤΟ
         />
       }
       items={items}
