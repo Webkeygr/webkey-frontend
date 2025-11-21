@@ -64,6 +64,8 @@ export default function Header({
           height={100}
           priority
           style={{ paddingTop: 20 }}
+          className="header-logo"   // 👈 ΜΟΝΗ ΠΡΟΣΘΗΚΗ
+
         />
       }
       items={items}

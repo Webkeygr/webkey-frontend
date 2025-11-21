@@ -369,6 +369,10 @@ body {
     padding-right: 0;
   }
 
+  .header-logo {
+    width: 280px;   /* δοκίμασε 260–300 αν το θες πιο πολύ ή λιγότερο */
+  }
+
   .hero-line-2 .hero-title {
     line-height: 1.6;
   }
