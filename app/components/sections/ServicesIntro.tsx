@@ -34,9 +34,14 @@ export default function ServicesIntro() {
   /* ---- SMOOTH BLUR στο background (όχι overlay) ----
      Widen range + spring για να «μπει» ομαλά.
   */
-  const blurBase = useTransform(scrollYProgress, [0.1, 0.3], [0, 24], {
-    clamp: true,
-  });
+  // Blur curve: μπαίνει ομαλά και ξαναμηδενίζει πριν φύγει το section
+  const blurBase = useTransform(
+    scrollYProgress,
+    [0.08, 0.3, 0.6, 0.9],
+    [0, 24, 24, 0],
+    { clamp: true }
+  );
+
   const blurSmooth = useSpring(blurBase, {
     stiffness: 60,
     damping: 20,
