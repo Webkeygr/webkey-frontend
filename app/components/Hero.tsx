@@ -108,7 +108,7 @@ export default function Hero() {
           className="hero-line hero-line-1"
           variants={heroLineVariant}
         >
-          <h1 className="hero-title font-ITC-Bold">Το κλειδί</h1>
+          <h1 className="hero-title font-ITC-Bold">The Key</h1>
         </motion.div>
 
         {/* Γραμμή 2: "για το Ψηφιακό" */}
@@ -116,13 +116,13 @@ export default function Hero() {
           className="hero-line hero-line-2"
           variants={heroLineVariant}
         >
-          <h1 className="hero-title font-ITC-Bold">για το Ψηφιακό</h1>
+          <h1 className="hero-title font-ITC-Bold">to the</h1>
         </motion.div>
 
         {/* Κάτω row: "Μέλλον" + κειμενάκι/CTA δίπλα */}
         <motion.div className="hero-bottom-row" variants={heroLineVariant}>
           <div className="hero-line hero-line-3">
-            <h1 className="hero-title font-ITC-Bold">Μέλλον</h1>
+            <h1 className="hero-title font-ITC-Bold">Future</h1>
           </div>
 
           <motion.div className="hero-text-block" variants={heroTextVariant}>
@@ -137,7 +137,7 @@ export default function Hero() {
               </p>
 
               <Link href="/contact" className="hero-cta">
-                Ξεκλείδωσε το project σου
+                Unlock your project
               </Link>
             </div>
           </motion.div>
