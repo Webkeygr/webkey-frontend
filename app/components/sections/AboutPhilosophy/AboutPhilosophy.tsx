@@ -113,7 +113,7 @@ export default function AboutPhilosophy() {
             style={{ opacity: titleOpacity, y: titleY }}
           >
             <h2 className="about-glitch-heading">
-              <GlitchText text="Ποιοι είμαστε" />
+              <GlitchText>Ποιοι είμαστε</GlitchText>
             </h2>
 
             {scrollLottie && (
