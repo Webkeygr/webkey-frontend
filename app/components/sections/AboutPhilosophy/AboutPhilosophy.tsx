@@ -26,11 +26,11 @@ const CARDS: Card[] = [
   },
   {
     title: "Tech χωρίς φλυαρία",
-    body: 'Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε "πνίγουμε" με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.',
+    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
   },
   {
     title: "Σχέση, όχι project",
-    body: 'Δεν βλέπουμε τη δουλειά σαν "ένα project και τέλος". Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.',
+    body: "Δεν βλέπουμε τη δουλειά σαν “ένα project και τέλος”. Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.",
   },
 ];
 
@@ -57,51 +57,62 @@ export default function AboutPhilosophy() {
   );
   const titleY = useTransform(scrollYProgress, [0.1, 0.25], [40, 0]);
 
-  // Lottie: πρώτα κάτω από τον τίτλο, μετά ανεβαίνει στο κέντρο
+  // Lottie: πρώτα κάτω από τον τίτλο, μετά έρχεται στο κέντρο
   const lottieOpacity = useTransform(
     scrollYProgress,
     [0.14, 0.22, 0.65, 0.75],
     [0, 1, 1, 0.4]
   );
-  const lottieY = useTransform(
-    scrollYProgress,
-    [0.18, 0.4, 0.6],
-    [120, 40, 0] // κάτω από τον τίτλο → πλησιάζει → κέντρο
-  );
+  const lottieY = useTransform(scrollYProgress, [0.18, 0.4, 0.6], [120, 40, 0]);
 
-  // Progress για την εμφάνιση των καρτών
-  const cardsMaster = useTransform(
+  // Progress για τις κάρτες
+  const cardsMaster: MotionValue<number> = useTransform(
     scrollYProgress,
     [0.45, 0.95],
     [0, 1]
-  ) as MotionValue<number>;
+  );
 
-  // Lottie data από /public
+  // Lottie data – δοκιμάζουμε και τα 2 filenames (με παύλα & με space)
   const [scrollData, setScrollData] = useState<any | null>(null);
   useEffect(() => {
-    fetch("/lottie/scroll-down.json")
-      .then((res) => res.json())
-      .then((data) => setScrollData(data))
-      .catch(() => setScrollData(null));
+    let cancelled = false;
+
+    (async () => {
+      try {
+        let res = await fetch("/lottie/scroll-down.json");
+        if (!res.ok) {
+          res = await fetch("/lottie/scroll%20down.json");
+        }
+        if (!cancelled && res.ok) {
+          const data = await res.json();
+          setScrollData(data);
+        }
+      } catch {
+        if (!cancelled) setScrollData(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <section
       ref={sectionRef}
       className="relative w-full"
-      style={{ height: "420vh" }} // ανάλογο με τις κάρτες/τίτλο
+      style={{ height: "420vh" }}
     >
-      {/* STICKY VIEWPORT */}
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* ΛΕΥΚΟ PARALLAX ΦΟΝΤΟ ΠΟΥ ΑΝΕΒΑΙΝΕΙ */}
+        {/* ΛΕΥΚΟ PARALLAX ΦΟΝΤΟ */}
         <motion.div
           className="absolute inset-0 bg-white z-[1]"
           style={{ translateY: whiteTranslateY }}
         />
 
-        {/* CONTENT πάνω από το λευκό φόντο */}
+        {/* CONTENT */}
         <div className="relative z-[2] h-full flex items-center justify-center">
-          {/* ΤΙΤΛΟΣ + LOTTIE ΚΑΤΩ ΑΠΟ ΤΟΝ ΤΙΤΛΟ */}
+          {/* GLITCH ΤΙΤΛΟΣ + LOTTIE ΚΑΤΩ ΑΠΟ ΤΟΝ ΤΙΤΛΟ */}
           <motion.div
             className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
             style={{ opacity: titleOpacity }}
@@ -124,7 +135,7 @@ export default function AboutPhilosophy() {
             </motion.div>
           </motion.div>
 
-          {/* LOTTIE ΣΤΟ ΚΕΝΤΡΟ (όταν έχει φύγει ο τίτλος) */}
+          {/* LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
           <motion.div
             className="absolute left-1/2 top-1/2 -translate-x-1/2"
             style={{ y: lottieY, opacity: lottieOpacity }}
@@ -141,7 +152,7 @@ export default function AboutPhilosophy() {
             )}
           </motion.div>
 
-          {/* GRID ΜΕ ΤΑ 4 ΚΟΥΤΙΑ – ΕΜΦΑΝΙΖΟΝΤΑΙ ΕΝΑ-ΕΝΑ */}
+          {/* GRID ΜΕ ΤΑ ΚΟΥΤΙΑ */}
           <div className="relative w-full max-w-6xl mx-auto px-6">
             <CardsGrid cards={CARDS} masterProgress={cardsMaster} />
           </div>
@@ -182,7 +193,7 @@ function CardsGrid({
   );
 }
 
-/* ----------------------- Neon Card με glow & animation ----------------------- */
+/* ----------------------- Neon Card με glow & stagger ----------------------- */
 
 function NeonCard({
   card,
@@ -193,9 +204,9 @@ function NeonCard({
   index: number;
   masterProgress: MotionValue<number>;
 }) {
-  // Κάθε κάρτα εμφανίζεται σε διαφορετικό “παράθυρο” scroll
-  const start = 0.1 + index * 0.12;
-  const end = start + 0.35;
+  // Περισσότερο stagger: κάθε κάρτα μπαίνει αρκετά αργότερα από την προηγούμενη
+  const start = 0.05 + index * 0.2;
+  const end = start + 0.25;
 
   const opacity = useTransform(masterProgress, [start, end], [0, 1]);
   const y = useTransform(masterProgress, [start, end], [60, 0]);
@@ -207,23 +218,19 @@ function NeonCard({
         pointer-events-auto
         relative
         rounded-[10px]
-        bg-white
-        p-6 sm:p-7
-        overflow-hidden
+        p-[2px]
+        bg-[radial-gradient(circle_at_top,_rgba(0,224,255,0.85),_transparent_55%),radial-gradient(circle_at_bottom,_rgba(255,0,200,0.8),_transparent_55%)]
+        shadow-[0_0_30px_rgba(0,224,255,0.55),0_0_50px_rgba(255,0,200,0.45)]
       "
     >
-      {/* Neon glow border */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-[10px]"
-        style={{
-          boxShadow:
-            "0 0 26px rgba(0, 224, 255, 0.55), 0 0 42px rgba(255, 0, 200, 0.35)",
-          border: "1px solid rgba(180, 220, 255, 0.9)",
-        }}
-      />
-
-      <div className="relative">
-        <h3 className="text-lg sm:text-xl font-semibold mb-3">{card.title}</h3>
+      {/* Εσωτερικό λευκό κουτί */}
+      <div className="relative rounded-[8px] bg-white p-6 sm:p-7">
+        <h3
+          className="text-lg sm:text-xl font-semibold mb-3 text-neutral-900"
+          style={{ textShadow: "0 0 16px rgba(0,0,0,0.35)" }}
+        >
+          {card.title}
+        </h3>
         <p className="text-[15px] sm:text-[16px] leading-relaxed text-neutral-800">
           {card.body}
         </p>
