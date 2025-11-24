@@ -225,15 +225,17 @@ export default function Iridescence({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let w: number, h: number, nt = 0, i: number, x: number;
+    let w: number, h: number;
+    let nt = 0;
     let animationId = 0;
 
     const setSize = () => {
-      w = ctx.canvas.width = window.innerWidth;
-      h = ctx.canvas.height = window.innerHeight;
+      w = (ctx.canvas.width = window.innerWidth);
+      h = (ctx.canvas.height = window.innerHeight);
       ctx.filter = `blur(${blur}px)`;
     };
     setSize();
+
     const onResize = () => setSize();
     window.addEventListener("resize", onResize);
 
@@ -252,14 +254,15 @@ export default function Iridescence({
       baselineY: number,
       amp1: number,
       amp2: number,
-      morph: number
+      morph: number,
+      lineWidth: number
     ) => {
-      nt += getSpeed();
-      for (i = 0; i < n; i++) {
+      for (let i = 0; i < n; i++) {
         ctx.beginPath();
-        ctx.lineWidth = waveWidth || 50;
+        ctx.lineWidth = lineWidth;
         ctx.strokeStyle = waveColors[i % waveColors.length];
 
+        // αρχικό y για x=0
         const y0Base =
           noise(0 / 800, 0.3 * i, nt) * amp1 +
           noise(0 / 1200, 0.15 * i, nt * 0.5) * amp2 +
@@ -268,7 +271,7 @@ export default function Iridescence({
         let yPrev = y0Base;
         ctx.moveTo(0, yPrev);
 
-        for (x = 5; x < w; x += 5) {
+        for (let x = 5; x < w; x += 5) {
           const yBase =
             noise(x / 800, 0.3 * i, nt) * amp1 +
             noise(x / 1200, 0.15 * i, nt * 0.5) * amp2 +
@@ -276,13 +279,12 @@ export default function Iridescence({
 
           let y = yBase;
 
+          // όταν morph>0 καμπυλώνουμε τις γραμμές προς «σφαιρικό» σχήμα
           if (morph > 0.0) {
             const dx = (x / w - 0.5) * 2.0; // -1..1
             const rNorm = Math.min(1, Math.abs(dx)); // 0 center, 1 edges
-            // καμπυλώνουμε τις γραμμές προς "σφαιρικό" σχήμα
-            const curve = Math.sqrt(1.0 - Math.min(1.0, rNorm * rNorm));
+            const curve = Math.sqrt(1.0 - Math.min(1.0, rNorm * rNorm)); // 1 στο κέντρο, 0 στα άκρα
             const curveMix = morph; // πόσο έντονα εφαρμόζεται
-
             const yCurve = baselineY + (yBase - baselineY) * curve;
             y = yBase * (1.0 - curveMix) + yCurve * curveMix;
           }
@@ -298,23 +300,55 @@ export default function Iridescence({
     const render = () => {
       const morph = getMorph();
 
+      // προχώρα χρόνο μία φορά ανά frame
+      nt += getSpeed();
+
+      // φόντο
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = backgroundFill;
       ctx.fillRect(0, 0, w, h);
 
+      // ζώνη κυμάτων
       const topY = Math.max(0, Math.min(h, h * bandTopPct));
       const bottomY = Math.max(0, Math.min(h, h * bandBottomPct));
       const bandHeight = Math.max(1, bottomY - topY);
-
-      const baselineY = topY + bandHeight * (0.5 + yOffsetPct / 2); // -1..1 -> [-0.5..0.5]
+      const baselineY = topY + bandHeight * (0.5 + yOffsetPct / 2);
 
       const amp1 = bandHeight * ampMainFactor;
       const amp2 = bandHeight * ampSubFactor;
 
-      ctx.globalAlpha = waveOpacity;
-      drawWave(5, baselineY, amp1, amp2, morph);
-      ctx.globalAlpha = 1;
+      const baseLineWidth = waveWidth || 50;
+      const sphereLineWidth = baseLineWidth * 0.45;
+
+      // --- 1) ΚΛΑΣΣΙΚΕΣ ΓΡΑΜΜΕΣ (οριζόντιες), που σβήνουν όσο μεγαλώνει το morph
+      const baseAlpha = waveOpacity * (1 - morph);
+      if (baseAlpha > 0.01) {
+        ctx.globalAlpha = baseAlpha;
+        drawWave(5, baselineY, amp1, amp2, 0, baseLineWidth); // morph=0 => χωρίς καμπύλωση
+      }
+
+      // --- 2) ΠΛΕΓΜΑ ΜΟΝΟ ΟΤΑΝ ΓΙΝΕΤΑΙ ΣΦΑΙΡΑ
+      const sphereAlpha = waveOpacity * morph;
+      if (sphereAlpha > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = sphereAlpha;
+
+        const denseCount = 18;
+        const sphereAmp1 = amp1 * 0.7;
+        const sphereAmp2 = amp2 * 0.7;
+
+        // 2a. «Οριζόντιες» γραμμές μέσα στη σφαίρα
+        drawWave(denseCount, baselineY, sphereAmp1, sphereAmp2, morph, sphereLineWidth);
+
+        // 2b. Δεύτερο layer υπό γωνία για 3D πλέγμα
+        ctx.translate(w / 2, baselineY);
+        ctx.rotate((Math.PI / 4) * morph); // έως ~45° όταν morph=1
+        ctx.translate(-w / 2, -baselineY);
+        drawWave(denseCount, baselineY, sphereAmp1, sphereAmp2, morph, sphereLineWidth);
+
+        ctx.restore();
+      }
 
       // feather πάνω
       if (topY > 0) {
@@ -345,13 +379,13 @@ export default function Iridescence({
         ctx.fillRect(0, solidBottomY, w, h - solidBottomY);
       }
 
-      // ΜΟΡΦΗ → ΣΦΑΙΡΑ: κυκλική μάσκα όταν morph > 0
+      // --- 3) ΚΥΚΛΟΣ / ΣΦΑΙΡΑ ΜΟΝΟ ΟΤΑΝ morph>0
       if (morph > 0.001) {
         ctx.save();
         ctx.globalCompositeOperation = "destination-in";
 
         const baseRadius = Math.min(w, h) * 0.6;
-        const radius = baseRadius * (1 - 0.4 * morph); // όσο μεγαλύτερο το morph, τόσο «μαζεύει»
+        const radius = baseRadius * (1 - 0.4 * morph); // όσο μεγαλώνει morph, τόσο πιο «σφιχτή» η σφαίρα
 
         ctx.beginPath();
         ctx.arc(w / 2, baselineY, radius, 0, Math.PI * 2);
@@ -360,7 +394,7 @@ export default function Iridescence({
         ctx.fill();
         ctx.restore();
 
-        // έξω από τον κύκλο να είναι απλά background
+        // έξω από τον κύκλο → καθαρό background
         ctx.save();
         ctx.globalCompositeOperation = "destination-over";
         ctx.fillStyle = backgroundFill;
