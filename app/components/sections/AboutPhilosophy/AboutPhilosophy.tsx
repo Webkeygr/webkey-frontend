@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
-import scrollDown from "@/public/lottie/scroll-down.json";
+import scrollDown from "@/app/lottie/scroll-down.json";
 
 const CARDS = [
   {
