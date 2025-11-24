@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
 
@@ -21,11 +26,11 @@ const CARDS: Card[] = [
   },
   {
     title: "Tech χωρίς φλυαρία",
-    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε \"πνίγουμε\" με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
+    body: 'Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε "πνίγουμε" με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.',
   },
   {
     title: "Σχέση, όχι project",
-    body: "Δεν βλέπουμε τη δουλειά σαν \"ένα project και τέλος\". Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.",
+    body: 'Δεν βλέπουμε τη δουλειά σαν "ένα project και τέλος". Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.',
   },
 ];
 
@@ -47,10 +52,10 @@ export default function AboutPhilosophy() {
   // Glitch τίτλος – εμφανίζεται, κάθεται λίγο, μετά fade out
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.10, 0.20, 0.45, 0.55],
+    [0.1, 0.2, 0.45, 0.55],
     [0, 1, 1, 0]
   );
-  const titleY = useTransform(scrollYProgress, [0.10, 0.25], [40, 0]);
+  const titleY = useTransform(scrollYProgress, [0.1, 0.25], [40, 0]);
 
   // Lottie: πρώτα κάτω από τον τίτλο, μετά ανεβαίνει στο κέντρο
   const lottieOpacity = useTransform(
@@ -60,12 +65,16 @@ export default function AboutPhilosophy() {
   );
   const lottieY = useTransform(
     scrollYProgress,
-    [0.18, 0.40, 0.60],
+    [0.18, 0.4, 0.6],
     [120, 40, 0] // κάτω από τον τίτλο → πλησιάζει → κέντρο
   );
 
   // Progress για την εμφάνιση των καρτών
-  const cardsMaster = useTransform(scrollYProgress, [0.45, 0.95], [0, 1]);
+  const cardsMaster = useTransform(
+    scrollYProgress,
+    [0.45, 0.95],
+    [0, 1]
+  ) as MotionValue<number>;
 
   // Lottie data από /public
   const [scrollData, setScrollData] = useState<any | null>(null);
@@ -149,7 +158,7 @@ function CardsGrid({
   masterProgress,
 }: {
   cards: Card[];
-  masterProgress: ReturnType<typeof useTransform>;
+  masterProgress: MotionValue<number>;
 }) {
   return (
     <div
@@ -182,7 +191,7 @@ function NeonCard({
 }: {
   card: Card;
   index: number;
-  masterProgress: ReturnType<typeof useTransform>;
+  masterProgress: MotionValue<number>;
 }) {
   // Κάθε κάρτα εμφανίζεται σε διαφορετικό “παράθυρο” scroll
   const start = 0.1 + index * 0.12;
@@ -214,9 +223,7 @@ function NeonCard({
       />
 
       <div className="relative">
-        <h3 className="text-lg sm:text-xl font-semibold mb-3">
-          {card.title}
-        </h3>
+        <h3 className="text-lg sm:text-xl font-semibold mb-3">{card.title}</h3>
         <p className="text-[15px] sm:text-[16px] leading-relaxed text-neutral-800">
           {card.body}
         </p>
