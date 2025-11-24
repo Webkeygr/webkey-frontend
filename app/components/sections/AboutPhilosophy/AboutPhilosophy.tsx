@@ -30,7 +30,8 @@ const CARDS: CardData[] = [
   },
 ];
 
-const cardVariants = {
+// Κάνουμε το variants τύπου any για να μην γκρινιάζει το TS
+const cardVariants: any = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
@@ -38,7 +39,7 @@ const cardVariants = {
     transition: {
       duration: 0.55,
       delay: 0.18 + i * 0.16,
-      ease: "easeOut",
+      // default ease από framer, δεν βάζουμε string "easeOut" για να μην μπερδεύει το TS
     },
   }),
 };
