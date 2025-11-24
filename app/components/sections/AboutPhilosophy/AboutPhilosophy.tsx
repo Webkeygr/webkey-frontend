@@ -1,17 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  MotionValue,
-} from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
-
 import GlitchText from "./GlitchText";
-import scrollDown from "../../../public/lottie/scroll-down.json";
+import scrollDown from "./scroll-down.json"; // ✅ ΣΩΣΤΟ import
+import "./AboutPhilosophy.css";
 
 import "./AboutPhilosophy.css";
 
