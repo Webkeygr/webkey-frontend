@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
-import scrollDown from "@/public/lottie/scroll-down.json";
+import scrollDown from "@/public/lottie/scroll down.json";
 
 import "./AboutPhilosophy.css";
 
