@@ -1,4 +1,4 @@
-/* Λευκό fullscreen panel που “κολλάει” (parallax πάνω στο hero) */
+/* Λευκό fullscreen panel που “κολλάει” στο scroll */
 .about-panel {
   position: sticky;
   top: 0;
@@ -18,13 +18,53 @@
   justify-content: center;
 }
 
-/* Τίτλος (override στο GlitchText) */
+/* Glitch title */
 .about-title {
   color: #111827;
   font-size: clamp(3rem, 5vw, 4.6rem);
 }
 
-/* Κάρτες με neon glow */
+/* Πρώτο Lottie κάτω από τον τίτλο */
+.about-lottie {
+  margin-top: 1.75rem;
+}
+
+/* Κεντρικό layout: κρατάει κάρτες + Lottie στο κέντρο */
+.about-layout {
+  margin-top: 4rem;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Lottie στο κέντρο των καρτών */
+.about-lottie-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Grid καρτών, 2x2 με μεγαλύτερα κενά */
+.about-cards-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2.5rem;
+}
+
+@media (min-width: 900px) {
+  .about-cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 3.5rem;
+    row-gap: 2.75rem;
+  }
+}
+
+/* Κάρτες + neon glow */
 
 .neon-card {
   position: relative;
@@ -41,7 +81,7 @@
   }
 }
 
-/* Neon gradient γύρω από τις κάρτες – με τα χρώματα του hero */
+/* Neon gradient γύρω από τις κάρτες – χρώματα hero */
 .neon-card::before {
   content: "";
   position: absolute;
@@ -58,7 +98,7 @@
     );
   filter: blur(40px);
   opacity: 0;
-  transition: opacity 0.6s ease-out;
+  transition: opacity 0.4s ease-out;
   z-index: -1;
 }
 
