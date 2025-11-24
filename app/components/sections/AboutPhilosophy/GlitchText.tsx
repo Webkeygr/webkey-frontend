@@ -1,26 +1,28 @@
-"use client";
-
+import React from "react";
 import "./GlitchText.css";
 
-export default function GlitchText({
-  children,
-  speed = 1,
-  enableShadows = true,
-  enableOnHover = false, // δεν θέλουμε on-hover, το θέλουμε πάντα ενεργό
-  className = "",
-}: {
-  children: string;
+type Props = {
+  children: React.ReactNode;
   speed?: number;
   enableShadows?: boolean;
   enableOnHover?: boolean;
   className?: string;
-}) {
-  const inlineStyles = {
-    "--after-duration": `${speed * 3}s`,
-    "--before-duration": `${speed * 2}s`,
-    "--after-shadow": enableShadows ? "-5px 0 #ff00aa" : "none",
-    "--before-shadow": enableShadows ? "5px 0 #00e5ff" : "none",
-  } as React.CSSProperties;
+};
+
+const GlitchText: React.FC<Props> = ({
+  children,
+  speed = 1,
+  enableShadows = true,
+  enableOnHover = true,
+  className = "",
+}) => {
+  const inlineStyles: React.CSSProperties = {
+    // τα πολλαπλασιαζω για πιο ομαλό glitch
+    ["--after-duration" as any]: `${speed * 3}s`,
+    ["--before-duration" as any]: `${speed * 2}s`,
+    ["--after-shadow" as any]: enableShadows ? "-4px 0 #ff00b7" : "none",
+    ["--before-shadow" as any]: enableShadows ? "4px 0 #00e0ff" : "none",
+  };
 
   const hoverClass = enableOnHover ? "enable-on-hover" : "";
 
@@ -33,4 +35,6 @@ export default function GlitchText({
       {children}
     </div>
   );
-}
+};
+
+export default GlitchText;
