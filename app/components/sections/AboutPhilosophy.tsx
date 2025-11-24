@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  MotionValue,
+} from "framer-motion";
 import Lottie from "lottie-react";
 import "./AboutPhilosophy.css";
 
@@ -45,7 +50,7 @@ export default function AboutPhilosophy() {
   });
 
   // λευκό πάνελ που "ανεβαίνει" και κολλάει fullscreen
-  const panelScaleY = useTransform(scrollYProgress, [0, 0.25], [0, 1]); // 0→1 από κάτω προς τα πάνω
+  const panelScaleY = useTransform(scrollYProgress, [0, 0.25], [0, 1]);
 
   // progress για να ξεκινήσουν τα τετράγωνα μετά από λίγα scroll
   const cardsProgress = useTransform(scrollYProgress, [0.35, 0.95], [0, 1]);
@@ -178,7 +183,7 @@ function GlowingCard({
 }: {
   card: Card;
   index: number;
-  cardsProgress: ReturnType<typeof useTransform>;
+  cardsProgress: MotionValue<number>;
 }) {
   // κάθε τετράγωνο ξεκινά λίγο αργότερα → ένα ένα
   const start = 0.15 + index * 0.15;
@@ -190,10 +195,7 @@ function GlowingCard({
   const opacity = useTransform(localProg, [0, 1], [0, 1]);
 
   return (
-    <motion.div
-      className="w-full max-w-sm"
-      style={{ y, opacity }}
-    >
+    <motion.div className="w-full max-w-sm" style={{ y, opacity }}>
       <div className="relative">
         {/* neon gradient frame */}
         <div className="pointer-events-none absolute -inset-[2px] rounded-[14px] bg-gradient-to-tr from-sky-400 via-fuchsia-500 to-violet-500 opacity-80 blur-sm" />
