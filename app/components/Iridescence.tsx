@@ -257,11 +257,8 @@ export default function Iridescence({
       nt += getSpeed();
       for (i = 0; i < n; i++) {
         ctx.beginPath();
-// πιο λεπτές γραμμές για να χωρέσουν πολλές μέσα στη «σφαίρα»
-const effectiveWidth = waveWidth || 26;
-ctx.lineWidth = effectiveWidth;
-ctx.strokeStyle = waveColors[i % waveColors.length];
-
+        ctx.lineWidth = waveWidth || 50;
+        ctx.strokeStyle = waveColors[i % waveColors.length];
 
         const y0Base =
           noise(0 / 800, 0.3 * i, nt) * amp1 +
@@ -316,9 +313,8 @@ ctx.strokeStyle = waveColors[i % waveColors.length];
       const amp2 = bandHeight * ampSubFactor;
 
       ctx.globalAlpha = waveOpacity;
-// περισσότερες γραμμές για να «γεμίσει» η σφαίρα
-drawWave(18, baselineY, amp1, amp2, morph);
-ctx.globalAlpha = 1;
+      drawWave(5, baselineY, amp1, amp2, morph);
+      ctx.globalAlpha = 1;
 
       // feather πάνω
       if (topY > 0) {
