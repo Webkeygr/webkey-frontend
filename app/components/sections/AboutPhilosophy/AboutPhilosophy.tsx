@@ -1,12 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
-import scrollDown from "./scroll-down.json"; // ✅ ΣΩΣΤΟ import
-import "./AboutPhilosophy.css";
-
+import scrollDown from "./scroll-down.json";
 import "./AboutPhilosophy.css";
 
 type CardData = {
