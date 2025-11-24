@@ -1,7 +1,8 @@
+/* ΟΛΟ ΤΟ SECTION – δίνουμε ύψος για να υπάρχει scroll */
 .about-section {
   position: relative;
-  padding-top: 10vh;
-  padding-bottom: 180vh; /* δίνει χώρο για το sticky panel να “ταξιδέψει” */
+  min-height: 220vh;
+  padding-block: 8vh 10vh;
 }
 
 /* sticky λευκό panel που ανεβαίνει και γίνεται fullscreen */
@@ -17,9 +18,9 @@
 
 .about-panel {
   width: min(1120px, 94vw);
-  min-height: 78vh;
+  min-height: 86vh;
   border-radius: 32px;
-  padding: 48px 40px 56px;
+  padding: 56px 40px 64px;
   background: #ffffff;
   box-shadow: 0 40px 120px -50px rgba(0, 0, 0, 0.4);
   display: flex;
@@ -29,27 +30,29 @@
   pointer-events: auto;
 }
 
-/* Τίτλος πραγματικά στο κέντρο, με Lottie από κάτω */
+/* -------- ΤΙΤΛΟΣ + LOTTIE ΠΑΝΩ -------- */
+
 .about-top {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 32px;
-  margin-bottom: 64px;
+  gap: 28px;
+  margin-bottom: 80px;
 }
 
 .about-glitch-heading {
   text-align: center;
 }
 
-/* Lottie όταν είμαστε στο στάδιο του τίτλου */
+/* Lottie κάτω από τον τίτλο */
 .about-lottie-top {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* wrapper για grid + Lottie στο κέντρο των καρτών */
+/* -------- GRID 2x2 ΜΕ ΚΑΡΤΕΣ -------- */
+
 .about-grid-wrapper {
   position: relative;
   width: 100%;
@@ -57,23 +60,23 @@
   margin-inline: auto;
 }
 
-/* Lottie ανάμεσα στις κάρτες */
+/* Lottie στο κέντρο των τεσσάρων καρτών */
 .about-lottie-center {
   position: absolute;
-  inset: 50% auto auto 50%;
+  left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
+  z-index: 5;
   pointer-events: none;
-  z-index: 1;
 }
 
 /* GRID 2x2 για τις κάρτες */
 .about-grid {
-  position: relative;
-  z-index: 2;
   width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px 48px; /* πιο άνετη απόσταση μεταξύ καρτών */
+  gap: 40px 48px; /* πιο αραιές κάρτες */
+  align-items: stretch;
 }
 
 /* εξωτερικό wrapper για το glow */
@@ -105,7 +108,7 @@
   color: #243046;
 }
 
-/* --------- NEON GLOW γύρω από τις κάρτες (όπως το είχες ΤΕΛΕΙΟ) --------- */
+/* --------- NEON GLOW γύρω από τις κάρτες --------- */
 
 .philo-card-glow::before {
   content: "";
@@ -139,7 +142,7 @@
   }
 }
 
-/* responsive tweak για mobile */
+/* responsive tweaks για mobile */
 @media (max-width: 900px) {
   .about-panel {
     padding-inline: 22px;
@@ -147,12 +150,14 @@
     border-radius: 26px;
   }
 
-  .about-grid-wrapper {
-    max-width: 520px;
-  }
-
   .about-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+
+  .about-lottie-center {
+    position: static;
+    transform: none;
+    margin: 24px auto;
   }
 }

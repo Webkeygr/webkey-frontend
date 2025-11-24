@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
 import "./AboutPhilosophy.css";
@@ -30,62 +30,23 @@ const CARDS: CardData[] = [
   },
 ];
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.55,
+      delay: 0.18 + i * 0.16,
+      ease: "easeOut",
+    },
+  }),
+};
+
 export default function AboutPhilosophy() {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-
-  // Scroll progress για ΟΛΟ το section
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  // Λίγο smoothing
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 26,
-    mass: 0.2,
-  });
-
-  // Τίτλος & πάνω Lottie – μένουν στο κέντρο και μετά κάνουν fade out
-  const titleOpacity = useTransform(smoothProgress, [0, 0.18, 0.32], [1, 1, 0]);
-  const titleY = useTransform(smoothProgress, [0, 0.32], [0, -40]);
-
-  const lottieTopOpacity = useTransform(
-    smoothProgress,
-    [0, 0.18, 0.26],
-    [1, 1, 0]
-  );
-
-  // Κάρτες & Lottie στο κέντρο του grid
-  const cardsOpacity = useTransform(smoothProgress, [0.3, 0.55], [0, 1]);
-  const cardsY = useTransform(smoothProgress, [0.3, 0.55], [40, 0]);
-
-  const lottieCenterOpacity = useTransform(
-    smoothProgress,
-    [0.36, 0.46, 0.6],
-    [0, 1, 1]
-  );
-
-  // Κάθε κάρτα να εμφανίζεται με διαφορετικό offset στο scroll (μία-μία)
-  const cardOpacities = CARDS.map((_, index) =>
-    useTransform(
-      smoothProgress,
-      [0.32 + index * 0.08, 0.44 + index * 0.08],
-      [0, 1]
-    )
-  );
-
-  const cardYs = CARDS.map((_, index) =>
-    useTransform(
-      smoothProgress,
-      [0.32 + index * 0.08, 0.44 + index * 0.08],
-      [30, 0]
-    )
-  );
-
-  // Φόρτωμα Lottie από /public/lottie/scroll-down.json χωρίς imports
   const [scrollLottie, setScrollLottie] = useState<any | null>(null);
 
+  // Φορτώνουμε το JSON από /public/lottie/scroll-down.json
   useEffect(() => {
     let isMounted = true;
 
@@ -95,7 +56,7 @@ export default function AboutPhilosophy() {
         if (isMounted) setScrollLottie(data);
       })
       .catch(() => {
-        // αν αποτύχει απλά δεν δείχνουμε Lottie
+        // αν αποτύχει, απλά δεν δείχνουμε Lottie
       });
 
     return () => {
@@ -104,61 +65,53 @@ export default function AboutPhilosophy() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="about-section">
+    <section className="about-section">
+      {/* sticky λευκό panel που ανεβαίνει και γίνεται fullscreen */}
       <div className="about-panel-wrap">
-        <motion.div className="about-panel">
+        <div className="about-panel">
           {/* ΤΙΤΛΟΣ ΣΤΟ ΚΕΝΤΡΟ + LOTTIE ΑΠΟ ΚΑΤΩ */}
-          <motion.div
-            className="about-top"
-            style={{ opacity: titleOpacity, y: titleY }}
-          >
+          <div className="about-top">
             <h2 className="about-glitch-heading">
               <GlitchText>Ποιοι είμαστε</GlitchText>
             </h2>
 
             {scrollLottie && (
-              <motion.div
-                className="about-lottie-top"
-                style={{ opacity: lottieTopOpacity }}
-              >
+              <div className="about-lottie-top">
                 <Lottie
                   animationData={scrollLottie}
                   loop
                   autoplay
                   style={{ width: 140, height: 140 }}
                 />
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
 
-          {/* GRID ΜΕ ΤΙΣ ΚΑΡΤΕΣ ΣΤΟ ΚΕΝΤΡΟ + LOTTIE ΑΝΑΜΕΣΑ */}
+          {/* GRID ΜΕ ΤΙΣ ΚΑΡΤΕΣ ΣΤΟ ΚΕΝΤΡΟ + LOTTIE ΣΤΗ ΜΕΣΗ ΤΟΥ GRID */}
           <div className="about-grid-wrapper">
             {scrollLottie && (
-              <motion.div
-                className="about-lottie-center"
-                style={{ opacity: lottieCenterOpacity }}
-              >
+              <div className="about-lottie-center">
                 <Lottie
                   animationData={scrollLottie}
                   loop
                   autoplay
                   style={{ width: 150, height: 150 }}
                 />
-              </motion.div>
+              </div>
             )}
 
             <motion.div
               className="about-grid"
-              style={{ opacity: cardsOpacity, y: cardsY }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.25 }}
             >
               {CARDS.map((card, index) => (
                 <motion.div
                   key={card.title}
                   className="about-card-outer philo-card-glow philo-card-glow-active"
-                  style={{
-                    opacity: cardOpacities[index],
-                    y: cardYs[index],
-                  }}
+                  variants={cardVariants}
+                  custom={index}
                 >
                   <div className="about-card-inner">
                     <div className="about-card-title">{card.title}</div>
@@ -168,7 +121,7 @@ export default function AboutPhilosophy() {
               ))}
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
