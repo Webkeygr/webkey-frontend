@@ -11,6 +11,8 @@ import Header from "@/app/components/Header";
 import Hero from "@/app/components/Hero";
 import ServicesIntro from "@/app/components/sections/ServicesIntro";
 import ServicesCards from "@/app/components/sections/ServicesCards";
+import AboutPhilosophy from "@/app/components/sections/AboutPhilosophy";
+
 
 export default function ServicesPage() {
   return (
@@ -19,6 +21,8 @@ export default function ServicesPage() {
       <Hero />
       <ServicesIntro />
       <ServicesCards />
+      <AboutPhilosophy />
+
     </>
   );
 }

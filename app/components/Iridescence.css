@@ -1,3 +1,8 @@
+:root {
+  --hero-blur: 0px; /* blur για όλο το hero, το ορίζουν τα sections */
+  --bg-morph: 0;   /* 0 = waves full-width, 1 = «σφαίρα» στο κέντρο */
+}
+
 /* γεμίζει ολόκληρο το hero, κάτω από το περιεχόμενο */
 .iridescence-container {
   position: absolute;
@@ -11,8 +16,14 @@
   pointer-events: none; /* δεν μπλοκάρει κλικς/hover */
   filter: blur(var(--hero-blur));
   will-change: filter;
-}
 
-:root {
-  --hero-blur: 0px;
+  /**
+   * MORPH → σφαίρα
+   * - όταν --bg-morph = 0 → circle radius ~140% (ουσιαστικά καλύπτει όλη την οθόνη)
+   * - όταν --bg-morph = 1 → circle radius ~40% στο κέντρο → φαίνεται σαν «σφαίρα» από waves
+   */
+  clip-path: circle(
+    calc(140% - 100% * var(--bg-morph))
+    at 50% 55%
+  );
 }
