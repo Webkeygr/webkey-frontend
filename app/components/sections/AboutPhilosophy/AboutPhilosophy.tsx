@@ -1,50 +1,53 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   motion,
   useScroll,
-  useTransform,
   useSpring,
-  MotionValue,
+  useTransform,
+  type MotionValue,
 } from "framer-motion";
 import Lottie from "lottie-react";
-
 import GlitchText from "./GlitchText";
-import scrollDown from "./scroll-down.json";
-
 import "./AboutPhilosophy.css";
 
 type CardData = {
+  id: string;
   title: string;
-  body: string;
+  text: string;
 };
 
 const CARDS: CardData[] = [
   {
+    id: "clarity",
     title: "Clarity first",
-    body: "Δεν κρυβόμαστε πίσω από buzzwords. Ξεκινάμε με ξεκάθαρους στόχους: τι θέλεις να πετύχεις, με ποιο κοινό και σε ποιο χρονικό ορίζοντα. Ό,τι σχεδιάζουμε, υπηρετεί αυτό.",
+    text: "Δεν κρυβόμαστε πίσω από buzzwords. Ξεκινάμε με ξεκάθαρους στόχους: τι θέλεις να πετύχεις, με ποιο κοινό και σε ποιο χρονικό ορίζοντα. Ό,τι σχεδιάζουμε, υπηρετεί αυτό.",
   },
   {
+    id: "design-purpose",
     title: "Design με σκοπό",
-    body: "Όμορφο χωρίς λειτουργικότητα δεν μας ενδιαφέρει. Σχεδιάζουμε εμπειρίες που οδηγούν τον επισκέπτη σε πράξη: να σου στείλει μήνυμα, να κλείσει ραντεβού, να αγοράσει, να σε θυμάται.",
+    text: "Όμορφο χωρίς λειτουργικότητα δεν μας ενδιαφέρει. Σχεδιάζουμε εμπειρίες που οδηγούν τον επισκέπτη σε πράξη: να σου στείλει μήνυμα, να κλείσει ραντεβού, να αγοράσει, να σε θυμάται.",
   },
   {
+    id: "tech-no-fluff",
     title: "Tech χωρίς φλυαρία",
-    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
+    text: 'Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε "πνίγουμε" με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.',
   },
   {
+    id: "relationship",
     title: "Σχέση, όχι project",
-    body: "Δεν βλέπουμε τη δουλειά σαν “ένα project και τέλος”. Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.",
+    text: 'Δεν βλέπουμε τη δουλειά σαν "ένα project και τέλος". Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.',
   },
 ];
 
 export default function AboutPhilosophy() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
+  // Scroll progress για ΟΛΟ το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
 
   const progress = useSpring(scrollYProgress, {
@@ -53,149 +56,171 @@ export default function AboutPhilosophy() {
     mass: 0.2,
   });
 
-  // Λευκό «σεντόνι» που ανεβαίνει από κάτω
-  const panelY = useTransform(progress, [0, 0.25], [100, 0]);
+  // -------- LOTTIE (φορτώνει runtime από /public, χωρίς import προβλήματα) -----
+  const [scrollData, setScrollData] = useState<any | null>(null);
 
-  // Τίτλος + μεγάλο Lottie (πρώτη φάση)
-  const titleOpacity = useTransform(
-    progress,
-    [0.08, 0.18, 0.45, 0.6],
-    [0, 1, 1, 0]
-  );
-  const titleY = useTransform(
-    progress,
-    [0.08, 0.18, 0.45, 0.6],
-    [40, 0, 0, -40]
-  );
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/lottie/scroll-down.json");
+        if (!res.ok) return;
+        const json = await res.json();
+        if (!cancelled) setScrollData(json);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const lottieHeroOpacity = useTransform(
-    progress,
-    [0.12, 0.22, 0.42, 0.52],
-    [0, 1, 1, 0]
-  );
+  // ---------- Animations για τίτλο + lottie στην πρώτη φάση  -------------------
+  // Τίτλος: δυνατό fade μέχρι ~30% του scroll, μετά σβήνει μέχρι 45%
+  const titleOpacity = useTransform(progress, [0, 0.25, 0.45], [1, 1, 0], {
+    clamp: true,
+  });
+  const titleY = useTransform(progress, [0, 0.25, 0.45], [0, 0, -40], {
+    clamp: true,
+  });
 
-  // Grid phase – κάρτες + μικρό Lottie στο κέντρο
-  const cardsOpacity = useTransform(
-    progress,
-    [0.52, 0.62, 0.74, 1],
-    [0, 0, 1, 1]
-  );
-  const cardsY = useTransform(progress, [0.52, 0.7], [80, 0]);
+  // Lottie στην "εισαγωγή": κάτω από τον τίτλο, fade-out όταν ξεκινάνε οι κάρτες
+  const introLottieOpacity = useTransform(progress, [0, 0.3, 0.45], [1, 1, 0], {
+    clamp: true,
+  });
+  const introLottieScale = useTransform(progress, [0, 0.45], [1, 0.8], {
+    clamp: true,
+  });
 
-  const lottieGridOpacity = useTransform(
-    progress,
-    [0.58, 0.68, 0.85, 1],
-    [0, 1, 1, 1]
-  );
+  // Lottie στη μέση του grid: εμφανίζεται αργότερα
+  const gridLottieOpacity = useTransform(progress, [0.45, 0.55], [0, 1], {
+    clamp: true,
+  });
+  const gridLottieScale = useTransform(progress, [0.45, 0.7], [0.8, 1], {
+    clamp: true,
+  });
 
   return (
     <section
       ref={sectionRef}
       className="relative w-full"
-      style={{ height: "300vh" }} // αρκετός χώρος για όλες τις φάσεις
+      style={{
+        // 280vh = αρκετό scroll για τίτλο + κάρτες
+        height: "280vh",
+      }}
     >
-      {/* λίγο κενό πριν ξεκινήσει να ανεβαίνει το λευκό φόντο */}
-      <div className="h-[10vh]" />
-
-      {/* STICKY λευκό φόντο / καμβάς */}
-      <motion.div className="about-panel-wrap" style={{ y: panelY }}>
-        <div className="about-panel">
-          {/* ΦΑΣΗ 1: Τίτλος + μεγάλο Lottie στο κέντρο */}
-          <motion.div
-            className="flex flex-col items-center gap-8"
-            style={{ opacity: titleOpacity, y: titleY }}
-          >
-            <GlitchText
-              speed={1}
-              enableShadows={true}
-              enableOnHover={false}
-              className="about-glitch-heading"
-            >
-              Ποιοι είμαστε
-            </GlitchText>
-
-            <motion.div style={{ opacity: lottieHeroOpacity }}>
-              <Lottie
-                animationData={scrollDown}
-                loop
-                autoplay
-                style={{ width: 160, height: 160 }}
-              />
-            </motion.div>
-          </motion.div>
-
-          {/* ΦΑΣΗ 2: Grid με κάρτες + Lottie στο κέντρο */}
-          <motion.div
-            className="relative mt-16 flex items-center justify-center"
-            style={{ opacity: cardsOpacity, y: cardsY }}
-          >
-            <CardsGrid cards={CARDS} master={progress} />
-
-            {/* Lottie στο κέντρο των καρτών */}
+      {/* Λευκό overlay τύπου "παράθυρο" που κολλάει full-screen */}
+      <div className="sticky top-0 h-screen flex items-center justify-center px-4 sm:px-8">
+        <div
+          className="
+            relative w-full max-w-6xl h-[80vh]
+            bg-white/98 rounded-[32px] shadow-[0_40px_120px_rgba(0,0,0,0.35)]
+            overflow-hidden
+          "
+        >
+          {/* Εσωτερικό wrapper για κεντράρισμα περιεχομένου */}
+          <div className="relative z-10 w-full h-full flex flex-col items-center justify-center">
+            {/* ----------- ΦΑΣΗ 1: ΤΙΤΛΟΣ + LOTTIE ----------- */}
             <motion.div
-              className="pointer-events-none absolute inset-0 flex items-center justify-center z-30"
-              style={{ opacity: lottieGridOpacity }}
+              style={{ opacity: titleOpacity, y: titleY }}
+              className="flex flex-col items-center justify-center gap-10 pointer-events-none"
             >
-              <Lottie
-                animationData={scrollDown}
-                loop
-                autoplay
-                style={{ width: 130, height: 130 }}
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-      </motion.div>
+              <GlitchText
+                speed={1}
+                enableShadows={true}
+                enableOnHover={false}
+                className="text-[clamp(40px,7vw,80px)] font-black text-black text-center"
+              >
+                Ποιοι είμαστε
+              </GlitchText>
 
-      {/* κενό από κάτω για να προλάβει να «ζήσει» το grid */}
-      <div className="h-[80vh]" />
+              {scrollData && (
+                <motion.div
+                  style={{
+                    opacity: introLottieOpacity,
+                    scale: introLottieScale,
+                  }}
+                >
+                  <Lottie
+                    animationData={scrollData}
+                    loop
+                    autoplay
+                    style={{ width: 140, height: 140 }}
+                  />
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* ----------- ΦΑΣΗ 2: GRID ΜΕ ΚΑΡΤΕΣ + LOTTIE ΣΤΟ ΚΕΝΤΡΟ ----------- */}
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center px-6 sm:px-10"
+              style={{
+                opacity: useTransform(progress, [0.35, 0.5], [0, 1], {
+                  clamp: true,
+                }),
+              }}
+            >
+              <div className="relative w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8 items-center justify-center">
+                {CARDS.map((card, index) => (
+                  <CardItem
+                    key={card.id}
+                    card={card}
+                    index={index}
+                    master={progress}
+                  />
+                ))}
+
+                {/* Lottie στη μέση του grid (πάνω από τα κάτω δύο κουτιά) */}
+                {scrollData && (
+                  <motion.div
+                    className="about-grid-lottie"
+                    style={{
+                      opacity: gridLottieOpacity,
+                      scale: gridLottieScale,
+                    }}
+                  >
+                    <Lottie
+                      animationData={scrollData}
+                      loop
+                      autoplay
+                      style={{ width: 130, height: 130 }}
+                    />
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
 
-/* ----------------------------- ΚΑΡΤΕΣ ----------------------------- */
+/* -------------------------- Κάρτα με stagger scroll -------------------------- */
 
-type CardsGridProps = {
-  cards: CardData[];
-  master: MotionValue<number>;
-};
-
-function CardsGrid({ cards, master }: CardsGridProps) {
-  return (
-    <div className="about-grid">
-      {cards.map((card, index) => (
-        <CardItem key={card.title} card={card} index={index} master={master} />
-      ))}
-    </div>
-  );
-}
-
-type CardItemProps = {
+function CardItem({
+  card,
+  index,
+  master,
+}: {
   card: CardData;
   index: number;
   master: MotionValue<number>;
-};
+}) {
+  // Βάση για το πότε ξεκινάει κάθε κάρτα
+  const baseStart = 0.42; // αρχή εμφάνισης πρώτης κάρτας
+  const step = 0.07; // πόσο απέχει η επόμενη (περισσότερο scroll)
+  const start = baseStart + index * step;
+  const end = start + 0.25; // πόσο διαρκεί η εμφάνιση
 
-function CardItem({ card, index, master }: CardItemProps) {
-  // κάθε κάρτα έχει λίγο διαφορετικό offset στο scroll
-  const baseStart = 0.58;
-  const perCardOffset = 0.06;
-
-  const start = baseStart + index * perCardOffset;
-  const end = start + 0.14;
-
-  const opacity = useTransform(master, [start, end], [0, 1]);
-  const y = useTransform(master, [start, end], [40, 0]);
+  const opacity = useTransform(master, [start, end], [0, 1], { clamp: true });
+  const y = useTransform(master, [start, end], [40, 0], { clamp: true });
 
   return (
-    <motion.div
-      style={{ opacity, y }}
-      className="about-card-outer philo-card-glow philo-card-glow-active"
-    >
-      <div className="about-card-inner">
-        <h3 className="about-card-title">{card.title}</h3>
-        <p className="about-card-body">{card.body}</p>
-      </div>
-    </motion.div>
+    <motion.article className="about-card neon-card" style={{ opacity, y }}>
+      <h3 className="about-card-title">{card.title}</h3>
+      <p className="about-card-text">{card.text}</p>
+    </motion.article>
   );
 }
