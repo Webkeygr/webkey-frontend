@@ -1,135 +1,134 @@
-/* ===== GRID LAYOUT ΓΙΑ ΤΑ 4 ΚΟΥΤΙΑ ===== */
+/* Βασικό section */
+.about-section {
+  position: relative;
+}
 
+/* Το λευκό panel που καλύπτει το hero */
+.about-panel {
+  will-change: transform;
+}
+
+/* Εσωτερικό περιεχόμενο */
+.about-inner {
+  position: relative;
+}
+
+/* -------- Glitch τίτλος -------- */
+
+.about-glitch-title {
+  color: #000;
+  text-align: center;
+}
+
+/* Λίγο μικρότερο font-size από το default του GlitchText */
+.about-glitch-title.glitch {
+  font-size: clamp(2.8rem, 6vw, 4.4rem);
+}
+
+/* -------- Lottie πάνω από τίτλο -------- */
+
+.about-lottie-top {
+  width: 120px;
+  height: 120px;
+}
+
+/* -------- Grid & κεντρικό Lottie -------- */
+
+.about-grid-wrapper {
+  position: relative;
+}
+
+/* Grid καρτών – extra κάθετο κενό ώστε το Lottie να μην κολλάει */
 .about-grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-rows: minmax(0, 1fr);
-  gap: 32px 40px;
-  width: 100%;
-  max-width: 64rem; /* ~1024px */
-  margin: 0 auto;
-  padding: 80px 0;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@media (max-width: 900px) {
-  .about-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-    padding: 60px 0;
-  }
+/* Κεντρικό lottie – κάθεται στο κέντρο της "τρύπας" των καρτών */
+.about-lottie-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 
-/* ===== ΚΟΥΤΙ ΜΕ NEON BORDER RADIUS + GLOW ===== */
-
-.about-card-wrapper {
-  position: relative;
+/* Lottie circle styling */
+.about-lottie-circle {
+  width: 130px;
+  height: 130px;
+  filter: drop-shadow(0 18px 45px rgba(15, 23, 42, 0.35));
 }
 
-/* ίδιο border radius παντού */
+/* Για το κεντρικό lottie λίγο μικρότερο, να έχει πιο πολύ κενό γύρω του */
+.about-lottie-circle--small {
+  width: 120px;
+  height: 120px;
+}
+
+/* -------- Κάρτες με neon glow -------- */
+
 .about-card {
   position: relative;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #ffffff;
-  padding: 24px 26px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(148, 163, 184, 0.18);
+  padding: 22px 24px;
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  box-shadow: 0 20px 60px -40px rgba(15, 23, 42, 0.9);
   overflow: hidden;
 }
 
-/* Τίτλος με σκιά για να ξεχωρίζει ΠΑΝΩ από το glow */
-.about-card-title {
-  font-weight: 700;
-  font-size: clamp(1rem, 1.2vw, 1.2rem);
-  margin-bottom: 10px;
-  color: #020617;
-  text-shadow: 0 0 18px rgba(15, 23, 42, 0.45);
-}
-
-.about-card-body {
-  font-size: clamp(0.9rem, 1.1vw, 1rem);
-  line-height: 1.6;
-  color: #111827;
-}
-
-/* NEON GLOW RING – ΔΕΝ είναι ροζ γραμμή, είναι γύρω από όλο το box */
+/* neon gradient πίσω από την κάρτα, με animation */
 .about-card::before {
   content: "";
   position: absolute;
-  inset: -2px;
-  border-radius: 12px;
-  pointer-events: none;
-  background: radial-gradient(
-      circle at 0% 0%,
-      rgba(56, 189, 248, 0),
-      transparent
-    ),
-    radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0), transparent),
-    radial-gradient(circle at 0% 100%, rgba(244, 114, 182, 0), transparent),
-    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0), transparent);
-  mix-blend-mode: screen;
-  opacity: 0.9;
-  animation: about-neon 5s ease-in-out infinite alternate;
+  inset: -24px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    #22d3ee,
+    #6366f1,
+    #ec4899,
+    #a855f7,
+    #22d3ee
+  );
+  filter: blur(20px);
+  opacity: 0.4;
+  z-index: -1;
+  animation: about-neon-pulse 6.5s ease-in-out infinite alternate;
 }
 
-/* ΛΕΠΤΟ neon stroke γύρω από το κουτί */
-.about-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 8px;
-  border: 1px solid rgba(129, 140, 248, 0.45);
-  pointer-events: none;
-}
-
-/* Animated glow – παίζει ελαφρά και αλλάζει χρώματα όπως οι γραμμές του hero */
-@keyframes about-neon {
+/* Κίνηση του glow (σαν να “αναπνέει” η κάρτα) */
+@keyframes about-neon-pulse {
   0% {
-    box-shadow: 0 0 0 rgba(56, 189, 248, 0), 0 0 0 rgba(96, 165, 250, 0),
-      0 0 0 rgba(244, 114, 182, 0);
-    background: radial-gradient(
-        circle at 0% 0%,
-        rgba(56, 189, 248, 0.45),
-        transparent
-      ),
-      radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.45), transparent),
-      radial-gradient(circle at 0% 100%, rgba(244, 114, 182, 0.45), transparent),
-      radial-gradient(
-        circle at 100% 100%,
-        rgba(56, 189, 248, 0.35),
-        transparent
-      );
+    opacity: 0.2;
+    transform: scale(0.94) rotate(0deg);
   }
   50% {
-    box-shadow: 0 0 30px rgba(56, 189, 248, 0.65),
-      0 0 40px rgba(129, 140, 248, 0.7), 0 0 45px rgba(244, 114, 182, 0.65);
-    background: radial-gradient(
-        circle at 0% 0%,
-        rgba(56, 189, 248, 0.25),
-        transparent
-      ),
-      radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.55), transparent),
-      radial-gradient(circle at 0% 100%, rgba(244, 114, 182, 0.6), transparent),
-      radial-gradient(
-        circle at 100% 100%,
-        rgba(56, 189, 248, 0.55),
-        transparent
-      );
+    opacity: 0.6;
+    transform: scale(1) rotate(130deg);
   }
   100% {
-    box-shadow: 0 0 26px rgba(56, 189, 248, 0.55),
-      0 0 35px rgba(129, 140, 248, 0.6), 0 0 40px rgba(244, 114, 182, 0.55);
-    background: radial-gradient(
-        circle at 0% 0%,
-        rgba(56, 189, 248, 0.35),
-        transparent
-      ),
-      radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.35), transparent),
-      radial-gradient(circle at 0% 100%, rgba(244, 114, 182, 0.45), transparent),
-      radial-gradient(
-        circle at 100% 100%,
-        rgba(56, 189, 248, 0.45),
-        transparent
-      );
+    opacity: 0.35;
+    transform: scale(1.04) rotate(260deg);
   }
+}
+
+/* Τίτλος κάρτας – με σκιά για να διαβάζεται πάνω από το glow */
+.about-card-title {
+  margin: 0 0 0.75rem 0;
+  font-weight: 700;
+  font-size: clamp(1.05rem, 1.2vw, 1.3rem);
+  color: #111827;
+  text-shadow: 0 0 10px rgba(129, 140, 248, 0.9);
+}
+
+/* Κείμενο κάρτας */
+.about-card-body {
+  margin: 0;
+  font-size: clamp(0.9rem, 1.02vw, 1rem);
+  line-height: 1.7;
+  color: #4b5563;
 }
