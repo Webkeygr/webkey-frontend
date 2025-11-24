@@ -1,16 +1,12 @@
 "use client";
 
 import { useRef } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  type MotionValue,
-} from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
+
 import scrollDown from "./scroll-down.json";
+
 import "./AboutPhilosophy.css";
 
 type CardData = {
@@ -42,6 +38,8 @@ const CARDS: CardData[] = [
   },
 ];
 
+const SECTION_VH = 280; // λίγο μεγαλύτερο για να “κρατάει” ο τίτλος
+
 export default function AboutPhilosophy() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -50,139 +48,158 @@ export default function AboutPhilosophy() {
     offset: ["start start", "end end"],
   });
 
+  // Smoothing
   const progress = useSpring(scrollYProgress, {
     stiffness: 160,
     damping: 24,
     mass: 0.2,
   });
 
-  // Λευκό panel που ανεβαίνει (parallax) και «κάθεται» fullscreen
-  const whiteY = useTransform(progress, [0, 0.4], [200, 0]);
+  // --- ΤΙΤΛΟΣ / SCROLL LOTTIE ---
 
-  // Glitch τίτλος: fade in → λίγο χρόνο → fade out
-  const titleOpacity = useTransform(progress, [0.12, 0.2, 0.32], [0, 1, 0]);
-  const titleY = useTransform(progress, [0.12, 0.2, 0.32], [40, 0, -30]);
-
-  // Lottie κάτω από τίτλο (φαίνεται ΜΟΝΟ στο πρώτο στάδιο)
-  const topLottieOpacity = useTransform(
+  // fade-in → hold → fade-out
+  const titleOpacity = useTransform(
     progress,
-    [0.16, 0.22, 0.28],
-    [0, 1, 0]
+    [0.0, 0.08, 0.28, 0.42],
+    [0, 1, 1, 0]
   );
-  const topLottieY = useTransform(progress, [0.16, 0.22, 0.28], [30, 0, -20]);
-
-  // Lottie στο κέντρο των καρτών (φαίνεται ΜΟΝΟ όταν είναι οι κάρτες)
-  const centerLottieOpacity = useTransform(
+  const titleY = useTransform(
     progress,
-    [0.3, 0.38, 0.95],
-    [0, 1, 1]
+    [0.0, 0.08, 0.28, 0.42],
+    [40, 0, 0, -30]
   );
+
+  // Lottie: εμφανίζεται κάτω από τον τίτλο και μένει / μεταφέρεται
+  const lottieOpacity = useTransform(
+    progress,
+    [0.02, 0.1, 0.4, 0.6],
+    [0, 1, 1, 1]
+  );
+  const lottieScale = useTransform(
+    progress,
+    [0.02, 0.1, 0.4, 0.6],
+    [0.7, 1, 1.05, 1]
+  );
+  // Μικρή μετατόπιση προς τα κάτω όταν μπαίνουν οι κάρτες
+  const lottieY = useTransform(
+    progress,
+    [0.0, 0.35, 0.5, 0.65],
+    [10, 0, 20, 20]
+  );
+
+  // --- ΚΑΡΤΕΣ ---
+
+  // Πότε μπαίνει συνολικά το grid
+  const cardsOpacity = useTransform(progress, [0.45, 0.6], [0, 1]);
+  const cardsY = useTransform(progress, [0.45, 0.6], [40, 0]);
 
   return (
     <section
       ref={sectionRef}
-      className="about-section relative w-full"
-      style={{ height: "260vh" }}
+      className="relative w-full"
+      style={{ height: `${SECTION_VH}vh` }}
     >
-      <div className="sticky top-0 h-screen overflow-hidden">
-        <motion.div
-          className="about-panel relative flex h-full w-full items-center justify-center bg-white"
-          style={{ y: whiteY }}
-        >
-          <div className="about-inner mx-auto flex h-full max-w-6xl flex-col items-center justify-center px-6 py-16 md:py-24">
-            {/* GLITCH ΤΙΤΛΟΣ + ΠΡΩΤΟ LOTTIE */}
-            <motion.div
-              className="about-title-block flex flex-col items-center gap-10"
-              style={{ opacity: titleOpacity, y: titleY }}
-            >
-              <GlitchText
-                speed={0.9}
-                enableShadows={true}
-                enableOnHover={false}
-                className="about-glitch-title"
-              >
-                Ποιοι είμαστε
-              </GlitchText>
+      {/* parallax λευκό φόντο που ανεβαίνει και κάθεται full-screen */}
+      <div className="about-ph-wrapper sticky top-0 h-screen overflow-hidden">
+        <div className="about-ph-bg" />
 
-              <motion.div
-                className="about-lottie-top"
-                style={{ opacity: topLottieOpacity, y: topLottieY }}
-              >
-                <Lottie
-                  animationData={scrollDown as unknown as object}
-                  loop
-                  autoplay
-                  className="about-lottie-circle"
-                />
-              </motion.div>
+        <div className="about-ph-inner">
+          {/* Τίτλος + Lottie στην πρώτη φάση */}
+          <motion.div
+            className="about-ph-title-block"
+            style={{ opacity: titleOpacity, y: titleY }}
+          >
+            <GlitchText
+              speed={0.7}
+              enableShadows={true}
+              enableOnHover={false}
+              className="about-glitch-title"
+            >
+              Ποιοι είμαστε
+            </GlitchText>
+
+            <motion.div
+              style={{ opacity: lottieOpacity, scale: lottieScale, y: lottieY }}
+              className="about-ph-lottie-wrapper"
+            >
+              <Lottie
+                animationData={scrollDown}
+                loop
+                autoplay
+                className="about-ph-lottie"
+              />
             </motion.div>
+          </motion.div>
 
-            {/* GRID ΜΕ ΤΑ ΚΟΥΤΙΑ + ΚΕΝΤΡΙΚΟ LOTTIE */}
-            <motion.div
-              className="about-grid-wrapper relative mt-10 w-full md:mt-16"
-              style={{ opacity: centerLottieOpacity }}
-            >
-              {/* Κεντρικό Lottie – έχει περισσότερο “αέρα” γύρω του */}
-              <motion.div
-                className="about-lottie-center"
-                style={{ opacity: centerLottieOpacity }}
-              >
+          {/* GRID ΚΑΡΤΩΝ + LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
+          <motion.div
+            className="about-ph-cards-layer"
+            style={{ opacity: cardsOpacity, y: cardsY }}
+          >
+            <div className="about-ph-cards-wrapper">
+              {/* Lottie στο κέντρο του grid */}
+              <div className="about-ph-cards-lottie">
                 <Lottie
-                  animationData={scrollDown as unknown as object}
+                  animationData={scrollDown}
                   loop
                   autoplay
-                  className="about-lottie-circle about-lottie-circle--small"
+                  className="about-ph-lottie-center"
                 />
-              </motion.div>
-
-              {/* Πλέγμα καρτών */}
-              <div className="about-grid relative grid grid-cols-1 gap-x-12 gap-y-16 py-10 md:grid-cols-2 md:gap-y-20 lg:gap-y-24 lg:py-14">
-                {CARDS.map((card, index) => (
-                  <CardBlock
-                    key={card.id}
-                    card={card}
-                    index={index}
-                    master={progress}
-                  />
-                ))}
               </div>
-            </motion.div>
-          </div>
-        </motion.div>
+
+              {/* 4 κάρτες γύρω από το Lottie */}
+              <CardsGrid cards={CARDS} master={progress} />
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
 
-function CardBlock({
+/* ------------------------ Cards grid + items ------------------------ */
+
+function CardsGrid({
+  cards,
+  master,
+}: {
+  cards: CardData[];
+  master: any; // MotionValue<number>, αλλά κρατάμε any για να μην γκρινιάζει TS
+}) {
+  return (
+    <div className="about-ph-grid">
+      {/* πάνω αριστερά */}
+      <CardItem card={cards[0]} index={0} master={master} />
+      {/* πάνω δεξιά */}
+      <CardItem card={cards[1]} index={1} master={master} />
+      {/* κάτω αριστερά */}
+      <CardItem card={cards[2]} index={2} master={master} />
+      {/* κάτω δεξιά */}
+      <CardItem card={cards[3]} index={3} master={master} />
+    </div>
+  );
+}
+
+function CardItem({
   card,
   index,
   master,
 }: {
   card: CardData;
   index: number;
-  master: MotionValue<number>;
+  master: any;
 }) {
-  // Κάθε κάρτα εμφανίζεται με λίγο διαφορετικό offset στο scroll
-  const baseStart = 0.42;
-  const perCardOffset = 0.08;
+  // κάθε κάρτα μπαίνει λίγο πιο αργά από την προηγούμενη
+  const baseStart = 0.5 + index * 0.05;
+  const baseEnd = baseStart + 0.1;
 
-  const start = baseStart + index * perCardOffset;
-  const end = start + 0.18;
-
-  const opacity = useTransform(master, [start, end], [0, 1]);
-  const y = useTransform(master, [start, end], [45, 0]);
+  const opacity = useTransform(master, [baseStart, baseEnd], [0, 1]);
+  const y = useTransform(master, [baseStart, baseEnd], [30, 0]);
 
   return (
-    <motion.article
-      className="about-card"
-      style={{
-        opacity,
-        y,
-      }}
-    >
-      <h3 className="about-card-title">{card.title}</h3>
-      <p className="about-card-body">{card.body}</p>
+    <motion.article className="about-ph-card neon-card" style={{ opacity, y }}>
+      <h3 className="about-ph-card-title">{card.title}</h3>
+      <p className="about-ph-card-body">{card.body}</p>
     </motion.article>
   );
 }
