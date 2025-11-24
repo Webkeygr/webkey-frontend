@@ -225,11 +225,7 @@ export default function Iridescence({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let w: number,
-      h: number,
-      nt = 0,
-      i: number,
-      x: number;
+    let w: number, h: number, nt = 0, i: number, x: number;
     let animationId = 0;
 
     const setSize = () => {
@@ -241,11 +237,22 @@ export default function Iridescence({
     const onResize = () => setSize();
     window.addEventListener("resize", onResize);
 
+    const getMorph = () => {
+      if (typeof window === "undefined") return 0;
+      const v = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--bg-morph") ||
+          "0"
+      );
+      if (Number.isNaN(v)) return 0;
+      return Math.max(0, Math.min(1, v));
+    };
+
     const drawWave = (
       n: number,
       baselineY: number,
       amp1: number,
-      amp2: number
+      amp2: number,
+      morph: number
     ) => {
       nt += getSpeed();
       for (i = 0; i < n; i++) {
@@ -253,18 +260,35 @@ export default function Iridescence({
         ctx.lineWidth = waveWidth || 50;
         ctx.strokeStyle = waveColors[i % waveColors.length];
 
-        const y0 =
+        const y0Base =
           noise(0 / 800, 0.3 * i, nt) * amp1 +
           noise(0 / 1200, 0.15 * i, nt * 0.5) * amp2 +
           baselineY;
-        ctx.moveTo(0, y0);
+
+        let yPrev = y0Base;
+        ctx.moveTo(0, yPrev);
 
         for (x = 5; x < w; x += 5) {
-          const y =
+          const yBase =
             noise(x / 800, 0.3 * i, nt) * amp1 +
             noise(x / 1200, 0.15 * i, nt * 0.5) * amp2 +
             baselineY;
+
+          let y = yBase;
+
+          if (morph > 0.0) {
+            const dx = (x / w - 0.5) * 2.0; // -1..1
+            const rNorm = Math.min(1, Math.abs(dx)); // 0 center, 1 edges
+            // καμπυλώνουμε τις γραμμές προς "σφαιρικό" σχήμα
+            const curve = Math.sqrt(1.0 - Math.min(1.0, rNorm * rNorm));
+            const curveMix = morph; // πόσο έντονα εφαρμόζεται
+
+            const yCurve = baselineY + (yBase - baselineY) * curve;
+            y = yBase * (1.0 - curveMix) + yCurve * curveMix;
+          }
+
           ctx.lineTo(x, y);
+          yPrev = y;
         }
         ctx.stroke();
         ctx.closePath();
@@ -272,7 +296,10 @@ export default function Iridescence({
     };
 
     const render = () => {
+      const morph = getMorph();
+
       ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = backgroundFill;
       ctx.fillRect(0, 0, w, h);
 
@@ -286,8 +313,7 @@ export default function Iridescence({
       const amp2 = bandHeight * ampSubFactor;
 
       ctx.globalAlpha = waveOpacity;
-      drawWave(5, baselineY, amp1, amp2);
-
+      drawWave(5, baselineY, amp1, amp2, morph);
       ctx.globalAlpha = 1;
 
       // feather πάνω
@@ -317,6 +343,29 @@ export default function Iridescence({
         const solidBottomY = bottomY + bandFeatherPx;
         ctx.fillStyle = backgroundFill;
         ctx.fillRect(0, solidBottomY, w, h - solidBottomY);
+      }
+
+      // ΜΟΡΦΗ → ΣΦΑΙΡΑ: κυκλική μάσκα όταν morph > 0
+      if (morph > 0.001) {
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-in";
+
+        const baseRadius = Math.min(w, h) * 0.6;
+        const radius = baseRadius * (1 - 0.4 * morph); // όσο μεγαλύτερο το morph, τόσο «μαζεύει»
+
+        ctx.beginPath();
+        ctx.arc(w / 2, baselineY, radius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(0,0,0,1)";
+        ctx.fill();
+        ctx.restore();
+
+        // έξω από τον κύκλο να είναι απλά background
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-over";
+        ctx.fillStyle = backgroundFill;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
       }
 
       animationId = requestAnimationFrame(render);
