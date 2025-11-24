@@ -15,16 +15,15 @@
   position: relative;
   z-index: 1;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-/* Τίτλος + πρώτο Lottie */
+/* ---------------- ΤΙΤΛΟΣ + LOTTIE ---------------- */
+
 .about-ph-title-block {
   position: absolute;
-  inset: 0;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,10 +34,10 @@
 
 .about-glitch-title {
   color: #000;
-  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-size: clamp(3.4rem, 7.5vw, 6.8rem);
   font-weight: 900;
   text-align: center;
-  line-height: 0.95;
+  line-height: 0.9;
 }
 
 .about-ph-lottie-wrapper {
@@ -52,29 +51,28 @@
   height: 100%;
 }
 
-/* Layer με τις κάρτες */
+/* ---------------- GRID ΚΑΡΤΩΝ ---------------- */
+
 .about-ph-cards-layer {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;
+  align-items: center; /* κέντρο στον άξονα y */
   justify-content: center;
   pointer-events: none;
 }
 
-/* Wrapper για grid + κεντρικό Lottie */
 .about-ph-cards-wrapper {
   position: relative;
   width: 100%;
   max-width: 1200px;
   padding-inline: clamp(1.5rem, 4vw, 3rem);
-  min-height: 60vh;
+  height: 60vh; /* για να κάθονται στο κέντρο */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Grid 2x2 γύρω από το Lottie */
 .about-ph-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -84,7 +82,7 @@
   width: 100%;
 }
 
-/* Κεντρικό Lottie πάνω από το grid (στο κέντρο) */
+/* Κεντρικό Lottie πάνω από το grid */
 .about-ph-cards-lottie {
   position: absolute;
   width: 150px;
@@ -95,53 +93,52 @@
   pointer-events: none;
 }
 
-/* --------------------- Neon card styling --------------------- */
+/* ---------------- NEON CARDS ---------------- */
 
 .neon-card {
   position: relative;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 24px 60px rgba(11, 35, 83, 0.18);
   padding: 1.8rem 2.2rem;
   overflow: hidden;
+  box-shadow: 0 26px 70px rgba(7, 28, 72, 0.22);
 }
 
-/* glowing outline */
+/* Glow γύρω από την κάρτα (όχι μέσα στην κάρτα) */
 .neon-card::before {
   content: "";
   position: absolute;
-  inset: -4px;
+  inset: -10px;
   border-radius: inherit;
-  background: conic-gradient(from 180deg, #15b4ff, #f336e2, #6b5bff, #15b4ff);
-  filter: blur(14px);
-  opacity: 0.7;
+  background: conic-gradient(from 180deg, #15b4ff, #f336e2, #7b5bff, #15b4ff);
+  filter: blur(24px);
+  opacity: 0.9;
   z-index: -1;
-  animation: neonPulse 4s ease-in-out infinite alternate;
+  animation: neonPulse 3.5s ease-in-out infinite alternate;
 }
 
-/* ελαφρύ “ανάσα” στο glow */
 @keyframes neonPulse {
   0% {
-    opacity: 0.3;
-    filter: blur(10px);
+    opacity: 0.4;
+    filter: blur(16px);
   }
   50% {
-    opacity: 0.9;
-    filter: blur(18px);
+    opacity: 1;
+    filter: blur(28px);
   }
   100% {
-    opacity: 0.5;
-    filter: blur(13px);
+    opacity: 0.6;
+    filter: blur(20px);
   }
 }
 
-/* Τίτλος κάρτας με σκιά για να ξεχωρίζει */
+/* Τίτλος κάρτας με σκιά */
 .about-ph-card-title {
   font-weight: 700;
   font-size: 1.05rem;
   margin-bottom: 0.75rem;
   color: #20274b;
-  text-shadow: 0 0 12px rgba(21, 180, 255, 0.4);
+  text-shadow: 0 0 14px rgba(21, 180, 255, 0.6);
 }
 
 /* Κείμενο κάρτας */
@@ -151,7 +148,7 @@
   color: #3a4466;
 }
 
-/* --------------------- Responsiveness --------------------- */
+/* ---------------- RESPONSIVE ---------------- */
 
 @media (max-width: 900px) {
   .about-ph-grid {
@@ -160,12 +157,14 @@
   }
 
   .about-ph-cards-wrapper {
+    height: auto;
     padding-inline: 1.5rem;
+    padding-block: 3rem;
   }
 
   .about-ph-cards-lottie {
     position: static;
     transform: none;
-    margin: 2rem auto 0;
+    margin: 2rem auto;
   }
 }

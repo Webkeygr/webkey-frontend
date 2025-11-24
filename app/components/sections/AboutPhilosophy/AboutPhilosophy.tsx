@@ -38,7 +38,7 @@ const CARDS: CardData[] = [
   },
 ];
 
-const SECTION_VH = 280; // λίγο μεγαλύτερο για να “κρατάει” ο τίτλος
+const SECTION_VH = 280;
 
 export default function AboutPhilosophy() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -48,50 +48,45 @@ export default function AboutPhilosophy() {
     offset: ["start start", "end end"],
   });
 
-  // Smoothing
   const progress = useSpring(scrollYProgress, {
     stiffness: 160,
     damping: 24,
     mass: 0.2,
   });
 
-  // --- ΤΙΤΛΟΣ / SCROLL LOTTIE ---
-
-  // fade-in → hold → fade-out
+  // -------- ΤΙΤΛΟΣ --------
+  // Μεγάλο παράθυρο: fade in → μεγάλο hold → fade out
   const titleOpacity = useTransform(
     progress,
-    [0.0, 0.08, 0.28, 0.42],
+    [0.0, 0.08, 0.55, 0.75],
     [0, 1, 1, 0]
   );
   const titleY = useTransform(
     progress,
-    [0.0, 0.08, 0.28, 0.42],
-    [40, 0, 0, -30]
+    [0.0, 0.08, 0.55, 0.75],
+    [30, 0, 0, -40]
   );
 
-  // Lottie: εμφανίζεται κάτω από τον τίτλο και μένει / μεταφέρεται
+  // -------- LOTTIE ΜΕ ΤΟΝ ΤΙΤΛΟ --------
   const lottieOpacity = useTransform(
     progress,
-    [0.02, 0.1, 0.4, 0.6],
-    [0, 1, 1, 1]
+    [0.02, 0.12, 0.55, 0.75],
+    [0, 1, 1, 0]
   );
   const lottieScale = useTransform(
     progress,
-    [0.02, 0.1, 0.4, 0.6],
-    [0.7, 1, 1.05, 1]
+    [0.02, 0.12, 0.55, 0.75],
+    [0.7, 1, 1.05, 1.05]
   );
-  // Μικρή μετατόπιση προς τα κάτω όταν μπαίνουν οι κάρτες
   const lottieY = useTransform(
     progress,
-    [0.0, 0.35, 0.5, 0.65],
-    [10, 0, 20, 20]
+    [0.0, 0.12, 0.55, 0.75],
+    [20, 0, 20, 40]
   );
 
-  // --- ΚΑΡΤΕΣ ---
-
-  // Πότε μπαίνει συνολικά το grid
-  const cardsOpacity = useTransform(progress, [0.45, 0.6], [0, 1]);
-  const cardsY = useTransform(progress, [0.45, 0.6], [40, 0]);
+  // -------- GRID ΚΑΡΤΩΝ --------
+  const cardsOpacity = useTransform(progress, [0.55, 0.8], [0, 1]);
+  const cardsY = useTransform(progress, [0.55, 0.8], [60, 0]);
 
   return (
     <section
@@ -99,12 +94,12 @@ export default function AboutPhilosophy() {
       className="relative w-full"
       style={{ height: `${SECTION_VH}vh` }}
     >
-      {/* parallax λευκό φόντο που ανεβαίνει και κάθεται full-screen */}
       <div className="about-ph-wrapper sticky top-0 h-screen overflow-hidden">
+        {/* Λευκό parallax layer */}
         <div className="about-ph-bg" />
 
         <div className="about-ph-inner">
-          {/* Τίτλος + Lottie στην πρώτη φάση */}
+          {/* Τίτλος + Lottie (πρώτη φάση) */}
           <motion.div
             className="about-ph-title-block"
             style={{ opacity: titleOpacity, y: titleY }}
@@ -119,7 +114,11 @@ export default function AboutPhilosophy() {
             </GlitchText>
 
             <motion.div
-              style={{ opacity: lottieOpacity, scale: lottieScale, y: lottieY }}
+              style={{
+                opacity: lottieOpacity,
+                scale: lottieScale,
+                y: lottieY,
+              }}
               className="about-ph-lottie-wrapper"
             >
               <Lottie
@@ -131,7 +130,7 @@ export default function AboutPhilosophy() {
             </motion.div>
           </motion.div>
 
-          {/* GRID ΚΑΡΤΩΝ + LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
+          {/* Grid καρτών + Lottie στο κέντρο */}
           <motion.div
             className="about-ph-cards-layer"
             style={{ opacity: cardsOpacity, y: cardsY }}
@@ -147,7 +146,6 @@ export default function AboutPhilosophy() {
                 />
               </div>
 
-              {/* 4 κάρτες γύρω από το Lottie */}
               <CardsGrid cards={CARDS} master={progress} />
             </div>
           </motion.div>
@@ -159,22 +157,12 @@ export default function AboutPhilosophy() {
 
 /* ------------------------ Cards grid + items ------------------------ */
 
-function CardsGrid({
-  cards,
-  master,
-}: {
-  cards: CardData[];
-  master: any; // MotionValue<number>, αλλά κρατάμε any για να μην γκρινιάζει TS
-}) {
+function CardsGrid({ cards, master }: { cards: CardData[]; master: any }) {
   return (
     <div className="about-ph-grid">
-      {/* πάνω αριστερά */}
       <CardItem card={cards[0]} index={0} master={master} />
-      {/* πάνω δεξιά */}
       <CardItem card={cards[1]} index={1} master={master} />
-      {/* κάτω αριστερά */}
       <CardItem card={cards[2]} index={2} master={master} />
-      {/* κάτω δεξιά */}
       <CardItem card={cards[3]} index={3} master={master} />
     </div>
   );
@@ -189,8 +177,8 @@ function CardItem({
   index: number;
   master: any;
 }) {
-  // κάθε κάρτα μπαίνει λίγο πιο αργά από την προηγούμενη
-  const baseStart = 0.5 + index * 0.05;
+  // Κάθε κάρτα μπαίνει με offset για να έρχονται μία-μία
+  const baseStart = 0.6 + index * 0.06;
   const baseEnd = baseStart + 0.1;
 
   const opacity = useTransform(master, [baseStart, baseEnd], [0, 1]);
