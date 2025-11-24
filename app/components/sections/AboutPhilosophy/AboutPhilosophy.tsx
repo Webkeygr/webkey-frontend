@@ -4,14 +4,15 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
+
 import "./AboutPhilosophy.css";
 
-type CardData = {
+type Card = {
   title: string;
   body: string;
 };
 
-const CARDS: CardData[] = [
+const CARDS: Card[] = [
   {
     title: "Clarity first",
     body: "Δεν κρυβόμαστε πίσω από buzzwords. Ξεκινάμε με ξεκάθαρους στόχους: τι θέλεις να πετύχεις, με ποιο κοινό και σε ποιο χρονικό ορίζοντα. Ό,τι σχεδιάζουμε, υπηρετεί αυτό.",
@@ -22,7 +23,7 @@ const CARDS: CardData[] = [
   },
   {
     title: "Tech χωρίς φλυαρία",
-    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελίγεται.",
+    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
   },
   {
     title: "Σχέση, όχι project",
@@ -30,97 +31,67 @@ const CARDS: CardData[] = [
   },
 ];
 
-// Κάνουμε το variants τύπου any για να μην γκρινιάζει το TS
-const cardVariants: any = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.55,
-      delay: 0.18 + i * 0.16,
-      // default ease από framer, δεν βάζουμε string "easeOut" για να μην μπερδεύει το TS
-    },
-  }),
-};
-
 export default function AboutPhilosophy() {
   const [scrollLottie, setScrollLottie] = useState<any | null>(null);
 
-  // Φορτώνουμε το JSON από /public/lottie/scroll-down.json
+  // Φορτώνουμε το Lottie JSON από το /public/lottie/scroll-down.json
   useEffect(() => {
-    let isMounted = true;
-
-    fetch("/lottie/scroll-down.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted) setScrollLottie(data);
-      })
-      .catch(() => {
-        // αν αποτύχει, απλά δεν δείχνουμε Lottie
-      });
-
-    return () => {
-      isMounted = false;
-    };
+    async function loadLottie() {
+      try {
+        const res = await fetch("/lottie/scroll-down.json");
+        if (!res.ok) return;
+        const json = await res.json();
+        setScrollLottie(json);
+      } catch (e) {
+        console.error("Failed to load scroll-down lottie:", e);
+      }
+    }
+    loadLottie();
   }, []);
 
   return (
-    <section className="about-section">
-      {/* sticky λευκό panel που ανεβαίνει και γίνεται fullscreen */}
+    <section id="about-philosophy" className="about-section">
       <div className="about-panel-wrap">
         <div className="about-panel">
-          {/* ΤΙΤΛΟΣ ΣΤΟ ΚΕΝΤΡΟ + LOTTIE ΑΠΟ ΚΑΤΩ */}
-          <div className="about-top">
+          {/* ΤΙΤΛΟΣ + LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
+          <div className="about-heading-block">
             <h2 className="about-glitch-heading">
               <GlitchText>Ποιοι είμαστε</GlitchText>
             </h2>
 
             {scrollLottie && (
-              <div className="about-lottie-top">
+              <div className="about-lottie-wrapper">
                 <Lottie
                   animationData={scrollLottie}
                   loop
                   autoplay
-                  style={{ width: 140, height: 140 }}
+                  className="about-lottie"
                 />
               </div>
             )}
           </div>
 
-          {/* GRID ΜΕ ΤΙΣ ΚΑΡΤΕΣ ΣΤΟ ΚΕΝΤΡΟ + LOTTIE ΣΤΗ ΜΕΣΗ ΤΟΥ GRID */}
-          <div className="about-grid-wrapper">
-            {scrollLottie && (
-              <div className="about-lottie-center">
-                <Lottie
-                  animationData={scrollLottie}
-                  loop
-                  autoplay
-                  style={{ width: 150, height: 150 }}
-                />
-              </div>
-            )}
-
-            <motion.div
-              className="about-grid"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.25 }}
-            >
-              {CARDS.map((card, index) => (
-                <motion.div
-                  key={card.title}
-                  className="about-card-outer philo-card-glow philo-card-glow-active"
-                  variants={cardVariants}
-                  custom={index}
-                >
-                  <div className="about-card-inner">
-                    <div className="about-card-title">{card.title}</div>
-                    <div className="about-card-body">{card.body}</div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+          {/* GRID ΜΕ ΚΑΡΤΕΣ – στο κέντρο, με neon glow + stagger animation */}
+          <div className="about-grid">
+            {CARDS.map((card, index) => (
+              <motion.div
+                key={card.title}
+                className="about-card-outer philo-card-glow philo-card-glow-active"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{
+                  duration: 0.6,
+                  delay: 0.15 + index * 0.18,
+                  ease: "easeOut",
+                }}
+              >
+                <div className="about-card-inner">
+                  <div className="about-card-title">{card.title}</div>
+                  <div className="about-card-body">{card.body}</div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
