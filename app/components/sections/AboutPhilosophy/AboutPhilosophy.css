@@ -122,13 +122,7 @@
   position: absolute;
   inset: -18px;
   border-radius: inherit;
-  background: conic-gradient(
-    from 180deg,
-    #ff00b7,
-    #7a5cff,
-    #00e0ff,
-    #ff00b7
-  );
+  background: conic-gradient(from 180deg, #ff00b7, #7a5cff, #00e0ff, #ff00b7);
   filter: blur(20px);
   opacity: 0;
   pointer-events: none;
@@ -225,13 +219,21 @@
     padding-bottom: 100px;
   }
 
+  .philo-card-glow::before {
+    inset: -6px; /* πιο κοντά στο border (ή -4px αν το θες ακόμα πιο σφιχτό) */
+    filter: blur(10px); /* μικρότερος blur = λιγότερο spread */
+  }
+
+  .philo-card-glow-active::before {
+    opacity: 0.7; /* χαμηλότερη ένταση για να μη μοιάζει με φόντο */
+  }
   /* MOBILE INTRO – sticky, αλλά κάτω από τις κάρτες */
   .about-mobile-intro {
     position: sticky;
     top: 0;
     height: 100vh;
     background: #ffffff;
-    z-index: 1;               /* κάτω από τις κάρτες */
+    z-index: 1; /* κάτω από τις κάρτες */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -248,8 +250,8 @@
   /* MOBILE CARDS – έρχονται από κάτω και σκεπάζουν το intro */
   .about-mobile-cards {
     position: relative;
-    z-index: 2;               /* ΠΑΝΩ από το intro */
-    margin-top: 40px;
+    z-index: 2; /* ΠΑΝΩ από το intro */
+    margin-top: 220px;
     display: flex;
     flex-direction: column;
     gap: 40px;
