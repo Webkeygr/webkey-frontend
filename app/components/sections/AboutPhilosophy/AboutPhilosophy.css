@@ -1,7 +1,7 @@
 /* ΟΛΟ ΤΟ SECTION – αρκετό ύψος ώστε το sticky panel να μείνει για 2–3 scrolls */
 .about-section {
   position: relative;
-  height: 520vh;
+  height: 820vh;
 }
 
 /* Sticky λευκό panel που έρχεται με parallax και σκεπάζει το προηγούμενο περιεχόμενο */
