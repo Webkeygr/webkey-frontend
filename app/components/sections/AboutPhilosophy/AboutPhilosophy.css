@@ -251,7 +251,7 @@
   .about-mobile-cards {
     position: relative;
     z-index: 2; /* ΠΑΝΩ από το intro */
-    margin-top: 420px;
+    margin-top: 620px;
     display: flex;
     flex-direction: column;
     gap: 40px;
