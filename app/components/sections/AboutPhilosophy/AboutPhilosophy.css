@@ -225,20 +225,17 @@
     padding-bottom: 100px;
   }
 
-  /* MOBILE INTRO – ΟΧΙ sticky πια */
+  /* MOBILE INTRO – sticky, αλλά κάτω από τις κάρτες */
   .about-mobile-intro {
-    position: relative;      /* <- ΟΧΙ sticky */
-    top: auto;
+    position: sticky;
+    top: 0;
     height: 100vh;
     background: #ffffff;
-    z-index: auto;
-    pointer-events: auto;
-
+    z-index: 1;               /* κάτω από τις κάρτες */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
     padding-inline: 24px;
     text-align: center;
   }
@@ -248,12 +245,11 @@
     margin-top: 24px;
   }
 
-  /* MOBILE CARDS – κανονικό flow κάτω από το intro */
+  /* MOBILE CARDS – έρχονται από κάτω και σκεπάζουν το intro */
   .about-mobile-cards {
     position: relative;
-    z-index: auto;
+    z-index: 2;               /* ΠΑΝΩ από το intro */
     margin-top: 40px;
-
     display: flex;
     flex-direction: column;
     gap: 40px;
@@ -266,7 +262,7 @@
     margin-inline: auto;
   }
 
-  /* Κρύβουμε εντελώς το desktop layout στο mobile */
+  /* Κρύβουμε τελείως το desktop layout στο mobile */
   .about-panel-wrap {
     display: none !important;
   }

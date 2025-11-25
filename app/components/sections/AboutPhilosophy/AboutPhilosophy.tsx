@@ -81,16 +81,18 @@ export default function AboutPhilosophy() {
 
   /* ---------------------- MOBILE TRANSFORMS ---------------------- */
 
-  const mobileTitleOpacity = useTransform(
-    scrollYProgress,
-    [0.05, 0.20, 0.45, 0.55],
-    [0, 1, 1, 0]
-  );
-  const mobileTitleY = useTransform(
-    scrollYProgress,
-    [0.05, 0.20, 0.55],
-    [40, 0, -20]
-  );
+  // Τίτλος: ανεβαίνει, μένει αρκετά, μετά σβήνει
+const mobileTitleOpacity = useTransform(
+  scrollYProgress,
+  [0.05, 0.20, 0.75, 0.85],
+  [0, 1, 1, 0]
+);
+
+const mobileTitleY = useTransform(
+  scrollYProgress,
+  [0.05, 0.20, 0.85],
+  [40, 0, -20]
+);
 
   const mobileLottieOpacity = useTransform(scrollYProgress, [0.10, 0.28], [0, 1]);
   const mobileLottieScale = useTransform(scrollYProgress, [0.10, 0.28], [0.70, 1]);
