@@ -94,12 +94,13 @@ export default function AboutPhilosophy() {
   gridY:       useTransform(scrollYProgress, [0.60, 0.75], [80, 0]),
 
   // Card appearance MUCH earlier
-  cardRanges: [
-    [0.64, 0.72], // Card 1
-    [0.74, 0.82], // Card 2
-    [0.84, 0.92], // Card 3
-    [0.94, 1.02], // Card 4
-  ],
+ cardRanges: [
+  [0.45, 0.55], // Card 1
+  [0.58, 0.68], // Card 2
+  [0.70, 0.80], // Card 3
+  [0.82, 0.92], // Card 4
+],
+
 };
 
   const active = isMobile ? mobile : desktop;
