@@ -215,3 +215,39 @@
     font-size: 14px;
   }
 }
+
+/* MOBILE ONLY: 360px → 915px */
+@media only screen and (max-width: 915px) and (min-width: 360px) {
+
+  .about-section {
+    height: 650vh !important; /* αρκετό ύψος για το long pause */
+  }
+
+  .about-panel-wrap {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  .about-center-layer {
+    padding-top: 0;
+    justify-content: center;
+  }
+
+  .about-grid-overlay {
+    position: relative;
+    margin-top: 120px;
+    padding-top: 40px;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about-card-outer {
+    max-width: 420px;
+  }
+
+  .about-lottie {
+    width: 120px;
+  }
+}
+
