@@ -64,17 +64,18 @@ export default function AboutPhilosophy() {
   const gridY = useTransform(scrollYProgress, [0.55, 0.7], [80, 0]);
 
   // GOD MODE — κάθε 2 scrolls η επόμενη κάρτα
-  const card1Opacity = useTransform(scrollYProgress, [0.58, 0.70], [0, 1]);
-const card1Y       = useTransform(scrollYProgress, [0.58, 0.70], [40, 0]);
+  const card1Opacity = useTransform(scrollYProgress, [0.52, 0.64], [0, 1]);
+const card1Y       = useTransform(scrollYProgress, [0.52, 0.64], [40, 0]);
 
-const card2Opacity = useTransform(scrollYProgress, [0.75, 0.87], [0, 1]);
-const card2Y       = useTransform(scrollYProgress, [0.75, 0.87], [40, 0]);
+const card2Opacity = useTransform(scrollYProgress, [0.66, 0.78], [0, 1]);
+const card2Y       = useTransform(scrollYProgress, [0.66, 0.78], [40, 0]);
 
-const card3Opacity = useTransform(scrollYProgress, [0.92, 1.04], [0, 1]);
-const card3Y       = useTransform(scrollYProgress, [0.92, 1.04], [40, 0]);
+const card3Opacity = useTransform(scrollYProgress, [0.80, 0.92], [0, 1]);
+const card3Y       = useTransform(scrollYProgress, [0.80, 0.92], [40, 0]);
 
-const card4Opacity = useTransform(scrollYProgress, [1.08, 1.20], [0, 1]);
-const card4Y       = useTransform(scrollYProgress, [1.08, 1.20], [40, 0]);
+const card4Opacity = useTransform(scrollYProgress, [0.94, 1.06], [0, 1]);
+const card4Y       = useTransform(scrollYProgress, [0.94, 1.06], [40, 0]);
+
 
 
   const cardOpacities = [
