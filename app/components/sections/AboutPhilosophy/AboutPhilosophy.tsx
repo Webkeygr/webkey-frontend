@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
+import scrollDownAnimation from "./scroll-down.json";
 
 import "./AboutPhilosophy.css";
 
@@ -32,23 +33,6 @@ const CARDS: Card[] = [
 ];
 
 export default function AboutPhilosophy() {
-  const [scrollLottie, setScrollLottie] = useState<any | null>(null);
-
-  // Φόρτωμα Lottie από το public/lottie/scroll-down.json
-  useEffect(() => {
-    async function loadLottie() {
-      try {
-        const res = await fetch("/lottie/scroll-down.json");
-        if (!res.ok) return;
-        const json = await res.json();
-        setScrollLottie(json);
-      } catch (e) {
-        console.error("Failed to load scroll-down lottie:", e);
-      }
-    }
-    loadLottie();
-  }, []);
-
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
   const { scrollYProgress } = useScroll({
@@ -56,39 +40,39 @@ export default function AboutPhilosophy() {
     offset: ["start start", "end end"],
   });
 
-  // Λευκό panel που «σέρνεται» προς τα πάνω και σκεπάζει το προηγούμενο content
-  const panelY = useTransform(scrollYProgress, [0, 0.35], ["30vh", "0vh"]);
+  // Λευκό panel που ανεβαίνει (parallax)
+  const panelY = useTransform(scrollYProgress, [0, 0.35], ["20vh", "0vh"]);
 
-  // Τίτλος: εμφανίζεται αφού μπει το λευκό, μένει λίγο, μετά fade out
+  // Τίτλος – εμφανίζεται μετά το background, μένει λίγο, μετά σβήνει
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.2, 0.35, 0.6, 0.8],
+    [0.12, 0.28, 0.6, 0.8],
     [0, 1, 1, 0]
   );
-  const titleY = useTransform(scrollYProgress, [0.2, 0.35, 0.8], [20, 0, -30]);
-
-  // Lottie: fade in λίγο μετά τον τίτλο, μετά μένει σταθερό (χωρίς fade out)
-  const lottieOpacity = useTransform(scrollYProgress, [0.28, 0.42], [0, 1]);
-  const lottieScale = useTransform(
+  const titleY = useTransform(
     scrollYProgress,
-    [0.28, 0.42, 1],
-    [0.7, 1, 1]
+    [0.12, 0.28, 0.8],
+    [24, 0, -20]
   );
 
-  // Όλο το grid καρτών
-  const gridOpacity = useTransform(scrollYProgress, [0.5, 0.65], [0, 1]);
-  const gridY = useTransform(scrollYProgress, [0.5, 0.65], [80, 0]);
+  // Lottie – εμφανίζεται λίγο μετά τον τίτλο και μένει ορατό
+  const lottieOpacity = useTransform(scrollYProgress, [0.2, 0.35], [0, 1]);
+  const lottieScale = useTransform(scrollYProgress, [0.2, 0.35], [0.85, 1]);
 
-  // Stagger για κάθε κάρτα (ένα-ένα με διαφορά scroll)
-  const card1Opacity = useTransform(scrollYProgress, [0.55, 0.65], [0, 1]);
-  const card2Opacity = useTransform(scrollYProgress, [0.6, 0.7], [0, 1]);
-  const card3Opacity = useTransform(scrollYProgress, [0.65, 0.75], [0, 1]);
-  const card4Opacity = useTransform(scrollYProgress, [0.7, 0.8], [0, 1]);
+  // Grid καρτών – συνολική εμφάνιση
+  const gridOpacity = useTransform(scrollYProgress, [0.55, 0.7], [0, 1]);
+  const gridY = useTransform(scrollYProgress, [0.55, 0.7], [80, 0]);
 
-  const card1Y = useTransform(scrollYProgress, [0.55, 0.65], [40, 0]);
-  const card2Y = useTransform(scrollYProgress, [0.6, 0.7], [40, 0]);
-  const card3Y = useTransform(scrollYProgress, [0.65, 0.75], [40, 0]);
-  const card4Y = useTransform(scrollYProgress, [0.7, 0.8], [40, 0]);
+  // Stagger per card (με μεγαλύτερη απόσταση μεταξύ τους)
+  const card1Opacity = useTransform(scrollYProgress, [0.6, 0.72], [0, 1]);
+  const card2Opacity = useTransform(scrollYProgress, [0.68, 0.8], [0, 1]);
+  const card3Opacity = useTransform(scrollYProgress, [0.76, 0.88], [0, 1]);
+  const card4Opacity = useTransform(scrollYProgress, [0.84, 0.96], [0, 1]);
+
+  const card1Y = useTransform(scrollYProgress, [0.6, 0.72], [40, 0]);
+  const card2Y = useTransform(scrollYProgress, [0.68, 0.8], [40, 0]);
+  const card3Y = useTransform(scrollYProgress, [0.76, 0.88], [40, 0]);
+  const card4Y = useTransform(scrollYProgress, [0.84, 0.96], [40, 0]);
 
   const cardOpacities = [card1Opacity, card2Opacity, card3Opacity, card4Opacity];
   const cardYs = [card1Y, card2Y, card3Y, card4Y];
@@ -101,39 +85,41 @@ export default function AboutPhilosophy() {
     >
       <div className="about-panel-wrap">
         <motion.div className="about-panel" style={{ y: panelY }}>
-          {/* Τίτλος (glitch) */}
-          <div className="about-heading-block">
+          {/* Κεντρικό layer: τίτλος + Lottie στο κέντρο */}
+          <div className="about-center-layer">
             <motion.h2
               className="about-glitch-heading"
               style={{ opacity: titleOpacity, y: titleY }}
             >
-              <GlitchText enableOnHover={false} enableShadows>
-                Ποιοι είμαστε
+              <GlitchText
+                enableOnHover={false}
+                enableShadows
+                className="about-glitch-inner"
+              >
+                Ποιοι Είμαστε
               </GlitchText>
             </motion.h2>
+
+            <motion.div
+              className="about-center-lottie"
+              style={{ opacity: lottieOpacity, scale: lottieScale }}
+            >
+              <Lottie
+                animationData={scrollDownAnimation}
+                loop
+                autoplay
+                className="about-lottie"
+              />
+            </motion.div>
           </div>
 
-          {/* Grid: 4 κάρτες + Lottie στο κέντρο */}
+          {/* Overlay grid με τις κάρτες γύρω από το Lottie */}
           <motion.div
-            className="about-grid"
+            className="about-grid-overlay"
             style={{ opacity: gridOpacity, y: gridY }}
           >
-            {scrollLottie && (
-              <motion.div
-                className="about-lottie-center"
-                style={{ opacity: lottieOpacity, scale: lottieScale }}
-              >
-                <Lottie
-                  animationData={scrollLottie}
-                  loop
-                  autoplay
-                  className="about-lottie"
-                />
-              </motion.div>
-            )}
-
             {CARDS.map((card, index) => (
-              <motion.div
+              <motion.article
                 key={card.title}
                 className={`about-card-outer about-card-pos-${
                   index + 1
@@ -147,7 +133,7 @@ export default function AboutPhilosophy() {
                   <div className="about-card-title">{card.title}</div>
                   <div className="about-card-body">{card.body}</div>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
           </motion.div>
         </motion.div>

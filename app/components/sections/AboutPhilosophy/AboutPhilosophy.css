@@ -1,117 +1,104 @@
-/* ΟΛΟ ΤΟ SECTION – extra ύψος για να μείνει το panel για 2-3 scrolls */
+/* ΟΛΟ ΤΟ SECTION – αρκετό ύψος ώστε το sticky panel να μείνει για 2–3 scrolls */
 .about-section {
   position: relative;
   height: 320vh;
 }
 
-/* Sticky λευκό panel που σκεπάζει το προηγούμενο content */
+/* Sticky λευκό panel που έρχεται με parallax και σκεπάζει το προηγούμενο περιεχόμενο */
 .about-panel-wrap {
   position: sticky;
   top: 0;
   height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   pointer-events: none;
 }
 
-/* Το ίδιο το λευκό panel */
 .about-panel {
+  position: relative;
   width: 100%;
   height: 100%;
   background: #ffffff;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* -------- ΚΕΝΤΡΙΚΟ LAYER: ΤΙΤΛΟΣ + LOTTIE -------- */
+
+.about-center-layer {
+  position: relative;
+  z-index: 2;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding-inline: clamp(24px, 5vw, 64px);
-  padding-block: clamp(40px, 6vh, 72px);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.08);
-  pointer-events: auto;
-}
-
-/* -------- ΤΙΤΛΟΣ -------- */
-
-.about-heading-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: clamp(24px, 5vh, 40px);
 }
 
 .about-glitch-heading {
-  margin: 0;
+  margin: 0 0 clamp(24px, 4vh, 32px);
+  text-align: center;
 }
 
-/* Εδώ πατάμε πάνω στο GlitchText για να έχουμε το clamp που θες */
 .about-glitch-heading .glitch {
   font-size: clamp(32px, 5vw, 90px);
+  text-transform: none; /* πεζοκεφαλαία, όχι όλα κεφαλαία */
+  letter-spacing: 0.04em;
 }
 
-/* -------- GRID 3x2 (4 κάρτες + Lottie στο κέντρο) -------- */
-
-.about-grid {
-  width: 100%;
-  max-width: 1100px;
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto auto;
-  grid-template-areas:
-    "card1 center card2"
-    "card3 center card4";
-  gap: clamp(32px, 4vw, 48px);
-  align-items: center;
-  justify-items: center;
-}
-
-/* Θέσεις καρτών στο grid */
-.about-card-pos-1 {
-  grid-area: card1;
-}
-.about-card-pos-2 {
-  grid-area: card2;
-}
-.about-card-pos-3 {
-  grid-area: card3;
-}
-.about-card-pos-4 {
-  grid-area: card4;
-}
-
-/* Lottie στο κέντρο των καρτελών */
-.about-lottie-center {
-  grid-area: center;
+.about-center-lottie {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .about-lottie {
-  width: clamp(110px, 12vw, 150px);
-  height: clamp(110px, 12vw, 150px);
+  width: clamp(110px, 10vw, 150px);
+  height: auto;
 }
 
-/* --------- Κάρτες + NEON GLOW (όπως πριν) --------- */
+/* -------- GRID OVERLAY ΜΕ ΚΑΡΤΕΣ -------- */
 
+.about-grid-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(32px, 4vw, 48px);
+  padding-inline: clamp(48px, 8vw, 120px);
+  padding-block: clamp(72px, 14vh, 120px);
+  align-items: center;
+  justify-items: center;
+  /* αφήνουμε τα pointer events για να είναι clickable οι κάρτες */
+}
+
+/* εξωτερικό wrapper για το glow και το ίσο μέγεθος */
 .about-card-outer {
   position: relative;
   width: 100%;
   max-width: 380px;
   border-radius: 24px;
+  pointer-events: auto;
 }
 
-/* ίδια η κάρτα */
+/* ίδια κάρτα – χωρίς κίτρινο border, με ίσο ύψος και centered text */
 .about-card-inner {
   position: relative;
   z-index: 1;
-  padding-inline: clamp(22px, 3vw, 30px);
-  padding-block: clamp(28px, 3.2vw, 36px);
   border-radius: inherit;
+  padding-inline: clamp(24px, 3vw, 30px);
+  padding-block: clamp(28px, 3.2vw, 36px);
   background: #050608;
-  border: 1px solid #fcec45;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 230px; /* ίσο ύψος για όλες */
 }
 
 .about-card-title {
@@ -119,7 +106,7 @@
   font-size: clamp(20px, 2.1vw, 22px);
   text-align: center;
   color: #ffffff;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .about-card-body {
@@ -129,7 +116,7 @@
   text-align: center;
 }
 
-/* NEON glow γύρω από τις κάρτες (από το παλιό αρχείο) */
+/* NEON GLOW – γύρω από τις κάρτες */
 .philo-card-glow::before {
   content: "";
   position: absolute;
@@ -142,11 +129,11 @@
     #00e0ff,
     #ff00b7
   );
-  filter: blur(18px);
+  filter: blur(20px);
   opacity: 0;
   pointer-events: none;
-  animation: philoNeon 6s linear infinite;
   background-size: 200% 200%;
+  animation: philoNeon 6s linear infinite;
 }
 
 .philo-card-glow-active::before {
@@ -168,21 +155,21 @@
   }
 }
 
-/* ------------ Responsive ------------ */
+/* -------- RESPONSIVE -------- */
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .about-section {
     height: 280vh;
   }
 
-  .about-panel {
-    padding-inline: 24px;
+  .about-grid-overlay {
+    padding-inline: clamp(32px, 6vw, 72px);
   }
 }
 
 @media (max-width: 900px) {
   .about-section {
-    height: auto; /* σε μικρές οθόνες πιο φυσικό scroll */
+    height: auto; /* πιο φυσικό scroll σε μικρές οθόνες */
   }
 
   .about-panel-wrap {
@@ -191,18 +178,17 @@
   }
 
   .about-panel {
-    padding-block: 56px;
+    padding-block: clamp(56px, 14vh, 80px);
   }
 
-  .about-grid {
+  .about-grid-overlay {
+    position: static;
+    margin-top: clamp(32px, 6vh, 48px);
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "center"
-      "card1"
-      "card2"
-      "card3"
-      "card4";
-    max-width: 420px;
+    grid-template-rows: none;
+    gap: 24px;
+    padding-inline: clamp(20px, 6vw, 40px);
+    padding-block: 0;
   }
 
   .about-card-outer {
@@ -211,22 +197,18 @@
 
   .about-lottie {
     width: 120px;
-    height: 120px;
+  }
+
+  .about-glitch-heading .glitch {
+    font-size: clamp(32px, 8vw, 52px);
   }
 }
 
 @media (max-width: 600px) {
-  .about-panel {
-    padding-inline: 18px;
-  }
-
-  .about-glitch-heading .glitch {
-    font-size: clamp(32px, 9vw, 60px);
-  }
-
   .about-card-inner {
     padding-inline: 20px;
-    padding-block: 24px 30px;
+    padding-block: 22px 28px;
+    min-height: 220px;
   }
 
   .about-card-body {
