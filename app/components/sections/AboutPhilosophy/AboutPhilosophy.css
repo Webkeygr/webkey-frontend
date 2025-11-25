@@ -220,54 +220,53 @@
   }
 
   .about-mobile-card.philo-card-glow::before {
-    inset: -4px;        /* πολύ κοντά στο border */
-    filter: blur(6px);  /* μικρός blur -> δεν “απλώνει” τόσο */
+    inset: -4px; /* πολύ κοντά στο border */
+    filter: blur(6px); /* μικρός blur -> δεν “απλώνει” τόσο */
   }
 
   .about-mobile-card.philo-card-glow-active::before {
-    opacity: 0.6;       /* πιο χαμηλό, να μην μοιάζει με background */
+    opacity: 0.6; /* πιο χαμηλό, να μην μοιάζει με background */
   }
 }
-  /* MOBILE INTRO – sticky, αλλά κάτω από τις κάρτες */
-  .about-mobile-intro {
-    position: sticky;
-    top: 0;
-    height: 200vh;
-    background: #ffffff;
-    z-index: 1; /* κάτω από τις κάρτες */
-    display: flex;
-    flex-direction: column;
-    justify-content: top;
-    align-items: center;
-    padding-top: 300px;
-    text-align: center;
-    margin-bottom: 150px;
-  }
+/* MOBILE INTRO – sticky, αλλά κάτω από τις κάρτες */
+.about-mobile-intro {
+  position: sticky;
+  top: 0;
+  height: 200vh;
+  background: #ffffff;
+  z-index: 1; /* κάτω από τις κάρτες */
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+  padding-top: 300px;
+  text-align: center;
+  margin-bottom: 150px;
+}
 
-  .about-mobile-intro .about-lottie {
-    width: 120px;
-    margin-top: 24px;
-  }
+.about-mobile-intro .about-lottie {
+  width: 120px;
+  margin-top: 24px;
+}
 
-  /* MOBILE CARDS – έρχονται από κάτω και σκεπάζουν το intro */
-  .about-mobile-cards {
-    position: relative;
-    z-index: 2; /* ΠΑΝΩ από το intro */
-    margin-top: 620px;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    padding-inline: 24px;
-  }
+/* MOBILE CARDS – έρχονται από κάτω και σκεπάζουν το intro */
+.about-mobile-cards {
+  position: relative;
+  z-index: 2; /* ΠΑΝΩ από το intro */
+  margin-top: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-inline: 24px;
+}
 
-  .about-mobile-card {
-    width: 100%;
-    max-width: 420px;
-    margin-inline: auto;
-  }
+.about-mobile-card {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
 
-  /* Κρύβουμε τελείως το desktop layout στο mobile */
-  .about-panel-wrap {
-    display: none !important;
-  }
+/* Κρύβουμε τελείως το desktop layout στο mobile */
+.about-panel-wrap {
+  display: none !important;
 }
