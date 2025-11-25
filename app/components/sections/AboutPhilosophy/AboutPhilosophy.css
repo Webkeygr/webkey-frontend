@@ -220,7 +220,7 @@
 @media only screen and (max-width: 915px) and (min-width: 360px) {
 
   .about-section {
-    height: 650vh !important; /* αρκετό ύψος για το long pause */
+    height: 520vh !important; /* αρκετό ύψος για το long pause */
   }
 
   .about-panel-wrap {

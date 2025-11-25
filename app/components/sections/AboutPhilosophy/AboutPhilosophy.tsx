@@ -79,28 +79,28 @@ export default function AboutPhilosophy() {
 
   // Τίτλος + Lottie μένουν στο κέντρο ΠΟΛΥ περισσότερο
   const mobile = {
-    panelY: useTransform(scrollYProgress, [0, 0.45], ["25vh", "0vh"]),
+  panelY: useTransform(scrollYProgress, [0, 0.35], ["25vh", "0vh"]),
 
-    // TITLE stays longer
-    titleOpacity: useTransform(scrollYProgress, [0.10, 0.35, 0.85, 1.2], [0, 1, 1, 0]),
-    titleY: useTransform(scrollYProgress, [0.10, 0.35, 1.2], [40, 0, -30]),
+  // Title appears sooner + shorter pause
+  titleOpacity: useTransform(scrollYProgress, [0.10, 0.28, 0.55, 0.75], [0, 1, 1, 0]),
+  titleY:       useTransform(scrollYProgress, [0.10, 0.28, 0.75], [40, 0, -20]),
 
-    // LOTTIE also stays very long
-    lottieOpacity: useTransform(scrollYProgress, [0.18, 0.40], [0, 1]),
-    lottieScale: useTransform(scrollYProgress, [0.18, 0.40], [0.75, 1]),
+  // Lottie same timing as title
+  lottieOpacity: useTransform(scrollYProgress, [0.16, 0.30], [0, 1]),
+  lottieScale:   useTransform(scrollYProgress, [0.16, 0.30], [0.75, 1]),
 
-    // Cards start MUCH later (after the big pause)
-    gridOpacity: useTransform(scrollYProgress, [0.90, 1.10], [0, 1]),
-    gridY: useTransform(scrollYProgress, [0.90, 1.10], [120, 0]),
+  // Grid appears earlier (after short pause)
+  gridOpacity: useTransform(scrollYProgress, [0.60, 0.75], [0, 1]),
+  gridY:       useTransform(scrollYProgress, [0.60, 0.75], [80, 0]),
 
-    // Cards stacked — each one enters faster (but after a long intro)
-    cardRanges: [
-      [0.95, 1.05], // Card 1
-      [1.10, 1.19], // Card 2
-      [1.22, 1.32], // Card 3
-      [1.34, 1.44], // Card 4
-    ],
-  };
+  // Card appearance MUCH earlier
+  cardRanges: [
+    [0.64, 0.72], // Card 1
+    [0.74, 0.82], // Card 2
+    [0.84, 0.92], // Card 3
+    [0.94, 1.02], // Card 4
+  ],
+};
 
   const active = isMobile ? mobile : desktop;
 
