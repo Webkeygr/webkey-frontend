@@ -78,6 +78,11 @@ body {
   margin-bottom: 1rem;
 }
 
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 .maintenance-card p {
   margin-bottom: 0.5rem;
   line-height: 1.6;
@@ -150,9 +155,6 @@ body {
 }
 
 /* Κοινές ρυθμίσεις για κάθε γραμμή τίτλου */
-.hero-line {
-  /* Αν θες padding ανά γραμμή, το πειράζεις στα hero-line-1/2/3 */
-}
 
 /* Βασικός τίτλος – μέγεθος, γραμματοσειρά, κλπ */
 .hero-title {
@@ -276,7 +278,7 @@ body {
   box-shadow: 0 0 32px rgba(0, 0, 0, 0.24);
   transition: transform 0.15s ease;
   margin-top: 24px;
-  margin-left: 50px;   /* ➜ το πάει λίγο δεξιά */
+  margin-left: 50px; /* ➜ το πάει λίγο δεξιά */
 }
 
 .hero-cta:hover {
@@ -327,8 +329,8 @@ body {
     padding: 0 0 32px 0;
   }
   .hero-text-block p {
-  font-size: 15px; /* π.χ. 15px ή 16px */
-}
+    font-size: 15px; /* π.χ. 15px ή 16px */
+  }
 
   .hero-text-inner {
     padding-top: 16px;
@@ -341,13 +343,17 @@ body {
     margin-top: 20px;
   }
 
-  .hero-line-1 { padding-bottom: 10px;
-                  padding-top:60px; }
-  .hero-line-2 { padding-bottom: 10px; }
-  .hero-line-3 { padding-bottom: 0; }
-
+  .hero-line-1 {
+    padding-bottom: 10px;
+    padding-top: 60px;
+  }
+  .hero-line-2 {
+    padding-bottom: 10px;
+  }
+  .hero-line-3 {
+    padding-bottom: 0;
+  }
 }
-
 
 @media only screen and (max-width: 915px) and (min-width: 360px) {
   /* 20px padding δεξιά–αριστερά, λίγο “αέρας” πάνω/κάτω */
@@ -359,8 +365,8 @@ body {
   /* Όλα σε μια στήλη, αριστερή στοίχιση */
   .hero-inner {
     align-items: flex-start;
-    row-gap:0;
-    padding-top:5px;
+    row-gap: 0;
+    padding-top: 5px;
   }
 
   /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
@@ -377,12 +383,12 @@ body {
   }
 
   .header-logo {
-    height:auto;
-    width: 580px;   /* δοκίμασε 260–300 αν το θες πιο πολύ ή λιγότερο */
+    height: auto;
+    width: 580px; /* δοκίμασε 260–300 αν το θες πιο πολύ ή λιγότερο */
   }
 
   .logo-plain img {
-    height: 90px !important;  /* παίξε 60–80px ανάλογα τι σου κάθεται όμορφα */
+    height: 90px !important; /* παίξε 60–80px ανάλογα τι σου κάθεται όμορφα */
     width: auto !important;
   }
 
@@ -395,7 +401,6 @@ body {
   .hero-line-2 .hero-title {
     line-height: 1.6;
   }
-
 
   /* Τίτλος πιο μικρός, να σπάει σωστά σε γραμμές */
   .hero-title {
@@ -417,8 +422,8 @@ body {
     padding: 0 0 32px 0;
   }
   .hero-text-block p {
-  font-size: 15px; /* π.χ. 15px ή 16px */
-}
+    font-size: 15px; /* π.χ. 15px ή 16px */
+  }
 
   .hero-text-inner {
     padding-top: 0;
@@ -431,8 +436,13 @@ body {
     margin-top: 20px;
   }
 
-  .hero-line-1 { padding-bottom: 0; }
-  .hero-line-2 { padding-bottom: 0; }
-  .hero-line-3 { padding-bottom: 0; }
-
+  .hero-line-1 {
+    padding-bottom: 0;
+  }
+  .hero-line-2 {
+    padding-bottom: 0;
+  }
+  .hero-line-3 {
+    padding-bottom: 0;
+  }
 }
