@@ -219,14 +219,15 @@
     padding-bottom: 100px;
   }
 
-  .philo-card-glow::before {
-    inset: -6px; /* πιο κοντά στο border (ή -4px αν το θες ακόμα πιο σφιχτό) */
-    filter: blur(10px); /* μικρότερος blur = λιγότερο spread */
+  .about-mobile-card.philo-card-glow::before {
+    inset: -4px;        /* πολύ κοντά στο border */
+    filter: blur(6px);  /* μικρός blur -> δεν “απλώνει” τόσο */
   }
 
-  .philo-card-glow-active::before {
-    opacity: 0.7; /* χαμηλότερη ένταση για να μη μοιάζει με φόντο */
+  .about-mobile-card.philo-card-glow-active::before {
+    opacity: 0.6;       /* πιο χαμηλό, να μην μοιάζει με background */
   }
+}
   /* MOBILE INTRO – sticky, αλλά κάτω από τις κάρτες */
   .about-mobile-intro {
     position: sticky;
