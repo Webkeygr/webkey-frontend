@@ -14,13 +14,7 @@ export default function ScrollTextSection() {
     >
       <div className="flex items-center justify-center">
         <ScrollVelocity
-          texts={[
-            "Creative Websites",
-            "Digital Identity",
-            "Headless WordPress",
-            "Next.js Development",
-            "Webkey Studio",
-          ]}
+          texts={["Creative Websites ", " Digital Identity"]}
           velocity={80}
           className="
             text-[clamp(28px,6vw,70px)] 
