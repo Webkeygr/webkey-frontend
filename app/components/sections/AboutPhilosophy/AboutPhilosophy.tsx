@@ -63,16 +63,16 @@ export default function AboutPhilosophy() {
   const gridOpacity = useTransform(scrollYProgress, [0.55, 0.7], [0, 1]);
   const gridY = useTransform(scrollYProgress, [0.55, 0.7], [80, 0]);
 
-  // Stagger per card – ΜΕΓΑΛΥΤΕΡΗ ΚΑΘΥΣΤΕΡΗΣΗ ΜΕΤΑΞΥ ΤΟΥΣ
+  // 🔥 ΠΟΛΥ ΜΕΓΑΛΥΤΕΡΗ ΚΑΘΥΣΤΕΡΗΣΗ ΜΕΤΑΞΥ ΚΑΡΤΩΝ 🔥
   const card1Opacity = useTransform(scrollYProgress, [0.58, 0.7], [0, 1]);
-  const card2Opacity = useTransform(scrollYProgress, [0.72, 0.84], [0, 1]);
-  const card3Opacity = useTransform(scrollYProgress, [0.86, 0.98], [0, 1]);
-  const card4Opacity = useTransform(scrollYProgress, [0.92, 1], [0, 1]);
+  const card2Opacity = useTransform(scrollYProgress, [0.76, 0.88], [0, 1]);
+  const card3Opacity = useTransform(scrollYProgress, [0.9, 0.98], [0, 1]);
+  const card4Opacity = useTransform(scrollYProgress, [0.98, 1], [0, 1]);
 
   const card1Y = useTransform(scrollYProgress, [0.58, 0.7], [40, 0]);
-  const card2Y = useTransform(scrollYProgress, [0.72, 0.84], [40, 0]);
-  const card3Y = useTransform(scrollYProgress, [0.86, 0.98], [40, 0]);
-  const card4Y = useTransform(scrollYProgress, [0.92, 1], [40, 0]);
+  const card2Y = useTransform(scrollYProgress, [0.76, 0.88], [40, 0]);
+  const card3Y = useTransform(scrollYProgress, [0.9, 0.98], [40, 0]);
+  const card4Y = useTransform(scrollYProgress, [0.98, 1], [40, 0]);
 
   const cardOpacities = [card1Opacity, card2Opacity, card3Opacity, card4Opacity];
   const cardYs = [card1Y, card2Y, card3Y, card4Y];
