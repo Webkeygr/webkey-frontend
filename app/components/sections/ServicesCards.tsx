@@ -10,9 +10,7 @@ type CardTiming = {
   overlapNext?: number;
 };
 
-type Pill =
-  | string
-  | { label: string; href?: string; onClick?: () => void };
+type Pill = string | { label: string; href?: string; onClick?: () => void };
 
 type CardContent = {
   id: string;
@@ -52,7 +50,12 @@ const CARDS_DATA: CardContent[] = [
     description:
       "Δημιουργούμε ταυτότητες που ξεχωρίζουν, συνδυάζοντας στρατηγική, αισθητική και συναίσθημα σε κάθε brand.",
     videoSrc: "/videos/webkey-logo-srv.mp4",
-    tags: ["Logo Design", "Visual Web Identity", "UI Style Guide", "Content & Brand Voice"],
+    tags: [
+      "Logo Design",
+      "Visual Web Identity",
+      "UI Style Guide",
+      "Content & Brand Voice",
+    ],
     timing: {
       enterFrom: 0.02,
       enterTo: 0.18,
@@ -61,20 +64,24 @@ const CARDS_DATA: CardContent[] = [
     },
   },
   {
-  id: "card-3",
-  title: "Digital Marketing",
-  description:
-    "Αναπτύσσουμε έξυπνες καμπάνιες που αυξάνουν την προβολή, τη δέσμευση και τις πωλήσεις της επιχείρησής σου.",
-  videoSrc: "/videos/webkey-marketing-srv.mp4", // βάλε το δικό σου path
-  tags: ["SEO Optimization", "Google Ads & PPC", "Social Media Marketing", "Email & Content Marketing"],
-  timing: {
-    enterFrom: 0.02,   // ξεκινά λίγο μετά την αρχή του segment
-    enterTo:   0.36,   // αρκετό «παράθυρο» για ομαλή άνοδο
-    offsetPx:  1000,   // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
-    overlapNext: 0.14, // (κρατιέται πάνω από τη 2η)
+    id: "card-3",
+    title: "Digital Marketing",
+    description:
+      "Αναπτύσσουμε έξυπνες καμπάνιες που αυξάνουν την προβολή, τη δέσμευση και τις πωλήσεις της επιχείρησής σου.",
+    videoSrc: "/videos/webkey-marketing-srv.mp4", // βάλε το δικό σου path
+    tags: [
+      "SEO Optimization",
+      "Google Ads & PPC",
+      "Social Media Marketing",
+      "Email & Content Marketing",
+    ],
+    timing: {
+      enterFrom: 0.02, // ξεκινά λίγο μετά την αρχή του segment
+      enterTo: 0.36, // αρκετό «παράθυρο» για ομαλή άνοδο
+      offsetPx: 1000, // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
+      overlapNext: 0.14, // (κρατιέται πάνω από τη 2η)
+    },
   },
-},
-
 ];
 
 export default function ServicesCards() {
@@ -84,10 +91,14 @@ export default function ServicesCards() {
     target: wrapRef,
     offset: ["start start", "end end"],
   });
+
   const prog = useSpring(scrollYProgress, {
-    stiffness: 200,
-    damping: 18,
-    mass: 0.18,
+    // πιο “μαλακό” ελατήριο
+    stiffness: 55,
+    damping: 24,
+    mass: 0.5,
+    restDelta: 0.0001,
+    restSpeed: 0.0001,
   });
 
   return (
@@ -237,4 +248,3 @@ function CardBody({ data }: { data: CardContent }) {
     </div>
   );
 }
-
