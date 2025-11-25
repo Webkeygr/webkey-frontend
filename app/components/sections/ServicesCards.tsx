@@ -91,14 +91,10 @@ export default function ServicesCards() {
     target: wrapRef,
     offset: ["start start", "end end"],
   });
-
   const prog = useSpring(scrollYProgress, {
-    // πιο “μαλακό” ελατήριο
-    stiffness: 55,
-    damping: 24,
-    mass: 0.5,
-    restDelta: 0.0001,
-    restSpeed: 0.0001,
+    stiffness: 200,
+    damping: 18,
+    mass: 0.18,
   });
 
   return (
