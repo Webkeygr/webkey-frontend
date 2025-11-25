@@ -38,10 +38,10 @@ const CARDS_DATA: CardContent[] = [
       "Maintenance & Optimization",
     ],
     timing: {
-      enterFrom: 0.02,
-      enterTo: 0.36,
-      offsetPx: 1000,
-      overlapNext: 0.14,
+      enterFrom: 0.0,
+      enterTo: 0.06,
+      offsetPx: 60,
+      overlapNext: 0.12,
     },
   },
   {
@@ -58,7 +58,7 @@ const CARDS_DATA: CardContent[] = [
     ],
     timing: {
       enterFrom: 0.02,
-      enterTo: 0.36,
+      enterTo: 0.18,
       offsetPx: 1000,
       overlapNext: 0.14,
     },
@@ -77,9 +77,9 @@ const CARDS_DATA: CardContent[] = [
     ],
     timing: {
       enterFrom: 0.02, // ξεκινά λίγο μετά την αρχή του segment
-      enterTo: 0.36, // ίδιο «παράθυρο» για όλες → ίδια ταχύτητα
-      offsetPx: 1000, // ίδια απόσταση για όλες
-      overlapNext: 0.14, // κρατιέται πάνω από την προηγούμενη
+      enterTo: 0.36, // αρκετό «παράθυρο» για ομαλή άνοδο
+      offsetPx: 1000, // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
+      overlapNext: 0.14, // (κρατιέται πάνω από τη 2η)
     },
   },
 ];
@@ -91,10 +91,14 @@ export default function ServicesCards() {
     target: wrapRef,
     offset: ["start start", "end end"],
   });
+
   const prog = useSpring(scrollYProgress, {
-    stiffness: 200,
-    damping: 18,
-    mass: 0.18,
+    // πιο “μαλακό” ελατήριο
+    stiffness: 55,
+    damping: 24,
+    mass: 0.5,
+    restDelta: 0.0001,
+    restSpeed: 0.0001,
   });
 
   return (
