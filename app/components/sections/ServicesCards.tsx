@@ -57,9 +57,9 @@ const CARDS_DATA: CardContent[] = [
       "Content & Brand Voice",
     ],
     timing: {
-      enterFrom: 0.02,
-      enterTo: 0.18,
-      offsetPx: 1000,
+      enterFrom: 0.0,
+      enterTo: 0.06,
+      offsetPx: 60,
       overlapNext: 0.14,
     },
   },
@@ -76,9 +76,9 @@ const CARDS_DATA: CardContent[] = [
       "Email & Content Marketing",
     ],
     timing: {
-      enterFrom: 0.02, // ξεκινά λίγο μετά την αρχή του segment
-      enterTo: 0.36, // αρκετό «παράθυρο» για ομαλή άνοδο
-      offsetPx: 1000, // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
+      enterFrom: 0.0, // ξεκινά λίγο μετά την αρχή του segment
+      enterTo: 0.06, // αρκετό «παράθυρο» για ομαλή άνοδο
+      offsetPx: 60, // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
       overlapNext: 0.14, // (κρατιέται πάνω από τη 2η)
     },
   },
