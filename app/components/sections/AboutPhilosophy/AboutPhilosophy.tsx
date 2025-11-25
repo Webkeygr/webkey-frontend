@@ -40,10 +40,10 @@ export default function AboutPhilosophy() {
     offset: ["start start", "end end"],
   });
 
-  // Λευκό panel που ανεβαίνει (parallax)
+  // Parallax panel
   const panelY = useTransform(scrollYProgress, [0, 0.35], ["20vh", "0vh"]);
 
-  // Τίτλος
+  // Title
   const titleOpacity = useTransform(
     scrollYProgress,
     [0.12, 0.28, 0.6, 0.8],
@@ -59,22 +59,22 @@ export default function AboutPhilosophy() {
   const lottieOpacity = useTransform(scrollYProgress, [0.2, 0.35], [0, 1]);
   const lottieScale = useTransform(scrollYProgress, [0.2, 0.35], [0.85, 1]);
 
-  // Grid καρτών
+  // Grid of cards
   const gridOpacity = useTransform(scrollYProgress, [0.55, 0.7], [0, 1]);
   const gridY = useTransform(scrollYProgress, [0.55, 0.7], [80, 0]);
 
-  // ULTRA SLOW REVEAL — κάθε κάρτα ένα scroll μετά
-  const card1Opacity = useTransform(scrollYProgress, [0.58, 0.70], [0, 1]);
-  const card1Y = useTransform(scrollYProgress, [0.58, 0.70], [40, 0]);
+  // GOD MODE — κάθε 2 scrolls η επόμενη κάρτα
+  const card1Opacity = useTransform(scrollYProgress, [0.60, 0.75], [0, 1]);
+  const card1Y = useTransform(scrollYProgress, [0.60, 0.75], [50, 0]);
 
-  const card2Opacity = useTransform(scrollYProgress, [0.75, 0.87], [0, 1]);
-  const card2Y = useTransform(scrollYProgress, [0.75, 0.87], [40, 0]);
+  const card2Opacity = useTransform(scrollYProgress, [1.00, 1.15], [0, 1]);
+  const card2Y = useTransform(scrollYProgress, [1.00, 1.15], [50, 0]);
 
-  const card3Opacity = useTransform(scrollYProgress, [0.92, 1.04], [0, 1]);
-  const card3Y = useTransform(scrollYProgress, [0.92, 1.04], [40, 0]);
+  const card3Opacity = useTransform(scrollYProgress, [1.40, 1.55], [0, 1]);
+  const card3Y = useTransform(scrollYProgress, [1.40, 1.55], [50, 0]);
 
-  const card4Opacity = useTransform(scrollYProgress, [1.09, 1.21], [0, 1]);
-  const card4Y = useTransform(scrollYProgress, [1.09, 1.21], [40, 0]);
+  const card4Opacity = useTransform(scrollYProgress, [1.80, 1.95], [0, 1]);
+  const card4Y = useTransform(scrollYProgress, [1.80, 1.95], [50, 0]);
 
   const cardOpacities = [
     card1Opacity,
@@ -92,7 +92,7 @@ export default function AboutPhilosophy() {
     >
       <div className="about-panel-wrap">
         <motion.div className="about-panel" style={{ y: panelY }}>
-          {/* Κεντρικό layer */}
+          {/* Center layer (title + lottie) */}
           <div className="about-center-layer">
             <motion.h2
               className="about-glitch-heading"
@@ -120,7 +120,7 @@ export default function AboutPhilosophy() {
             </motion.div>
           </div>
 
-          {/* Grid καρτών */}
+          {/* Cards around lottie */}
           <motion.div
             className="about-grid-overlay"
             style={{ opacity: gridOpacity, y: gridY }}
