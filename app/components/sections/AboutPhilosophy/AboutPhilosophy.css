@@ -1,176 +1,200 @@
-/* Κύριο wrapper για το section "Ποιοι Είμαστε" */
-.about-philosophy-section {
+/* ΟΛΟ ΤΟ SECTION – extra ύψος για να μείνει το panel για 2-3 scrolls */
+.about-section {
   position: relative;
-  height: 260vh; /* αφήνει το intro να μείνει για ~2–3 scrolls */
+  height: 320vh;
 }
 
-/* Sticky intro με λευκό φόντο που γεμίζει όλη την οθόνη */
-.about-philosophy-intro-wrap {
+/* Sticky λευκό panel που σκεπάζει το προηγούμενο content */
+.about-panel-wrap {
   position: sticky;
   top: 0;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none; /* αφήνει το scroll να περνάει “μέσα” του */
-  z-index: 1;
+  pointer-events: none;
 }
 
-.about-philosophy-intro-panel {
+/* Το ίδιο το λευκό panel */
+.about-panel {
   width: 100%;
   height: 100%;
   background: #ffffff;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding-inline: clamp(24px, 5vw, 64px);
+  padding-block: clamp(40px, 6vh, 72px);
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
 }
 
-.about-philosophy-intro-inner {
-  pointer-events: auto; /* αν χρειαστούν κλικ αργότερα */
-  text-align: center;
-  padding: clamp(24px, 5vw, 64px);
-}
+/* -------- ΤΙΤΛΟΣ -------- */
 
-.about-philosophy-intro-heading {
-  margin: 0 0 clamp(24px, 4vh, 40px);
-}
-
-/* Glitch τίτλος με το clamp που ζήτησες */
-.about-philosophy-glitch-heading {
-  font-size: clamp(32px, 5vw, 90px);
-  text-transform: none;
-  letter-spacing: 0.04em;
-  color: #000000;
-}
-
-/* override πάνω στο base .glitch */
-.about-philosophy-glitch-heading.glitch {
-  white-space: nowrap;
-}
-
-/* Lottie κάτω από τον τίτλο (intro) */
-.about-philosophy-intro-lottie {
+.about-heading-block {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  margin-top: clamp(24px, 4vh, 40px);
+  margin-bottom: clamp(24px, 5vh, 40px);
 }
 
-.about-philosophy-intro-lottie-el {
-  width: clamp(80px, 10vw, 140px);
-  height: auto;
+.about-glitch-heading {
+  margin: 0;
 }
 
-/* Δεύτερο κομμάτι με το grid των καρτών */
-.about-philosophy-grid-section {
-  position: relative;
-  padding-block: clamp(120px, 18vh, 180px);
-  background: transparent; /* κληρονομεί το φόντο της σελίδας */
-  z-index: 2;
+/* Εδώ πατάμε πάνω στο GlitchText για να έχουμε το clamp που θες */
+.about-glitch-heading .glitch {
+  font-size: clamp(32px, 5vw, 90px);
 }
 
-.about-philosophy-grid-shell {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-inline: clamp(16px, 4vw, 40px);
-}
+/* -------- GRID 3x2 (4 κάρτες + Lottie στο κέντρο) -------- */
 
-/* Grid 3x2: 4 κάρτες στις γωνίες, Lottie στο κέντρο */
-.about-philosophy-grid {
+.about-grid {
+  width: 100%;
+  max-width: 1100px;
+  margin-inline: auto;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: auto auto;
   grid-template-areas:
     "card1 center card2"
     "card3 center card4";
+  gap: clamp(32px, 4vw, 48px);
   align-items: center;
   justify-items: center;
-  gap: clamp(32px, 4vw, 56px);
 }
 
-/* Βασικά styles καρτών με neon glow */
-.about-card {
-  max-width: 380px;
-  width: 100%;
-  border-radius: 18px;
-  padding: clamp(20px, 3vw, 28px);
-  background: rgba(7, 7, 10, 0.96);
-  border: 1px solid #fcec45;
-  box-shadow: 0 0 25px rgba(252, 236, 69, 0.35);
-  color: #f7f7f7;
-}
-
-.about-card-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.about-card-title {
-  font-size: clamp(20px, 2.2vw, 24px);
-  font-weight: 700;
-  text-align: center;
-}
-
-.about-card-body {
-  font-size: clamp(14px, 1.05vw, 16px);
-  line-height: 1.6;
-  text-align: center;
-}
-
-/* Τοποθέτηση καρτών στο grid */
-.about-card-1 {
+/* Θέσεις καρτών στο grid */
+.about-card-pos-1 {
   grid-area: card1;
 }
-.about-card-2 {
+.about-card-pos-2 {
   grid-area: card2;
 }
-.about-card-3 {
+.about-card-pos-3 {
   grid-area: card3;
 }
-.about-card-4 {
+.about-card-pos-4 {
   grid-area: card4;
 }
 
-/* Lottie στο κέντρο του grid */
-.about-philosophy-grid-lottie-center {
+/* Lottie στο κέντρο των καρτελών */
+.about-lottie-center {
   grid-area: center;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.about-philosophy-grid-lottie-el {
-  width: clamp(140px, 18vw, 220px);
-  height: auto;
+.about-lottie {
+  width: clamp(110px, 12vw, 150px);
+  height: clamp(110px, 12vw, 150px);
+}
+
+/* --------- Κάρτες + NEON GLOW (όπως πριν) --------- */
+
+.about-card-outer {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  border-radius: 24px;
+}
+
+/* ίδια η κάρτα */
+.about-card-inner {
+  position: relative;
+  z-index: 1;
+  padding-inline: clamp(22px, 3vw, 30px);
+  padding-block: clamp(28px, 3.2vw, 36px);
+  border-radius: inherit;
+  background: #050608;
+  border: 1px solid #fcec45;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+}
+
+.about-card-title {
+  font-weight: 700;
+  font-size: clamp(20px, 2.1vw, 22px);
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.about-card-body {
+  font-size: clamp(14px, 1.05vw, 16px);
+  line-height: 1.7;
+  color: #f5f5f5;
+  text-align: center;
+}
+
+/* NEON glow γύρω από τις κάρτες (από το παλιό αρχείο) */
+.philo-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 180deg,
+    #ff00b7,
+    #7a5cff,
+    #00e0ff,
+    #ff00b7
+  );
+  filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  animation: philoNeon 6s linear infinite;
+  background-size: 200% 200%;
+}
+
+.philo-card-glow-active::before {
+  opacity: 0.9;
+}
+
+@keyframes philoNeon {
+  0% {
+    transform: scale(0.96) rotate(0deg);
+    background-position: 0% 50%;
+  }
+  50% {
+    transform: scale(1.02) rotate(2deg);
+    background-position: 100% 50%;
+  }
+  100% {
+    transform: scale(0.96) rotate(0deg);
+    background-position: 0% 50%;
+  }
 }
 
 /* ------------ Responsive ------------ */
 
 @media (max-width: 1024px) {
-  .about-philosophy-section {
-    height: 230vh;
+  .about-section {
+    height: 280vh;
   }
 
-  .about-card {
-    max-width: 340px;
+  .about-panel {
+    padding-inline: 24px;
   }
 }
 
 @media (max-width: 900px) {
-  .about-philosophy-section {
-    height: auto; /* πιο φυσικό scroll σε μικρές οθόνες */
+  .about-section {
+    height: auto; /* σε μικρές οθόνες πιο φυσικό scroll */
   }
 
-  .about-philosophy-intro-wrap {
+  .about-panel-wrap {
     position: relative;
     height: auto;
   }
 
-  .about-philosophy-grid-section {
-    padding-block: clamp(72px, 14vh, 120px);
+  .about-panel {
+    padding-block: 56px;
   }
 
-  .about-philosophy-grid {
+  .about-grid {
     grid-template-columns: 1fr;
     grid-template-areas:
       "center"
@@ -178,32 +202,31 @@
       "card2"
       "card3"
       "card4";
-  }
-
-  .about-card {
     max-width: 420px;
   }
 
-  .about-philosophy-grid-lottie-el {
-    width: 140px;
+  .about-card-outer {
+    max-width: 420px;
+  }
+
+  .about-lottie {
+    width: 120px;
+    height: 120px;
   }
 }
 
 @media (max-width: 600px) {
-  .about-philosophy-intro-inner {
-    padding-inline: 16px;
+  .about-panel {
+    padding-inline: 18px;
   }
 
-  .about-philosophy-glitch-heading {
+  .about-glitch-heading .glitch {
     font-size: clamp(32px, 9vw, 60px);
   }
 
-  .about-card {
-    padding: 20px;
-  }
-
-  .about-card-title {
-    font-size: 20px;
+  .about-card-inner {
+    padding-inline: 20px;
+    padding-block: 24px 30px;
   }
 
   .about-card-body {
