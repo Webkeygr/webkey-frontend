@@ -108,16 +108,16 @@ export default function Hero() {
           className="hero-line hero-line-1"
           variants={heroLineVariant}
         >
-          <h1 className="hero-title font-ITC-Bold">The Key</h1>
+          <h1 className="hero-title font-ITC-Bold">The Key to the</h1>
         </motion.div>
 
-        {/* Γραμμή 2: "για το Ψηφιακό" */}
+        {/* Γραμμή 2: "για το Ψηφιακό" 
         <motion.div
           className="hero-line hero-line-2"
           variants={heroLineVariant}
         >
           <h1 className="hero-title font-ITC-Bold">to the</h1>
-        </motion.div>
+        </motion.div>*/}
 
         {/* Κάτω row: "Μέλλον" + κειμενάκι/CTA δίπλα */}
         <motion.div className="hero-bottom-row" variants={heroLineVariant}>
