@@ -236,7 +236,7 @@
     z-index: 1; /* κάτω από τις κάρτες */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: top;
     align-items: center;
     padding-inline: 24px;
     text-align: center;
