@@ -217,43 +217,42 @@
 }
 
 /* MOBILE ONLY: 360px → 915px */
-@media only screen and (max-width: 915px) and (min-width: 360px) {
+@media (max-width: 900px) {
   .about-section {
-    height: 520vh; /* αρκετό για το pause + κάρτες */
+    height: 520vh; /* Αρκετό scroll για να φτάσουν οι κάρτες */
   }
 
   .about-panel-wrap {
-    position: sticky;
+    position: sticky; /* ❗ ΜΕΝΕΙ STICKY */
     top: 0;
     height: 100vh;
   }
 
-  .about-center-layer {
-    justify-content: center;
+  .about-panel {
+    padding-block: clamp(56px, 14vh, 80px);
   }
 
-  /* FIX: Να φύγει από το sticky panel και να μπορεί να εμφανιστεί */
-.about-grid-overlay {
-  position: relative !important;
-  inset: unset !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
-
-  margin-top: 120px;
-  padding-top: 40px;
-
-  grid-template-columns: 1fr;
-  gap: 40px;
-}
-
+  /* Το grid πρέπει να μπορεί να “κατέβει” κάτω από το panel */
+  .about-grid-overlay {
+    position: relative; /* ❗ απαραίτητο στο mobile */
+    margin-top: 140px;
+    padding-top: 40px;
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    gap: 40px;
+    padding-inline: clamp(20px, 6vw, 40px);
+  }
 
   .about-card-outer {
     max-width: 420px;
+    margin-inline: auto;
   }
 
   .about-lottie {
     width: 120px;
+  }
+
+  .about-glitch-heading .glitch {
+    font-size: clamp(32px, 8vw, 52px);
   }
 }
