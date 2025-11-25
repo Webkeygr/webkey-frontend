@@ -171,6 +171,7 @@ body {
 
 /* Κεντρικό “κόκκινο” box – max-width 1900px */
 .hero-inner {
+  padding-top: 150px;
   max-width: 1900px;
   margin: 0 auto;
   display: flex;
