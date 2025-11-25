@@ -35,9 +35,8 @@ const CARDS: Card[] = [
 export default function AboutPhilosophy() {
   const sectionRef = useRef<HTMLDivElement | null>(null);
 
-  // Detect mobile
+  // Mobile detection
   const [isMobile, setIsMobile] = useState(false);
-
   useEffect(() => {
     const check = () => {
       setIsMobile(window.innerWidth <= 915);
@@ -52,95 +51,132 @@ export default function AboutPhilosophy() {
     offset: ["start start", "end end"],
   });
 
-  /* ---------------------------------------------------------
-     DESKTOP RANGES (UNCHANGED)
-     --------------------------------------------------------- */
-  const desktop = {
-    panelY: useTransform(scrollYProgress, [0, 0.35], ["20vh", "0vh"]),
-    titleOpacity: useTransform(scrollYProgress, [0.12, 0.28, 0.6, 0.8], [0, 1, 1, 0]),
-    titleY: useTransform(scrollYProgress, [0.12, 0.28, 0.8], [24, 0, -20]),
-    lottieOpacity: useTransform(scrollYProgress, [0.2, 0.35], [0, 1]),
-    lottieScale: useTransform(scrollYProgress, [0.2, 0.35], [0.85, 1]),
+  /* -------- DESKTOP TRANSFORMS (όπως τα ήθελες) -------- */
 
-    gridOpacity: useTransform(scrollYProgress, [0.55, 0.7], [0, 1]),
-    gridY: useTransform(scrollYProgress, [0.55, 0.7], [80, 0]),
+  const panelYDesktop = useTransform(scrollYProgress, [0, 0.35], ["20vh", "0vh"]);
 
-    cardRanges: [
-      [0.56, 0.64],
-      [0.66, 0.74],
-      [0.76, 0.84],
-      [0.86, 0.94],
-    ],
-  };
+  const titleOpacityDesktop = useTransform(
+    scrollYProgress,
+    [0.12, 0.28, 0.6, 0.8],
+    [0, 1, 1, 0]
+  );
+  const titleYDesktop = useTransform(
+    scrollYProgress,
+    [0.12, 0.28, 0.8],
+    [24, 0, -20]
+  );
 
-  /* ---------------------------------------------------------
-     MOBILE RANGES (NEW – MEDIUM PAUSE ~1.5 scrolls)
-     --------------------------------------------------------- */
+  const lottieOpacityDesktop = useTransform(scrollYProgress, [0.2, 0.35], [0, 1]);
+  const lottieScaleDesktop = useTransform(scrollYProgress, [0.2, 0.35], [0.85, 1]);
 
-  // Τίτλος + Lottie μένουν στο κέντρο ΠΟΛΥ περισσότερο
-  const mobile = {
-  panelY: useTransform(scrollYProgress, [0, 0.35], ["25vh", "0vh"]),
+  const gridOpacityDesktop = useTransform(scrollYProgress, [0.55, 0.7], [0, 1]);
+  const gridYDesktop = useTransform(scrollYProgress, [0.55, 0.7], [80, 0]);
 
-  // Title appears sooner + shorter pause
-  titleOpacity: useTransform(scrollYProgress, [0.10, 0.28, 0.55, 0.75], [0, 1, 1, 0]),
-  titleY:       useTransform(scrollYProgress, [0.10, 0.28, 0.75], [40, 0, -20]),
+  const desktopCardRanges: [number, number][] = [
+    [0.56, 0.64],
+    [0.66, 0.74],
+    [0.76, 0.84],
+    [0.86, 0.94],
+  ];
 
-  // Lottie same timing as title
-  lottieOpacity: useTransform(scrollYProgress, [0.16, 0.30], [0, 1]),
-  lottieScale:   useTransform(scrollYProgress, [0.16, 0.30], [0.75, 1]),
+  const desktopCardOpacity = desktopCardRanges.map(([start, end]) =>
+    useTransform(scrollYProgress, [start, end], [0, 1])
+  );
+  const desktopCardY = desktopCardRanges.map(([start, end]) =>
+    useTransform(scrollYProgress, [start, end], [40, 0])
+  );
 
-  // Grid appears earlier (after short pause)
-  gridOpacity: useTransform(scrollYProgress, [0.60, 0.75], [0, 1]),
-  gridY:       useTransform(scrollYProgress, [0.60, 0.75], [80, 0]),
+  /* -------- MOBILE TRANSFORMS (τίτλος + lottie + grid ΜΟΝΟ) -------- */
 
-  // Card appearance MUCH earlier
- cardRanges: [
-  [0.45, 0.55], // Card 1
-  [0.58, 0.68], // Card 2
-  [0.70, 0.80], // Card 3
-  [0.82, 0.92], // Card 4
-],
+  const panelYMobile = useTransform(scrollYProgress, [0, 0.35], ["25vh", "0vh"]);
 
-};
+  const titleOpacityMobile = useTransform(
+    scrollYProgress,
+    [0.10, 0.28, 0.55, 0.75],
+    [0, 1, 1, 0]
+  );
+  const titleYMobile = useTransform(
+    scrollYProgress,
+    [0.10, 0.28, 0.75],
+    [40, 0, -20]
+  );
 
-  const active = isMobile ? mobile : desktop;
+  const lottieOpacityMobile = useTransform(scrollYProgress, [0.16, 0.30], [0, 1]);
+  const lottieScaleMobile = useTransform(scrollYProgress, [0.16, 0.30], [0.75, 1]);
 
-  const cardTransforms = active.cardRanges.map(([start, end]) => ({
-    opacity: useTransform(scrollYProgress, [start, end], [0, 1]),
-    y: useTransform(scrollYProgress, [start, end], [40, 0]),
-  }));
+  const gridOpacityMobile = useTransform(scrollYProgress, [0.60, 0.75], [0, 1]);
+  const gridYMobile = useTransform(scrollYProgress, [0.60, 0.75], [80, 0]);
+
+  /* -------- Επιλογή active transforms -------- */
+
+  const panelY = isMobile ? panelYMobile : panelYDesktop;
+  const titleOpacity = isMobile ? titleOpacityMobile : titleOpacityDesktop;
+  const titleY = isMobile ? titleYMobile : titleYDesktop;
+  const lottieOpacity = isMobile ? lottieOpacityMobile : lottieOpacityDesktop;
+  const lottieScale = isMobile ? lottieScaleMobile : lottieScaleDesktop;
+  const gridOpacity = isMobile ? gridOpacityMobile : gridOpacityDesktop;
+  const gridY = isMobile ? gridYMobile : gridYDesktop;
 
   return (
-    <section ref={sectionRef} id="about-philosophy" className="about-section">
+    <section
+      ref={sectionRef}
+      id="about-philosophy"
+      className="about-section"
+    >
       <div className="about-panel-wrap">
-        <motion.div className="about-panel" style={{ y: active.panelY }}>
+        <motion.div className="about-panel" style={{ y: panelY }}>
+          {/* Κεντρικό layer: τίτλος + Lottie */}
           <div className="about-center-layer">
             <motion.h2
               className="about-glitch-heading"
-              style={{ opacity: active.titleOpacity, y: active.titleY }}
+              style={{ opacity: titleOpacity, y: titleY }}
             >
-              <GlitchText enableOnHover={false} enableShadows className="about-glitch-inner">
+              <GlitchText
+                enableOnHover={false}
+                enableShadows
+                className="about-glitch-inner"
+              >
                 Ποιοι Είμαστε
               </GlitchText>
             </motion.h2>
 
             <motion.div
               className="about-center-lottie"
-              style={{ opacity: active.lottieOpacity, scale: active.lottieScale }}
+              style={{ opacity: lottieOpacity, scale: lottieScale }}
             >
-              <Lottie animationData={scrollDownAnimation} loop autoplay className="about-lottie" />
+              <Lottie
+                animationData={scrollDownAnimation}
+                loop
+                autoplay
+                className="about-lottie"
+              />
             </motion.div>
           </div>
 
-          <motion.div className="about-grid-overlay" style={{ opacity: active.gridOpacity, y: active.gridY }}>
+          {/* Grid με κάρτες γύρω από το Lottie */}
+          <motion.div
+            className="about-grid-overlay"
+            style={{ opacity: gridOpacity, y: gridY }}
+          >
             {CARDS.map((card, index) => (
               <motion.article
                 key={card.title}
-                className={`about-card-outer about-card-pos-${index + 1} philo-card-glow philo-card-glow-active`}
-                style={{
-                  opacity: cardTransforms[index].opacity,
-                  y: cardTransforms[index].y,
-                }}
+                className={`about-card-outer about-card-pos-${
+                  index + 1
+                } philo-card-glow philo-card-glow-active`}
+                style={
+                  isMobile
+                    ? {
+                        // 📱 MOBILE: κάρτες ΠΑΝΤΑ ορατές, χωρίς animation
+                        opacity: 1,
+                        y: 0,
+                      }
+                    : {
+                        // 💻 DESKTOP: cinematic scroll animation
+                        opacity: desktopCardOpacity[index],
+                        y: desktopCardY[index],
+                      }
+                }
               >
                 <div className="about-card-inner">
                   <div className="about-card-title">{card.title}</div>

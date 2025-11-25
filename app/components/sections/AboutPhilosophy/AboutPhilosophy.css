@@ -218,9 +218,8 @@
 
 /* MOBILE ONLY: 360px → 915px */
 @media only screen and (max-width: 915px) and (min-width: 360px) {
-
   .about-section {
-    height: 520vh !important; /* αρκετό ύψος για το long pause */
+    height: 520vh; /* αρκετό για το pause + κάρτες */
   }
 
   .about-panel-wrap {
@@ -230,7 +229,6 @@
   }
 
   .about-center-layer {
-    padding-top: 0;
     justify-content: center;
   }
 
@@ -250,4 +248,3 @@
     width: 120px;
   }
 }
-
