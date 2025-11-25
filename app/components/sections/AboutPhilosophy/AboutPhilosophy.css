@@ -220,19 +220,19 @@
 /* 📱 MOBILE VERSION     */
 /* ===================== */
 @media (max-width: 915px) {
-
   .about-section {
     height: auto;
     padding-bottom: 100px;
   }
 
-  /* MOBILE INTRO (sticky) */
+  /* MOBILE INTRO – ΟΧΙ sticky πια */
   .about-mobile-intro {
-    position: sticky;
-    top: 0;
+    position: relative;      /* <- ΟΧΙ sticky */
+    top: auto;
     height: 100vh;
-    background: white;
-    z-index: 5;
+    background: #ffffff;
+    z-index: auto;
+    pointer-events: auto;
 
     display: flex;
     flex-direction: column;
@@ -248,15 +248,16 @@
     margin-top: 24px;
   }
 
-  /* MOBILE CARDS BELOW INTRO */
+  /* MOBILE CARDS – κανονικό flow κάτω από το intro */
   .about-mobile-cards {
-    margin-top: 80px;
+    position: relative;
+    z-index: auto;
+    margin-top: 40px;
+
     display: flex;
     flex-direction: column;
     gap: 40px;
     padding-inline: 24px;
-    z-index: 10;
-
   }
 
   .about-mobile-card {
@@ -265,7 +266,7 @@
     margin-inline: auto;
   }
 
-  /* HIDE THE DESKTOP LAYERS */
+  /* Κρύβουμε εντελώς το desktop layout στο mobile */
   .about-panel-wrap {
     display: none !important;
   }
