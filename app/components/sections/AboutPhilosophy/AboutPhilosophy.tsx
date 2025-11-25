@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
+import scrollDownAnimation from "./scroll-down.json";
 
 import "./AboutPhilosophy.css";
 
@@ -32,69 +33,103 @@ const CARDS: Card[] = [
 ];
 
 export default function AboutPhilosophy() {
-  const [scrollLottie, setScrollLottie] = useState<any | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
-  // Φορτώνουμε το Lottie JSON από το /public/lottie/scroll-down.json
-  useEffect(() => {
-    async function loadLottie() {
-      try {
-        const res = await fetch("/lottie/scroll-down.json");
-        if (!res.ok) return;
-        const json = await res.json();
-        setScrollLottie(json);
-      } catch (e) {
-        console.error("Failed to load scroll-down lottie:", e);
-      }
-    }
-    loadLottie();
-  }, []);
+  // parallax + fade in / fade out για το intro κομμάτι
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
+  });
+
+  const introOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.12, 0.6, 0.9],
+    [0, 1, 1, 0]
+  );
+
+  const introTranslateY = useTransform(
+    scrollYProgress,
+    [0, 0.5, 1],
+    [40, 0, -80]
+  );
 
   return (
-    <section id="about-philosophy" className="about-section">
-      <div className="about-panel-wrap">
-        <div className="about-panel">
-          {/* ΤΙΤΛΟΣ + LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
-          <div className="about-heading-block">
-            <h2 className="about-glitch-heading">
-              <GlitchText>Ποιοι είμαστε</GlitchText>
+    <section
+      ref={sectionRef}
+      id="about-philosophy"
+      className="about-philosophy-section"
+    >
+      {/* Intro block με λευκό background, 100vh, parallax + fade */}
+      <div className="about-philosophy-intro-wrap">
+        <motion.div
+          className="about-philosophy-intro-panel"
+          style={{ opacity: introOpacity, y: introTranslateY }}
+        >
+          <div className="about-philosophy-intro-inner">
+            <h2 className="about-philosophy-intro-heading">
+              <GlitchText
+                enableOnHover={false}
+                enableShadows
+                speed={1.05}
+                className="about-philosophy-glitch-heading"
+              >
+                Ποιοι είμαστε
+              </GlitchText>
             </h2>
 
-            {scrollLottie && (
-              <div className="about-lottie-wrapper">
-                <Lottie
-                  animationData={scrollLottie}
-                  loop
-                  autoplay
-                  className="about-lottie"
-                />
-              </div>
-            )}
+            <div className="about-philosophy-intro-lottie">
+              <Lottie
+                animationData={scrollDownAnimation}
+                loop
+                autoplay
+                className="about-philosophy-intro-lottie-el"
+              />
+            </div>
           </div>
+        </motion.div>
+      </div>
 
-          {/* GRID ΜΕ ΚΑΡΤΕΣ – στο κέντρο, με neon glow + stagger animation */}
-          <div className="about-grid">
+      {/* Grid με 4 κάρτες γύρω από Lottie στο κέντρο */}
+      <section className="about-philosophy-grid-section">
+        <div className="about-philosophy-grid-shell">
+          <div className="about-philosophy-grid">
             {CARDS.map((card, index) => (
-              <motion.div
+              <motion.article
                 key={card.title}
-                className="about-card-outer philo-card-glow philo-card-glow-active"
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
+                className={`about-card about-card-${index + 1}`}
+                initial={{ opacity: 0, y: 32, scale: 0.96 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.4 }}
                 transition={{
-                  duration: 0.6,
-                  delay: 0.15 + index * 0.18,
+                  duration: 0.8,
+                  delay: index * 0.2,
                   ease: "easeOut",
                 }}
               >
                 <div className="about-card-inner">
-                  <div className="about-card-title">{card.title}</div>
-                  <div className="about-card-body">{card.body}</div>
+                  <h3 className="about-card-title">{card.title}</h3>
+                  <p className="about-card-body">{card.body}</p>
                 </div>
-              </motion.div>
+              </motion.article>
             ))}
+
+            <motion.div
+              className="about-philosophy-grid-lottie-center"
+              initial={{ opacity: 0, scale: 0.6 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.9, ease: "easeOut" }}
+            >
+              <Lottie
+                animationData={scrollDownAnimation}
+                loop
+                autoplay
+                className="about-philosophy-grid-lottie-el"
+              />
+            </motion.div>
           </div>
         </div>
-      </div>
+      </section>
     </section>
   );
 }

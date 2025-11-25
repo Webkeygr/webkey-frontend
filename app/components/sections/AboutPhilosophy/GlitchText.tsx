@@ -17,18 +17,17 @@ const GlitchText: React.FC<Props> = ({
   className = "",
 }) => {
   const inlineStyles: React.CSSProperties = {
-    // τα πολλαπλασιαζω για πιο ομαλό glitch
-    ["--after-duration" as any]: `${speed * 3}s`,
-    ["--before-duration" as any]: `${speed * 2}s`,
-    ["--after-shadow" as any]: enableShadows ? "-4px 0 #ff00b7" : "none",
-    ["--before-shadow" as any]: enableShadows ? "4px 0 #00e0ff" : "none",
+    // πόσο γρήγορα τρέχει το glitch animation (σε δευτερόλεπτα)
+    ["--glitch-speed" as string]: `${speed}s`,
+    // 1 = ενεργό shadow, 0 = χωρίς shadow
+    ["--glitch-shadow" as string]: enableShadows ? "1" : "0",
   };
 
   const hoverClass = enableOnHover ? "enable-on-hover" : "";
 
   return (
     <div
-      className={`glitch ${hoverClass} ${className}`}
+      className={`glitch ${hoverClass} ${className}`.trim()}
       style={inlineStyles}
       data-text={children}
     >
