@@ -49,7 +49,7 @@ export default function AboutPhilosophy() {
     offset: ["start start", "end end"],
   });
 
-  // ΤΙΤΛΟΣ + LOTTIE (μένουν στην αρχή, μετά “μαλακά” σβήνουν)
+  /* ===== ΤΙΤΛΟΣ & LOTTIE ===== */
   const titleOpacity = useTransform(
     scrollYProgress,
     [0, 0.08, 0.22],
@@ -64,25 +64,21 @@ export default function AboutPhilosophy() {
   );
   const lottieScale = useTransform(scrollYProgress, [0.02, 0.1], [0.8, 1]);
 
-  // Οριζόντια κίνηση track – “σκαλοπάτια” ανά κάρτα
-  // 0.22–0.40: κάρτα 1 στο κέντρο → πάει αριστερά
-  // 0.40–0.60: κάρτα 2
-  // 0.60–0.80: κάρτα 3
-  // 0.80–1.00: κάρτα 4
+  /* ===== ΟΡΙΖΟΝΤΙΟ TRACK – πλήρες viewport ανά κάρτα ===== */
   const trackX = useTransform(
     scrollYProgress,
     [0.22, 0.4, 0.6, 0.8, 1],
-    ["0%", "-100%", "-200%", "-300%", "-300%"]
+    ["0vw", "-100vw", "-200vw", "-300vw", "-300vw"]
   );
 
-  // Πρώτη κάρτα – μεγάλο fade-in & zoom-out
-  const firstCardScale = useTransform(scrollYProgress, [0.14, 0.22], [1.7, 1]); // ~3 φορές επιφάνεια
+  // Πρώτη κάρτα: fade-in + zoom-out στο κέντρο
+  const firstCardScale = useTransform(scrollYProgress, [0.14, 0.22], [1.7, 1]);
   const firstCardOpacity = useTransform(scrollYProgress, [0.14, 0.22], [0, 1]);
 
   return (
     <section ref={sectionRef} id="about-philosophy" className="about-section">
       <div className="about-panel">
-        {/* ΤΙΤΛΟΣ + LOTTIE */}
+        {/* ---------- Τίτλος + Lottie στο κέντρο ---------- */}
         <div className="about-header">
           <motion.h2
             className="about-glitch-heading"
@@ -124,7 +120,7 @@ export default function AboutPhilosophy() {
           </motion.div>
         </div>
 
-        {/* DESKTOP – PIN + HORIZONTAL */}
+        {/* ---------- DESKTOP: sticky + horizontal scroll ---------- */}
         {!isMobile && (
           <div className="about-horizontal-wrapper">
             <motion.div
@@ -154,7 +150,7 @@ export default function AboutPhilosophy() {
           </div>
         )}
 
-        {/* MOBILE – STACKED */}
+        {/* ---------- MOBILE: stacked cards ---------- */}
         {isMobile && (
           <div className="about-mobile-cards">
             {CARDS.map((card) => (
