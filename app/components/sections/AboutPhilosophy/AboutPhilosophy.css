@@ -2,14 +2,12 @@
 /*  DESKTOP BASE LAYOUT  */
 /* ===================== */
 
-/* Μεγάλο vertical “canvas” για να έχουμε χώρο για το scroll → horizontal */
 .about-section {
   position: relative;
-  height: 340vh; /* όσο πιο μεγάλο, τόσο πιο “cinematic” */
+  height: 420vh; /* μεγάλο “ταξίδι” για πιο smooth αλλαγή καρτών */
   background: #ffffff;
 }
 
-/* Sticky panel: μένει μέσα στο viewport όσο κάνουμε scroll */
 .about-panel {
   position: sticky;
   top: 0;
@@ -22,8 +20,12 @@
   box-sizing: border-box;
 }
 
-/* ΤΙΤΛΟΣ + LOTTIE */
+/* ΤΙΤΛΟΣ + LOTTIE – ΠΑΝΤΑ ΣΤΟ ΚΕΝΤΡΟ */
 .about-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   margin-bottom: 56px;
 }
@@ -53,14 +55,19 @@
 .about-horizontal-wrapper {
   width: 100%;
   max-width: 1200px;
-  overflow: hidden;
   margin-top: 40px;
+
+  /* κρατάμε visible κάθετα για να μην κόβεται το glow */
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding-block: 40px; /* extra ύψος ώστε να “πνίγεται” το glow μέσα στο άσπρο */
 }
 
 .about-horizontal-track {
   display: flex;
   align-items: stretch;
   gap: 48px;
+  will-change: transform;
 }
 
 /* ===================== */
@@ -74,7 +81,7 @@
   transform-origin: center center;
 }
 
-/* Neon glow effect */
+/* Neon Glow */
 .philo-card-glow {
   position: relative;
   border-radius: 28px;
@@ -97,7 +104,7 @@
   opacity: 0.75;
 }
 
-/* Εσωτερικό περιεχόμενο της κάρτας */
+/* Inner card content */
 .about-card-inner {
   position: relative;
   z-index: 1;
@@ -181,7 +188,7 @@
     margin-inline: auto;
   }
 
-  /* Πιο “σφιχτό” glow στο mobile για να μη φαίνεται συνεχόμενο φόντο */
+  /* Πιο “σφιχτό” glow στο mobile για να μην φαίνεται σαν ενιαίο background */
   .about-mobile-card.philo-card-glow::before {
     inset: -6px;
     filter: blur(10px);

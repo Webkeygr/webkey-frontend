@@ -44,33 +44,40 @@ export default function AboutPhilosophy() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Scroll mapping για το pinned / horizontal scroll στο desktop
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
 
-  // Τίτλος & Lottie - ελαφρύ parallax / fade στο desktop
+  // ΤΙΤΛΟΣ + LOTTIE (μένουν στην αρχή, μετά “μαλακά” σβήνουν)
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0, 0.12, 0.8, 1],
-    [0, 1, 1, 0.7]
+    [0, 0.08, 0.22],
+    [0, 1, 0]
   );
-  const titleY = useTransform(scrollYProgress, [0, 0.12, 0.8], [40, 0, -20]);
+  const titleY = useTransform(scrollYProgress, [0, 0.08, 0.22], [40, 0, -30]);
+
   const lottieOpacity = useTransform(
     scrollYProgress,
-    [0.05, 0.2, 0.8, 1],
-    [0, 1, 1, 0]
+    [0.02, 0.1, 0.24],
+    [0, 1, 0]
   );
-  const lottieScale = useTransform(scrollYProgress, [0.05, 0.2], [0.8, 1]);
+  const lottieScale = useTransform(scrollYProgress, [0.02, 0.1], [0.8, 1]);
 
-  // Οριζόντιο track: από ένα μεγάλο card → οριζόντια κίνηση
-  // 0.00–0.20: πρώτο card στο κέντρο, μεγάλο
-  // 0.20–1.00: track κινείται αριστερά και περνάνε τα cards ένα-ένα
-  const trackX = useTransform(scrollYProgress, [0.2, 1], ["0%", "-300%"]);
+  // Οριζόντια κίνηση track – “σκαλοπάτια” ανά κάρτα
+  // 0.22–0.40: κάρτα 1 στο κέντρο → πάει αριστερά
+  // 0.40–0.60: κάρτα 2
+  // 0.60–0.80: κάρτα 3
+  // 0.80–1.00: κάρτα 4
+  const trackX = useTransform(
+    scrollYProgress,
+    [0.22, 0.4, 0.6, 0.8, 1],
+    ["0%", "-100%", "-200%", "-300%", "-300%"]
+  );
 
-  // Πρώτη κάρτα — πιο μεγάλη στην αρχή, και σταδιακά normal
-  const firstCardScale = useTransform(scrollYProgress, [0, 0.18], [1.5, 1]);
+  // Πρώτη κάρτα – μεγάλο fade-in & zoom-out
+  const firstCardScale = useTransform(scrollYProgress, [0.14, 0.22], [1.7, 1]); // ~3 φορές επιφάνεια
+  const firstCardOpacity = useTransform(scrollYProgress, [0.14, 0.22], [0, 1]);
 
   return (
     <section ref={sectionRef} id="about-philosophy" className="about-section">
@@ -79,7 +86,14 @@ export default function AboutPhilosophy() {
         <div className="about-header">
           <motion.h2
             className="about-glitch-heading"
-            style={isMobile ? {} : { opacity: titleOpacity, y: titleY }}
+            style={
+              isMobile
+                ? {}
+                : {
+                    opacity: titleOpacity,
+                    y: titleY,
+                  }
+            }
           >
             <GlitchText
               enableOnHover={false}
@@ -93,7 +107,12 @@ export default function AboutPhilosophy() {
           <motion.div
             className="about-lottie-wrap"
             style={
-              isMobile ? {} : { opacity: lottieOpacity, scale: lottieScale }
+              isMobile
+                ? {}
+                : {
+                    opacity: lottieOpacity,
+                    scale: lottieScale,
+                  }
             }
           >
             <Lottie
@@ -105,7 +124,7 @@ export default function AboutPhilosophy() {
           </motion.div>
         </div>
 
-        {/* DESKTOP: PINNED HORIZONTAL SCROLL */}
+        {/* DESKTOP – PIN + HORIZONTAL */}
         {!isMobile && (
           <div className="about-horizontal-wrapper">
             <motion.div
@@ -120,8 +139,9 @@ export default function AboutPhilosophy() {
                     index === 0
                       ? {
                           scale: firstCardScale,
+                          opacity: firstCardOpacity,
                         }
-                      : {}
+                      : undefined
                   }
                 >
                   <div className="about-card-inner">
@@ -134,7 +154,7 @@ export default function AboutPhilosophy() {
           </div>
         )}
 
-        {/* MOBILE: SIMPLE STACKED CARDS */}
+        {/* MOBILE – STACKED */}
         {isMobile && (
           <div className="about-mobile-cards">
             {CARDS.map((card) => (
