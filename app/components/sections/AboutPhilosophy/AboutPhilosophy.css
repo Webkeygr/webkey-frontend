@@ -4,7 +4,7 @@
 
 .about-section {
   position: relative;
-  height: 420vh; /* μεγάλο “ταξίδι” για πιο smooth αλλαγή καρτών */
+  height: 420vh; /* αρκετό “ταξίδι” για τις 4 κάρτες */
   background: #ffffff;
 }
 
@@ -20,7 +20,8 @@
   box-sizing: border-box;
 }
 
-/* ΤΙΤΛΟΣ + LOTTIE – ΠΑΝΤΑ ΣΤΟ ΚΕΝΤΡΟ */
+/* ===== ΤΙΤΛΟΣ + LOTTIE ===== */
+
 .about-header {
   display: flex;
   flex-direction: column;
@@ -49,39 +50,47 @@
 }
 
 /* ===================== */
-/*  HORIZONTAL SCROLLER  */
+/*  HORIZONTAL TRACK     */
 /* ===================== */
 
 .about-horizontal-wrapper {
-  width: 100%;
-  max-width: 1200px;
+  position: relative;
+  width: 100vw;            /* full width λωρίδα */
+  margin-inline: calc(50% - 50vw); /* λωρίδα edge-to-edge */
   margin-top: 40px;
+  padding-block: 60px;     /* extra ύψος, ώστε να “χάνεται” το glow */
+  overflow: hidden;        /* ΔΕΝ θέλουμε εσωτερικό scroll / μπάρα */
+}
 
-  /* κρατάμε visible κάθετα για να μην κόβεται το glow */
-  overflow-x: hidden;
-  overflow-y: visible;
-  padding-block: 40px; /* extra ύψος ώστε να “πνίγεται” το glow μέσα στο άσπρο */
+/* κρύβουμε τυχόν scrollbar σε browsers που την βγάζουν έτσι κι αλλιώς */
+.about-horizontal-wrapper {
+  scrollbar-width: none;
+}
+.about-horizontal-wrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .about-horizontal-track {
   display: flex;
-  align-items: stretch;
-  gap: 48px;
-  will-change: transform;
+  align-items: center;
+  /* καμία extra gap – το “άλμα” το κάνει το x με 100vw */
 }
 
 /* ===================== */
 /*        CARDS          */
 /* ===================== */
 
+/* Κάθε κάρτα καταλαμβάνει ένα viewport σε πλάτος.
+   Η ίδια η μαύρη κάρτα όμως είναι μικρότερη και κεντραρισμένη. */
 .about-card-outer {
   position: relative;
-  flex: 0 0 min(60vw, 380px);
-  border-radius: 28px;
+  flex: 0 0 100vw;         /* μία κάρτα = ένα full viewport βήμα */
+  display: flex;
+  justify-content: center; /* η μαύρη κάρτα στο κέντρο */
   transform-origin: center center;
 }
 
-/* Neon Glow */
+/* Glow γύρω από κάθε κάρτα — πιο “σφιχτό” για να μην φαίνεται ενιαία λωρίδα */
 .philo-card-glow {
   position: relative;
   border-radius: 28px;
@@ -90,10 +99,16 @@
 .philo-card-glow::before {
   content: "";
   position: absolute;
-  inset: -18px;
+  inset: -10px;  /* μικρό inset => δεν ενώνεται με την επόμενη κάρτα */
   border-radius: inherit;
-  background: conic-gradient(from 180deg, #ff00b7, #7a5cff, #00e0ff, #ff00b7);
-  filter: blur(20px);
+  background: conic-gradient(
+    from 180deg,
+    #ff00b7,
+    #7a5cff,
+    #00e0ff,
+    #ff00b7
+  );
+  filter: blur(16px);      /* λιγότερο blur => όχι “λωρίδα” */
   opacity: 0;
   pointer-events: none;
   background-size: 200% 200%;
@@ -101,15 +116,16 @@
 }
 
 .philo-card-glow-active::before {
-  opacity: 0.75;
+  opacity: 0.9;
 }
 
-/* Inner card content */
+/* Inner card (μαύρο κουτί με text) */
 .about-card-inner {
   position: relative;
   z-index: 1;
-  border-radius: inherit;
+  border-radius: 28px;
   padding: 32px 28px;
+  width: min(60vw, 520px);     /* πραγματικό πλάτος κάρτας */
   background: radial-gradient(circle at top left, #151515, #050505 55%, #000);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f9fafb;
@@ -188,7 +204,7 @@
     margin-inline: auto;
   }
 
-  /* Πιο “σφιχτό” glow στο mobile για να μην φαίνεται σαν ενιαίο background */
+  /* Mobile glow – ακόμη πιο σφιχτό */
   .about-mobile-card.philo-card-glow::before {
     inset: -6px;
     filter: blur(10px);
@@ -199,6 +215,7 @@
   }
 
   .about-card-inner {
+    width: 100%;
     padding: 24px 20px;
   }
 

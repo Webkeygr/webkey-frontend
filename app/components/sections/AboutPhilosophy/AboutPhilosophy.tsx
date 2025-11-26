@@ -50,18 +50,10 @@ export default function AboutPhilosophy() {
   });
 
   /* ===== ΤΙΤΛΟΣ & LOTTIE ===== */
-  const titleOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.08, 0.22],
-    [0, 1, 0]
-  );
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.08, 0.22], [0, 1, 0]);
   const titleY = useTransform(scrollYProgress, [0, 0.08, 0.22], [40, 0, -30]);
 
-  const lottieOpacity = useTransform(
-    scrollYProgress,
-    [0.02, 0.1, 0.24],
-    [0, 1, 0]
-  );
+  const lottieOpacity = useTransform(scrollYProgress, [0.02, 0.1, 0.24], [0, 1, 0]);
   const lottieScale = useTransform(scrollYProgress, [0.02, 0.1], [0.8, 1]);
 
   /* ===== ΟΡΙΖΟΝΤΙΟ TRACK – πλήρες viewport ανά κάρτα ===== */
@@ -123,10 +115,7 @@ export default function AboutPhilosophy() {
         {/* ---------- DESKTOP: sticky + horizontal scroll ---------- */}
         {!isMobile && (
           <div className="about-horizontal-wrapper">
-            <motion.div
-              className="about-horizontal-track"
-              style={{ x: trackX }}
-            >
+            <motion.div className="about-horizontal-track" style={{ x: trackX }}>
               {CARDS.map((card, index) => (
                 <motion.article
                   key={card.title}
