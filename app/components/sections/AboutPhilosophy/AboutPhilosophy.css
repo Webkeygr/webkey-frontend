@@ -1,122 +1,85 @@
-/* ΟΛΟ ΤΟ SECTION – αρκετό ύψος ώστε το sticky panel να μείνει για 2–3 scrolls */
+/* ===================== */
+/*  DESKTOP BASE LAYOUT  */
+/* ===================== */
+
+/* Μεγάλο vertical “canvas” για να έχουμε χώρο για το scroll → horizontal */
 .about-section {
   position: relative;
-  height: 820vh;
+  height: 340vh; /* όσο πιο μεγάλο, τόσο πιο “cinematic” */
+  background: #ffffff;
 }
 
-/* Sticky λευκό panel που έρχεται με parallax και σκεπάζει το προηγούμενο περιεχόμενο */
-.about-panel-wrap {
+/* Sticky panel: μένει μέσα στο viewport όσο κάνουμε scroll */
+.about-panel {
   position: sticky;
   top: 0;
-  height: 100vh;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.about-panel {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: #ffffff;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  pointer-events: auto;
-}
-
-/* -------- ΚΕΝΤΡΙΚΟ LAYER: ΤΙΤΛΟΣ + LOTTIE -------- */
-
-.about-center-layer {
-  position: relative;
-  z-index: 2;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-inline: clamp(24px, 5vw, 64px);
+  padding: 120px 32px 96px;
+  box-sizing: border-box;
+}
+
+/* ΤΙΤΛΟΣ + LOTTIE */
+.about-header {
+  text-align: center;
+  margin-bottom: 56px;
 }
 
 .about-glitch-heading {
-  margin: 0 0 clamp(24px, 4vh, 32px);
-  text-align: center;
+  font-size: clamp(40px, 6vw, 80px);
+  text-transform: uppercase;
 }
 
-.about-glitch-heading .glitch {
-  font-size: clamp(32px, 5vw, 90px);
-  text-transform: none; /* πεζοκεφαλαία, όχι όλα κεφαλαία */
-  letter-spacing: 0.04em;
+.about-glitch-inner {
+  letter-spacing: 0.08em;
 }
 
-.about-center-lottie {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.about-lottie-wrap {
+  margin-top: 16px;
 }
 
 .about-lottie {
-  width: clamp(110px, 10vw, 150px);
-  height: auto;
+  width: 96px;
+  height: 96px;
 }
 
-/* -------- GRID OVERLAY ΜΕ ΚΑΡΤΕΣ -------- */
+/* ===================== */
+/*  HORIZONTAL SCROLLER  */
+/* ===================== */
 
-.about-grid-overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: clamp(32px, 4vw, 48px);
-  padding-inline: clamp(48px, 8vw, 120px);
-  padding-block: clamp(72px, 14vh, 120px);
-  align-items: center;
-  justify-items: center;
-  /* αφήνουμε τα pointer events για να είναι clickable οι κάρτες */
+.about-horizontal-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  overflow: hidden;
+  margin-top: 40px;
 }
 
-/* εξωτερικό wrapper για το glow και το ίσο μέγεθος */
+.about-horizontal-track {
+  display: flex;
+  align-items: stretch;
+  gap: 48px;
+}
+
+/* ===================== */
+/*        CARDS          */
+/* ===================== */
+
 .about-card-outer {
   position: relative;
-  width: 100%;
-  max-width: 380px;
-  border-radius: 24px;
-  pointer-events: auto;
+  flex: 0 0 min(60vw, 380px);
+  border-radius: 28px;
+  transform-origin: center center;
 }
 
-/* ίδια κάρτα – χωρίς κίτρινο border, με ίσο ύψος και centered text */
-.about-card-inner {
+/* Neon glow effect */
+.philo-card-glow {
   position: relative;
-  z-index: 1;
-  border-radius: inherit;
-  padding-inline: clamp(24px, 3vw, 30px);
-  padding-block: clamp(28px, 3.2vw, 36px);
-  background: #050608;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 230px; /* ίσο ύψος για όλες */
+  border-radius: 28px;
 }
 
-.about-card-title {
-  font-weight: 700;
-  font-size: clamp(20px, 2.1vw, 22px);
-  text-align: center;
-  color: #ffffff;
-  margin-bottom: 10px;
-}
-
-.about-card-body {
-  font-size: clamp(14px, 1.05vw, 16px);
-  line-height: 1.7;
-  color: #f5f5f5;
-  text-align: center;
-}
-
-/* NEON GLOW – γύρω από τις κάρτες */
 .philo-card-glow::before {
   content: "";
   position: absolute;
@@ -131,133 +94,85 @@
 }
 
 .philo-card-glow-active::before {
-  opacity: 0.9;
+  opacity: 0.75;
 }
 
+/* Εσωτερικό περιεχόμενο της κάρτας */
+.about-card-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 32px 28px;
+  background: radial-gradient(circle at top left, #151515, #050505 55%, #000);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f9fafb;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+}
+
+.about-card-title {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: #fcec45;
+}
+
+.about-card-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #e5e7eb;
+}
+
+/* Glow animation */
 @keyframes philoNeon {
   0% {
-    transform: scale(0.96) rotate(0deg);
     background-position: 0% 50%;
   }
   50% {
-    transform: scale(1.02) rotate(2deg);
     background-position: 100% 50%;
   }
   100% {
-    transform: scale(0.96) rotate(0deg);
     background-position: 0% 50%;
   }
 }
 
-/* -------- RESPONSIVE -------- */
-
-@media (max-width: 1100px) {
-  .about-section {
-    height: 280vh;
-  }
-
-  .about-grid-overlay {
-    padding-inline: clamp(32px, 6vw, 72px);
-  }
-}
-
-@media (max-width: 900px) {
-  .about-section {
-    height: auto; /* πιο φυσικό scroll σε μικρές οθόνες */
-  }
-
-  .about-panel-wrap {
-    position: relative;
-    height: auto;
-  }
-
-  .about-panel {
-    padding-block: clamp(56px, 14vh, 80px);
-  }
-
-  .about-grid-overlay {
-    position: static;
-    margin-top: clamp(32px, 6vh, 48px);
-    grid-template-columns: 1fr;
-    grid-template-rows: none;
-    gap: 24px;
-    padding-inline: clamp(20px, 6vw, 40px);
-    padding-block: 0;
-  }
-
-  .about-card-outer {
-    max-width: 420px;
-  }
-
-  .about-lottie {
-    width: 120px;
-  }
-
-  .about-glitch-heading .glitch {
-    font-size: clamp(32px, 8vw, 52px);
-  }
-}
-
-@media (max-width: 600px) {
-  .about-card-inner {
-    padding-inline: 20px;
-    padding-block: 22px 28px;
-    min-height: 220px;
-  }
-
-  .about-card-body {
-    font-size: 14px;
-  }
-}
-
 /* ===================== */
-/* 📱 MOBILE VERSION     */
+/*      MOBILE STYLE     */
 /* ===================== */
+
 @media (max-width: 915px) {
   .about-section {
     height: auto;
-    padding-bottom: 100px;
+    padding-block: 80px;
   }
 
-  .about-mobile-card.philo-card-glow::before {
-    inset: -4px; /* πολύ κοντά στο border */
-    filter: blur(6px); /* μικρός blur -> δεν “απλώνει” τόσο */
+  .about-panel {
+    position: static;
+    padding: 40px 20px 80px;
   }
 
-  .about-mobile-card.philo-card-glow-active::before {
-    opacity: 0.6; /* πιο χαμηλό, να μην μοιάζει με background */
+  .about-header {
+    margin-bottom: 32px;
   }
 
-  /* MOBILE INTRO – sticky, αλλά κάτω από τις κάρτες */
-  .about-mobile-intro {
-    position: sticky;
-    top: 0;
-    height: 200vh;
-    background: #ffffff;
-    z-index: 1; /* κάτω από τις κάρτες */
-    display: flex;
-    flex-direction: column;
-    justify-content: top;
-    align-items: center;
-    padding-top: 300px;
-    text-align: center;
-    margin-bottom: 150px;
+  .about-glitch-heading {
+    font-size: clamp(32px, 8vw, 44px);
   }
 
-  .about-mobile-intro .about-lottie {
-    width: 120px;
-    margin-top: 24px;
+  .about-lottie {
+    width: 80px;
+    height: 80px;
   }
 
-  /* MOBILE CARDS – έρχονται από κάτω και σκεπάζουν το intro */
+  .about-horizontal-wrapper {
+    display: none;
+  }
+
   .about-mobile-cards {
-    position: relative;
-    z-index: 2; /* ΠΑΝΩ από το intro */
-    margin-top: 620px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
-    padding-inline: 24px;
+    gap: 32px;
+    margin-top: 24px;
   }
 
   .about-mobile-card {
@@ -266,8 +181,27 @@
     margin-inline: auto;
   }
 
-  /* Κρύβουμε τελείως το desktop layout στο mobile */
-  .about-panel-wrap {
-    display: none !important;
+  /* Πιο “σφιχτό” glow στο mobile για να μη φαίνεται συνεχόμενο φόντο */
+  .about-mobile-card.philo-card-glow::before {
+    inset: -6px;
+    filter: blur(10px);
+  }
+
+  .about-mobile-card.philo-card-glow-active::before {
+    opacity: 0.6;
+  }
+
+  .about-card-inner {
+    padding: 24px 20px;
+  }
+
+  .about-card-title {
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .about-card-body {
+    font-size: 14px;
+    text-align: center;
   }
 }
