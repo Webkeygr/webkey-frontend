@@ -1,10 +1,14 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useMotionValueEvent,
+} from "framer-motion";
 import Lottie from "lottie-react";
 import GlitchText from "./GlitchText";
-import scrollDownAnimation from "./scroll-down.json";
 
 import "./AboutPhilosophy.css";
 
@@ -33,128 +37,115 @@ const CARDS: Card[] = [
 ];
 
 export default function AboutPhilosophy() {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [scrollLottie, setScrollLottie] = useState<any | null>(null);
 
-  // Mobile detection
+  // Φορτώνουμε το ΛΕΥΚΟ scroll-down lottie από /public/lottie/scroll-down-white.json
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth <= 915);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    async function loadLottie() {
+      try {
+        const res = await fetch("/lottie/scroll-down-white.json");
+        if (!res.ok) return;
+        const json = await res.json();
+        setScrollLottie(json);
+      } catch (e) {
+        console.error("Failed to load scroll-down-white lottie:", e);
+      }
+    }
+    loadLottie();
   }, []);
+
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"],
+    offset: ["start end", "end start"], // αρχίζει όταν μπαίνει στην οθόνη, τελειώνει όταν φύγει
   });
 
-  /* ===== ΤΙΤΛΟΣ & LOTTIE ===== */
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.08, 0.22], [0, 1, 0]);
-  const titleY = useTransform(scrollYProgress, [0, 0.08, 0.22], [40, 0, -30]);
+  // Κυκλάκι → μεγαλώνει μέχρι να γίνει full black
+  const circleScale = useTransform(scrollYProgress, [0, 0.2, 0.6], [0.1, 1.4, 7]);
 
-  const lottieOpacity = useTransform(scrollYProgress, [0.02, 0.1, 0.24], [0, 1, 0]);
-  const lottieScale = useTransform(scrollYProgress, [0.02, 0.1], [0.8, 1]);
+  // Τίτλος + Lottie: εμφανίζονται, μένουν λίγο, μετά fade out
+  const headingOpacity = useTransform(scrollYProgress, [0, 0.08, 0.3], [0, 1, 0]);
+  const headingY = useTransform(scrollYProgress, [0, 0.3], [40, 0]);
 
-  /* ===== ΟΡΙΖΟΝΤΙΟ TRACK – πλήρες viewport ανά κάρτα ===== */
-  const trackX = useTransform(
-    scrollYProgress,
-    [0.22, 0.4, 0.6, 0.8, 1],
-    ["0vw", "-100vw", "-200vw", "-300vw", "-300vw"]
-  );
+  // Κάρτες: εμφανίζονται αφού “σκοτεινιάσει” η οθόνη
+  const cardsOpacity = useTransform(scrollYProgress, [0.35, 0.55], [0, 1]);
+  const cardsY = useTransform(scrollYProgress, [0.35, 0.55], [60, 0]);
 
-  // Πρώτη κάρτα: fade-in + zoom-out στο κέντρο
-  const firstCardScale = useTransform(scrollYProgress, [0.14, 0.22], [1.7, 1]);
-  const firstCardOpacity = useTransform(scrollYProgress, [0.14, 0.22], [0, 1]);
+  // Εδώ αλλάζουμε το theme του header ΜΟΝΟ όσο είμαστε πάνω από το μαύρο section
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (typeof document === "undefined") return;
+
+    if (latest > 0.28 && latest < 0.95) {
+      document.body.classList.add("dark-header");
+    } else {
+      document.body.classList.remove("dark-header");
+    }
+  });
 
   return (
-    <section ref={sectionRef} id="about-philosophy" className="about-section">
-      <div className="about-panel">
-        {/* ---------- Τίτλος + Lottie στο κέντρο ---------- */}
-        <div className="about-header">
-          <motion.h2
-            className="about-glitch-heading"
-            style={
-              isMobile
-                ? {}
-                : {
-                    opacity: titleOpacity,
-                    y: titleY,
-                  }
-            }
-          >
-            <GlitchText
-              enableOnHover={false}
-              enableShadows
-              className="about-glitch-inner"
-            >
-              Ποιοι Είμαστε
-            </GlitchText>
-          </motion.h2>
-
+    <section
+      id="about-philosophy"
+      className="about-section"
+      ref={sectionRef as any}
+    >
+      <div className="about-panel-wrap">
+        <div className="about-panel">
+          {/* ΜΑΥΡΟ ΚΥΚΛΑΚΙ ΠΟΥ ΜΕΓΑΛΩΝΕΙ */}
           <motion.div
-            className="about-lottie-wrap"
-            style={
-              isMobile
-                ? {}
-                : {
-                    opacity: lottieOpacity,
-                    scale: lottieScale,
-                  }
-            }
-          >
-            <Lottie
-              animationData={scrollDownAnimation}
-              loop
-              autoplay
-              className="about-lottie"
-            />
-          </motion.div>
-        </div>
+            className="about-circle"
+            style={{ scale: circleScale }}
+          />
 
-        {/* ---------- DESKTOP: sticky + horizontal scroll ---------- */}
-        {!isMobile && (
-          <div className="about-horizontal-wrapper">
-            <motion.div className="about-horizontal-track" style={{ x: trackX }}>
+          {/* ΤΙΤΛΟΣ + LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
+          <motion.div
+            className="about-heading-block"
+            style={{ opacity: headingOpacity, y: headingY }}
+          >
+            <h2 className="about-glitch-heading">
+              <GlitchText>Ποιοι είμαστε</GlitchText>
+            </h2>
+
+            {scrollLottie && (
+              <div className="about-lottie-wrapper">
+                <Lottie
+                  animationData={scrollLottie}
+                  loop
+                  autoplay
+                  className="about-lottie"
+                />
+              </div>
+            )}
+          </motion.div>
+
+          {/* ΚΑΡΤΕΣ ΠΑΝΩ ΣΤΟ ΜΑΥΡΟ BACKGROUND */}
+          <motion.div
+            className="about-cards-block"
+            style={{ opacity: cardsOpacity, y: cardsY }}
+          >
+            <div className="about-grid">
               {CARDS.map((card, index) => (
-                <motion.article
+                <motion.div
                   key={card.title}
-                  className="about-card-outer philo-card-glow philo-card-glow-active"
-                  style={
-                    index === 0
-                      ? {
-                          scale: firstCardScale,
-                          opacity: firstCardOpacity,
-                        }
-                      : undefined
-                  }
+                  className="about-card philo-card-glow philo-card-glow-active"
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ amount: 0.4, once: true }}
+                  transition={{
+                    duration: 0.7,
+                    delay: 0.15 + index * 0.22,
+                    ease: "easeOut",
+                  }}
                 >
                   <div className="about-card-inner">
                     <div className="about-card-title">{card.title}</div>
                     <div className="about-card-body">{card.body}</div>
                   </div>
-                </motion.article>
+                </motion.div>
               ))}
-            </motion.div>
-          </div>
-        )}
-
-        {/* ---------- MOBILE: stacked cards ---------- */}
-        {isMobile && (
-          <div className="about-mobile-cards">
-            {CARDS.map((card) => (
-              <article
-                key={card.title}
-                className="about-mobile-card philo-card-glow philo-card-glow-active"
-              >
-                <div className="about-card-inner">
-                  <div className="about-card-title">{card.title}</div>
-                  <div className="about-card-body">{card.body}</div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

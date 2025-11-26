@@ -58,6 +58,14 @@
   font-display: swap;
 }
 
+/* Όταν το AboutPhilosophy “σκοτεινιάζει” και βάζει .dark-header στο <body>,
+   κάνε τα GR / EN λευκά για να φαίνονται πάνω στο μαύρο. */
+
+body.dark-header .lang-label {
+  color: #ffffff !important;
+}
+
+
 /* Utility class για χρήση ITC-Bold όπου θέλεις */
 .font-ITC-Bold {
   font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont,
