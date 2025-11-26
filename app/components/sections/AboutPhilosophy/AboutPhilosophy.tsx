@@ -73,10 +73,9 @@ const AboutPhilosophy: React.FC = () => {
             className="about-title-block"
             style={{ opacity: titleOpacity, y: titleY }}
           >
-            <GlitchText
-              text="ΠΟΙΟΙ ΕΙΜΑΣΤΕ"
-              className="about-title-glitch"
-            />
+            <GlitchText className="about-title-glitch">
+  ΠΟΙΟΙ ΕΙΜΑΣΤΕ
+</GlitchText>
 
             <div className="about-lottie-wrapper">
               <Lottie
