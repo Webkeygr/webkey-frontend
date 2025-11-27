@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useMemo } from "react";
 
 // EL = χωρίς /en, EN = με /en
 function toggleLocale(pathname: string, to: "el" | "en") {
@@ -17,103 +17,99 @@ function toggleLocale(pathname: string, to: "el" | "en") {
     : `/en${pathname === "/" ? "/" : pathname}`;
 }
 
-// Ίδιο hook με του Header – βλέπει αν ο μαύρος κύκλος γεμίζει την οθόνη
-function useAboutDark(): boolean {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const check = () => {
-      const circle = document.querySelector<HTMLElement>(".about-black-circle");
-      if (!circle) {
-        setIsDark(false);
-        return;
-      }
-
-      const rect = circle.getBoundingClientRect();
-      const vw = window.innerWidth || 0;
-      const vh = window.innerHeight || 0;
-
-      const coversScreen =
-        rect.width >= vw * 0.9 &&
-        rect.height >= vh * 0.9 &&
-        rect.top <= 0.1 * vh &&
-        rect.bottom >= 0.9 * vh;
-
-      setIsDark(coversScreen);
-    };
-
-    check();
-    window.addEventListener("scroll", check);
-    window.addEventListener("resize", check);
-
-    return () => {
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
-    };
-  }, []);
-
-  return isDark;
-}
-
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({
+  className = "",
+}: {
+  className?: string;
+}) {
   const pathname = usePathname() || "/";
   const isEnglish = pathname.startsWith("/en");
-  const greekHref = toggleLocale(pathname, "el");
-  const englishHref = toggleLocale(pathname, "en");
 
-  const isAboutDark = useAboutDark();
+  const elHref = useMemo(() => toggleLocale(pathname, "el"), [pathname]);
+  const enHref = useMemo(() => toggleLocale(pathname, "en"), [pathname]);
 
-  // Μαύρο background => λευκά γράμματα, αλλιώς μαύρα
-  const activeColor = isAboutDark ? "#ffffff" : "#000000";
-  const inactiveColor = isAboutDark
-    ? "rgba(255,255,255,0.65)"
-    : "rgba(0,0,0,0.6)";
+  // Το switch σε πάει στην ΑΛΛΗ γλώσσα
+  const targetHref = isEnglish ? elHref : enHref;
+  const ariaLabel = isEnglish ? "Switch to Greek" : "Switch to English";
 
-  const labelBase =
-    "lang-label text-[11px] md:text-xs tracking-[0.16em] uppercase transition-colors";
+  // Track: ασπρόμαυρο flag της γλώσσας που ΘΑ εμφανιστεί αν μεταβείς
+  const trackFlag = isEnglish
+    ? "url('/images/flags/uk-track.png')" // EN active (πάνω mockup)
+    : "url('/images/flags/gr-track.png')"; // GR active (κάτω mockup)
+
+  const labelBase = "text-xs sm:text-sm tracking-wide";
   const activeLabel = "font-semibold";
-  const inactiveLabel = "font-medium";
+  const inactiveLabel = "font-normal";
 
   return (
-    <div className="flex items-center gap-1 md:gap-2">
-      {/* GR */}
-      <Link
-        href={greekHref}
-        aria-label="Switch language to Greek"
-        className="flex items-center gap-1"
+    <Link
+      href={targetHref}
+      aria-label={ariaLabel}
+      className={`inline-flex items-center gap-2 sm:gap-3 ${className}`}
+    >
+      {/* GR label */}
+      <span
+        className={`lang-label ${labelBase} ${
+          !isEnglish ? activeLabel : inactiveLabel
+        }`}
+        style={{
+          color: !isEnglish
+            ? "var(--lang-switcher-text-color, #000000)"
+            : "var(--lang-switcher-text-muted-color, rgba(0,0,0,0.6))",
+        }}
       >
-        <span
-          className={`${labelBase} ${!isEnglish ? activeLabel : inactiveLabel}`}
-          style={{ color: !isEnglish ? activeColor : inactiveColor }}
-        >
-          GR
-        </span>
-      </Link>
+        GR
+      </span>
 
-      {/* Switch pill */}
-      <div className="relative h-4 w-8 rounded-full bg-neutral-200">
+      {/* Slider */}
+      <div
+        className="
+          relative h-7 w-16 sm:h-8 sm:w-20
+          rounded-full
+          bg-white
+          shadow-[0_10px_25px_rgba(0,0,0,0.18)]
+          overflow-hidden
+          transition-shadow
+          hover:shadow-[0_14px_32px_rgba(0,0,0,0.25)]
+        "
+      >
+        {/* Track με flag σε grayscale */}
         <div
-          className={`absolute top-0.5 h-3 w-3 rounded-full bg-neutral-900 transition-transform duration-200 ${
-            isEnglish ? "translate-x-4" : "translate-x-1"
-          }`}
+          className="
+            absolute inset-0
+            bg-center bg-cover
+            grayscale
+          "
+          style={{ backgroundImage: trackFlag }}
+        />
+
+        {/* Λευκό κυκλάκι */}
+        <div
+          className={`absolute top-1/2 -translate-y-1/2
+            h-7 w-7 sm:h-[2.1rem] sm:w-[2.1rem]
+            rounded-full
+            bg-white
+            border border-neutral-300
+            shadow-[0_6px_14px_rgba(0,0,0,0.35)]
+            transition-transform duration-250 ease-out
+            ${isEnglish ? "right-0.5" : "left-0.5"}
+          `}
         />
       </div>
 
-      {/* EN */}
-      <Link
-        href={englishHref}
-        aria-label="Switch language to English"
-        className="flex items-center gap-1"
+      {/* EN label */}
+      <span
+        className={`lang-label ${labelBase} ${
+          isEnglish ? activeLabel : inactiveLabel
+        }`}
+        style={{
+          color: isEnglish
+            ? "var(--lang-switcher-text-color, #000000)"
+            : "var(--lang-switcher-text-muted-color, rgba(0,0,0,0.6))",
+        }}
       >
-        <span
-          className={`${labelBase} ${isEnglish ? activeLabel : inactiveLabel}`}
-          style={{ color: isEnglish ? activeColor : inactiveColor }}
-        >
-          EN
-        </span>
-      </Link>
-    </div>
+        EN
+      </span>
+    </Link>
   );
 }
