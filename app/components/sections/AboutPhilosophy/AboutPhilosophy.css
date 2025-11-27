@@ -156,17 +156,12 @@
 }
 
 /* ==========================
-   LANGUAGE SWITCHER COLORS
+   LANGUAGE SWITCHER – DARK MODE
    ========================== */
 
-/* Βασικό χρώμα labels (GR / EN) – διαβάζει τα body CSS vars
-   που ορίζουμε στο AboutPhilosophy.tsx */
-.lang-label {
-  color: var(--lang-switcher-text-muted-color, rgba(0, 0, 0, 0.6)) !important;
-  transition: color 0.25s ease;
-}
-
-/* Το active (έχει class font-semibold) παίρνει το "δυνατό" χρώμα */
-.lang-label.font-semibold {
-  color: var(--lang-switcher-text-color, #000000) !important;
+/* Όταν ο κύκλος του About έχει γεμίσει την οθόνη,
+   το <body> παίρνει κλάση .about-dark (από το Header)
+   και κάνουμε τα GR / EN λευκά. */
+.about-dark .lang-label {
+  color: #ffffff !important;
 }

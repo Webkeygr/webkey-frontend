@@ -1,3 +1,4 @@
+// app/components/Header.tsx
 "use client";
 
 import Image from "next/image";
@@ -13,7 +14,13 @@ type HeaderProps = {
   ctaText?: string;
 };
 
-// Μικρό hook που ελέγχει αν ο μαύρος κύκλος του AboutPhilosophy έχει γεμίσει την οθόνη
+/**
+ * Διαβάζει από το DOM το .about-black-circle
+ * και καταλαβαίνει πότε ο κύκλος έχει γεμίσει σχεδόν όλη την οθόνη.
+ * Τότε:
+ *  - γυρνάει isDark = true
+ *  - προσθέτει στο <body> την κλάση about-dark
+ */
 function useAboutDark(): boolean {
   const [isDark, setIsDark] = useState(false);
 
@@ -22,8 +29,10 @@ function useAboutDark(): boolean {
 
     const check = () => {
       const circle = document.querySelector<HTMLElement>(".about-black-circle");
+
       if (!circle) {
         setIsDark(false);
+        document.body.classList.remove("about-dark");
         return;
       }
 
@@ -31,7 +40,7 @@ function useAboutDark(): boolean {
       const vw = window.innerWidth || 0;
       const vh = window.innerHeight || 0;
 
-      // Θεωρούμε "dark phase" όταν ο κύκλος καλύπτει σχεδόν όλη την οθόνη
+      // Θεωρούμε ότι έχει "γεμίσει" όταν καλύπτει σχεδόν όλο το viewport
       const coversScreen =
         rect.width >= vw * 0.9 &&
         rect.height >= vh * 0.9 &&
@@ -39,6 +48,12 @@ function useAboutDark(): boolean {
         rect.bottom >= 0.9 * vh;
 
       setIsDark(coversScreen);
+
+      if (coversScreen) {
+        document.body.classList.add("about-dark");
+      } else {
+        document.body.classList.remove("about-dark");
+      }
     };
 
     check();
@@ -48,6 +63,7 @@ function useAboutDark(): boolean {
     return () => {
       window.removeEventListener("scroll", check);
       window.removeEventListener("resize", check);
+      document.body.classList.remove("about-dark");
     };
   }, []);
 
@@ -97,15 +113,16 @@ export default function Header({
 
   const isAboutDark = useAboutDark();
 
-  // Default logo παντού, white logo ΜΟΝΟ όταν ο κύκλος είναι full screen
-  const logoToShow = isAboutDark ? "/images/logo-webkey-white.svg" : logoSrc;
+  // Κανονικό logo σε όλο το site,
+  // white logo ΜΟΝΟ όταν ο κύκλος έχει γεμίσει την οθόνη
+  const effectiveLogo = isAboutDark ? "/images/logo-webkey-white.svg" : logoSrc;
 
   return (
     <BubbleMenu
       logo={
         <Link href="/" aria-label="WebKey home" className="inline-block">
           <Image
-            src={logoToShow}
+            src={effectiveLogo}
             alt="WebKey"
             width={220}
             height={80}
@@ -122,6 +139,7 @@ export default function Header({
       animationEase="back.out(1.5)"
       animationDuration={0.5}
       staggerDelay={0.12}
+      /* Δίπλα από το toggle βάζουμε μόνο το language switcher */
       rightSlot={
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
