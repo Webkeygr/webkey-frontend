@@ -1,55 +1,209 @@
-/* =============================================
-   BASE WRAPPER WITH LARGE SCROLL SPACE
-   ============================================= */
-.aboutP-wrapper {
+/* ==========================
+   ABOUT PHILOSOPHY – LAYOUT
+   ========================== */
+
+.about-section {
   position: relative;
-  min-height: 250vh; /* το “ταξίδι” */
-  background: transparent;
+  z-index: 5;
+  padding: 0;
+  margin: 0;
+  background: transparent; /* αφήνουμε να φαίνεται το hero μέχρι να κλείσει ο κύκλος */
   overflow: hidden;
 }
 
-/* =============================================
-   STICKY STAGE (ΜΕΝΕΙ ΚΑΡΦΩΜΕΝΟ)
-   ============================================= */
-.aboutP-sticky {
+/* Υψος για να έχουμε “ταξίδι” στο scroll */
+.about-scroll-area {
+  position: relative;
+  height: 260vh;
+}
+
+/* ΟΛΟ το block sticky & στο κέντρο του viewport */
+.about-sticky {
   position: sticky;
   top: 0;
-  height: 100vh;
-  width: 100%;
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  pointer-events: none; /* να μην μπλοκάρει το scroll */
   overflow: hidden;
 }
 
-/* =============================================
-   TITLE IN PERFECT CENTER
-   ============================================= */
-.aboutP-title {
-  position: absolute;
-  top: 40%; /* λίγο πιο κάτω όπως το ήθελες */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(42px, 6vw, 68px);
-  font-weight: 800;
-  text-align: center;
-  color: black;
-  z-index: 3;
-  margin: 0;
-  padding: 0;
-}
-
-/* =============================================
-   THE BLACK GROWING CIRCLE
-   ============================================= */
-.aboutP-circle {
+/* Μαύρος κύκλος που μεγαλώνει μέχρι fullscreen */
+.about-black-circle {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 30vmin;
-  height: 30vmin;
+  width: 40vmin;
+  height: 40vmin;
   transform: translate(-50%, -50%);
-  background: black;
   border-radius: 9999px;
+  background: #000000;
   z-index: 1;
+  will-change: transform, opacity;
+}
+
+/* Τίτλος + Lottie – πάντα στο κέντρο */
+.about-title-block {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  color: #000;
+  pointer-events: none;
+  transform: translateY(-40px); /* λίγο πιο κάτω από το απόλυτο κέντρο */
+}
+
+.about-title-glitch {
+  font-size: clamp(42px, 5vw, 68px);
+  letter-spacing: 0.06em;
+}
+
+/* Lottie wrapper στο κέντρο κάτω από τον τίτλο */
+.about-lottie-wrapper {
+  position: relative;
+  margin-top: 28px;
+  width: 140px;
+  height: 140px;
+  margin-inline: auto;
+}
+
+/* Δύο layers το ένα πάνω στο άλλο (color + white) */
+.about-lottie-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-lottie {
+  width: 140px;
+  height: 140px;
+}
+
+/* ==========================
+   ΚΑΡΤΕΣ ΜΕΣΑ ΣΤΟ ΜΑΥΡΟ ΦΟΝΤΟ
+   ========================== */
+
+.about-cards-grid {
+  position: relative;
+  z-index: 4;
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  max-width: 980px;
+  width: 100%;
+  padding: 0 32px;
+  pointer-events: auto; /* κάρτες κλικ-άμπλ */
+}
+
+/* Εξωτερικό wrapper κάθε κάρτας */
+.philo-card-outer {
+  position: relative;
+}
+
+/* Glow wrapper – εδώ ζει όλο το neon effect */
+.philo-card-glow {
+  position: relative;
+  border-radius: 32px;
+  padding: 1px;
+  background: transparent;
+  isolation: isolate;
+}
+
+/* Neon glow γύρω από την κάρτα */
+.philo-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -28px;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 0% 0%, #ff00f2 0, transparent 55%),
+    radial-gradient(circle at 100% 0%, #00e0ff 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, #ff00f2 0, transparent 55%),
+    radial-gradient(circle at 0% 100%, #7a5cff 0, transparent 55%);
+  filter: blur(18px);
+  opacity: 0.9;
+  z-index: -1;
+}
+
+/* Περιεχόμενο κάρτας */
+.philo-card-content {
+  position: relative;
+  border-radius: 32px;
+  background: #05050a;
+  padding: 28px 30px 30px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+}
+
+.philo-card-title {
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #ffffff;
+}
+
+.philo-card-body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ==========================
+   RESPONSIVE
+   ========================== */
+
+@media (max-width: 1024px) {
+  .about-scroll-area {
+    height: 240vh;
+  }
+
+  .about-sticky {
+    justify-content: center;
+  }
+
+  .about-title-block {
+    transform: translateY(-20px);
+  }
+
+  .about-cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 640px;
+    padding: 0 20px;
+    gap: 24px;
+  }
+
+  .about-lottie-wrapper {
+    width: 110px;
+    height: 110px;
+  }
+
+  .about-lottie {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+@media (max-width: 640px) {
+  .about-scroll-area {
+    height: 220vh;
+  }
+
+  .about-title-glitch {
+    font-size: clamp(32px, 9vw, 40px);
+  }
+
+  .about-title-block {
+    transform: translateY(-10px);
+  }
+
+  .philo-card-content {
+    padding: 22px 22px 24px;
+  }
+
+  .philo-card-body {
+    font-size: 13px;
+  }
 }
