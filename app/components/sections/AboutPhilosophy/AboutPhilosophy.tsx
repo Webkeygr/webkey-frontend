@@ -4,58 +4,43 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
 
-import "./AboutPhilosophy.css";
 import GlitchText from "./GlitchText";
 
-// Χρησιμοποιούμε το κλασικό scroll-down (στο άσπρο φόντο)
-import scrollDown from "@/app/lottie/scroll-down.json";
-
-const philosophyCards = [
-  {
-    title: "Clarity first",
-    body: "Δεν κρυβόμαστε πίσω από buzzwords. Ξεκινάμε με ξεκάθαρους στόχους: τι θέλεις να πετύχεις, με ποιο κοινό και σε ποιο χρονικό ορίζοντα. Ό,τι σχεδιάζουμε, υπηρετεί αυτό.",
-  },
-  {
-    title: "Design με σκοπό",
-    body: "Όμορφο χωρίς λειτουργικότητα δεν μας ενδιαφέρει. Σχεδιάζουμε εμπειρίες που οδηγούν τον επισκέπτη σε πράξη: να σου στείλει μήνυμα, να κλείσει ραντεβού, να αγοράσει, να σε θυμάται.",
-  },
-  {
-    title: "Tech χωρίς φλυαρία",
-    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
-  },
-  {
-    title: "Σχέση, όχι project",
-    body: "Δεν βλέπουμε τη δουλειά σαν “ένα project και τέλος”. Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.",
-  },
-];
+// χρωματιστό πριν γίνει μαύρο
+import scrollDownColor from "@/app/lottie/scroll-down.json";
+// λευκό αφού γεμίσει η οθόνη μαύρο
+import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 
 const AboutPhilosophy: React.FC = () => {
-  const sectionRef = useRef<HTMLElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    // 0 όταν το section μπαίνει στο viewport, 1 όταν βγει
-    offset: ["start 70%", "end 20%"],
+    offset: ["start start", "end end"],
   });
 
-  // Ο τίτλος: fade in, μένει λίγο, μετά fade out προς τα πάνω
+  // Τίτλος: εμφανίζεται, μένει λίγο, μετά σβήνει
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0, 0.15, 0.4, 0.55],
+    [0, 0.08, 0.25, 0.35],
     [0, 1, 1, 0]
   );
   const titleY = useTransform(
     scrollYProgress,
-    [0, 0.15, 0.4, 0.6],
-    [40, 0, 0, -40]
+    [0, 0.08, 0.35, 0.5],
+    [40, 0, 0, -30]
   );
 
-  // Μαύρος κύκλος – μικρή βούλα στην αρχή, γεμίζει την οθόνη
-  const circleScale = useTransform(scrollYProgress, [0.25, 0.9], [0.15, 6]);
+  // Μαύρος κύκλος: από «ανύπαρκτος» μέχρι full screen
+  const circleScale = useTransform(scrollYProgress, [0.2, 0.75], [0, 5.2]);
+  const circleOpacity = useTransform(scrollYProgress, [0.2, 0.3], [0, 1]);
 
-  // Κάρτες – εμφανίζονται όταν σχεδόν έχει γεμίσει μαύρο
-  const cardsOpacity = useTransform(scrollYProgress, [0.7, 0.95], [0, 1]);
-  const cardsY = useTransform(scrollYProgress, [0.7, 0.95], [60, 0]);
+  // Λευκό Lottie: μόνο όταν έχει σχεδόν γεμίσει μαύρο
+  const whiteLottieOpacity = useTransform(
+    scrollYProgress,
+    [0.55, 0.65],
+    [0, 1]
+  );
 
   return (
     <section
@@ -63,52 +48,50 @@ const AboutPhilosophy: React.FC = () => {
       className="about-section"
       ref={sectionRef}
     >
-      {/* Μεγάλο vertical “ταξίδι” για το scroll animation */}
-      <div className="about-scroll-area">
-        {/* Ό,τι βλέπεις (τίτλος, κύκλος, κάρτες) μένει sticky */}
-        <div className="about-sticky-layer">
-          {/* Μαύρη βούλα που μεγαλώνει */}
-          <motion.div
-            className="about-black-circle"
-            style={{ scale: circleScale }}
+      {/* STAGE ΠΟΥ ΕΙΝΑΙ STICKY */}
+      <div className="about-sticky-layer">
+        {/* Μαύρος κύκλος στο κέντρο */}
+        <motion.div
+          className="about-black-circle"
+          style={{ scale: circleScale, opacity: circleOpacity }}
+        />
+
+        {/* Τίτλος + χρωματιστό Lottie – μένουν καρφωμένα (sticky) */}
+        <motion.div
+          className="about-title-block"
+          style={{ opacity: titleOpacity, y: titleY }}
+        >
+          <GlitchText
+            className="about-title-glitch"
+            speed={1.4}
+            enableShadows
+            enableOnHover={false}
+          >
+            ΠΟΙΟΙ ΕΙΜΑΣΤΕ
+          </GlitchText>
+
+          <div className="about-lottie-wrapper">
+            <Lottie
+              animationData={scrollDownColor}
+              loop
+              className="about-lottie"
+            />
+          </div>
+        </motion.div>
+
+        {/* Λευκό Lottie, μόνο όταν πια έχει γίνει μαύρη η οθόνη */}
+        <motion.div
+          className="about-lottie-white-wrapper"
+          style={{ opacity: whiteLottieOpacity }}
+        >
+          <Lottie
+            animationData={scrollDownWhite}
+            loop
+            className="about-lottie about-lottie-white"
           />
+        </motion.div>
 
-          {/* Τίτλος + Lottie στο κέντρο της οθόνης */}
-          <motion.div
-            className="about-title-block"
-            style={{ opacity: titleOpacity, y: titleY }}
-          >
-            <GlitchText
-              className="about-title-glitch"
-              speed={1.4}
-              enableShadows={true}
-              enableOnHover={false}
-            >
-              ΠΟΙΟΙ ΕΙΜΑΣΤΕ
-            </GlitchText>
-
-            <div className="about-lottie-wrapper">
-              <Lottie
-                animationData={scrollDown}
-                loop
-                className="about-lottie"
-              />
-            </div>
-          </motion.div>
-
-          {/* Κάρτες μέσα στο μαύρο φόντο */}
-          <motion.div
-            className="about-cards-grid"
-            style={{ opacity: cardsOpacity, y: cardsY }}
-          >
-            {philosophyCards.map((card) => (
-              <article key={card.title} className="philo-card">
-                <h3 className="philo-card-title">{card.title}</h3>
-                <p className="philo-card-body">{card.body}</p>
-              </article>
-            ))}
-          </motion.div>
-        </div>
+        {/* ΕΔΩ θα βάλουμε μετά τις κάρτες μέσα στο μαύρο φόντο */}
       </div>
     </section>
   );

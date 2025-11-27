@@ -1,61 +1,50 @@
 /* ==========================
-   ABOUT PHILOSOPHY – LAYOUT
+   ABOUT PHILOSOPHY – BASE
    ========================== */
 
+/* Όλο το section – δίνει χώρο για scroll */
 .about-section {
   position: relative;
-  z-index: 5;
+  min-height: 260vh; /* πόσο "μακρύ" είναι το sequence */
   padding: 0;
   margin: 0;
-  background: transparent; /* για να φαίνεται το hero wave από πίσω */
-  overflow: hidden;
+  background: transparent; /* να φαίνεται το wave από πίσω στην αρχή */
 }
 
-/* Πόσο vertical scroll έχουμε για όλο το animation */
-.about-scroll-area {
-  position: relative;
-  height: 360vh; /* 2–3 γερά scrolls, πείραξέ το αν θες */
-}
-
-/* Ό,τι είναι εδώ μέσα μένει sticky στο viewport */
+/* Sticky stage – αυτό ΜΕΝΕΙ καρφωμένο στο viewport */
 .about-sticky-layer {
   position: sticky;
   top: 0;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
   overflow: hidden;
+  pointer-events: none;
 }
 
-/* Μαύρος κύκλος που γεμίζει όλη την οθόνη */
+/* Μαύρος κύκλος ακριβώς στο κέντρο */
 .about-black-circle {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 50vmin;
-  height: 50vmin;
+  width: 40vmin;
+  height: 40vmin;
   transform: translate(-50%, -50%);
   border-radius: 9999px;
-  background: #000;
-  z-index: 1;
-  will-change: transform;
+  background: #000000;
+  will-change: transform, opacity;
 }
 
-/* Τίτλος + Lottie στο κέντρο */
+/* Τίτλος + πρώτο (χρωματιστό) Lottie */
 .about-title-block {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  top: 35%; /* λίγο πιο κάτω όπως ζήτησες */
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
-  color: #000;
-  margin-top: 60px; /* 🔽 φέρνει τον τίτλο λίγο πιο κάτω */
+  color: #000000;
 }
-
 
 .about-title-glitch {
   font-size: clamp(42px, 5vw, 68px);
@@ -68,84 +57,45 @@
   justify-content: center;
 }
 
+/* λίγο μεγαλύτερο Lottie (διπλό περίπου απ’ πριν) */
 .about-lottie {
-  width: 160px;
-  height: 160px;
+  width: 150px;
+  height: 150px;
 }
 
-/* ==========================
-   ΚΑΡΤΕΣ ΜΕΣΑ ΣΤΟ ΜΑΥΡΟ
-   ========================== */
-
-.about-cards-grid {
-  position: relative;
-  z-index: 3;
-  margin-top: 40px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px;
-  max-width: 980px;
-  width: 100%;
-  padding: 0 32px;
-  pointer-events: auto; /* για να μπορείς να επιλέγεις κείμενο κλπ */
+/* Λευκό Lottie που φαίνεται ΜΕΣΑ στο μαύρο */
+.about-lottie-white-wrapper {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.philo-card {
-  border-radius: 28px;
-  background: #05050a;
-  padding: 28px 30px 30px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
-}
-
-.philo-card-title {
-  font-weight: 700;
-  font-size: 20px;
-  margin-bottom: 12px;
-  color: #ffffff;
-}
-
-.philo-card-body {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
+.about-lottie-white {
+  width: 150px;
+  height: 150px;
 }
 
 /* ==========================
    RESPONSIVE
    ========================== */
 
-@media (max-width: 1024px) {
-  .about-scroll-area {
-    height: 240vh;
+@media (max-width: 768px) {
+  .about-section {
+    min-height: 240vh;
   }
 
-  .about-cards-grid {
-    grid-template-columns: 1fr;
-    max-width: 640px;
-    gap: 24px;
-    padding: 0 20px;
-  }
-
-  .about-lottie {
-    width: 120px;
-    height: 120px;
-  }
-}
-
-@media (max-width: 640px) {
-  .about-scroll-area {
-    height: 220vh;
+  .about-title-block {
+    top: 32%;
   }
 
   .about-title-glitch {
-    font-size: clamp(32px, 9vw, 40px);
+    font-size: clamp(32px, 8vw, 40px);
   }
 
-  .philo-card {
-    padding: 22px 22px 24px;
-  }
-
-  .philo-card-body {
-    font-size: 13px;
+  .about-lottie,
+  .about-lottie-white {
+    width: 110px;
+    height: 110px;
   }
 }
