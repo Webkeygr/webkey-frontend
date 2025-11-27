@@ -116,7 +116,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
   translate3d(${x}px, ${y}px, ${z}px)
   translate(-50%, -50%)
   rotateX(8deg)
-  rotateZ(4deg)
+  rotateZ(2deg)
   scale(${scale})
 `,
 
