@@ -1,149 +1,94 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
 
 import "./AboutPhilosophy.css";
 
+// Lotties
 import scrollDownColor from "@/app/lottie/scroll-down.json";
 import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 
+// Glitch τίτλος
 import GlitchText from "./GlitchText";
 
-const AboutPhilosophy: React.FC = () => {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const [isPinned, setIsPinned] = useState(false);
+const philosophyCards = [
+  {
+    title: "Clarity first",
+    body: "Δεν κρυβόμαστε πίσω από buzzwords. Ξεκινάμε με ξεκάθαρους στόχους: τι θέλεις να πετύχεις, με ποιο κοινό και σε ποιο χρονικό ορίζοντα. Ό,τι σχεδιάζουμε, υπηρετεί αυτό.",
+  },
+  {
+    title: "Design με σκοπό",
+    body: "Όμορφο χωρίς λειτουργικότητα δεν μας ενδιαφέρει. Σχεδιάζουμε εμπειρίες που οδηγούν τον επισκέπτη σε πράξη: να σου στείλει μήνυμα, να κλείσει ραντεβού, να αγοράσει, να σε θυμάται.",
+  },
+  {
+    title: "Tech χωρίς φλυαρία",
+    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
+  },
+  {
+    title: "Σχέση, όχι project",
+    body: "Δεν βλέπουμε τη δουλειά σαν “ένα project και τέλος”. Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.",
+  },
+];
 
-  // Scroll progress μόνο για αυτό το section
+const AboutPhilosophy: React.FC = () => {
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"],
+    offset: ["start 70%", "end 20%"],
   });
 
-  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν σχεδόν έχει γεμίσει η βούλα
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (typeof window === "undefined") return;
-    const body = document.body;
-    if (!body) return;
+  /* ------------------ ΤΙΤΛΟΣ + LOTTIE ------------------ */
 
-    if (latest >= 0.86) {
-      body.style.setProperty("--lang-switcher-text-color", "#ffffff");
-      body.style.setProperty(
-        "--lang-switcher-text-muted-color",
-        "rgba(255,255,255,0.7)"
-      );
-    } else {
-      body.style.setProperty("--lang-switcher-text-color", "#000000");
-      body.style.setProperty(
-        "--lang-switcher-text-muted-color",
-        "rgba(0,0,0,0.6)"
-      );
-    }
-  });
-
-  // Cleanup όταν φύγουμε από το section / σελίδα
-  useEffect(() => {
-    return () => {
-      if (typeof window === "undefined") return;
-      const body = document.body;
-      if (!body) return;
-      body.style.removeProperty("--lang-switcher-text-color");
-      body.style.removeProperty("--lang-switcher-text-muted-color");
-    };
-  }, []);
-
-  // Χειροκίνητο "sticky" με fixed
-  useEffect(() => {
-    const handleScroll = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      const rect = section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 0;
-      const sectionTop = window.scrollY + rect.top;
-      const sectionHeight = section.offsetHeight;
-
-      const startPin = sectionTop;
-      const endPin = sectionTop + sectionHeight - viewportHeight;
-
-      const y = window.scrollY;
-      const pinnedNow = y >= startPin && y <= endPin;
-      setIsPinned(pinnedNow);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, []);
-
-  /* ==========================
-     ANIMATIONS
-     ========================== */
-
-  // Τίτλος: μένει full opacity για πολύ, fade out ΠΡΙΝ γεμίσει ο κύκλος
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.82, 0.95],
-    [1, 1, 0]
+    [0.0, 0.08, 0.35, 0.55],
+    [0, 1, 1, 0]
+  );
+  const titleY = useTransform(
+    scrollYProgress,
+    [0.0, 0.08, 0.55],
+    [40, 0, -20]
   );
 
-  // Μαύρη βούλα:
-  // - ξεκινάει πιο αργά (για να χαρείς τον τίτλο 3-4 scroll)
-  // - μεγαλώνει αρκετά ώστε να καλύψει όλη την οθόνη
-  const circleScale = useTransform(scrollYProgress, [0.6, 0.96], [0, 6.2]);
-  const circleOpacity = useTransform(scrollYProgress, [0.6, 0.7], [0, 1]);
-
-  // Lottie: έγχρωμο στην αρχή, λευκό όταν έχει σχεδόν γεμίσει η βούλα
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.5, 0.75],
-    [1, 1, 0]
+    [0.0, 0.1, 0.4],
+    [0, 1, 0]
   );
+
   const whiteLottieOpacity = useTransform(
     scrollYProgress,
-    [0.75, 0.9],
-    [0, 1]
+    [0.35, 0.55, 0.8],
+    [0, 1, 1]
   );
 
+  /* ------------------ ΜΑΥΡΟΣ ΚΥΚΛΟΣ ------------------ */
+  // ⬇️ μεγαλώνουμε το range & το τελικό scale για ultrawide / 4K
+  const circleScale = useTransform(scrollYProgress, [0.18, 0.9], [0, 7]);
+  const circleOpacity = useTransform(scrollYProgress, [0.18, 0.25], [0, 1]);
+
+  /* ------------------ ΚΑΡΤΕΣ ------------------ */
+  // τις πάμε λίγο πιο “αργά” ώστε να εμφανιστούν όταν το μαύρο έχει γεμίσει
+  const cardsOpacity = useTransform(scrollYProgress, [0.65, 0.9], [0, 1]);
+  const cardsY = useTransform(scrollYProgress, [0.65, 0.9], [40, 0]);
+
   return (
-    <section
-      id="about-philosophy"
-      className="about-section"
-      ref={sectionRef}
-    >
-      {/* Το ύψος αυτού του wrapper καθορίζει πόσα scroll "ταξιδεύει" το pinned section */}
+    <section id="about-philosophy" className="about-section" ref={sectionRef}>
       <div className="about-scroll-area">
-        {/* Αυτό είναι που μένει καρφωμένο στο κέντρο */}
-        <div
-          className={
-            isPinned ? "about-sticky about-sticky-fixed" : "about-sticky"
-          }
-        >
-          {/* Μαύρος κύκλος στο κέντρο που μεγαλώνει */}
+        <div className="about-sticky">
+          {/* Μαύρος κύκλος */}
           <motion.div
             className="about-black-circle"
-            style={{
-              scale: circleScale,
-              opacity: circleOpacity,
-              x: "-50%",
-              y: "-50%", // Κέντρο viewport χωρίς να χαλάει με το scale
-            }}
+            style={{ scale: circleScale, opacity: circleOpacity }}
           />
 
-          {/* Τίτλος + Lottie, πάντα στο κέντρο όσο το section είναι ενεργό */}
+          {/* Τίτλος + lottie sticky στο κέντρο */}
           <motion.div
             className="about-title-block"
-            style={{ opacity: titleOpacity }}
+            style={{ opacity: titleOpacity, y: titleY }}
           >
             <GlitchText
               className="about-title-glitch"
@@ -155,7 +100,6 @@ const AboutPhilosophy: React.FC = () => {
             </GlitchText>
 
             <div className="about-lottie-wrapper">
-              {/* Έγχρωμο scroll-down στην αρχή */}
               <motion.div
                 className="about-lottie-layer"
                 style={{ opacity: colorLottieOpacity }}
@@ -167,7 +111,6 @@ const AboutPhilosophy: React.FC = () => {
                 />
               </motion.div>
 
-              {/* Λευκό scroll-down όταν πια έχει σκοτεινιάσει */}
               <motion.div
                 className="about-lottie-layer"
                 style={{ opacity: whiteLottieOpacity }}
@@ -181,7 +124,22 @@ const AboutPhilosophy: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* ΕΔΩ μετά θα μπουν οι καρτέλες όταν μου πεις layout */}
+          {/* Κάρτες μέσα στο μαύρο */}
+          <motion.div
+            className="about-cards-grid"
+            style={{ opacity: cardsOpacity, y: cardsY }}
+          >
+            {philosophyCards.map((card) => (
+              <div key={card.title} className="philo-card-outer">
+                <div className="philo-card-glow">
+                  <div className="philo-card-content">
+                    <h3 className="philo-card-title">{card.title}</h3>
+                    <p className="philo-card-body">{card.body}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </motion.div>
         </div>
       </div>
     </section>
