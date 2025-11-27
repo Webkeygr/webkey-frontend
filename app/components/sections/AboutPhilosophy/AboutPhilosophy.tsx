@@ -67,11 +67,11 @@ const AboutPhilosophy: React.FC = () => {
      ANIMATIONS
      ========================== */
 
-  // ΤΙΤΛΟΣ
-  // - 0.0–0.12: κρυμμένος (0 opacity) -> δεν πέφτει πάνω στο προηγούμενο section
+  // ΟΛΟ ΤΟ BLOCK (τίτλος + lottie)
+  // - 0.0–0.12: κρυμμένο (0) -> δεν “μπλέκει” με το προηγούμενο section
   // - 0.12–0.55: full visible
-  // - 0.55–0.8: fade-out την ώρα που αρχίζει να μεγαλώνει ο κύκλος (που ξεκινά στο ~0.6)
-  const titleOpacity = useTransform(
+  // - 0.55–0.8: fade-out ΤΗ ΣΤΙΓΜΗ που αρχίζει να μεγαλώνει ο κύκλος (~0.6)
+  const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.12, 0.55, 0.8],
     [0, 1, 1, 0]
@@ -119,10 +119,10 @@ const AboutPhilosophy: React.FC = () => {
             }}
           />
 
-          {/* Τίτλος + Lottie, πάντα στο κέντρο όσο το section είναι ενεργό */}
+          {/* Τίτλος + Lottie, μαζί σε ένα opacity */}
           <motion.div
             className="about-title-block"
-            style={{ opacity: titleOpacity }}
+            style={{ opacity: contentOpacity }}
           >
             <GlitchText
               className="about-title-glitch"
