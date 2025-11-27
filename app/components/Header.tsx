@@ -1,4 +1,3 @@
-// app/components/Header.tsx
 "use client";
 
 import Image from "next/image";
@@ -56,28 +55,17 @@ export default function Header({
 
   return (
     <BubbleMenu
-      /* LOGO */
       logo={
-        <div className="header-logo-wrapper" style={{ paddingTop: 20 }}>
-          {/* Κανονικό logo */}
+        <Link href="/" className="inline-block">
           <Image
             src={logoSrc}
-            alt="WebKey"
-            width={250}
-            height={100}
+            alt="WebKey logo"
+            width={220}
+            height={80}
             priority
-            className="header-logo header-logo-main"
+            className="site-logo"
           />
-          {/* Λευκό logo για μαύρο φόντο */}
-          <Image
-            src="/images/logo-webkey-white.svg"
-            alt="WebKey (white)"
-            width={250}
-            height={100}
-            priority
-            className="header-logo header-logo-white"
-          />
-        </div>
+        </Link>
       }
       items={items}
       menuAriaLabel="Toggle navigation"
@@ -87,7 +75,6 @@ export default function Header({
       animationEase="back.out(1.5)"
       animationDuration={0.5}
       staggerDelay={0.12}
-      /* Δίπλα από το toggle βάζουμε μόνο το language switcher */
       rightSlot={
         <div className="flex items-center gap-2">
           <LanguageSwitcher />

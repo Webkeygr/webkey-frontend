@@ -11,72 +11,58 @@ import Lottie from "lottie-react";
 
 import "./AboutPhilosophy.css";
 
-// Lotties
 import scrollDownColor from "@/app/lottie/scroll-down.json";
 import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 
-// Glitch τίτλος
 import GlitchText from "./GlitchText";
 
 const AboutPhilosophy: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isPinned, setIsPinned] = useState(false);
 
-  // scroll progress ΜΟΝΟ για αυτό το section
+  // Scroll progress ΜΟΝΟ για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
 
-  // κρατάμε το sticky όσο το section είναι στο viewport
+  // Sticky όσο το section είναι στο viewport
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     setIsPinned(v > 0 && v < 1);
   });
 
-  // ------------------------------
-  // LanguageSwitcher + Logo styling
-  // ------------------------------
+  // ===============================
+  // ΧΡΩΜΑΤΑ ΓΙΑ LANGSWITCHER + LOGO
+  // ===============================
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
 
     const isDark = latest >= 0.8;
 
-    // 1) Γλώσσες (GR / EN)
+    // 1) GR / EN labels
     const labels = document.querySelectorAll<HTMLElement>(".lang-label");
     labels.forEach((el) => {
       el.style.color = isDark ? "#ffffff" : "";
     });
 
-    // 2) Logo στο header (χρησιμοποιούμε filter για να γίνει λευκό)
-    const logoImg =
-      (document.querySelector(
-        'img[alt="WebKey"]'
-      ) as HTMLImageElement | null) ||
-      (document.querySelector('img[alt="Webkey"]') as HTMLImageElement | null);
-
+    // 2) Logo στο BubbleMenu: η πρώτη εικόνα με class .site-logo
+    const logoImg = document.querySelector<HTMLImageElement>("img.site-logo");
     if (logoImg) {
+      // στο μαύρο → λευκό logo, στο κανονικό → όπως πριν
       logoImg.style.filter = isDark ? "brightness(0) invert(1)" : "";
     }
   });
 
-  // Clean-up όταν φύγει τελείως το component
+  // Cleanup όταν φύγει τελείως το component
   useEffect(() => {
-    return () => {
-      if (typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
 
+    return () => {
       const labels = document.querySelectorAll<HTMLElement>(".lang-label");
       labels.forEach((el) => {
         el.style.color = "";
       });
-
-      const logoImg =
-        (document.querySelector(
-          'img[alt="WebKey"]'
-        ) as HTMLImageElement | null) ||
-        (document.querySelector(
-          'img[alt="Webkey"]'
-        ) as HTMLImageElement | null);
-
+      const logoImg = document.querySelector<HTMLImageElement>("img.site-logo");
       if (logoImg) {
         logoImg.style.filter = "";
       }
@@ -87,21 +73,19 @@ const AboutPhilosophy: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // ΟΛΟ ΤΟ BLOCK (τίτλος + lottie)
-  // 0.0–0.12: κρυφό
-  // 0.12–0.58: full opacity
-  // 0.58–0.7: fade-out λίγο πριν μεγαλώσει πολύ ο κύκλος
+  // Τίτλος + lottie – ενιαίο opacity:
+  // 0–0.12: κρυφό, 0.12–0.58: full, 0.58–0.7: fade out
   const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.12, 0.58, 0.7],
     [0, 1, 1, 0]
   );
 
-  // Μαύρος κύκλος:
-  // μέχρι 0.58: opacity 0
-  // 0.6: μικρή τελεία στο κέντρο (scale 0.02)
-  // 0.6–0.95: μεγαλώνει μέχρι να γεμίσει (scale 9)
-  // 0.95–1: μένει ίδιος (χωρίς spike)
+  // Κύκλος:
+  // μέχρι 0.58: αόρατος
+  // 0.6: μικρή τελεία
+  // 0.6–0.95: μεγαλώνει σε scale 9
+  // 0.95–1: μένει ίδιος (full black, χωρίς spike)
   const circleScale = useTransform(
     scrollYProgress,
     [0.6, 0.95, 1],
@@ -110,7 +94,7 @@ const AboutPhilosophy: React.FC = () => {
 
   const circleOpacity = useTransform(scrollYProgress, [0.58, 0.6], [0, 1]);
 
-  // Lottie: έγχρωμο στην αρχή, λευκό όταν σκοτεινιάσει
+  // Lottie: έγχρωμο στην αρχή, λευκό όσο σκοτεινιάζει
   const colorLottieOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.5, 0.75],
@@ -120,15 +104,13 @@ const AboutPhilosophy: React.FC = () => {
 
   return (
     <section id="about-philosophy" className="about-section" ref={sectionRef}>
-      {/* Το ύψος εδώ ορίζει πόσο “ταξιδεύει” το pinned section */}
       <div className="about-scroll-area">
-        {/* Αυτό είναι το sticky μέρος που μένει στο κέντρο */}
         <div
           className={
             isPinned ? "about-sticky about-sticky-fixed" : "about-sticky"
           }
         >
-          {/* Μαύρος κύκλος που μεγαλώνει */}
+          {/* Μαύρος κύκλος */}
           <motion.div
             className="about-black-circle"
             style={{
@@ -139,7 +121,7 @@ const AboutPhilosophy: React.FC = () => {
             }}
           />
 
-          {/* Τίτλος + Lottie */}
+          {/* Τίτλος + lottie */}
           <motion.div
             className="about-title-block"
             style={{ opacity: contentOpacity }}
@@ -154,7 +136,6 @@ const AboutPhilosophy: React.FC = () => {
             </GlitchText>
 
             <div className="about-lottie-wrapper">
-              {/* Έγχρωμο scroll-down */}
               <motion.div
                 className="about-lottie-layer"
                 style={{ opacity: colorLottieOpacity }}
@@ -166,7 +147,6 @@ const AboutPhilosophy: React.FC = () => {
                 />
               </motion.div>
 
-              {/* Λευκό scroll-down στο μαύρο */}
               <motion.div
                 className="about-lottie-layer"
                 style={{ opacity: whiteLottieOpacity }}
@@ -180,7 +160,7 @@ const AboutPhilosophy: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* ΕΔΩ μετά θα μπουν οι καρτέλες όταν μου πεις layout */}
+          {/* ΕΔΩ μετά θα μπουν οι καρτέλες */}
         </div>
       </div>
     </section>
