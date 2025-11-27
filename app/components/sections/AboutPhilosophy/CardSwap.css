@@ -38,3 +38,15 @@
     transform: scale(0.55) translate(25%, 25%);
   }
 }
+
+.about-cards-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40; /* πάνω από το section, κάτω από header αν αυτό έχει μεγαλύτερο */
+}
+
+/* ώστε οι κάρτες να είναι clickable */
+.about-cards-overlay .card-swap-container {
+  pointer-events: auto;
+}
