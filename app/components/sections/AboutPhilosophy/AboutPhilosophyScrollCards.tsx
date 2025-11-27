@@ -62,15 +62,28 @@ const AboutPhilosophyScrollCards: React.FC = () => {
 
       const delta = currentScroll - (baseScrollRef.current ?? currentScroll);
 
-      // Κάθε Χ pixels scroll = ένα swap
-      const pixelsPerSwap = 200; // μπορείς να το μεγαλώσεις/μικρύνεις αν το θες πιο αργό/γρήγορο
-      const visibleCards = cards.length;
-      const totalSwaps = Math.max(visibleCards - 1, 1); // ώστε να έρθει μπροστά κάθε κάρτα μία φορά
+      const delayPixels = 180; // ~1–2 scrolls, πείραξέ το όπως γουστάρεις
 
-      const rawStep = Math.floor(delta / pixelsPerSwap + 0.0001);
+      // Αν δεν έχουμε φτάσει ακόμα το delay → ΜΗΝ δείξεις κάρτες
+      if (delta < delayPixels) {
+        setIsDark(false);
+        setStep(0);
+        return;
+      }
+
+      // Από εδώ και κάτω θεωρούμε ότι “ξεκίνησαν” οι κάρτες
+      const effectiveDelta = delta - delayPixels;
+
+      // Κάθε Χ pixels scroll = ένα swap
+      const pixelsPerSwap = 200; // αυτό είναι για τις αλλαγές κάρτας
+      const visibleCards = cards.length;
+      const totalSwaps = Math.max(visibleCards - 1, 1);
+
+      const rawStep = Math.floor(effectiveDelta / pixelsPerSwap + 0.0001);
       const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
 
       setStep(clampedStep);
+      setIsDark(true);
     };
 
     handleScroll();
