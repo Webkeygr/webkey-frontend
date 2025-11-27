@@ -23,7 +23,8 @@ const AboutPhilosophy: React.FC = () => {
   // Scroll progress μόνο για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start bottom", "end top"],
+    // ΔΙΟΡΘΩΜΕΝΟ offset (τύποι framer-motion)
+    offset: ["start end", "end start"],
   });
 
   // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν γεμίσει η βούλα
