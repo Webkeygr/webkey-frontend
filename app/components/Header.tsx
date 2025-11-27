@@ -1,9 +1,8 @@
 // app/components/Header.tsx
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -15,11 +14,11 @@ type HeaderProps = {
 };
 
 /**
- * Διαβάζει από το DOM το .about-black-circle
- * και καταλαβαίνει πότε ο κύκλος έχει γεμίσει σχεδόν όλη την οθόνη.
+ * Κοιτάει το .about-black-circle στο DOM
+ * και καταλαβαίνει πότε έχει πρακτικά γεμίσει την οθόνη.
  * Τότε:
- *  - γυρνάει isDark = true
- *  - προσθέτει στο <body> την κλάση about-dark
+ *  - επιστρέφει true
+ *  - προσθέτει στο <body> την κλάση .about-dark
  */
 function useAboutDark(): boolean {
   const [isDark, setIsDark] = useState(false);
@@ -30,6 +29,7 @@ function useAboutDark(): boolean {
     const check = () => {
       const circle = document.querySelector<HTMLElement>(".about-black-circle");
 
+      // Αν δεν υπάρχει το section, δεν είμαστε σε dark phase
       if (!circle) {
         setIsDark(false);
         document.body.classList.remove("about-dark");
@@ -40,7 +40,7 @@ function useAboutDark(): boolean {
       const vw = window.innerWidth || 0;
       const vh = window.innerHeight || 0;
 
-      // Θεωρούμε ότι έχει "γεμίσει" όταν καλύπτει σχεδόν όλο το viewport
+      // Θεωρούμε "γεμάτη οθόνη" όταν ο κύκλος καλύπτει σχεδόν όλο το viewport
       const coversScreen =
         rect.width >= vw * 0.9 &&
         rect.height >= vh * 0.9 &&
@@ -113,23 +113,23 @@ export default function Header({
 
   const isAboutDark = useAboutDark();
 
-  // Κανονικό logo σε όλο το site,
+  // Κανονικό logo παντού,
   // white logo ΜΟΝΟ όταν ο κύκλος έχει γεμίσει την οθόνη
   const effectiveLogo = isAboutDark ? "/images/logo-webkey-white.svg" : logoSrc;
 
   return (
     <BubbleMenu
+      /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως πριν */
       logo={
-        <Link href="/" aria-label="WebKey home" className="inline-block">
-          <Image
-            src={effectiveLogo}
-            alt="WebKey"
-            width={220}
-            height={80}
-            priority
-            className="header-logo"
-          />
-        </Link>
+        <Image
+          src={effectiveLogo}
+          alt="WebKey"
+          width={250}
+          height={100}
+          priority
+          style={{ paddingTop: 20 }}
+          className="header-logo"
+        />
       }
       items={items}
       menuAriaLabel="Toggle navigation"
