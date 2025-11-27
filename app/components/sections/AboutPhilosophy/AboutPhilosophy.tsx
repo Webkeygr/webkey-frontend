@@ -32,7 +32,7 @@ const AboutPhilosophy: React.FC = () => {
     const body = document.body;
     if (!body) return;
 
-    if (latest >= 0.82) {
+    if (latest >= 0.8) {
       body.style.setProperty("--lang-switcher-text-color", "#ffffff");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
@@ -90,32 +90,25 @@ const AboutPhilosophy: React.FC = () => {
      ANIMATIONS
      ========================== */
 
-  // Τίτλος: μένει full στην αρχή, fade out ΟΤΑΝ ανοίγει ο κύκλος
+  // Τίτλος: μένει full, και κάνει fade out ΕΝΩ ανοίγει ο κύκλος
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.72, 0.88],
+    [0.0, 0.7, 0.88],
     [1, 1, 0]
   );
 
-  // Μαύρη βούλα – ΠΙΟ ΑΡΓΟ / SMOOTH:
-  //  - μέχρι 0.55 ~ ανύπαρκτη
-  //  - 0.55–0.95: από πολύ μικρή -> τεράστια
-  //  - 0.95–1: μένει ίδια (όχι άλλο “σπικάρισμα” στο μέγεθος)
+  // Μαύρος κύκλος:
+  //  - μέχρι 0.55 είναι ουσιαστικά αόρατος (πολύ μικρός)
+  //  - 0.55–0.9 μεγαλώνει αργά από πολύ μικρός (0.02) σε τεράστιος (9)
+  //  - 0.9–1 μένει στο 9 => full black μέχρι να τελειώσει το section
   const circleScale = useTransform(
     scrollYProgress,
-    [0.55, 0.95, 1],
+    [0.55, 0.9, 1],
     [0.02, 9, 9]
   );
 
-  // Opacity:
-  //  - 0.55–0.6: γίνεται ορατός (full black)
-  //  - 0.6–0.98: παραμένει full
-  //  - 0.98–1: ήπιο fade-out ώστε να μην υπάρχει “κόψιμο” στο τέλος του section
-  const circleOpacity = useTransform(
-    scrollYProgress,
-    [0.55, 0.6, 0.98, 1],
-    [0, 1, 1, 0]
-  );
+  // ΠΑΝΤΑ full opacity μόλις εμφανιστεί – δεν ξαναγυρνάμε σε hero μέσα στο ίδιο section
+  const circleOpacity = 1;
 
   // Lottie: έγχρωμο στην αρχή, λευκό όταν έχουμε ουσιαστικά full black
   const colorLottieOpacity = useTransform(
