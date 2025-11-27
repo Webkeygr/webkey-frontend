@@ -32,7 +32,7 @@ const AboutPhilosophy: React.FC = () => {
     const body = document.body;
     if (!body) return;
 
-    if (latest >= 0.85) {
+    if (latest >= 0.86) {
       body.style.setProperty("--lang-switcher-text-color", "#ffffff");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
@@ -90,38 +90,30 @@ const AboutPhilosophy: React.FC = () => {
      ANIMATIONS
      ========================== */
 
-  // Τίτλος: μένει πολλή ώρα full, fade out ΠΡΙΝ γεμίσει ο κύκλος
+  // Τίτλος: μένει πολλή ώρα full, fade out λίγο πριν γεμίσει ο κύκλος
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.8, 0.9],
+    [0.0, 0.82, 0.95],
     [1, 1, 0]
   );
 
   // Μαύρη βούλα:
-  // - αρχίζει να "μεγαλώνει" από νωρίς (0.45) για να είναι πιο αργή
-  // - ΑΛΛΑ δεν φαίνεται μέχρι ~0.6 (οπότε βλέπεις μόνο τίτλο στην αρχή)
-  // - φτάνει full size στο 0.85 και μετά ΜΕΝΕΙ full μέχρι το τέλος (0.85–1)
-  const circleScale = useTransform(scrollYProgress, [0.45, 0.85], [0, 9]);
+  // - αρχίζει να μεγαλώνει στο 0.6
+  // - φτάνει full size στο 0.9
+  // - και ΜΕΝΕΙ full από 0.9 μέχρι 1 (άρα καθαρό μαύρο για μερικά scroll)
+  const circleScale = useTransform(scrollYProgress, [0.6, 0.9, 1], [0, 9, 9]);
   const circleOpacity = useTransform(scrollYProgress, [0.6, 0.7], [0, 1]);
 
   // Lottie: έγχρωμο στην αρχή, λευκό όταν έχει πρακτικά γεμίσει η βούλα
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.55, 0.75],
+    [0.0, 0.5, 0.75],
     [1, 1, 0]
   );
-  const whiteLottieOpacity = useTransform(
-    scrollYProgress,
-    [0.75, 0.9],
-    [0, 1]
-  );
+  const whiteLottieOpacity = useTransform(scrollYProgress, [0.75, 0.9], [0, 1]);
 
   return (
-    <section
-      id="about-philosophy"
-      className="about-section"
-      ref={sectionRef}
-    >
+    <section id="about-philosophy" className="about-section" ref={sectionRef}>
       {/* Το ύψος αυτού του wrapper καθορίζει πόσα scroll "ταξιδεύει" το pinned section */}
       <div className="about-scroll-area">
         {/* Αυτό είναι που μένει καρφωμένο στο κέντρο */}

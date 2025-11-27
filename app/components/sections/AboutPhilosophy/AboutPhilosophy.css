@@ -11,10 +11,10 @@
   overflow: hidden;
 }
 
-/* Μεγαλύτερο ύψος -> περισσότερο “ταξίδι” στο scroll, για να προλάβει ο κύκλος να γίνει ΤΕΡΑΣΤΙΟΣ */
+/* Λίγο μεγαλύτερο ύψος -> πιο “απλωμένο” animation και περισσότερο full black στο τέλος */
 .about-scroll-area {
   position: relative;
-  height: 340vh;
+  height: 400vh;
 }
 
 /* Block που πιάνει όλο το viewport */
@@ -41,7 +41,7 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 60vw;           /* μεγαλύτερη βάση ώστε με το scale να καλύπτει 4K / ultrawide */
+  width: 60vw;
   height: 60vw;
   max-width: 1200px;
   max-height: 1200px;
@@ -99,7 +99,7 @@
 
 @media (max-width: 768px) {
   .about-scroll-area {
-    height: 280vh;
+    height: 300vh;
   }
 
   .about-title-glitch {
