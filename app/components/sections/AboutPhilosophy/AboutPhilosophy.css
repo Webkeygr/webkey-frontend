@@ -7,7 +7,7 @@
   z-index: 5;
   padding: 0;
   margin: 0;
-  background: transparent; /* βλέπουμε το hero από πίσω μέχρι να κλείσει ο κύκλος */
+  background: transparent;
   overflow: hidden;
 }
 
@@ -45,11 +45,11 @@
   height: 40vw;
   max-width: 600px;
   max-height: 600px;
-  transform: translate(-50%, -50%);
   border-radius: 999px;
   background: #000000;
   pointer-events: none;
   will-change: transform, opacity;
+  transform-origin: center center;
 }
 
 /* ==========================
