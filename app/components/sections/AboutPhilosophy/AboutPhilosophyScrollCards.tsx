@@ -50,18 +50,20 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight || 1;
 
-      // Πόσο έχουμε “διανύσει” το section (μαζί με λίγο margin λόγω sticky)
+      // Πόσο έχουμε “διανύσει” μέσα στο section
       const total = rect.height + vh;
-      const offset = -rect.top; // 0 στην αρχή του section, αυξάνεται όσο κατεβαίνεις
+      const offset = -rect.top;
       const progress = clamp01(offset / total);
 
-      // Χωρίζουμε το scroll σε segments, κάθε segment = ένα swap μπροστά -> πίσω
-      const totalSwaps = cards.length * 2; // μπορείς να το μεγαλώσεις αν θες περισσότερους κύκλους
-      const newStep = Math.floor(progress * totalSwaps);
+      // Θέλουμε να προλάβουμε να δούμε όλες τις κάρτες
+      // => τόσα swaps όσα (cards.length - 1), ώστε κάθε κάρτα να έρθει μπροστά μία φορά
+      const visibleCards = cards.length;
+      const totalSwaps = Math.max(visibleCards - 1, 1);
 
-      setStep((prev) =>
-        newStep < 0 ? 0 : newStep > totalSwaps ? totalSwaps : newStep
-      );
+      const rawStep = Math.floor(progress * totalSwaps + 0.0001); // μικρό offset για να μην “κολλάει”
+      const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
+
+      setStep(clampedStep);
     };
 
     handleScroll();
@@ -82,21 +84,21 @@ const AboutPhilosophyScrollCards: React.FC = () => {
     <div className="about-cards-overlay-center">
       <div className="about-cards-3d-stack">
         {cards.map((card, index) => {
-          // Υπολογίζουμε “σχετική θέση” μέσα στο stack με βάση το step (σαν να κάνουμε rotate το array)
+          // 3D “σκάλα” – περιστρέφουμε το stack με βάση το step
           const relativeIndex =
             (index - (step % visibleCards) + visibleCards) % visibleCards;
 
           // 0 = μπροστά, 1 = λίγο πιο πίσω, κ.ο.κ.
-          const distX = 60;
-          const distY = 70;
-          const distZ = 140;
+          const distX = 80; // λίγο πιο “ανοιχτή” σκάλα οριζόντια
+          const distY = 90; // λίγο πιο “ανοιχτή” σκάλα κάθετα
+          const distZ = 160; // μεγαλύτερο βάθος για πιο έντονο 3D
 
           const x = relativeIndex * distX;
           const y = -relativeIndex * distY;
           const z = -relativeIndex * distZ;
 
           const opacity = 1 - relativeIndex * 0.18;
-          const scale = 1 - relativeIndex * 0.04;
+          const scale = 1 - relativeIndex * 0.05;
 
           return (
             <div
@@ -107,7 +109,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
                   translate3d(${x}px, ${y}px, ${z}px)
                   translate(-50%, -50%)
                   scale(${scale})
-                  skewY(-6deg)
+                  skewY(-5deg)
                 `,
                 zIndex: visibleCards - relativeIndex,
                 opacity: opacity,
