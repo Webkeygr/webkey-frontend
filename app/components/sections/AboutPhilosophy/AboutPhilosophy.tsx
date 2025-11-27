@@ -26,13 +26,13 @@ const AboutPhilosophy: React.FC = () => {
     offset: ["start end", "end start"],
   });
 
-  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν σχεδόν έχει γεμίσει η βούλα
+  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν έχουμε ουσιαστικά full black
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
     const body = document.body;
     if (!body) return;
 
-    if (latest >= 0.86) {
+    if (latest >= 0.82) {
       body.style.setProperty("--lang-switcher-text-color", "#ffffff");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
@@ -47,7 +47,7 @@ const AboutPhilosophy: React.FC = () => {
     }
   });
 
-  // Cleanup όταν φύγουμε από το section / σελίδα
+  // Cleanup
   useEffect(() => {
     return () => {
       if (typeof window === "undefined") return;
@@ -90,24 +90,34 @@ const AboutPhilosophy: React.FC = () => {
      ANIMATIONS
      ========================== */
 
-  // Τίτλος: μένει πολλή ώρα full, fade out λίγο πριν γεμίσει ο κύκλος
+  // Τίτλος: μένει full στην αρχή, fade out ΟΤΑΝ ανοίγει ο κύκλος
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.82, 0.95],
+    [0.0, 0.72, 0.88],
     [1, 1, 0]
   );
 
-  // Μαύρη βούλα:
-  // - μέχρι το 0.6 είναι σχεδόν ανύπαρκτη (scale ~0)
-  // - από 0.6 μέχρι 0.9 μεγαλώνει από πολύ μικρή (0.02) σε τεράστια (9)
-  // - από 0.9 μέχρι 1 ΜΕΝΕΙ στο 9 (άρα full black χωρίς να “μαζεύει”)
+  // Μαύρη βούλα – ΠΙΟ ΑΡΓΟ / SMOOTH:
+  //  - μέχρι 0.55 ~ ανύπαρκτη
+  //  - 0.55–0.95: από πολύ μικρή -> τεράστια
+  //  - 0.95–1: μένει ίδια (όχι άλλο “σπικάρισμα” στο μέγεθος)
   const circleScale = useTransform(
     scrollYProgress,
-    [0.6, 0.9, 1],
+    [0.55, 0.95, 1],
     [0.02, 9, 9]
   );
 
-  // Lottie: έγχρωμο στην αρχή, λευκό όταν έχει πρακτικά γεμίσει η βούλα
+  // Opacity:
+  //  - 0.55–0.6: γίνεται ορατός (full black)
+  //  - 0.6–0.98: παραμένει full
+  //  - 0.98–1: ήπιο fade-out ώστε να μην υπάρχει “κόψιμο” στο τέλος του section
+  const circleOpacity = useTransform(
+    scrollYProgress,
+    [0.55, 0.6, 0.98, 1],
+    [0, 1, 1, 0]
+  );
+
+  // Lottie: έγχρωμο στην αρχή, λευκό όταν έχουμε ουσιαστικά full black
   const colorLottieOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.5, 0.75],
@@ -130,6 +140,7 @@ const AboutPhilosophy: React.FC = () => {
             className="about-black-circle"
             style={{
               scale: circleScale,
+              opacity: circleOpacity,
               x: "-50%",
               y: "-50%",
             }}

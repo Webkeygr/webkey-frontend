@@ -11,10 +11,10 @@
   overflow: hidden;
 }
 
-/* Λίγο μεγαλύτερο ύψος -> πιο “απλωμένο” animation και περισσότερο full black στο τέλος */
+/* Λίγο πιο compact από πριν αλλά αρκετό για smooth animation */
 .about-scroll-area {
   position: relative;
-  height: 400vh;
+  height: 360vh;
 }
 
 /* Block που πιάνει όλο το viewport */
