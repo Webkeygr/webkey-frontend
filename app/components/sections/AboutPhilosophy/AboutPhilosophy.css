@@ -14,7 +14,7 @@
 /* Λίγο πιο compact από πριν αλλά αρκετό για smooth animation */
 .about-scroll-area {
   position: relative;
-  height: 360vh;
+  height: 460vh;
 }
 
 /* Block που πιάνει όλο το viewport */
