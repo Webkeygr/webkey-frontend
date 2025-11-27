@@ -4,9 +4,11 @@ import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Lottie from "lottie-react";
 
-import scrollDownDark from "@/app/lottie/scroll-down.json";
-import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
+import "./AboutPhilosophy.css";
 import GlitchText from "./GlitchText";
+
+// Χρησιμοποιούμε το κλασικό scroll-down (στο άσπρο φόντο)
+import scrollDown from "@/app/lottie/scroll-down.json";
 
 const philosophyCards = [
   {
@@ -28,59 +30,50 @@ const philosophyCards = [
 ];
 
 const AboutPhilosophy: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start 65%", "end 15%"],
+    // 0 όταν το section μπαίνει στο viewport, 1 όταν βγει
+    offset: ["start 70%", "end 20%"],
   });
 
-  /** Τίτλος – Fade In → Hold → Fade Out */
+  // Ο τίτλος: fade in, μένει λίγο, μετά fade out προς τα πάνω
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0, 0.15, 0.30, 0.42],
+    [0, 0.15, 0.4, 0.55],
     [0, 1, 1, 0]
   );
   const titleY = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4],
-    [40, 0, -20]
+    [0, 0.15, 0.4, 0.6],
+    [40, 0, 0, -40]
   );
 
-  /** Μαύρος κύκλος που μεγαλώνει μέχρι Fullscreen */
-  const circleScale = useTransform(scrollYProgress, [0.28, 0.65], [0, 6.2]);
-  const circleOpacity = useTransform(scrollYProgress, [0.28, 0.32], [0, 1]);
+  // Μαύρος κύκλος – μικρή βούλα στην αρχή, γεμίζει την οθόνη
+  const circleScale = useTransform(scrollYProgress, [0.25, 0.9], [0.15, 6]);
 
-  /** Lottie (μαύρο) που το “καταπίνει” ο κύκλος */
-  const darkLottieOpacity = useTransform(
-    scrollYProgress,
-    [0.24, 0.45],
-    [1, 0]
-  );
-
-  /** Lottie (λευκό) που εμφανίζεται ΜΟΛΙΣ γίνει μαύρο */
-  const whiteLottieOpacity = useTransform(
-    scrollYProgress,
-    [0.55, 0.62],
-    [0, 1]
-  );
-
-  /** Κάρτες — εμφανίζονται αφού γίνει Full Black */
-  const cardsOpacity = useTransform(scrollYProgress, [0.62, 0.82], [0, 1]);
-  const cardsY = useTransform(scrollYProgress, [0.62, 0.82], [60, 0]);
+  // Κάρτες – εμφανίζονται όταν σχεδόν έχει γεμίσει μαύρο
+  const cardsOpacity = useTransform(scrollYProgress, [0.7, 0.95], [0, 1]);
+  const cardsY = useTransform(scrollYProgress, [0.7, 0.95], [60, 0]);
 
   return (
-    <section id="about-philosophy" className="about-section" ref={sectionRef}>
+    <section
+      id="about-philosophy"
+      className="about-section"
+      ref={sectionRef}
+    >
+      {/* Μεγάλο vertical “ταξίδι” για το scroll animation */}
       <div className="about-scroll-area">
+        {/* Ό,τι βλέπεις (τίτλος, κύκλος, κάρτες) μένει sticky */}
         <div className="about-sticky-layer">
-          
-          {/* Black expanding circle */}
+          {/* Μαύρη βούλα που μεγαλώνει */}
           <motion.div
             className="about-black-circle"
-            style={{ scale: circleScale, opacity: circleOpacity }}
+            style={{ scale: circleScale }}
           />
 
-          {/* Title + Both Lotties */}
+          {/* Τίτλος + Lottie στο κέντρο της οθόνης */}
           <motion.div
             className="about-title-block"
             style={{ opacity: titleOpacity, y: titleY }}
@@ -95,40 +88,26 @@ const AboutPhilosophy: React.FC = () => {
             </GlitchText>
 
             <div className="about-lottie-wrapper">
-
-              {/* Dark Lottie – φαίνεται μέχρι να το “καταπιεί” το circle */}
-              <motion.div style={{ opacity: darkLottieOpacity }}>
-                <Lottie animationData={scrollDownDark} loop className="about-lottie" />
-              </motion.div>
-
-              {/* White Lottie – εμφανίζεται όταν η οθόνη γίνει μαύρη */}
-              <motion.div
-                className="about-lottie-white"
-                style={{ opacity: whiteLottieOpacity }}
-              >
-                <Lottie animationData={scrollDownWhite} loop className="about-lottie" />
-              </motion.div>
-
+              <Lottie
+                animationData={scrollDown}
+                loop
+                className="about-lottie"
+              />
             </div>
           </motion.div>
 
-          {/* Cards */}
+          {/* Κάρτες μέσα στο μαύρο φόντο */}
           <motion.div
             className="about-cards-grid"
             style={{ opacity: cardsOpacity, y: cardsY }}
           >
             {philosophyCards.map((card) => (
-              <div key={card.title} className="philo-card-outer">
-                <div className="philo-card-glow">
-                  <div className="philo-card-content">
-                    <h3 className="philo-card-title">{card.title}</h3>
-                    <p className="philo-card-body">{card.body}</p>
-                  </div>
-                </div>
-              </div>
+              <article key={card.title} className="philo-card">
+                <h3 className="philo-card-title">{card.title}</h3>
+                <p className="philo-card-body">{card.body}</p>
+              </article>
             ))}
           </motion.div>
-
         </div>
       </div>
     </section>
