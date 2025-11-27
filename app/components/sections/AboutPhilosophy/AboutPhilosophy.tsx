@@ -26,7 +26,12 @@ const AboutPhilosophy: React.FC = () => {
     offset: ["start end", "end start"],
   });
 
-  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν έχουμε ουσιαστικά full black
+  // Κρατάμε το sticky *όσο* το section είναι ενεργό (0 < progress < 1)
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setIsPinned(v > 0 && v < 1);
+  });
+
+  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν έχουμε full black
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
     const body = document.body;
@@ -58,57 +63,29 @@ const AboutPhilosophy: React.FC = () => {
     };
   }, []);
 
-  // Χειροκίνητο "sticky" με fixed
-  useEffect(() => {
-    const handleScroll = () => {
-      const section = sectionRef.current;
-      if (!section) return;
-
-      const rect = section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight || 0;
-      const sectionTop = window.scrollY + rect.top;
-      const sectionHeight = section.offsetHeight;
-
-      const startPin = sectionTop;
-      const endPin = sectionTop + sectionHeight - viewportHeight;
-
-      const y = window.scrollY;
-      const pinnedNow = y >= startPin && y <= endPin;
-      setIsPinned(pinnedNow);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    window.addEventListener("resize", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
-    };
-  }, []);
-
   /* ==========================
      ANIMATIONS
      ========================== */
 
-  // Τίτλος: μένει full, και κάνει fade out ΕΝΩ ανοίγει ο κύκλος
+  // Τίτλος: μένει full, fade-out ενώ ανοίγει ο κύκλος
   const titleOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.7, 0.88],
+    [0.0, 0.7, 0.9],
     [1, 1, 0]
   );
 
   // Μαύρος κύκλος:
-  //  - μέχρι 0.55 είναι ουσιαστικά αόρατος (πολύ μικρός)
-  //  - 0.55–0.9 μεγαλώνει αργά από πολύ μικρός (0.02) σε τεράστιος (9)
-  //  - 0.9–1 μένει στο 9 => full black μέχρι να τελειώσει το section
+  //  - μέχρι ~0.58 είναι αόρατος (opacity 0)
+  //  - στο 0.6 εμφανίζεται απότομα full black, σαν μικρή τελεία στο κέντρο
+  //  - 0.6–0.95 μεγαλώνει αργά από scale 0.02 σε 9 (άρα γεμίζει οθόνη)
+  //  - 0.95–1 διατηρεί το ίδιο scale (full black, χωρίς spikes)
   const circleScale = useTransform(
     scrollYProgress,
-    [0.55, 0.9, 1],
+    [0.6, 0.95, 1],
     [0.02, 9, 9]
   );
 
-  // ΠΑΝΤΑ full opacity μόλις εμφανιστεί – δεν ξαναγυρνάμε σε hero μέσα στο ίδιο section
-  const circleOpacity = 1;
+  const circleOpacity = useTransform(scrollYProgress, [0.58, 0.6], [0, 1]);
 
   // Lottie: έγχρωμο στην αρχή, λευκό όταν έχουμε ουσιαστικά full black
   const colorLottieOpacity = useTransform(
