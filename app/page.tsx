@@ -12,7 +12,6 @@ import Hero from "@/app/components/Hero";
 import ServicesIntro from "@/app/components/sections/ServicesIntro";
 import ServicesCards from "@/app/components/sections/ServicesCards";
 import AboutPhilosophy from "@/app/components/sections/AboutPhilosophy/AboutPhilosophy";
-import ScrollTextSection from "@/app/components/sections/ScrollTextSection/ScrollTextSection";
 
 export default function ServicesPage() {
   return (
@@ -22,7 +21,6 @@ export default function ServicesPage() {
       <ServicesIntro />
       <ServicesCards />
       <AboutPhilosophy />
-      <ScrollTextSection />
     </>
   );
 }
