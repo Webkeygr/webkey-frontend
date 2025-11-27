@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./AboutPhilosophyScrollCards.css";
 
 type ScrollCard = {
@@ -31,42 +31,37 @@ function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
-const AboutPhilosophyScrollCards = () => {
+const AboutPhilosophyScrollCards: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [step, setStep] = useState(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const handleScroll = () => {
-      // 1) Εμφανίζουμε τις κάρτες ΜΟΝΟ όταν το body έχει about-dark
       const bodyHasDark = document.body.classList.contains("about-dark");
       setIsDark(bodyHasDark);
 
       if (!bodyHasDark) return;
 
-      // 2) Υπολογίζουμε progress μέσα στο section #about-philosophy
       const section = document.getElementById("about-philosophy");
       if (!section) return;
 
       const rect = section.getBoundingClientRect();
       const vh = window.innerHeight || 1;
 
-      // offset: πόσο έχουμε «μπει» μέσα στο section
+      // Πόσο έχουμε “διανύσει” το section (μαζί με λίγο margin λόγω sticky)
       const total = rect.height + vh;
-      const offset = -rect.top; // όταν top = 0 είμαστε στην αρχή του section
-
+      const offset = -rect.top; // 0 στην αρχή του section, αυξάνεται όσο κατεβαίνεις
       const progress = clamp01(offset / total);
 
-      const segments = cards.length;
-      const newIndex = Math.min(
-        segments - 1,
-        Math.max(0, Math.floor(progress * segments))
-      );
+      // Χωρίζουμε το scroll σε segments, κάθε segment = ένα swap μπροστά -> πίσω
+      const totalSwaps = cards.length * 2; // μπορείς να το μεγαλώσεις αν θες περισσότερους κύκλους
+      const newStep = Math.floor(progress * totalSwaps);
 
-      if (newIndex !== activeIndex) {
-        setActiveIndex(newIndex);
-      }
+      setStep((prev) =>
+        newStep < 0 ? 0 : newStep > totalSwaps ? totalSwaps : newStep
+      );
     };
 
     handleScroll();
@@ -77,25 +72,52 @@ const AboutPhilosophyScrollCards = () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, [activeIndex]);
+  }, []);
 
-  // Όσο δεν είναι μαύρο το background, δεν δείχνουμε τίποτα
   if (!isDark) return null;
+
+  const visibleCards = cards.length;
 
   return (
     <div className="about-cards-overlay-center">
-      <div className="about-card-stack">
-        {cards.map((card, index) => (
-          <div
-            key={card.title}
-            className={`about-card-panel ${
-              index === activeIndex ? "is-active" : "is-inactive"
-            }`}
-          >
-            <h3 className="about-card-title">{card.title}</h3>
-            <p className="about-card-text">{card.body}</p>
-          </div>
-        ))}
+      <div className="about-cards-3d-stack">
+        {cards.map((card, index) => {
+          // Υπολογίζουμε “σχετική θέση” μέσα στο stack με βάση το step (σαν να κάνουμε rotate το array)
+          const relativeIndex =
+            (index - (step % visibleCards) + visibleCards) % visibleCards;
+
+          // 0 = μπροστά, 1 = λίγο πιο πίσω, κ.ο.κ.
+          const distX = 60;
+          const distY = 70;
+          const distZ = 140;
+
+          const x = relativeIndex * distX;
+          const y = -relativeIndex * distY;
+          const z = -relativeIndex * distZ;
+
+          const opacity = 1 - relativeIndex * 0.18;
+          const scale = 1 - relativeIndex * 0.04;
+
+          return (
+            <div
+              key={card.title}
+              className="about-card-3d"
+              style={{
+                transform: `
+                  translate3d(${x}px, ${y}px, ${z}px)
+                  translate(-50%, -50%)
+                  scale(${scale})
+                  skewY(-6deg)
+                `,
+                zIndex: visibleCards - relativeIndex,
+                opacity: opacity,
+              }}
+            >
+              <h3 className="about-card-3d-title">{card.title}</h3>
+              <p className="about-card-3d-text">{card.body}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
