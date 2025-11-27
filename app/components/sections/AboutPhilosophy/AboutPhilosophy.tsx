@@ -31,24 +31,28 @@ const AboutPhilosophy: React.FC = () => {
     setIsPinned(v > 0 && v < 1);
   });
 
-  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν έχουμε full black
+  // LanguageSwitcher + header logo: αλλάζουμε χρώματα & class στο <body>
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
     const body = document.body;
     if (!body) return;
 
     if (latest >= 0.8) {
+      // μαύρο φόντο → άσπρα γράμματα
       body.style.setProperty("--lang-switcher-text-color", "#ffffff");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
         "rgba(255,255,255,0.7)"
       );
+      body.classList.add("about-dark");
     } else {
+      // κανονικό φόντο → μαύρα γράμματα
       body.style.setProperty("--lang-switcher-text-color", "#000000");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
         "rgba(0,0,0,0.6)"
       );
+      body.classList.remove("about-dark");
     }
   });
 
@@ -60,6 +64,7 @@ const AboutPhilosophy: React.FC = () => {
       if (!body) return;
       body.style.removeProperty("--lang-switcher-text-color");
       body.style.removeProperty("--lang-switcher-text-muted-color");
+      body.classList.remove("about-dark");
     };
   }, []);
 
@@ -71,7 +76,6 @@ const AboutPhilosophy: React.FC = () => {
   // - 0.0–0.12: κρυμμένο (0) -> δεν “μπλέκει” με το προηγούμενο section
   // - 0.12–0.58: full visible
   // - 0.58–0.7: fade-out ΠΡΙΝ ο κύκλος γίνει πολύ μεγάλος
-  //   Μετά το 0.7 είναι *εντελώς* 0, άρα όταν η οθόνη είναι full black δεν φαίνεται ΤΙΠΟΤΑ.
   const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.12, 0.58, 0.7],

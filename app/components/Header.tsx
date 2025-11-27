@@ -58,15 +58,26 @@ export default function Header({
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο */
       logo={
-        <Image
-          src={logoSrc}
-          alt="Webkey"
-          width={250}
-          height={100}
-          priority
-          style={{ paddingTop: 20 }}
-          className="header-logo"   // 👈 ΠΡΟΣΘΕΤΟ
-        />
+        <div className="header-logo-wrapper" style={{ paddingTop: 20 }}>
+          {/* Κανονικό logo */}
+          <Image
+            src={logoSrc}
+            alt="Webkey"
+            width={250}
+            height={100}
+            priority
+            className="header-logo header-logo-main"
+          />
+          {/* White logo για dark φόντο */}
+          <Image
+            src="/images/logo-webkey-white.svg"
+            alt="Webkey (white)"
+            width={250}
+            height={100}
+            priority
+            className="header-logo header-logo-white"
+          />
+        </div>
       }
       items={items}
       menuAriaLabel="Toggle navigation"

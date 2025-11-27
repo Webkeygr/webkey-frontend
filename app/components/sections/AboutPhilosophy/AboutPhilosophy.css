@@ -119,3 +119,39 @@
     max-height: 900px;
   }
 }
+
+/* ==========================
+   HEADER LOGO MODE SWITCH
+   ========================== */
+
+.header-logo-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Και τα δύο logos στοιχίζονται στο ίδιο σημείο */
+.header-logo {
+  display: block;
+  transition: opacity 0.35s ease;
+}
+
+.header-logo-main {
+  position: relative;
+  z-index: 1;
+}
+
+.header-logo-white {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0; /* default: κρυφό */
+}
+
+/* Όταν το <body> έχει about-dark (full black από AboutPhilosophy) */
+.about-dark .header-logo-main {
+  opacity: 0;
+}
+
+.about-dark .header-logo-white {
+  opacity: 1;
+}
