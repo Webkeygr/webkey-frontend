@@ -23,17 +23,17 @@ const AboutPhilosophy: React.FC = () => {
   // Scroll progress μόνο για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    // ΔΙΟΡΘΩΜΕΝΟ offset (τύποι framer-motion)
     offset: ["start end", "end start"],
   });
 
-  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν γεμίσει η βούλα
+  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν γεμίσει η βούλα / σκοτεινιάσει
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
     const body = document.body;
     if (!body) return;
 
-    if (latest >= 0.5) {
+    // το πάμε πιο αργά (όταν σχεδόν έχει γεμίσει η βούλα)
+    if (latest >= 0.8) {
       body.style.setProperty("--lang-switcher-text-color", "#ffffff");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
@@ -59,7 +59,7 @@ const AboutPhilosophy: React.FC = () => {
     };
   }, []);
 
-  // Χειροκίνητο "sticky" με fixed, για να δουλεύει ακόμα κι αν υπάρχουν transforms στους γονείς
+  // Χειροκίνητο "sticky" με fixed
   useEffect(() => {
     const handleScroll = () => {
       const section = sectionRef.current;
@@ -87,19 +87,31 @@ const AboutPhilosophy: React.FC = () => {
     };
   }, []);
 
-  // Μαύρη βούλα που μεγαλώνει
-  const circleScale = useTransform(scrollYProgress, [0.1, 0.7], [0, 5.5]);
-  const circleOpacity = useTransform(scrollYProgress, [0.1, 0.2], [0, 1]);
+  /* ==========================
+     ANIMATIONS
+     ========================== */
 
-  // Lottie: πρώτα έγχρωμο, μετά λευκό όταν γεμίσει η οθόνη
+  // Τίτλος: full opacity για ώρα, fade out όταν η βούλα έχει σχεδόν γεμίσει
+  const titleOpacity = useTransform(
+    scrollYProgress,
+    [0.0, 0.7, 0.9],
+    [1, 1, 0]
+  );
+
+  // Μαύρη βούλα να εμφανιστεί πιο αργά (μετά από 3-4 scroll περίπου)
+  // Ξεκινά γύρω στο 0.45 και γεμίζει μέχρι ~0.9
+  const circleScale = useTransform(scrollYProgress, [0.45, 0.9], [0, 5.5]);
+  const circleOpacity = useTransform(scrollYProgress, [0.45, 0.55], [0, 1]);
+
+  // Lottie: έγχρωμο στην αρχή, λευκό όταν έχει σχεδόν γεμίσει η βούλα
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.3, 0.5],
+    [0.0, 0.4, 0.65],
     [1, 1, 0]
   );
   const whiteLottieOpacity = useTransform(
     scrollYProgress,
-    [0.5, 0.65],
+    [0.65, 0.85],
     [0, 1]
   );
 
@@ -124,7 +136,10 @@ const AboutPhilosophy: React.FC = () => {
           />
 
           {/* Τίτλος + Lottie, πάντα στο κέντρο όσο το section είναι ενεργό */}
-          <div className="about-title-block">
+          <motion.div
+            className="about-title-block"
+            style={{ opacity: titleOpacity }}
+          >
             <GlitchText
               className="about-title-glitch"
               speed={1.4}
@@ -159,9 +174,9 @@ const AboutPhilosophy: React.FC = () => {
                 />
               </motion.div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* ΕΔΩ ΜΕΤΑ θα βάλουμε τις καρτέλες όταν μου πεις πώς τις θέλεις */}
+          {/* ΕΔΩ μετά θα μπουν οι καρτέλες όταν μου πεις layout */}
         </div>
       </div>
     </section>
