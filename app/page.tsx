@@ -12,7 +12,7 @@ import Hero from "@/app/components/Hero";
 import ServicesIntro from "@/app/components/sections/ServicesIntro";
 import ServicesCards from "@/app/components/sections/ServicesCards";
 import AboutPhilosophy from "@/app/components/sections/AboutPhilosophy/AboutPhilosophy";
-import AboutPhilosophyCardsOverlay from "@/app/components/sections/AboutPhilosophy/AboutPhilosophyCardsOverlay";
+import AboutPhilosophyScrollCards from "@/app/components/sections/AboutPhilosophy/AboutPhilosophyScrollCards";
 
 export default function ServicesPage() {
   return (
@@ -22,7 +22,7 @@ export default function ServicesPage() {
       <ServicesIntro />
       <ServicesCards />
       <AboutPhilosophy />
-      <AboutPhilosophyCardsOverlay />
+      <AboutPhilosophyScrollCards />
     </>
   );
 }
