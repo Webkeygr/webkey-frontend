@@ -12,7 +12,7 @@
   position: relative;
   width: min(780px, 94vw);
   height: 520px;
-  perspective: 1200px;
+  perspective: 900px;
 }
 
 /* Μεγάλες, παραλληλόγραμμες κάρτες στο κέντρο */
