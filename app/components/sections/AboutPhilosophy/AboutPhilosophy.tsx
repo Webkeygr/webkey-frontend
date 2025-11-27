@@ -98,11 +98,14 @@ const AboutPhilosophy: React.FC = () => {
   );
 
   // Μαύρη βούλα:
-  // - αρχίζει να μεγαλώνει στο 0.6
-  // - φτάνει full size στο 0.9
-  // - και ΜΕΝΕΙ full από 0.9 μέχρι 1 (άρα καθαρό μαύρο για μερικά scroll)
-  const circleScale = useTransform(scrollYProgress, [0.6, 0.9, 1], [0, 9, 9]);
-  const circleOpacity = useTransform(scrollYProgress, [0.6, 0.7], [0, 1]);
+  // - μέχρι το 0.6 είναι σχεδόν ανύπαρκτη (scale ~0)
+  // - από 0.6 μέχρι 0.9 μεγαλώνει από πολύ μικρή (0.02) σε τεράστια (9)
+  // - από 0.9 μέχρι 1 ΜΕΝΕΙ στο 9 (άρα full black χωρίς να “μαζεύει”)
+  const circleScale = useTransform(
+    scrollYProgress,
+    [0.6, 0.9, 1],
+    [0.02, 9, 9]
+  );
 
   // Lottie: έγχρωμο στην αρχή, λευκό όταν έχει πρακτικά γεμίσει η βούλα
   const colorLottieOpacity = useTransform(
@@ -127,7 +130,6 @@ const AboutPhilosophy: React.FC = () => {
             className="about-black-circle"
             style={{
               scale: circleScale,
-              opacity: circleOpacity,
               x: "-50%",
               y: "-50%",
             }}
