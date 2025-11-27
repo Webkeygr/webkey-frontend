@@ -129,7 +129,6 @@
   display: inline-block;
 }
 
-/* Και τα δύο logos στοιχίζονται στο ίδιο σημείο */
 .header-logo {
   display: block;
   transition: opacity 0.35s ease;
@@ -154,4 +153,20 @@
 
 .about-dark .header-logo-white {
   opacity: 1;
+}
+
+/* ==========================
+   LANGUAGE SWITCHER COLORS
+   ========================== */
+
+/* Βασικό χρώμα labels (GR / EN) – διαβάζει τα body CSS vars
+   που ορίζουμε στο AboutPhilosophy.tsx */
+.lang-label {
+  color: var(--lang-switcher-text-muted-color, rgba(0, 0, 0, 0.6)) !important;
+  transition: color 0.25s ease;
+}
+
+/* Το active (έχει class font-semibold) παίρνει το "δυνατό" χρώμα */
+.lang-label.font-semibold {
+  color: var(--lang-switcher-text-color, #000000) !important;
 }

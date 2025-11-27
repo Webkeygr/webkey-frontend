@@ -56,22 +56,22 @@ export default function Header({
 
   return (
     <BubbleMenu
-      /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο */
+      /* LOGO */
       logo={
         <div className="header-logo-wrapper" style={{ paddingTop: 20 }}>
           {/* Κανονικό logo */}
           <Image
             src={logoSrc}
-            alt="Webkey"
+            alt="WebKey"
             width={250}
             height={100}
             priority
             className="header-logo header-logo-main"
           />
-          {/* White logo για dark φόντο */}
+          {/* Λευκό logo για μαύρο φόντο */}
           <Image
             src="/images/logo-webkey-white.svg"
-            alt="Webkey (white)"
+            alt="WebKey (white)"
             width={250}
             height={100}
             priority
