@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   motion,
   useScroll,
@@ -11,55 +11,32 @@ import Lottie from "lottie-react";
 
 import "./AboutPhilosophy.css";
 
-// Lotties
 import scrollDownColor from "@/app/lottie/scroll-down.json";
 import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 
-// Glitch τίτλος
 import GlitchText from "./GlitchText";
 
-const philosophyCards = [
-  {
-    title: "Clarity first",
-    body: "Δεν κρυβόμαστε πίσω από buzzwords. Ξεκινάμε με ξεκάθαρους στόχους: τι θέλεις να πετύχεις, με ποιο κοινό και σε ποιο χρονικό ορίζοντα. Ό,τι σχεδιάζουμε, υπηρετεί αυτό.",
-  },
-  {
-    title: "Design με σκοπό",
-    body: "Όμορφο χωρίς λειτουργικότητα δεν μας ενδιαφέρει. Σχεδιάζουμε εμπειρίες που οδηγούν τον επισκέπτη σε πράξη: να σου στείλει μήνυμα, να κλείσει ραντεβού, να αγοράσει, να σε θυμάται.",
-  },
-  {
-    title: "Tech χωρίς φλυαρία",
-    body: "Χρησιμοποιούμε σύγχρονες τεχνολογίες (Next.js, headless WordPress κ.λπ.), αλλά δεν σε “πνίγουμε” με τεχνικές λεπτομέρειες. Για εσένα μετράει να δουλεύει γρήγορα, σταθερά και να μπορεί να εξελιχθεί.",
-  },
-  {
-    title: "Σχέση, όχι project",
-    body: "Δεν βλέπουμε τη δουλειά σαν “ένα project και τέλος”. Θέλουμε να χτίσουμε σχέση εμπιστοσύνης, να σε συμβουλεύουμε, να κάνουμε βελτιώσεις, να δοκιμάζουμε νέα πράγματα και να μεγαλώνουμε μαζί.",
-  },
-];
-
 const AboutPhilosophy: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
 
-  // scroll progress ΜΟΝΟ για αυτό το section
+  // Scroll progress μόνο για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start 70%", "end 20%"],
+    offset: ["start bottom", "end top"],
   });
 
-  /* ------------------ SYNC με LanguageSwitcher ------------------ */
-  // Όταν “γεμίζει” η μαύρη βούλα (περίπου στο 0.55+), αλλάζουμε global
-  // CSS variables ώστε το LanguageSwitcher να γίνει λευκό.
+  // LanguageSwitcher χρώματα: μαύρο -> άσπρο όταν γεμίσει η βούλα
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
-
     const body = document.body;
     if (!body) return;
 
-    if (latest >= 0.55) {
+    if (latest >= 0.5) {
       body.style.setProperty("--lang-switcher-text-color", "#ffffff");
       body.style.setProperty(
         "--lang-switcher-text-muted-color",
-        "rgba(255,255,255,0.6)"
+        "rgba(255,255,255,0.7)"
       );
     } else {
       body.style.setProperty("--lang-switcher-text-color", "#000000");
@@ -70,7 +47,7 @@ const AboutPhilosophy: React.FC = () => {
     }
   });
 
-  // Clean-up για όταν φύγεις από το section / σελίδα
+  // Cleanup όταν φύγουμε από το section / σελίδα
   useEffect(() => {
     return () => {
       if (typeof window === "undefined") return;
@@ -81,63 +58,72 @@ const AboutPhilosophy: React.FC = () => {
     };
   }, []);
 
-  /* ------------------ ΤΙΤΛΟΣ + LOTTIE ------------------ */
+  // Χειροκίνητο "sticky" με fixed, για να δουλεύει ακόμα κι αν υπάρχουν transforms στους γονείς
+  useEffect(() => {
+    const handleScroll = () => {
+      const section = sectionRef.current;
+      if (!section) return;
 
-  // Τίτλος: fade in → μικρή παύση → fade out λίγο πριν μπουν οι κάρτες
-  const titleOpacity = useTransform(
-    scrollYProgress,
-    [0.0, 0.08, 0.35, 0.55],
-    [0, 1, 1, 0]
-  );
-  const titleY = useTransform(
-    scrollYProgress,
-    [0.0, 0.08, 0.55],
-    [40, 0, -20]
-  );
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight || 0;
+      const sectionTop = window.scrollY + rect.top;
+      const sectionHeight = section.offsetHeight;
 
-  // Χρωματιστό lottie (στην αρχή, πάνω στο “καθαρό” background)
+      const startPin = sectionTop;
+      const endPin = sectionTop + sectionHeight - viewportHeight;
+
+      const y = window.scrollY;
+      const pinnedNow = y >= startPin && y <= endPin;
+      setIsPinned(pinnedNow);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
+
+  // Μαύρη βούλα που μεγαλώνει
+  const circleScale = useTransform(scrollYProgress, [0.1, 0.7], [0, 5.5]);
+  const circleOpacity = useTransform(scrollYProgress, [0.1, 0.2], [0, 1]);
+
+  // Lottie: πρώτα έγχρωμο, μετά λευκό όταν γεμίσει η οθόνη
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.1, 0.4],
-    [0, 1, 0]
+    [0.0, 0.3, 0.5],
+    [1, 1, 0]
   );
-
-  // Λευκό lottie – ΜΟΝΟ όταν η βούλα έχει πλέον γεμίσει την οθόνη
   const whiteLottieOpacity = useTransform(
     scrollYProgress,
-    [0.55, 0.7, 1],
-    [0, 1, 1]
+    [0.5, 0.65],
+    [0, 1]
   );
 
-  /* ------------------ ΜΑΥΡΟΣ ΚΥΚΛΟΣ ------------------ */
-
-  // Ξεκινάει λίγο μετά τον τίτλο, από “αόρατος” στο κέντρο και γεμίζει όλο το viewport
-  const circleScale = useTransform(scrollYProgress, [0.18, 0.75], [0, 5.5]);
-  const circleOpacity = useTransform(scrollYProgress, [0.18, 0.25], [0, 1]);
-
-  /* ------------------ ΚΑΡΤΕΣ ------------------ */
-
-  // Οι κάρτες μπαίνουν όταν έχει πια γίνει σχεδόν full black background
-  const cardsOpacity = useTransform(scrollYProgress, [0.55, 0.8], [0, 1]);
-  const cardsY = useTransform(scrollYProgress, [0.55, 0.8], [40, 0]);
-
   return (
-    <section id="about-philosophy" className="about-section" ref={sectionRef}>
-      {/* Μεγάλο “ύψος” για να δουλέψει το sticky animation (2–3 scrolls) */}
+    <section
+      id="about-philosophy"
+      className="about-section"
+      ref={sectionRef}
+    >
+      {/* Το ύψος αυτού του wrapper καθορίζει πόσα scroll "ταξιδεύει" το pinned section */}
       <div className="about-scroll-area">
-        {/* ΟΛΟ το περιεχόμενο είναι sticky και μένει στο κέντρο του viewport */}
-        <div className="about-sticky">
-          {/* Μαύρος κύκλος που εμφανίζεται από το πουθενά στο κέντρο και μεγαλώνει */}
+        {/* Αυτό είναι που μένει καρφωμένο στο κέντρο */}
+        <div
+          className={
+            isPinned ? "about-sticky about-sticky-fixed" : "about-sticky"
+          }
+        >
+          {/* Μαύρος κύκλος στο κέντρο που μεγαλώνει */}
           <motion.div
             className="about-black-circle"
             style={{ scale: circleScale, opacity: circleOpacity }}
           />
 
-          {/* Τίτλος + Lottie (πάντα στο κέντρο όσο κάνεις scroll) */}
-          <motion.div
-            className="about-title-block"
-            style={{ opacity: titleOpacity, y: titleY }}
-          >
+          {/* Τίτλος + Lottie, πάντα στο κέντρο όσο το section είναι ενεργό */}
+          <div className="about-title-block">
             <GlitchText
               className="about-title-glitch"
               speed={1.4}
@@ -148,7 +134,7 @@ const AboutPhilosophy: React.FC = () => {
             </GlitchText>
 
             <div className="about-lottie-wrapper">
-              {/* Χρωματιστό lottie – αρχικά */}
+              {/* Έγχρωμο scroll-down στην αρχή */}
               <motion.div
                 className="about-lottie-layer"
                 style={{ opacity: colorLottieOpacity }}
@@ -160,7 +146,7 @@ const AboutPhilosophy: React.FC = () => {
                 />
               </motion.div>
 
-              {/* Λευκό lottie – όταν έχει γίνει μαύρο το background */}
+              {/* Λευκό scroll-down όταν πια έχει σκοτεινιάσει */}
               <motion.div
                 className="about-lottie-layer"
                 style={{ opacity: whiteLottieOpacity }}
@@ -172,24 +158,9 @@ const AboutPhilosophy: React.FC = () => {
                 />
               </motion.div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Κάρτες μέσα στο μαύρο φόντο – θα τις μορφοποιήσουμε όπως πεις στο επόμενο βήμα */}
-          <motion.div
-            className="about-cards-grid"
-            style={{ opacity: cardsOpacity, y: cardsY }}
-          >
-            {philosophyCards.map((card) => (
-              <div key={card.title} className="philo-card-outer">
-                <div className="philo-card-glow">
-                  <div className="philo-card-content">
-                    <h3 className="philo-card-title">{card.title}</h3>
-                    <p className="philo-card-body">{card.body}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </motion.div>
+          {/* ΕΔΩ ΜΕΤΑ θα βάλουμε τις καρτέλες όταν μου πεις πώς τις θέλεις */}
         </div>
       </div>
     </section>
