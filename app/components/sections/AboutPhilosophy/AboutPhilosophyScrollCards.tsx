@@ -113,11 +113,13 @@ const AboutPhilosophyScrollCards: React.FC = () => {
               className="about-card-3d"
               style={{
                 transform: `
-                  translate3d(${x}px, ${y}px, ${z}px)
-                  translate(-50%, -50%)
-                  scale(${scale})
-                  skewY(-5deg)
-                `,
+  translate3d(${x}px, ${y}px, ${z}px)
+  translate(-50%, -50%)
+  rotateX(18deg)
+  rotateZ(-4deg)
+  scale(${scale})
+`,
+
                 zIndex: visibleCards - relativeIndex,
                 opacity,
               }}
