@@ -136,14 +136,14 @@ const CardSwap: React.FC<CardSwapProps> = ({
       const tl = gsap.timeline();
       tlRef.current = tl;
 
-      // Κάρτα μπροστά – πέφτει κάτω
+      // μπροστινή κάρτα πέφτει κάτω
       tl.to(elFront, {
         y: "+=500",
         duration: config.durDrop,
         ease: config.ease,
       });
 
-      // Προώθηση των υπολοίπων προς τα μπροστά
+      // οι άλλες προωθούνται μπροστά
       tl.addLabel("promote", `-=${config.durDrop * config.promoteOverlap}`);
       rest.forEach((idx, i) => {
         const el = refs[idx]?.current;
@@ -163,7 +163,7 @@ const CardSwap: React.FC<CardSwapProps> = ({
         );
       });
 
-      // Η μπροστινή πάει πίσω
+      // η μπροστινή πάει πίσω
       const backSlot = makeSlot(
         total - 1,
         cardDistance,
@@ -195,7 +195,6 @@ const CardSwap: React.FC<CardSwapProps> = ({
       });
     };
 
-    // Πρώτο swap για να στηθεί σωστά
     swap();
     intervalRef.current = window.setInterval(swap, delay);
 

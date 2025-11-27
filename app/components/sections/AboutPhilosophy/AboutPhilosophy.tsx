@@ -15,6 +15,27 @@ import scrollDownColor from "@/app/lottie/scroll-down.json";
 import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 
 import GlitchText from "./GlitchText";
+import CardSwap, { Card } from "./CardSwap";
+
+// προσωρινό περιεχόμενο καρτών – μετά το αλλάζουμε όπως θες
+const philosophyCards = [
+  {
+    title: "Clarity first",
+    body: "Ξεκινάμε πάντα από ξεκάθαρους στόχους, όχι από features ή εφέ.",
+  },
+  {
+    title: "Design με σκοπό",
+    body: "Ό,τι σχεδιάζουμε έχει στόχο: lead, πώληση ή χτίσιμο εμπιστοσύνης.",
+  },
+  {
+    title: "Tech without noise",
+    body: "Χρησιμοποιούμε σύγχρονη τεχνολογία, χωρίς να σε πνίγουμε με jargon.",
+  },
+  {
+    title: "Σχέση, όχι project",
+    body: "Σκεφτόμαστε μακροπρόθεσμα: βελτιώσεις, δοκιμές, εξελίξεις μαζί.",
+  },
+];
 
 const AboutPhilosophy: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -45,10 +66,9 @@ const AboutPhilosophy: React.FC = () => {
       el.style.color = isDark ? "#ffffff" : "";
     });
 
-    // 2) Logo στο BubbleMenu: η πρώτη εικόνα με class .site-logo
+    // 2) Logo στο BubbleMenu: η πρώτη εικόνα με class .site-logo (αν υπάρχει)
     const logoImg = document.querySelector<HTMLImageElement>("img.site-logo");
     if (logoImg) {
-      // στο μαύρο → λευκό logo, στο κανονικό → όπως πριν
       logoImg.style.filter = isDark ? "brightness(0) invert(1)" : "";
     }
   });
@@ -101,6 +121,12 @@ const AboutPhilosophy: React.FC = () => {
     [1, 1, 0]
   );
   const whiteLottieOpacity = useTransform(scrollYProgress, [0.75, 0.9], [0, 1]);
+
+  // ΚΑΡΤΕΣ:
+  // Θέλεις να εμφανίζονται όταν το background είναι πλέον full μαύρο.
+  // Άρα τις κάνουμε fade-in από 0.8 μέχρι 0.95 του scrollYProgress.
+  const cardsOpacity = useTransform(scrollYProgress, [0.8, 0.95], [0, 1]);
+  const cardsY = useTransform(scrollYProgress, [0.8, 0.95], [20, 0]);
 
   return (
     <section id="about-philosophy" className="about-section" ref={sectionRef}>
@@ -160,7 +186,27 @@ const AboutPhilosophy: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* ΕΔΩ μετά θα μπουν οι καρτέλες */}
+          {/* ΚΑΡΤΕΣ – εμφανίζονται ΜΟΝΟ όταν το background είναι πια μαύρο */}
+          <motion.div
+            className="about-card-swap-wrapper"
+            style={{ opacity: cardsOpacity, y: cardsY }}
+          >
+            <CardSwap
+              cardDistance={60}
+              verticalDistance={70}
+              delay={5000}
+              pauseOnHover={false}
+              width={420}
+              height={260}
+            >
+              {philosophyCards.map((card) => (
+                <Card key={card.title}>
+                  <h3 className="philo-card-title">{card.title}</h3>
+                  <p className="philo-card-body">{card.body}</p>
+                </Card>
+              ))}
+            </CardSwap>
+          </motion.div>
         </div>
       </div>
     </section>
