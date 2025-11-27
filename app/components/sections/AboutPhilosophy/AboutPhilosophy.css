@@ -14,7 +14,7 @@
 /* Πόσο vertical scroll έχουμε για όλο το animation */
 .about-scroll-area {
   position: relative;
-  height: 260vh; /* 2–3 γερά scrolls, πείραξέ το αν θες */
+  height: 360vh; /* 2–3 γερά scrolls, πείραξέ το αν θες */
 }
 
 /* Ό,τι είναι εδώ μέσα μένει sticky στο viewport */
@@ -53,7 +53,9 @@
   align-items: center;
   text-align: center;
   color: #000;
+  margin-top: 60px; /* 🔽 φέρνει τον τίτλο λίγο πιο κάτω */
 }
+
 
 .about-title-glitch {
   font-size: clamp(42px, 5vw, 68px);
@@ -67,8 +69,8 @@
 }
 
 .about-lottie {
-  width: 90px;
-  height: 90px;
+  width: 160px;
+  height: 160px;
 }
 
 /* ==========================
@@ -125,8 +127,8 @@
   }
 
   .about-lottie {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
   }
 }
 
