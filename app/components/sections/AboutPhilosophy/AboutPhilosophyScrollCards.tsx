@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./AboutPhilosophyScrollCards.css";
 
 type ScrollCard = {
@@ -27,40 +27,47 @@ const cards: ScrollCard[] = [
   },
 ];
 
-function clamp01(value: number) {
-  return Math.min(1, Math.max(0, value));
-}
-
 const AboutPhilosophyScrollCards: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const [step, setStep] = useState(0);
+
+  // Από πού ξεκινήσαμε να “μετράμε” scroll όταν μπήκες στο μαύρο phase
+  const baseScrollRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const handleScroll = () => {
       const bodyHasDark = document.body.classList.contains("about-dark");
-      setIsDark(bodyHasDark);
 
-      if (!bodyHasDark) return;
+      if (!bodyHasDark) {
+        // Όταν φύγουμε από το μαύρο → κρύψε κάρτες & reset baseScroll
+        setIsDark(false);
+        baseScrollRef.current = null;
+        return;
+      }
 
-      const section = document.getElementById("about-philosophy");
-      if (!section) return;
+      setIsDark(true);
 
-      const rect = section.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
+      const currentScroll =
+        window.scrollY ??
+        window.pageYOffset ??
+        document.documentElement.scrollTop ??
+        0;
 
-      // Πόσο έχουμε “διανύσει” μέσα στο section
-      const total = rect.height + vh;
-      const offset = -rect.top;
-      const progress = clamp01(offset / total);
+      // Μόλις ΜΠΟΥΜΕ στο μαύρο για πρώτη φορά, “κλειδώνουμε” το σημείο που βρισκόμαστε
+      if (baseScrollRef.current === null) {
+        baseScrollRef.current = currentScroll;
+      }
 
-      // Θέλουμε να προλάβουμε να δούμε όλες τις κάρτες
-      // => τόσα swaps όσα (cards.length - 1), ώστε κάθε κάρτα να έρθει μπροστά μία φορά
+      const delta = currentScroll - (baseScrollRef.current ?? currentScroll);
+
+      // Κάθε Χ pixels scroll = ένα swap
+      const pixelsPerSwap = 200; // μπορείς να το μεγαλώσεις/μικρύνεις αν το θες πιο αργό/γρήγορο
       const visibleCards = cards.length;
-      const totalSwaps = Math.max(visibleCards - 1, 1);
+      const totalSwaps = Math.max(visibleCards - 1, 1); // ώστε να έρθει μπροστά κάθε κάρτα μία φορά
 
-      const rawStep = Math.floor(progress * totalSwaps + 0.0001); // μικρό offset για να μην “κολλάει”
+      const rawStep = Math.floor(delta / pixelsPerSwap + 0.0001);
       const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
 
       setStep(clampedStep);
@@ -89,9 +96,9 @@ const AboutPhilosophyScrollCards: React.FC = () => {
             (index - (step % visibleCards) + visibleCards) % visibleCards;
 
           // 0 = μπροστά, 1 = λίγο πιο πίσω, κ.ο.κ.
-          const distX = 80; // λίγο πιο “ανοιχτή” σκάλα οριζόντια
-          const distY = 90; // λίγο πιο “ανοιχτή” σκάλα κάθετα
-          const distZ = 160; // μεγαλύτερο βάθος για πιο έντονο 3D
+          const distX = 80;
+          const distY = 90;
+          const distZ = 170;
 
           const x = relativeIndex * distX;
           const y = -relativeIndex * distY;
@@ -112,7 +119,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
                   skewY(-5deg)
                 `,
                 zIndex: visibleCards - relativeIndex,
-                opacity: opacity,
+                opacity,
               }}
             >
               <h3 className="about-card-3d-title">{card.title}</h3>

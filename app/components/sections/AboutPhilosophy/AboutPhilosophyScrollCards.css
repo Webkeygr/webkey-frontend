@@ -10,33 +10,33 @@
 
 .about-cards-3d-stack {
   position: relative;
-  width: min(720px, 92vw);
-  height: 420px;
-  perspective: 1100px;
+  width: min(780px, 94vw);
+  height: 520px;
+  perspective: 1200px;
 }
 
-/* Μεγάλες, πιο “παραλληλόγραμμες” κάρτες στο κέντρο */
+/* Μεγάλες, παραλληλόγραμμες κάρτες στο κέντρο */
 .about-card-3d {
   position: absolute;
   top: 50%;
   left: 50%;
 
   width: 100%;
-  height: 260px;
+  height: 320px;
 
-  border-radius: 20px;
+  border-radius: 22px;
   border: 1px solid rgba(255, 255, 255, 0.35);
   background: radial-gradient(
       circle at top left,
       rgba(255, 255, 255, 0.12),
       transparent 55%
     ),
-    rgba(0, 0, 0, 0.9);
+    rgba(0, 0, 0, 0.92);
 
-  padding: 26px 30px 30px;
+  padding: 30px 34px 34px;
   color: #ffffff;
 
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.7), 0 0 60px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.78), 0 0 75px rgba(0, 0, 0, 0.9);
 
   transform-style: preserve-3d;
   backface-visibility: hidden;
@@ -47,53 +47,54 @@
 }
 
 .about-card-3d-title {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .about-card-3d-text {
-  font-size: 1rem;
-  line-height: 1.7;
-  opacity: 0.94;
+  font-size: 1.02rem;
+  line-height: 1.8;
+  opacity: 0.95;
 }
 
-/* Mobile tweaks */
+/* Tablet */
 @media (max-width: 768px) {
   .about-cards-3d-stack {
-    width: min(480px, 94vw);
-    height: 340px;
+    width: min(520px, 94vw);
+    height: 420px;
   }
 
   .about-card-3d {
-    height: 230px;
-    padding: 20px 20px 24px;
+    height: 280px;
+    padding: 24px 22px 26px;
   }
 
   .about-card-3d-title {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
   }
 
   .about-card-3d-text {
-    font-size: 0.95rem;
+    font-size: 0.96rem;
   }
 }
 
+/* Mobile */
 @media (max-width: 480px) {
   .about-cards-3d-stack {
     width: min(360px, 96vw);
-    height: 300px;
+    height: 360px;
   }
 
   .about-card-3d {
-    height: 220px;
-    padding: 18px 18px 22px;
+    height: 260px;
+    padding: 20px 18px 24px;
   }
 
   .about-card-3d-title {
-    font-size: 1rem;
+    font-size: 1.02rem;
   }
 
   .about-card-3d-text {
