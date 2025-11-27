@@ -98,9 +98,9 @@ const AboutPhilosophy: React.FC = () => {
   );
 
   // Μαύρη βούλα:
-  // - ξεκινάει πιο αργά (για να χαρείς τον τίτλο 3-4 scroll)
-  // - μεγαλώνει αρκετά ώστε να καλύψει όλη την οθόνη
-  const circleScale = useTransform(scrollYProgress, [0.6, 0.96], [0, 6.2]);
+  // - ξεκινάει αρκετά αργά (για 3–4 scrolls τίτλο)
+  // - μεγαλώνει ΠΟΛΥ ώστε να καλύπτει άνετα ultrawide / 4K
+  const circleScale = useTransform(scrollYProgress, [0.6, 0.96], [0, 9]);
   const circleOpacity = useTransform(scrollYProgress, [0.6, 0.7], [0, 1]);
 
   // Lottie: έγχρωμο στην αρχή, λευκό όταν έχει σχεδόν γεμίσει η βούλα
@@ -136,7 +136,7 @@ const AboutPhilosophy: React.FC = () => {
               scale: circleScale,
               opacity: circleOpacity,
               x: "-50%",
-              y: "-50%", // Κέντρο viewport χωρίς να χαλάει με το scale
+              y: "-50%",
             }}
           />
 

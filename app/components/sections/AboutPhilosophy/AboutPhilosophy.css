@@ -11,10 +11,10 @@
   overflow: hidden;
 }
 
-/* Υψος για να έχουμε “ταξίδι” στο scroll (2–3 full scrolls) */
+/* Μεγαλύτερο ύψος -> περισσότερο “ταξίδι” στο scroll, για να προλάβει ο κύκλος να γίνει ΤΕΡΑΣΤΙΟΣ */
 .about-scroll-area {
   position: relative;
-  height: 260vh;
+  height: 340vh;
 }
 
 /* Block που πιάνει όλο το viewport */
@@ -41,10 +41,10 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 40vw;
-  height: 40vw;
-  max-width: 600px;
-  max-height: 600px;
+  width: 60vw;           /* μεγαλύτερη βάση ώστε με το scale να καλύπτει 4K / ultrawide */
+  height: 60vw;
+  max-width: 1200px;
+  max-height: 1200px;
   border-radius: 999px;
   background: #000000;
   pointer-events: none;
@@ -99,7 +99,7 @@
 
 @media (max-width: 768px) {
   .about-scroll-area {
-    height: 240vh;
+    height: 280vh;
   }
 
   .about-title-glitch {
@@ -113,7 +113,9 @@
   }
 
   .about-black-circle {
-    width: 50vw;
-    height: 50vw;
+    width: 70vw;
+    height: 70vw;
+    max-width: 900px;
+    max-height: 900px;
   }
 }
