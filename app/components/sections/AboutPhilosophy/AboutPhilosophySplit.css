@@ -30,6 +30,13 @@
   inset: 0;
 }
 
+.about-split-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+
 /* Μαύρο background overlay που κάνει fade πάνω από τις κάρτες */
 .about-split-bg {
   position: absolute;
