@@ -100,18 +100,8 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
       setStep(clampedStep);
 
-      // --------- GLOBAL FADE OUT ΜΕΤΑ ΤΗΝ ΤΕΛΕΥΤΑΙΑ ΚΑΡΤΑ ---------
-      const lastStepDelta = pixelsPerSwap * totalSwaps;
-      const fadeOutDistance = 10; // πόσα px scroll για να εξαφανιστούν τελείως
-
-      if (effectiveDelta <= lastStepDelta) {
-        // όσο είμαστε μέσα στα steps των καρτών → πλήρως ορατές
-        setGlobalOpacity(1);
-      } else {
-        const extra = effectiveDelta - lastStepDelta;
-        const fade = extra >= fadeOutDistance ? 0 : 1 - extra / fadeOutDistance;
-        setGlobalOpacity(fade);
-      }
+      // ΠΑΝΤΑ πλήρως ορατές όσο είμαστε στο μαύρο phase
+      setGlobalOpacity(1);
     };
 
     handleScroll();
