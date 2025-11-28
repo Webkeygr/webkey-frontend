@@ -77,7 +77,7 @@ const AboutPhilosophy: React.FC = () => {
   // 0–0.12: κρυφό, 0.12–0.58: full, 0.58–0.7: fade out
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.12, 0.58, 0.7],
+    [0.0, 0.12, 0.38, 0.7],
     [0, 1, 1, 0]
   );
 
