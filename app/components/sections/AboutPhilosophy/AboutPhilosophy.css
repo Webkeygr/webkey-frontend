@@ -67,7 +67,7 @@
 .about-title-glitch {
   font-size: clamp(40px, 5vw, 70px);
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 /* Lottie wrapper στο κέντρο κάτω από τον τίτλο */
