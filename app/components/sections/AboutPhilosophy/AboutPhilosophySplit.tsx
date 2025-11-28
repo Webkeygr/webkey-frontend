@@ -84,7 +84,7 @@ const AboutPhilosophySplit: React.FC = () => {
   // Τίτλος + Lottie: αισθητό fade-in στο ίδιο range
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.05, 0.3, 0.8, 0.95],
+    [0.05, 0.3, 0.5, 0.7],
     [0, 1, 1, 0]
   );
 
