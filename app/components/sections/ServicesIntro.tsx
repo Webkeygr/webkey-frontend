@@ -90,6 +90,7 @@ export default function ServicesIntro() {
   style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
 >
   <GlitchText
+    className="normal-case"
     speed={1.3}
     enableShadows
     enableOnHover={false}
