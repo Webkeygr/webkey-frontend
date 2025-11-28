@@ -71,28 +71,34 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Parallax entry για ΟΛΟ το περιεχόμενο (μαύρο + panels + τίτλος)
-  // 0 → λίγο πιο κάτω, 0.25 → στη θέση του, μετά μένει σταθερό
-  const innerY = useTransform(scrollYProgress, [0, 0.25, 1], [40, 0, 0]);
+  // ΟΛΟ το layer (μαύρο + panels + τίτλος) ξεκινάει ΚΑΤΩ από την οθόνη
+  // 0   → 100vh (off-screen κάτω)
+  // 0.30→ 0vh (στη θέση του)
+  // 1   → 0vh (μένει στη θέση του)
+  const innerY = useTransform(
+    scrollYProgress,
+    [0, 0.3, 1],
+    ["100vh", "0vh", "0vh"]
+  );
 
-  // Τίτλος + Lottie: πιο ομαλό fade in / out
+  // Τίτλος + Lottie: αισθητό fade-in στο ίδιο range
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.12, 0.8, 0.95],
+    [0.05, 0.3, 0.8, 0.95],
     [0, 1, 1, 0]
   );
 
   // Panels που κλείνουν από τα πλάγια
-  const panelsScaleX = useTransform(scrollYProgress, [0.3, 0.6], [0, 1.1]);
-  const panelsOpacity = useTransform(scrollYProgress, [0.27, 0.3], [0, 1]);
+  const panelsScaleX = useTransform(scrollYProgress, [0.35, 0.65], [0, 1.1]);
+  const panelsOpacity = useTransform(scrollYProgress, [0.32, 0.35], [0, 1]);
 
   // Lottie: έγχρωμο → λευκό
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.3, 0.55],
+    [0.05, 0.35, 0.6],
     [1, 1, 0]
   );
-  const whiteLottieOpacity = useTransform(scrollYProgress, [0.55, 0.8], [0, 1]);
+  const whiteLottieOpacity = useTransform(scrollYProgress, [0.6, 0.8], [0, 1]);
 
   return (
     <section
@@ -107,7 +113,7 @@ const AboutPhilosophySplit: React.FC = () => {
             : "about-split-sticky"
         }
       >
-        {/* ΟΛΟ το layer με parallax entry */}
+        {/* ΟΛΟ το layer με slide-up / parallax από κάτω */}
         <motion.div className="about-split-inner" style={{ y: innerY }}>
           {/* Σταθερό μαύρο φόντο που σκεπάζει τις κάρτες από κάτω */}
           <div className="about-split-bg" />
@@ -128,7 +134,7 @@ const AboutPhilosophySplit: React.FC = () => {
             }}
           />
 
-          {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο, μόνο fade */}
+          {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο, με fade-in */}
           <motion.div
             className="about-split-title-block"
             style={{ opacity: contentOpacity }}
