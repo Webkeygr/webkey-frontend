@@ -132,7 +132,7 @@ const AboutPhilosophy: React.FC = () => {
               enableShadows
               enableOnHover={false}
             >
-              ΠΟΙΟΙ ΕΙΜΑΣΤΕ
+              Ποιοι Είμαστε
             </GlitchText>
 
             <div className="about-lottie-wrapper">
