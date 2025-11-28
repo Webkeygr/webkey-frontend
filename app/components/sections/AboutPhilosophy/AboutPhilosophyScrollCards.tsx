@@ -62,7 +62,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
 
       const delta = currentScroll - (baseScrollRef.current ?? currentScroll);
 
-      const delayPixels = 480; // ~1–2 scrolls, πείραξέ το όπως γουστάρεις
+      const delayPixels = 1080; // ~1–2 scrolls, πείραξέ το όπως γουστάρεις
 
       // Αν δεν έχουμε φτάσει ακόμα το delay → ΜΗΝ δείξεις κάρτες
       if (delta < delayPixels) {
