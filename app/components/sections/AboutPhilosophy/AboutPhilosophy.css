@@ -165,3 +165,11 @@
 .about-dark .lang-label {
   color: #ffffff !important;
 }
+
+
+.about-title-glitch,
+.about-title-glitch *,
+.about-title-glitch *::before,
+.about-title-glitch *::after {
+  text-transform: none !important;
+}
