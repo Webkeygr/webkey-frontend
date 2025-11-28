@@ -75,7 +75,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       const effectiveDelta = delta - delayPixels;
 
       // Κάθε Χ pixels scroll = ένα swap
-      const pixelsPerSwap = 400; // αυτό είναι για τις αλλαγές κάρτας
+      const pixelsPerSwap = 800; // αυτό είναι για τις αλλαγές κάρτας
       const visibleCards = cards.length;
       const totalSwaps = Math.max(visibleCards - 1, 1);
 
