@@ -88,11 +88,11 @@ const AboutPhilosophy: React.FC = () => {
   // 0.95–1: μένει ίδιος (full black, χωρίς spike)
   const circleScale = useTransform(
     scrollYProgress,
-    [0.48, 0.95, 1],
+    [0.43, 0.95, 1],
     [0.02, 9, 9]
   );
 
-  const circleOpacity = useTransform(scrollYProgress, [0.40, 0.48], [0, 1]);
+  const circleOpacity = useTransform(scrollYProgress, [0.35, 0.40], [0, 1]);
 
   // Lottie: έγχρωμο στην αρχή, λευκό όσο σκοτεινιάζει
   const colorLottieOpacity = useTransform(
