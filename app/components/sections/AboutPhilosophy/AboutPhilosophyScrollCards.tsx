@@ -99,13 +99,13 @@ const AboutPhilosophyScrollCards: React.FC = () => {
     };
   }, []);
 
-  if (!isDark) return null;
+    if (!isDark) return null;
 
   const visibleCards = cards.length;
 
   return (
-  <div className="about-cards-overlay-center">
-    <div className="about-cards-3d-wrapper">
+    <div className="about-cards-overlay-center">
+      {/* 3D stack στο κέντρο */}
       <div className="about-cards-3d-stack">
         {cards.map((card, index) => {
           const relativeIndex =
@@ -145,7 +145,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         })}
       </div>
 
-      {/* ΚΑΤΩ ΑΠΟ ΤΙΣ ΚΑΡΤΕΣ – LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
+      {/* Lottie scroll-down στο κέντρο, κάτω από τις κάρτες */}
       <div className="about-cards-lottie">
         <Lottie
           animationData={scrollDownWhite}
@@ -154,8 +154,8 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         />
       </div>
     </div>
-  </div>
-);
+  );
 };
+
 
 export default AboutPhilosophyScrollCards;

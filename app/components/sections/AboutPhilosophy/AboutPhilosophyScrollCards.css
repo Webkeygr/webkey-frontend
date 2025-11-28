@@ -23,20 +23,29 @@
 }
 
 .about-cards-lottie {
-  pointer-events: none; /* να μην μπλοκάρει το scroll / hover */
+  position: absolute;
+  bottom: 80px;         /* πόσο πάνω από το κάτω μέρος του viewport */
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none; /* να μην κόβει το scroll */
+  z-index: 50;          /* πάνω από τις κάρτες, αν χρειαστεί */
 }
 
 .about-cards-lottie-icon {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   opacity: 0.9;
 }
 
-/* Προαιρετικά για mobile, αν το θες λίγο μικρότερο */
+/* Προαιρετικά μικρότερο σε mobile */
 @media (max-width: 480px) {
+  .about-cards-lottie {
+    bottom: 56px;
+  }
+
   .about-cards-lottie-icon {
-    width: 48px;
-    height: 48px;
+    width: 54px;
+    height: 54px;
   }
 }
 
