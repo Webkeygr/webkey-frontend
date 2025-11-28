@@ -13,6 +13,11 @@
   width: min(780px, 94vw);
   height: 520px;
   perspective: 900px;
+
+  /* 👇 Fade-in όταν εμφανίζονται για πρώτη φορά οι κάρτες */
+  opacity: 0;
+  transform: translateY(24px);
+  animation: about-cards-fade-in 0.6s ease-out forwards;
 }
 
 .about-cards-3d-wrapper {
@@ -134,5 +139,20 @@
 
   .about-card-3d-text {
     font-size: 0.9rem;
+  }
+}
+
+/* ==========================
+   FADE-IN ANIMATION ΓΙΑ ΤΙΣ ΚΑΡΤΕΣ
+   ========================== */
+
+@keyframes about-cards-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
