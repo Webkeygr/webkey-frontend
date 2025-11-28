@@ -7,37 +7,29 @@
   z-index: 5;
   padding: 0;
   margin: 0;
-  background: transparent; /* Διάφανο – βλέπουμε τις κάρτες από κάτω */
+  background: transparent;
   overflow: hidden;
+
+  /* Λιγότερο συνολικό scroll: ~400vh αντί για 960vh */
+  height: 420vh;
 }
 
-.about-split-scroll-area {
-  position: relative;
-  height: 960vh;
-}
-
+/* Sticky viewport area */
 .about-split-sticky {
-  position: relative;
+  position: sticky;
+  top: 0;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
 
-.about-split-sticky.about-split-sticky-fixed {
-  position: fixed;
-  inset: 0;
-}
-
+/* Inner που κάνει parallax (με y από framer-motion) */
 .about-split-inner {
   position: relative;
   width: 100%;
   height: 100%;
 }
 
-
-/* Μαύρο background overlay που κάνει fade πάνω από τις κάρτες */
+/* Σταθερό μαύρο φόντο που σκεπάζει τα προηγούμενα sections */
 .about-split-bg {
   position: absolute;
   inset: 0;
@@ -76,11 +68,17 @@
    ========================== */
 
 .about-split-title-block {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
   text-align: center;
-  color: #ffffff; /* Λευκός τίτλος πάνω στο μαύρο */
+  color: #ffffff;
   pointer-events: none;
+  z-index: 2;
 }
 
 .about-split-title-glitch {
@@ -117,8 +115,8 @@
    ========================== */
 
 @media (max-width: 768px) {
-  .about-split-scroll-area {
-    height: 650vh;
+  .about-split-section {
+    height: 320vh;
   }
 
   .about-split-title-glitch {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   motion,
   useScroll,
@@ -18,17 +18,11 @@ import GlitchText from "./GlitchText";
 
 const AboutPhilosophySplit: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [isPinned, setIsPinned] = useState(false);
 
   // Scroll progress ΜΟΝΟ για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  // Sticky όσο το section είναι στο viewport
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsPinned(v > 0 && v < 1);
+    offset: ["start start", "end end"],
   });
 
   // ===============================
@@ -37,8 +31,7 @@ const AboutPhilosophySplit: React.FC = () => {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
 
-    // Dark phase όσο είμαστε σε μαύρο / panels
-    const isDarkPhase = latest < 0.9;
+    const isDarkPhase = latest < 0.95;
 
     const labels = document.querySelectorAll<HTMLElement>(".lang-label");
     labels.forEach((el) => {
@@ -71,39 +64,28 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Parallax entry για ΟΛΟ το section περιεχόμενο
-  // 0 → κάτω λίγο, 0.25 → στη θέση του
-  const sectionY = useTransform(scrollYProgress, [0, 0.25], [120, 0]);
+  // Parallax κίνηση για όλο το περιεχόμενο του section
+  // 0: λίγο χαμηλότερα, 0.5: στη θέση του, 1: λίγο πιο πάνω
+  const sectionY = useTransform(scrollYProgress, [0, 0.5, 1], [80, 0, -60]);
 
-  // Τίτλος + lottie – ίδια λογική με AboutPhilosophy
+  // Τίτλος + lottie – να εμφανίζονται νωρίτερα και να κρατούν λιγότερο
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.12, 0.12, 0.7],
+    [0.0, 0.05, 0.45, 0.6],
     [0, 1, 1, 0]
   );
 
-  // Μαύρο background overlay που κάνει fade πάνω από τις κάρτες
-  // 0–0.08: από διάφανο σε μαύρο, μετά μένει μαύρο
-  const bgOpacity = useTransform(
-    scrollYProgress,
-    [0.0, 0.08, 0.25],
-    [0, 1, 1]
-  );
+  // Λευκά panels: κλείσιμο πιο γρήγορο (λιγότερο scroll) και full κλείσιμο
+  const panelsScaleX = useTransform(scrollYProgress, [0.35, 0.65], [0, 1.1]);
+  const panelsOpacity = useTransform(scrollYProgress, [0.32, 0.35], [0, 1]);
 
-  // Panels: να κλείνουν πιο γρήγορα
-  // 0.55–0.85: scaleX 0 → 1.1 (λίγο overlap για να μη μένει μαύρη γραμμή)
-  const panelsScaleX = useTransform(scrollYProgress, [0.55, 0.85], [0, 1.1]);
-
-  // Panels opacity – εμφανίζονται λίγο πριν αρχίσουν να κλείνουν
-  const panelsOpacity = useTransform(scrollYProgress, [0.5, 0.55], [0, 1]);
-
-  // Lottie: έγχρωμο στην αρχή, λευκό όσο πλησιάζουμε στο full white
+  // Lottie: έγχρωμο στην αρχή, λευκό πιο μετά
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.5, 0.75],
+    [0.0, 0.35, 0.6],
     [1, 1, 0]
   );
-  const whiteLottieOpacity = useTransform(scrollYProgress, [0.75, 0.9], [0, 1]);
+  const whiteLottieOpacity = useTransform(scrollYProgress, [0.6, 0.8], [0, 1]);
 
   return (
     <section
@@ -111,81 +93,66 @@ const AboutPhilosophySplit: React.FC = () => {
       className="about-split-section"
       ref={sectionRef}
     >
-      <div className="about-split-scroll-area">
-        <div
-          className={
-            isPinned
-              ? "about-split-sticky about-split-sticky-fixed"
-              : "about-split-sticky"
-          }
-        >
-          {/* ΟΛΟ το περιεχόμενο σε parallax container */}
+      <div className="about-split-sticky">
+        <motion.div className="about-split-inner" style={{ y: sectionY }}>
+          {/* Σταθερό μαύρο φόντο που σκεπάζει το προηγούμενο section */}
+          <div className="about-split-bg" />
+
+          {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
           <motion.div
-            className="about-split-inner"
-            style={{ y: sectionY }}
+            className="about-split-panel about-split-panel-left"
+            style={{
+              scaleX: panelsScaleX,
+              opacity: panelsOpacity,
+            }}
+          />
+          <motion.div
+            className="about-split-panel about-split-panel-right"
+            style={{
+              scaleX: panelsScaleX,
+              opacity: panelsOpacity,
+            }}
+          />
+
+          {/* Τίτλος + Lottie στο κέντρο της οθόνης */}
+          <motion.div
+            className="about-split-title-block"
+            style={{ opacity: contentOpacity }}
           >
-            {/* Μαύρο background overlay που κάνει fade πάνω από τις κάρτες */}
-            <motion.div
-              className="about-split-bg"
-              style={{ opacity: bgOpacity }}
-            />
-
-            {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
-            <motion.div
-              className="about-split-panel about-split-panel-left"
-              style={{
-                scaleX: panelsScaleX,
-                opacity: panelsOpacity,
-              }}
-            />
-            <motion.div
-              className="about-split-panel about-split-panel-right"
-              style={{
-                scaleX: panelsScaleX,
-                opacity: panelsOpacity,
-              }}
-            />
-
-            {/* Τίτλος + lottie */}
-            <motion.div
-              className="about-split-title-block"
-              style={{ opacity: contentOpacity }}
+            <GlitchText
+              className="about-split-title-glitch"
+              speed={1.4}
+              enableShadows
+              enableOnHover={false}
             >
-              <GlitchText
-                className="about-split-title-glitch"
-                speed={1.4}
-                enableShadows
-                enableOnHover={false}
+              Ποιοι Είμαστε
+            </GlitchText>
+
+            <div className="about-split-lottie-wrapper">
+              <motion.div
+                className="about-split-lottie-layer"
+                style={{ opacity: colorLottieOpacity }}
               >
-                Ποιοι Είμαστε
-              </GlitchText>
+                <Lottie
+                  animationData={scrollDownColor}
+                  loop
+                  className="about-split-lottie"
+                />
+              </motion.div>
 
-              <div className="about-split-lottie-wrapper">
-                <motion.div
-                  className="about-split-lottie-layer"
-                  style={{ opacity: colorLottieOpacity }}
-                >
-                  <Lottie
-                    animationData={scrollDownColor}
-                    loop
-                    className="about-split-lottie"
-                  />
-                </motion.div>
-
-                <motion.div
-                  className="about-split-lottie-layer"
-                  style={{ opacity: whiteLottieOpacity }}
-                >
-                  <Lottie
-                    animationData={scrollDownWhite}
-                    loop
-                    className="about-split-lottie"
-                  />
-                </motion.div>
-              </div>
-            </motion.div>
+              <motion.div
+                className="about-split-lottie-layer"
+                style={{ opacity: whiteLottieOpacity }}
+              >
+                <Lottie
+                  animationData={scrollDownWhite}
+                  loop
+                  className="about-split-lottie"
+                />
+              </motion.div>
+            </div>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
