@@ -19,10 +19,11 @@ import GlitchText from "./GlitchText";
 const AboutPhilosophySplit: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  // Scroll progress ΜΟΝΟ για αυτό το section
+  // 0: όταν η κορυφή του section ακουμπήσει τον πάτο του viewport
+  // 1: όταν ο πάτος του section φτάσει στην κορυφή του viewport
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"],
+    offset: ["start end", "end start"],
   });
 
   // ===============================
@@ -64,28 +65,35 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Parallax κίνηση για όλο το περιεχόμενο του section
-  // 0: λίγο χαμηλότερα, 0.5: στη θέση του, 1: λίγο πιο πάνω
-  const sectionY = useTransform(scrollYProgress, [0, 0.5, 1], [80, 0, -60]);
+  // Ο τίτλος + lottie:
+  // - στο 0 είναι *κάτω από την οθόνη* (100vh)
+  // - στο 0.2 είναι ακριβώς στο κέντρο
+  // - στο 0.7 αρχίζει να φεύγει προς τα πάνω
+  // - στο 1 είναι αρκετά πάνω από την οθόνη
+  const contentY = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.7, 1],
+    ["100vh", "0vh", "-20vh", "-40vh"]
+  );
 
-  // Τίτλος + lottie – να εμφανίζονται νωρίτερα και να κρατούν λιγότερο
+  // Opacity του τίτλου (γρήγορη εμφάνιση / εξαφάνιση)
   const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.05, 0.45, 0.6],
     [0, 1, 1, 0]
   );
 
-  // Λευκά panels: κλείσιμο πιο γρήγορο (λιγότερο scroll) και full κλείσιμο
-  const panelsScaleX = useTransform(scrollYProgress, [0.35, 0.65], [0, 1.1]);
-  const panelsOpacity = useTransform(scrollYProgress, [0.32, 0.35], [0, 1]);
+  // Λευκά panels: κλείσιμο πιο γρήγορα και τελείως
+  const panelsScaleX = useTransform(scrollYProgress, [0.3, 0.6], [0, 1.1]);
+  const panelsOpacity = useTransform(scrollYProgress, [0.27, 0.3], [0, 1]);
 
-  // Lottie: έγχρωμο στην αρχή, λευκό πιο μετά
+  // Lottie: έγχρωμο στην αρχή, λευκό μετά
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.35, 0.6],
+    [0.0, 0.3, 0.55],
     [1, 1, 0]
   );
-  const whiteLottieOpacity = useTransform(scrollYProgress, [0.6, 0.8], [0, 1]);
+  const whiteLottieOpacity = useTransform(scrollYProgress, [0.55, 0.8], [0, 1]);
 
   return (
     <section
@@ -94,64 +102,62 @@ const AboutPhilosophySplit: React.FC = () => {
       ref={sectionRef}
     >
       <div className="about-split-sticky">
-        <motion.div className="about-split-inner" style={{ y: sectionY }}>
-          {/* Σταθερό μαύρο φόντο που σκεπάζει το προηγούμενο section */}
-          <div className="about-split-bg" />
+        {/* Σταθερό μαύρο φόντο που σκεπάζει τις κάρτες από κάτω */}
+        <div className="about-split-bg" />
 
-          {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
-          <motion.div
-            className="about-split-panel about-split-panel-left"
-            style={{
-              scaleX: panelsScaleX,
-              opacity: panelsOpacity,
-            }}
-          />
-          <motion.div
-            className="about-split-panel about-split-panel-right"
-            style={{
-              scaleX: panelsScaleX,
-              opacity: panelsOpacity,
-            }}
-          />
+        {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
+        <motion.div
+          className="about-split-panel about-split-panel-left"
+          style={{
+            scaleX: panelsScaleX,
+            opacity: panelsOpacity,
+          }}
+        />
+        <motion.div
+          className="about-split-panel about-split-panel-right"
+          style={{
+            scaleX: panelsScaleX,
+            opacity: panelsOpacity,
+          }}
+        />
 
-          {/* Τίτλος + Lottie στο κέντρο της οθόνης */}
-          <motion.div
-            className="about-split-title-block"
-            style={{ opacity: contentOpacity }}
+        {/* Τίτλος + Lottie στο κέντρο, με parallax entry από κάτω */}
+        <motion.div
+          className="about-split-title-block"
+          style={{ opacity: contentOpacity, y: contentY }}
+        >
+          <GlitchText
+            className="about-split-title-glitch"
+            speed={1.4}
+            enableShadows
+            enableOnHover={false}
           >
-            <GlitchText
-              className="about-split-title-glitch"
-              speed={1.4}
-              enableShadows
-              enableOnHover={false}
+            Ποιοι Είμαστε
+          </GlitchText>
+
+          <div className="about-split-lottie-wrapper">
+            <motion.div
+              className="about-split-lottie-layer"
+              style={{ opacity: colorLottieOpacity }}
             >
-              Ποιοι Είμαστε
-            </GlitchText>
+              <Lottie
+                animationData={scrollDownColor}
+                loop
+                className="about-split-lottie"
+              />
+            </motion.div>
 
-            <div className="about-split-lottie-wrapper">
-              <motion.div
-                className="about-split-lottie-layer"
-                style={{ opacity: colorLottieOpacity }}
-              >
-                <Lottie
-                  animationData={scrollDownColor}
-                  loop
-                  className="about-split-lottie"
-                />
-              </motion.div>
-
-              <motion.div
-                className="about-split-lottie-layer"
-                style={{ opacity: whiteLottieOpacity }}
-              >
-                <Lottie
-                  animationData={scrollDownWhite}
-                  loop
-                  className="about-split-lottie"
-                />
-              </motion.div>
-            </div>
-          </motion.div>
+            <motion.div
+              className="about-split-lottie-layer"
+              style={{ opacity: whiteLottieOpacity }}
+            >
+              <Lottie
+                animationData={scrollDownWhite}
+                loop
+                className="about-split-lottie"
+              />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </section>
