@@ -14,7 +14,7 @@
 /* Λίγο πιο compact από πριν αλλά αρκετό για smooth animation */
 .about-scroll-area {
   position: relative;
-  height: 760vh;
+  height: 960vh;
 }
 
 /* Block που πιάνει όλο το viewport */
@@ -99,7 +99,7 @@
 
 @media (max-width: 768px) {
   .about-scroll-area {
-    height: 300vh;
+    height: 650vh;
   }
 
   .about-title-glitch {
