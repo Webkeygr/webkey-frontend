@@ -33,6 +33,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const [step, setStep] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
+  const [globalOpacity, setGlobalOpacity] = useState(1);
 
   // Από πού ξεκινήσαμε να “μετράμε” scroll όταν μπήκες στο μαύρο phase
   const baseScrollRef = useRef<number | null>(null);
@@ -44,10 +45,11 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       const bodyHasDark = document.body.classList.contains("about-dark");
 
       if (!bodyHasDark) {
-        // Όταν φύγουμε από το μαύρο → κρύψε κάρτες & reset baseScroll
+        // Όταν φύγουμε από το μαύρο → κρύψε κάρτες & reset
         setIsDark(false);
         baseScrollRef.current = null;
         setHasStarted(false);
+        setGlobalOpacity(0); // σιγουριά ότι δεν "αναβοσβήνουν"
         return;
       }
 
@@ -60,19 +62,22 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         document.documentElement.scrollTop ??
         0;
 
-      // Μόλις ΜΠΟΥΜΕ στο μαύρο για πρώτη φορά, “κλειδώνουμε” το σημείο που βρισκόμαστε
+      // Μόλις ΜΠΟΥΜΕ στο μαύρο για πρώτη φορά, “κλειδώνουμε” το σημείο
       if (baseScrollRef.current === null) {
         baseScrollRef.current = currentScroll;
+        setGlobalOpacity(1); // ξεκινάμε πλήρως ορατές
       }
 
       const delayPixels = 1080; // ~1–2 scrolls, για να αργήσει λίγο η εναλλαγή
 
-      if (!hasStarted) {
-        const delta = currentScroll - (baseScrollRef.current ?? currentScroll);
+      const baseScroll = baseScrollRef.current ?? currentScroll;
+      const rawDelta = currentScroll - baseScroll;
 
-        // Αν δεν έχουμε φτάσει ακόμα το delay → δείξε μόνο την 1η κάρτα
-        if (delta < delayPixels) {
+      if (!hasStarted) {
+        // Αν δεν έχουμε φτάσει ακόμα το delay → δείξε 1η κάρτα
+        if (rawDelta < delayPixels) {
           setStep(0);
+          setGlobalOpacity(1);
           return;
         }
 
@@ -82,8 +87,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       }
 
       // Από εδώ και κάτω θεωρούμε ότι “τρέχει” κανονικά το σύστημα καρτών
-      const effectiveDelta =
-        currentScroll - (baseScrollRef.current ?? currentScroll) - delayPixels;
+      const effectiveDelta = rawDelta - delayPixels;
 
       // Κάθε Χ pixels scroll = ένα swap
       const pixelsPerSwap = 800; // αυτό είναι για τις αλλαγές κάρτας
@@ -94,8 +98,20 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         Math.max(effectiveDelta, 0) / pixelsPerSwap + 0.0001
       );
       const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
-
       setStep(clampedStep);
+
+      // --------- GLOBAL FADE OUT ΜΕΤΑ ΤΗΝ ΤΕΛΕΥΤΑΙΑ ΚΑΡΤΑ ---------
+      const lastStepDelta = pixelsPerSwap * totalSwaps;
+      const fadeOutDistance = 600; // πόσα px scroll για να εξαφανιστούν τελείως
+
+      if (effectiveDelta <= lastStepDelta) {
+        // όσο είμαστε μέσα στα steps των καρτών → πλήρως ορατές
+        setGlobalOpacity(1);
+      } else {
+        const extra = effectiveDelta - lastStepDelta;
+        const fade = extra >= fadeOutDistance ? 0 : 1 - extra / fadeOutDistance;
+        setGlobalOpacity(fade);
+      }
     };
 
     handleScroll();
@@ -108,12 +124,15 @@ const AboutPhilosophyScrollCards: React.FC = () => {
     };
   }, [hasStarted]);
 
-  if (!isDark) return null;
+  if (!isDark && globalOpacity <= 0) return null;
 
   const visibleCards = cards.length;
 
   return (
-    <div className="about-cards-overlay-center">
+    <div
+      className="about-cards-overlay-center"
+      style={{ opacity: globalOpacity }}
+    >
       {/* 3D stack στο κέντρο */}
       <div className="about-cards-3d-stack">
         {cards.map((card, index) => {
