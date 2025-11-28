@@ -1,0 +1,118 @@
+/* ==========================
+   ABOUT PHILOSOPHY SPLIT – LAYOUT
+   ========================== */
+
+.about-split-section {
+  position: relative;
+  z-index: 5;
+  padding: 0;
+  margin: 0;
+  background: #000000; /* Μαύρο φόντο στην αρχή για να δένει με τις κάρτες */
+  overflow: hidden;
+}
+
+/* Ίδιο περίπου ύψος scroll area για ίδιο feeling με AboutPhilosophy */
+.about-split-scroll-area {
+  position: relative;
+  height: 960vh;
+}
+
+.about-split-sticky {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.about-split-sticky.about-split-sticky-fixed {
+  position: fixed;
+  inset: 0;
+}
+
+/* ==========================
+   ΛΕΥΚΑ PANELS (left / right)
+   ========================== */
+
+.about-split-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50vw;
+  background: #ffffff;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.about-split-panel-left {
+  left: 0;
+  transform-origin: left center;
+}
+
+.about-split-panel-right {
+  right: 0;
+  transform-origin: right center;
+}
+
+/* ==========================
+   ΤΙΤΛΟΣ + LOTTIE
+   ========================== */
+
+.about-split-title-block {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #ffffff; /* Θέλουμε λευκό τίτλο πάνω στο μαύρο */
+  pointer-events: none;
+}
+
+/* Glitch title – λευκό, πεζοκεφαλαία */
+.about-split-title-glitch {
+  font-size: clamp(40px, 5vw, 70px);
+  letter-spacing: 0.12em;
+  text-transform: none;
+  color: #ffffff;
+}
+
+/* Lottie στο κέντρο κάτω από τον τίτλο */
+.about-split-lottie-wrapper {
+  position: relative;
+  margin-top: 28px;
+  width: 140px;
+  height: 140px;
+  margin-inline: auto;
+}
+
+.about-split-lottie-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-split-lottie {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================
+   RESPONSIVE
+   ========================== */
+
+@media (max-width: 768px) {
+  .about-split-scroll-area {
+    height: 650vh;
+  }
+
+  .about-split-title-glitch {
+    font-size: clamp(30px, 7vw, 42px);
+  }
+
+  .about-split-lottie-wrapper {
+    width: 110px;
+    height: 110px;
+    margin-top: 20px;
+  }
+}
