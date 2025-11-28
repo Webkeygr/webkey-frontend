@@ -71,10 +71,14 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Ο τίτλος + Lottie: ΜΟΝΟ opacity, καθόλου κίνηση σε Y
+  // Parallax entry για ΟΛΟ το περιεχόμενο (μαύρο + panels + τίτλος)
+  // 0 → λίγο πιο κάτω, 0.25 → στη θέση του, μετά μένει σταθερό
+  const innerY = useTransform(scrollYProgress, [0, 0.25, 1], [40, 0, 0]);
+
+  // Τίτλος + Lottie: πιο ομαλό fade in / out
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.04, 0.8, 0.95],
+    [0.0, 0.12, 0.8, 0.95],
     [0, 1, 1, 0]
   );
 
@@ -103,62 +107,65 @@ const AboutPhilosophySplit: React.FC = () => {
             : "about-split-sticky"
         }
       >
-        {/* Σταθερό μαύρο φόντο που σκεπάζει τις κάρτες από κάτω */}
-        <div className="about-split-bg" />
+        {/* ΟΛΟ το layer με parallax entry */}
+        <motion.div className="about-split-inner" style={{ y: innerY }}>
+          {/* Σταθερό μαύρο φόντο που σκεπάζει τις κάρτες από κάτω */}
+          <div className="about-split-bg" />
 
-        {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
-        <motion.div
-          className="about-split-panel about-split-panel-left"
-          style={{
-            scaleX: panelsScaleX,
-            opacity: panelsOpacity,
-          }}
-        />
-        <motion.div
-          className="about-split-panel about-split-panel-right"
-          style={{
-            scaleX: panelsScaleX,
-            opacity: panelsOpacity,
-          }}
-        />
+          {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
+          <motion.div
+            className="about-split-panel about-split-panel-left"
+            style={{
+              scaleX: panelsScaleX,
+              opacity: panelsOpacity,
+            }}
+          />
+          <motion.div
+            className="about-split-panel about-split-panel-right"
+            style={{
+              scaleX: panelsScaleX,
+              opacity: panelsOpacity,
+            }}
+          />
 
-        {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο του viewport όσο είναι pinned */}
-        <motion.div
-          className="about-split-title-block"
-          style={{ opacity: contentOpacity }}
-        >
-          <GlitchText
-            className="about-split-title-glitch"
-            speed={1.4}
-            enableShadows
-            enableOnHover={false}
+          {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο, μόνο fade */}
+          <motion.div
+            className="about-split-title-block"
+            style={{ opacity: contentOpacity }}
           >
-            Ποιοι Είμαστε
-          </GlitchText>
-
-          <div className="about-split-lottie-wrapper">
-            <motion.div
-              className="about-split-lottie-layer"
-              style={{ opacity: colorLottieOpacity }}
+            <GlitchText
+              className="about-split-title-glitch"
+              speed={1.4}
+              enableShadows
+              enableOnHover={false}
             >
-              <Lottie
-                animationData={scrollDownColor}
-                loop
-                className="about-split-lottie"
-              />
-            </motion.div>
+              Ποιοι Είμαστε
+            </GlitchText>
 
-            <motion.div
-              className="about-split-lottie-layer"
-              style={{ opacity: whiteLottieOpacity }}
-            >
-              <Lottie
-                animationData={scrollDownWhite}
-                loop
-                className="about-split-lottie"
-              />
-            </motion.div>
-          </div>
+            <div className="about-split-lottie-wrapper">
+              <motion.div
+                className="about-split-lottie-layer"
+                style={{ opacity: colorLottieOpacity }}
+              >
+                <Lottie
+                  animationData={scrollDownColor}
+                  loop
+                  className="about-split-lottie"
+                />
+              </motion.div>
+
+              <motion.div
+                className="about-split-lottie-layer"
+                style={{ opacity: whiteLottieOpacity }}
+              >
+                <Lottie
+                  animationData={scrollDownWhite}
+                  loop
+                  className="about-split-lottie"
+                />
+              </motion.div>
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

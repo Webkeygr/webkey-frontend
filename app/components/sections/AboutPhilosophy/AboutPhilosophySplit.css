@@ -27,6 +27,12 @@
   inset: 0;
 }
 
+/* Εσωτερικό layer που κάνει parallax (με y) */
+.about-split-inner {
+  position: absolute;
+  inset: 0;
+}
+
 /* Σταθερό μαύρο φόντο */
 .about-split-bg {
   position: absolute;
