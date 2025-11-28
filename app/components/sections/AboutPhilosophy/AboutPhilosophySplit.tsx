@@ -65,25 +65,24 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // ΤΙ ΚΑΝΟΥΜΕ ΕΔΩ:
-  // 0    → ο τίτλος είναι ΚΑΤΩ από την οθόνη (100vh)
-  // 0.18 → ανεβαίνει και κάθεται στο κέντρο (0vh)
-  // 0.6  → ΠΑΡΑΜΕΝΕΙ στο κέντρο (0vh) → εδώ είναι το "sticky" range
-  // 1    → φεύγει πιο πάνω (-40vh)
+  // ΤΙΤΛΟΣ + LOTTIE:
+  // 0    → κάτω από την οθόνη (100vh)
+  // 0.18 → στο κέντρο (0vh)
+  // 1    → παραμένει στο κέντρο (0vh) => STICKY αισθητικά
   const contentY = useTransform(
     scrollYProgress,
-    [0, 0.18, 0.6, 1],
-    ["100vh", "0vh", "0vh", "-40vh"]
+    [0, 0.18, 1],
+    ["100vh", "0vh", "0vh"]
   );
 
-  // Opacity: μπαίνει γρήγορα, μένει αρκετά, και μετά σβήνει
+  // Opacity: μπαίνει γρήγορα, μένει, και λίγο πριν το τέλος μπορεί να σβήνει
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.06, 0.7, 0.85],
+    [0.0, 0.06, 0.8, 0.95],
     [0, 1, 1, 0]
   );
 
-  // Λευκά panels: κλείσιμο πιο γρήγορο και πλήρες
+  // Λευκά panels: κλείσιμο γρήγορα και πλήρες
   const panelsScaleX = useTransform(scrollYProgress, [0.3, 0.6], [0, 1.1]);
   const panelsOpacity = useTransform(scrollYProgress, [0.27, 0.3], [0, 1]);
 
@@ -121,7 +120,7 @@ const AboutPhilosophySplit: React.FC = () => {
           }}
         />
 
-        {/* Τίτλος + Lottie στο κέντρο, με entry από κάτω και "κολλημένο" range */}
+        {/* Τίτλος + Lottie στο κέντρο, με entry από κάτω και μετά σταθερός */}
         <motion.div
           className="about-split-title-block"
           style={{ opacity: contentOpacity, y: contentY }}
