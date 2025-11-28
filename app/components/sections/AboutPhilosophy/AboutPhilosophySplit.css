@@ -7,19 +7,24 @@
   z-index: 5;
   padding: 0;
   margin: 0;
-  background: #000000; /* Μαύρο φόντο για όλο το section */
+  background: transparent;
   overflow: hidden;
 
-  /* Λιγότερο συνολικό scroll */
+  /* Συνολικό ύψος για το scroll του effect */
   height: 420vh;
 }
 
-/* Sticky viewport area */
+/* Το block που πιάνει ένα viewport */
 .about-split-sticky {
-  position: sticky;
-  top: 0;
+  position: relative;
   height: 100vh;
   overflow: hidden;
+}
+
+/* Όταν είναι "καρφωμένο" καλύπτει όλη την οθόνη */
+.about-split-sticky-fixed {
+  position: fixed;
+  inset: 0;
 }
 
 /* Σταθερό μαύρο φόντο */

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   motion,
   useScroll,
@@ -18,11 +18,18 @@ import GlitchText from "./GlitchText";
 
 const AboutPhilosophySplit: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
 
-  // 0: start end, 1: end start
+  // 0: όταν η κορυφή του section ακουμπά τον πάτο του viewport
+  // 1: όταν ο πάτος του section φτάσει στην κορυφή του viewport
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
+  });
+
+  // Sticky/fixed όσο το section είναι πραγματικά μέσα στο viewport
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setIsPinned(v > 0 && v < 1);
   });
 
   // ===============================
@@ -64,15 +71,14 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Τίτλος: ΜΟΝΟ opacity, ΚΑΘΟΛΟΥ κίνηση σε Y
-  // Φαίνεται πολύ γρήγορα και μένει σχεδόν όλο το section
+  // Ο τίτλος + Lottie: ΜΟΝΟ opacity, καθόλου κίνηση σε Y
   const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.04, 0.8, 0.95],
     [0, 1, 1, 0]
   );
 
-  // Λευκά panels που κλείνουν
+  // Panels που κλείνουν από τα πλάγια
   const panelsScaleX = useTransform(scrollYProgress, [0.3, 0.6], [0, 1.1]);
   const panelsOpacity = useTransform(scrollYProgress, [0.27, 0.3], [0, 1]);
 
@@ -90,7 +96,13 @@ const AboutPhilosophySplit: React.FC = () => {
       className="about-split-section"
       ref={sectionRef}
     >
-      <div className="about-split-sticky">
+      <div
+        className={
+          isPinned
+            ? "about-split-sticky about-split-sticky-fixed"
+            : "about-split-sticky"
+        }
+      >
         {/* Σταθερό μαύρο φόντο που σκεπάζει τις κάρτες από κάτω */}
         <div className="about-split-bg" />
 
@@ -110,7 +122,7 @@ const AboutPhilosophySplit: React.FC = () => {
           }}
         />
 
-        {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο, χωρίς κίνηση προς τα πάνω */}
+        {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο του viewport όσο είναι pinned */}
         <motion.div
           className="about-split-title-block"
           style={{ opacity: contentOpacity }}
