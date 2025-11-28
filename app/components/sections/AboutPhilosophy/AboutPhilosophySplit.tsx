@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   motion,
   useScroll,
@@ -18,13 +18,18 @@ import GlitchText from "./GlitchText";
 
 const AboutPhilosophySplit: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
 
   // Scroll progress ΜΟΝΟ για αυτό το section
-  // 0 → όταν η κορυφή του section ακουμπήσει το viewport
-  // 1 → όταν το section βγει τελείως από το viewport
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"],
+    offset: ["start end", "end start"],
+  });
+
+  // Sticky όσο το section είναι στο viewport,
+  // αλλά με ένα μικρό "buffer" για να μην κολλάει ακριβώς στο 0/1
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setIsPinned(v > 0.05 && v < 0.98);
   });
 
   // ===============================
@@ -33,8 +38,8 @@ const AboutPhilosophySplit: React.FC = () => {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
 
-    // Όσο είμαστε στο section (περίπου μέχρι 0.95) → dark mode header
-    const isDarkPhase = latest < 0.95;
+    // Dark phase όσο είμαστε σε μαύρο / panels
+    const isDarkPhase = latest < 0.9;
 
     const labels = document.querySelectorAll<HTMLElement>(".lang-label");
     labels.forEach((el) => {
@@ -67,27 +72,37 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Τίτλος + lottie – opacity (ίδια λογική με AboutPhilosophy)
+  // Τίτλος + lottie – ίδια λογική με AboutPhilosophy
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.1, 0.55, 0.7],
+    [0.0, 0.12, 0.12, 0.7],
     [0, 1, 1, 0]
   );
 
-  // Parallax κίνηση για το block τίτλου/κέντρου
-  const contentY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  // Μαύρο background overlay που κάνει fade πάνω από τις κάρτες
+  // Το απλώνουμε λίγο ώστε:
+  // - να μην "σκάει" απότομα στην είσοδο (0.0 → 0.05 είναι εντελώς διάφανο)
+  // - να καθαρίζει νωρίτερα όταν κάνεις scroll up
+  const bgOpacity = useTransform(
+    scrollYProgress,
+    [0.05, 0.2, 0.4],
+    [0, 1, 1]
+  );
 
-  // Panels: κλείνουν πιο γρήγορα, τελείως (με λίγο overlap)
-  const panelsScaleX = useTransform(scrollYProgress, [0.45, 0.8], [0, 1.1]);
-  const panelsOpacity = useTransform(scrollYProgress, [0.42, 0.45], [0, 1]);
+  // Panels: να κλείνουν πιο γρήγορα
+  // 0.55–0.85: scaleX 0 → 1.1 (λίγο overlap για να μη μένει μαύρη γραμμή)
+  const panelsScaleX = useTransform(scrollYProgress, [0.55, 0.85], [0, 1.1]);
 
-  // Lottie: έγχρωμο στην αρχή, λευκό πιο μετά
+  // Panels opacity – εμφανίζονται λίγο πριν αρχίσουν να κλείνουν
+  const panelsOpacity = useTransform(scrollYProgress, [0.5, 0.55], [0, 1]);
+
+  // Lottie: έγχρωμο στην αρχή, λευκό όσο πλησιάζουμε στο full white
   const colorLottieOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.4, 0.7],
+    [0.0, 0.5, 0.75],
     [1, 1, 0]
   );
-  const whiteLottieOpacity = useTransform(scrollYProgress, [0.7, 0.9], [0, 1]);
+  const whiteLottieOpacity = useTransform(scrollYProgress, [0.75, 0.9], [0, 1]);
 
   return (
     <section
@@ -95,21 +110,37 @@ const AboutPhilosophySplit: React.FC = () => {
       className="about-split-section"
       ref={sectionRef}
     >
-      {/* Sticky viewport area */}
-      <div className="about-split-sticky">
-        {/* Όλο το περιεχόμενο που κάνει parallax */}
-        <motion.div className="about-split-inner" style={{ y: contentY }}>
+      <div className="about-split-scroll-area">
+        <div
+          className={
+            isPinned
+              ? "about-split-sticky about-split-sticky-fixed"
+              : "about-split-sticky"
+          }
+        >
+          {/* Μαύρο background overlay που κάνει fade πάνω από τις κάρτες */}
+          <motion.div
+            className="about-split-bg"
+            style={{ opacity: bgOpacity }}
+          />
+
           {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
           <motion.div
             className="about-split-panel about-split-panel-left"
-            style={{ scaleX: panelsScaleX, opacity: panelsOpacity }}
+            style={{
+              scaleX: panelsScaleX,
+              opacity: panelsOpacity,
+            }}
           />
           <motion.div
             className="about-split-panel about-split-panel-right"
-            style={{ scaleX: panelsScaleX, opacity: panelsOpacity }}
+            style={{
+              scaleX: panelsScaleX,
+              opacity: panelsOpacity,
+            }}
           />
 
-          {/* Τίτλος + Lottie */}
+          {/* Τίτλος + lottie */}
           <motion.div
             className="about-split-title-block"
             style={{ opacity: contentOpacity }}
@@ -147,7 +178,7 @@ const AboutPhilosophySplit: React.FC = () => {
               </motion.div>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
