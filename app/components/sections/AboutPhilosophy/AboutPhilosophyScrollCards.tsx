@@ -2,6 +2,9 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import "./AboutPhilosophyScrollCards.css";
+import Lottie from "lottie-react";
+import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
+
 
 type ScrollCard = {
   title: string;
@@ -101,14 +104,13 @@ const AboutPhilosophyScrollCards: React.FC = () => {
   const visibleCards = cards.length;
 
   return (
-    <div className="about-cards-overlay-center">
+  <div className="about-cards-overlay-center">
+    <div className="about-cards-3d-wrapper">
       <div className="about-cards-3d-stack">
         {cards.map((card, index) => {
-          // 3D “σκάλα” – περιστρέφουμε το stack με βάση το step
           const relativeIndex =
             (index - (step % visibleCards) + visibleCards) % visibleCards;
 
-          // 0 = μπροστά, 1 = λίγο πιο πίσω, κ.ο.κ.
           const distX = 80;
           const distY = 90;
           const distZ = 170;
@@ -126,13 +128,12 @@ const AboutPhilosophyScrollCards: React.FC = () => {
               className="about-card-3d"
               style={{
                 transform: `
-  translate3d(${x}px, ${y}px, ${z}px)
-  translate(-50%, -50%)
-  rotateX(8deg)
-  rotateZ(-1deg)
-  scale(${scale})
-`,
-
+                  translate3d(${x}px, ${y}px, ${z}px)
+                  translate(-50%, -50%)
+                  scale(${scale})
+                  rotateX(18deg)
+                  rotateZ(-4deg)
+                `,
                 zIndex: visibleCards - relativeIndex,
                 opacity,
               }}
@@ -143,8 +144,18 @@ const AboutPhilosophyScrollCards: React.FC = () => {
           );
         })}
       </div>
+
+      {/* ΚΑΤΩ ΑΠΟ ΤΙΣ ΚΑΡΤΕΣ – LOTTIE ΣΤΟ ΚΕΝΤΡΟ */}
+      <div className="about-cards-lottie">
+        <Lottie
+          animationData={scrollDownWhite}
+          loop
+          className="about-cards-lottie-icon"
+        />
+      </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default AboutPhilosophyScrollCards;
