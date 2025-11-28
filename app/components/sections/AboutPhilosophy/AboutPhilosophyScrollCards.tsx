@@ -5,7 +5,6 @@ import "./AboutPhilosophyScrollCards.css";
 import Lottie from "lottie-react";
 import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 
-
 type ScrollCard = {
   title: string;
   body: string;
@@ -33,6 +32,7 @@ const cards: ScrollCard[] = [
 const AboutPhilosophyScrollCards: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const [step, setStep] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
 
   // Από πού ξεκινήσαμε να “μετράμε” scroll όταν μπήκες στο μαύρο phase
   const baseScrollRef = useRef<number | null>(null);
@@ -47,9 +47,11 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         // Όταν φύγουμε από το μαύρο → κρύψε κάρτες & reset baseScroll
         setIsDark(false);
         baseScrollRef.current = null;
+        setHasStarted(false);
         return;
       }
 
+      // Βρισκόμαστε στο μαύρο phase
       setIsDark(true);
 
       const currentScroll =
@@ -63,30 +65,37 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         baseScrollRef.current = currentScroll;
       }
 
-      const delta = currentScroll - (baseScrollRef.current ?? currentScroll);
+      const delayPixels = 1080; // ~1–2 scrolls, για να αργήσει λίγο η εναλλαγή
 
-      const delayPixels = 1080; // ~1–2 scrolls, πείραξέ το όπως γουστάρεις
+      if (!hasStarted) {
+        const delta = currentScroll - (baseScrollRef.current ?? currentScroll);
 
-      // Αν δεν έχουμε φτάσει ακόμα το delay → ΜΗΝ δείξεις κάρτες
-      if (delta < delayPixels) {
-        setIsDark(false);
-        setStep(0);
-        return;
+        // Αν δεν έχουμε φτάσει ακόμα το delay → δείξε μόνο την 1η κάρτα
+        if (delta < delayPixels) {
+          setStep(0);
+          return;
+        }
+
+        // Μόλις περάσουμε το delay για πρώτη φορά,
+        // θεωρούμε ότι "ξεκίνησαν" οι κάρτες
+        setHasStarted(true);
       }
 
-      // Από εδώ και κάτω θεωρούμε ότι “ξεκίνησαν” οι κάρτες
-      const effectiveDelta = delta - delayPixels;
+      // Από εδώ και κάτω θεωρούμε ότι “τρέχει” κανονικά το σύστημα καρτών
+      const effectiveDelta =
+        currentScroll - (baseScrollRef.current ?? currentScroll) - delayPixels;
 
       // Κάθε Χ pixels scroll = ένα swap
       const pixelsPerSwap = 800; // αυτό είναι για τις αλλαγές κάρτας
       const visibleCards = cards.length;
       const totalSwaps = Math.max(visibleCards - 1, 1);
 
-      const rawStep = Math.floor(effectiveDelta / pixelsPerSwap + 0.0001);
+      const rawStep = Math.floor(
+        Math.max(effectiveDelta, 0) / pixelsPerSwap + 0.0001
+      );
       const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
 
       setStep(clampedStep);
-      setIsDark(true);
     };
 
     handleScroll();
@@ -97,9 +106,9 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, []);
+  }, [hasStarted]);
 
-    if (!isDark) return null;
+  if (!isDark) return null;
 
   const visibleCards = cards.length;
 
@@ -156,6 +165,5 @@ const AboutPhilosophyScrollCards: React.FC = () => {
     </div>
   );
 };
-
 
 export default AboutPhilosophyScrollCards;
