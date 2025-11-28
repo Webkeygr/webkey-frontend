@@ -71,7 +71,7 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // ΟΛΟ το layer (μαύρο + panels + τίτλος) ξεκινάει ΚΑΤΩ από την οθόνη
+  // ΟΛΟ το περιεχόμενο (panels + τίτλος) ξεκινάει ΚΑΤΩ από την οθόνη
   // 0   → 100vh (off-screen κάτω)
   // 0.30→ 0vh (στη θέση του)
   // 1   → 0vh (μένει στη θέση του)
@@ -113,11 +113,11 @@ const AboutPhilosophySplit: React.FC = () => {
             : "about-split-sticky"
         }
       >
-        {/* ΟΛΟ το layer με slide-up / parallax από κάτω */}
-        <motion.div className="about-split-inner" style={{ y: innerY }}>
-          {/* Σταθερό μαύρο φόντο που σκεπάζει τις κάρτες από κάτω */}
-          <div className="about-split-bg" />
+        {/* ΣΤΑΘΕΡΟ ΜΑΥΡΟ BACKGROUND – ΔΕΝ ΚΟΥΝΙΕΤΑΙ ΜΕ innerY */}
+        <div className="about-split-bg" />
 
+        {/* ΟΛΟ το υπόλοιπο layer με slide-up / parallax από κάτω */}
+        <motion.div className="about-split-inner" style={{ y: innerY }}>
           {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
           <motion.div
             className="about-split-panel about-split-panel-left"
