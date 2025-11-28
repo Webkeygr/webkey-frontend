@@ -88,7 +88,7 @@ const AboutPhilosophy: React.FC = () => {
   // 0.95–1: μένει ίδιος (full black, χωρίς spike)
   const circleScale = useTransform(
     scrollYProgress,
-    [0.4, 0.95, 1],
+    [0.6, 0.95, 1],
     [0.02, 9, 9]
   );
 
