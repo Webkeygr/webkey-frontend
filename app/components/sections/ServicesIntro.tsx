@@ -10,6 +10,8 @@ import {
 } from "framer-motion";
 import { TextScrub } from "../ui/text-scrub";
 import Lottie from "lottie-react";
+import GlitchText from "@/app/components/sections/AboutPhilosophy/GlitchText";
+
 
 type LottieData = Record<string, any>;
 const LOTTIE_OFFSET = 110;
@@ -80,15 +82,22 @@ export default function ServicesIntro() {
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="relative z-10 h-full">
           <motion.h1
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-                       text-center px-6 select-none
-                       font-[900] leading-[0.95] tracking-[-0.02em]
-                       text-[clamp(22px,4vw,70px)] md:text-[clamp(32px,5vw,90px)]
-                       text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
-            style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
-          >
-            Οι υπηρεσίες μας
-          </motion.h1>
+  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+             text-center px-6 select-none
+             font-[900] leading-[0.95] tracking-[-0.02em]
+             text-[clamp(22px,4vw,70px)] md:text-[clamp(32px,5vw,90px)]
+             text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
+  style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
+>
+  <GlitchText
+    speed={1.3}
+    enableShadows
+    enableOnHover={false}
+  >
+    Οι υπηρεσίες μας
+  </GlitchText>
+</motion.h1>
+
 
           <motion.div
             className="absolute w-[120px] md:w-[140px] pointer-events-none z-[12] will-change-[opacity,transform]"
