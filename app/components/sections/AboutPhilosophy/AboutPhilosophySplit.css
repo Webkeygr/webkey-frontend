@@ -7,11 +7,10 @@
   z-index: 5;
   padding: 0;
   margin: 0;
-  background: #000000; /* Μαύρο φόντο στην αρχή για να δένει με τις κάρτες */
+  background: transparent; /* Διάφανο – βλέπουμε τις κάρτες από κάτω */
   overflow: hidden;
 }
 
-/* Ίδιο περίπου ύψος scroll area για ίδιο feeling με AboutPhilosophy */
 .about-split-scroll-area {
   position: relative;
   height: 960vh;
@@ -31,6 +30,15 @@
   inset: 0;
 }
 
+/* Μαύρο background overlay που κάνει fade πάνω από τις κάρτες */
+.about-split-bg {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* ==========================
    ΛΕΥΚΑ PANELS (left / right)
    ========================== */
@@ -43,6 +51,7 @@
   background: #ffffff;
   pointer-events: none;
   will-change: transform, opacity;
+  z-index: 1;
 }
 
 .about-split-panel-left {
@@ -63,11 +72,10 @@
   position: relative;
   z-index: 2;
   text-align: center;
-  color: #ffffff; /* Θέλουμε λευκό τίτλο πάνω στο μαύρο */
+  color: #ffffff; /* Λευκός τίτλος πάνω στο μαύρο */
   pointer-events: none;
 }
 
-/* Glitch title – λευκό, πεζοκεφαλαία */
 .about-split-title-glitch {
   font-size: clamp(40px, 5vw, 70px);
   letter-spacing: 0.12em;

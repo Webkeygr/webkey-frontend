@@ -37,9 +37,8 @@ const AboutPhilosophySplit: React.FC = () => {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
 
-    // Στην αρχή το φόντο είναι μαύρο, στο τέλος οθόνη λευκή.
-    // Άρα μέχρι ~0.85 κρατάμε "dark mode" στο header, μετά επανέρχεται.
-    const isDarkPhase = latest < 0.85;
+    // Dark phase όσο είμαστε σε μαύρο / panels
+    const isDarkPhase = latest < 0.9;
 
     const labels = document.querySelectorAll<HTMLElement>(".lang-label");
     labels.forEach((el) => {
@@ -69,29 +68,30 @@ const AboutPhilosophySplit: React.FC = () => {
   }, []);
 
   // ==========================
-  // ANIMATIONS (ίδια λογική με τον κύκλο)
+  // ANIMATIONS
   // ==========================
 
-  // Τίτλος + lottie – ενιαίο opacity:
-  // 0–0.12: κρυφό, 0.12–0.58: full, 0.58–0.7: fade out
+  // Τίτλος + lottie – ίδια λογική με AboutPhilosophy
   const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.12, 0.12, 0.7],
     [0, 1, 1, 0]
   );
 
-  // Panels: αριστερά / δεξιά "κλείνουν" την οθόνη
-  // 0.43–0.95: από scaleX 0 → 1
-  const panelsScaleX = useTransform(
+  // Μαύρο background overlay που κάνει fade πάνω από τις κάρτες
+  // 0–0.08: από διάφανο σε μαύρο, μετά μένει μαύρο
+  const bgOpacity = useTransform(
     scrollYProgress,
-    [0.43, 0.95, 1],
+    [0.0, 0.08, 0.25],
     [0, 1, 1]
   );
-  const panelsOpacity = useTransform(
-    scrollYProgress,
-    [0.35, 0.4],
-    [0, 1]
-  );
+
+  // Panels: να κλείνουν πιο γρήγορα
+  // 0.55–0.85: scaleX 0 → 1.1 (λίγο overlap για να μη μένει μαύρη γραμμή)
+  const panelsScaleX = useTransform(scrollYProgress, [0.55, 0.85], [0, 1.1]);
+
+  // Panels opacity – εμφανίζονται λίγο πριν αρχίσουν να κλείνουν
+  const panelsOpacity = useTransform(scrollYProgress, [0.5, 0.55], [0, 1]);
 
   // Lottie: έγχρωμο στην αρχή, λευκό όσο πλησιάζουμε στο full white
   const colorLottieOpacity = useTransform(
@@ -115,7 +115,13 @@ const AboutPhilosophySplit: React.FC = () => {
               : "about-split-sticky"
           }
         >
-          {/* Λευκά panels που κλείνουν από δεξιά & αριστερά */}
+          {/* Μαύρο background overlay που κάνει fade πάνω από τις κάρτες */}
+          <motion.div
+            className="about-split-bg"
+            style={{ opacity: bgOpacity }}
+          />
+
+          {/* Λευκά panels που κλείνουν από αριστερά & δεξιά */}
           <motion.div
             className="about-split-panel about-split-panel-left"
             style={{
@@ -150,7 +156,7 @@ const AboutPhilosophySplit: React.FC = () => {
                 className="about-split-lottie-layer"
                 style={{ opacity: colorLottieOpacity }}
               >
-                <Lottie
+              <Lottie
                   animationData={scrollDownColor}
                   loop
                   className="about-split-lottie"
@@ -169,8 +175,6 @@ const AboutPhilosophySplit: React.FC = () => {
               </motion.div>
             </div>
           </motion.div>
-
-          {/* ΕΔΩ μετά μπορείς να βάλεις συνέχεια content, αν χρειαστεί */}
         </div>
       </div>
     </section>
