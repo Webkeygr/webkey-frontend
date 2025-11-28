@@ -102,7 +102,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
 
       // --------- GLOBAL FADE OUT ΜΕΤΑ ΤΗΝ ΤΕΛΕΥΤΑΙΑ ΚΑΡΤΑ ---------
       const lastStepDelta = pixelsPerSwap * totalSwaps;
-      const fadeOutDistance = 700; // πόσα px scroll για να εξαφανιστούν τελείως
+      const fadeOutDistance = 500; // πόσα px scroll για να εξαφανιστούν τελείως
 
       if (effectiveDelta <= lastStepDelta) {
         // όσο είμαστε μέσα στα steps των καρτών → πλήρως ορατές
