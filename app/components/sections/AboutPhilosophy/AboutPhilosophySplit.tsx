@@ -26,10 +26,9 @@ const AboutPhilosophySplit: React.FC = () => {
     offset: ["start end", "end start"],
   });
 
-  // Sticky όσο το section είναι στο viewport,
-  // αλλά με ένα μικρό "buffer" για να μην κολλάει ακριβώς στο 0/1
+  // Sticky όσο το section είναι στο viewport
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsPinned(v > 0.05 && v < 0.98);
+    setIsPinned(v > 0 && v < 1);
   });
 
   // ===============================
@@ -80,12 +79,10 @@ const AboutPhilosophySplit: React.FC = () => {
   );
 
   // Μαύρο background overlay που κάνει fade πάνω από τις κάρτες
-  // Το απλώνουμε λίγο ώστε:
-  // - να μην "σκάει" απότομα στην είσοδο (0.0 → 0.05 είναι εντελώς διάφανο)
-  // - να καθαρίζει νωρίτερα όταν κάνεις scroll up
+  // 0–0.08: από διάφανο σε μαύρο, μετά μένει μαύρο
   const bgOpacity = useTransform(
     scrollYProgress,
-    [0.05, 0.2, 0.4],
+    [0.0, 0.08, 0.25],
     [0, 1, 1]
   );
 
@@ -159,7 +156,7 @@ const AboutPhilosophySplit: React.FC = () => {
                 className="about-split-lottie-layer"
                 style={{ opacity: colorLottieOpacity }}
               >
-                <Lottie
+              <Lottie
                   animationData={scrollDownColor}
                   loop
                   className="about-split-lottie"
