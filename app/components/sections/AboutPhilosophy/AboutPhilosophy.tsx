@@ -92,7 +92,7 @@ const AboutPhilosophy: React.FC = () => {
     [0.02, 9, 9]
   );
 
-  const circleOpacity = useTransform(scrollYProgress, [0.48, 0.55], [0, 1]);
+  const circleOpacity = useTransform(scrollYProgress, [0.38, 0.4], [0, 1]);
 
   // Lottie: έγχρωμο στην αρχή, λευκό όσο σκοτεινιάζει
   const colorLottieOpacity = useTransform(
