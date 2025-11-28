@@ -68,7 +68,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
         setGlobalOpacity(1); // ξεκινάμε πλήρως ορατές
       }
 
-      const delayPixels = 1080; // ~1–2 scrolls, για να αργήσει λίγο η εναλλαγή
+      const delayPixels = 800; // ~1–2 scrolls, για να αργήσει λίγο η εναλλαγή
 
       const baseScroll = baseScrollRef.current ?? currentScroll;
       const rawDelta = currentScroll - baseScroll;
@@ -90,7 +90,7 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       const effectiveDelta = rawDelta - delayPixels;
 
       // Κάθε Χ pixels scroll = ένα swap
-      const pixelsPerSwap = 800; // αυτό είναι για τις αλλαγές κάρτας
+      const pixelsPerSwap = 600; // αυτό είναι για τις αλλαγές κάρτας
       const visibleCards = cards.length;
       const totalSwaps = Math.max(visibleCards - 1, 1);
 
@@ -100,8 +100,23 @@ const AboutPhilosophyScrollCards: React.FC = () => {
       const clampedStep = Math.min(Math.max(rawStep, 0), totalSwaps);
       setStep(clampedStep);
 
-      // ΠΑΝΤΑ πλήρως ορατές όσο είμαστε στο μαύρο phase
-      setGlobalOpacity(1);
+      // --------- GLOBAL FADE OUT ΜΕΤΑ ΤΗΝ ΤΕΛΕΥΤΑΙΑ ΚΑΡΤΑ ---------
+      const lastStepDelta = pixelsPerSwap * totalSwaps;
+
+      // Πόσο scroll κρατάμε την ΤΕΛΕΥΤΑΙΑ κάρτα full opacity
+      const holdDistance = 1000; // αύξησέ το αν θέλεις ακόμα μεγαλύτερο μονοπάτι
+
+      // Πόσο scroll διαρκεί το πραγματικό fade-out
+      const fadeOutDistance = 500;
+
+      if (effectiveDelta <= lastStepDelta + holdDistance) {
+        // Μέχρι να περάσουμε και το hold, όλα full opacity
+        setGlobalOpacity(1);
+      } else {
+        const extra = effectiveDelta - (lastStepDelta + holdDistance);
+        const fade = extra >= fadeOutDistance ? 0 : 1 - extra / fadeOutDistance;
+        setGlobalOpacity(fade);
+      }
     };
 
     handleScroll();
