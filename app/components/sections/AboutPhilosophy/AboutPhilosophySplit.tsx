@@ -154,7 +154,7 @@ const AboutPhilosophySplit: React.FC = () => {
                 style={{ opacity: colorLottieOpacity }}
               >
                 <Lottie
-                  animationData={scrollDownColor}
+                  animationData={scrollDownWhite}
                   loop
                   className="about-split-lottie"
                 />
