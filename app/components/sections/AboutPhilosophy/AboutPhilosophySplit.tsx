@@ -19,8 +19,7 @@ import GlitchText from "./GlitchText";
 const AboutPhilosophySplit: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  // 0: όταν η κορυφή του section ακουμπήσει τον πάτο του viewport
-  // 1: όταν ο πάτος του section φτάσει στην κορυφή του viewport
+  // 0: start end, 1: end start
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
@@ -45,7 +44,7 @@ const AboutPhilosophySplit: React.FC = () => {
     }
   });
 
-  // Cleanup όταν φύγει τελείως το component
+  // Cleanup
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -65,28 +64,19 @@ const AboutPhilosophySplit: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // ΤΙΤΛΟΣ + LOTTIE:
-  // 0    → κάτω από την οθόνη (100vh)
-  // 0.18 → στο κέντρο (0vh)
-  // 1    → παραμένει στο κέντρο (0vh) => STICKY αισθητικά
-  const contentY = useTransform(
-    scrollYProgress,
-    [0, 0.18, 1],
-    ["100vh", "0vh", "0vh"]
-  );
-
-  // Opacity: μπαίνει γρήγορα, μένει, και λίγο πριν το τέλος μπορεί να σβήνει
+  // Τίτλος: ΜΟΝΟ opacity, ΚΑΘΟΛΟΥ κίνηση σε Y
+  // Φαίνεται πολύ γρήγορα και μένει σχεδόν όλο το section
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.0, 0.06, 0.8, 0.95],
+    [0.0, 0.04, 0.8, 0.95],
     [0, 1, 1, 0]
   );
 
-  // Λευκά panels: κλείσιμο γρήγορα και πλήρες
+  // Λευκά panels που κλείνουν
   const panelsScaleX = useTransform(scrollYProgress, [0.3, 0.6], [0, 1.1]);
   const panelsOpacity = useTransform(scrollYProgress, [0.27, 0.3], [0, 1]);
 
-  // Lottie: έγχρωμο στην αρχή, λευκό μετά
+  // Lottie: έγχρωμο → λευκό
   const colorLottieOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.3, 0.55],
@@ -120,10 +110,10 @@ const AboutPhilosophySplit: React.FC = () => {
           }}
         />
 
-        {/* Τίτλος + Lottie στο κέντρο, με entry από κάτω και μετά σταθερός */}
+        {/* Τίτλος + Lottie – ΠΑΝΤΑ στο κέντρο, χωρίς κίνηση προς τα πάνω */}
         <motion.div
           className="about-split-title-block"
-          style={{ opacity: contentOpacity, y: contentY }}
+          style={{ opacity: contentOpacity }}
         >
           <GlitchText
             className="about-split-title-glitch"
