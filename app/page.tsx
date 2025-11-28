@@ -13,7 +13,7 @@ import ServicesIntro from "@/app/components/sections/ServicesIntro";
 import ServicesCards from "@/app/components/sections/ServicesCards";
 import AboutPhilosophy from "@/app/components/sections/AboutPhilosophy/AboutPhilosophy";
 import AboutPhilosophyScrollCards from "@/app/components/sections/AboutPhilosophy/AboutPhilosophyScrollCards";
-import AboutPhilosophySplit from "./AboutPhilosophySplit";
+import AboutPhilosophySplit from "@/app/components/sections/AboutPhilosophy/AboutPhilosophySplit";
 
 
 export default function ServicesPage() {
