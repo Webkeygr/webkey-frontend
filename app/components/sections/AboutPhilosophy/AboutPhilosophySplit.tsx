@@ -145,7 +145,7 @@ const AboutPhilosophySplit: React.FC = () => {
               enableShadows
               enableOnHover={false}
             >
-              Ποιοι Είμαστε
+              Τα έργα μας
             </GlitchText>
 
             <div className="about-split-lottie-wrapper">
