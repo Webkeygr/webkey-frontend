@@ -78,11 +78,41 @@ const BentoScroll: React.FC = () => {
               style={{ scale: galleryScale, y: galleryY }}
             >
               <div className="hero-gallery-grid">
-                <div className="hero-gallery-cell hero-gallery-main" />
-                <div className="hero-gallery-cell hero-gallery-side-top" />
-                <div className="hero-gallery-cell hero-gallery-side-bottom" />
-                <div className="hero-gallery-cell hero-gallery-pill-left" />
-                <div className="hero-gallery-cell hero-gallery-pill-right" />
+                {/* MAIN VIDEO */}
+                <div className="hero-gallery-cell hero-gallery-main">
+                  <video
+                    className="hero-gallery-video"
+                    src="/videos/project-main.mp4" // άλλαξέ το με το δικό σου path
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                </div>
+
+                {/* ΠΑΝΩ ΔΕΞΙΑ VIDEO */}
+                <div className="hero-gallery-cell hero-gallery-side-top">
+                  <video
+                    className="hero-gallery-video"
+                    src="/videos/project-side-top.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                </div>
+
+                {/* ΚΑΤΩ ΔΕΞΙΑ VIDEO */}
+                <div className="hero-gallery-cell hero-gallery-side-bottom">
+                  <video
+                    className="hero-gallery-video"
+                    src="/videos/project-side-bottom.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                </div>
               </div>
             </motion.div>
           </div>
