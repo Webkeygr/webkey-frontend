@@ -29,7 +29,7 @@ export default function ServicesPage() {
       <AboutPhilosophy />
       <AboutPhilosophyScrollCards />
       <AboutPhilosophySplit />
-      <ContainerScroll className="bg-white">
+      <ContainerScroll className="bg-white h-[220vh]">
         <ContainerScale>
           <BentoGrid
             variant="default"
