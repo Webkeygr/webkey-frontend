@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { VariantProps, cva } from "class-variance-authority"
+import * as React from "react";
+import { VariantProps, cva } from "class-variance-authority";
 import {
   HTMLMotionProps,
   MotionValue,
   motion,
   useScroll,
   useTransform,
-} from "motion/react" // άστο όπως είναι από το snippet
+} from "motion/react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const bentoGridVariants = cva(
   "relative grid gap-4 [&>*:first-child]:origin-top-right [&>*:nth-child(3)]:origin-bottom-right [&>*:nth-child(4)]:origin-top-right",
@@ -41,23 +41,23 @@ const bentoGridVariants = cva(
       variant: "default",
     },
   }
-)
+);
 
 interface ContainerScrollContextValue {
-  scrollYProgress: MotionValue<number>
+  scrollYProgress: MotionValue<number>;
 }
 
 const ContainerScrollContext =
-  React.createContext<ContainerScrollContextValue | undefined>(undefined)
+  React.createContext<ContainerScrollContextValue | undefined>(undefined);
 
 function useContainerScrollContext() {
-  const context = React.useContext(ContainerScrollContext)
+  const context = React.useContext(ContainerScrollContext);
   if (!context) {
     throw new Error(
       "useContainerScrollContext must be used within a ContainerScroll Component"
-    )
+    );
   }
-  return context
+  return context;
 }
 
 const ContainerScroll = ({
@@ -65,22 +65,24 @@ const ContainerScroll = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => {
-  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const scrollRef = React.useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: scrollRef,
-  })
+  });
+
   return (
     <ContainerScrollContext.Provider value={{ scrollYProgress }}>
       <div
         ref={scrollRef}
-        className={cn("relative min-h-screen w-full", className)}
+        // ΔΙΝΟΥΜΕ ΜΕΓΑΛΟ ΥΨΟΣ ΓΙΑ ΝΑ ΠΑΙΖΕΙ ΟΛΟ ΤΟ ANIMATION
+        className={cn("relative h-[240vh] w-full", className)}
         {...props}
       >
         {children}
       </div>
     </ContainerScrollContext.Provider>
-  )
-}
+  );
+};
 
 const BentoGrid = React.forwardRef<
   HTMLDivElement,
@@ -92,26 +94,22 @@ const BentoGrid = React.forwardRef<
       className={cn(bentoGridVariants({ variant }), className)}
       {...props}
     />
-  )
-})
-BentoGrid.displayName = "BentoGrid"
+  );
+});
+BentoGrid.displayName = "BentoGrid";
 
 const BentoCell = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
   ({ className, style, ...props }, ref) => {
-    const { scrollYProgress } = useContainerScrollContext()
+    const { scrollYProgress } = useContainerScrollContext();
 
-    // 🔁 Αντίστροφη κατεύθυνση: από ΔΕΞΙΑ → κέντρο
+    // Από δεξιά → κέντρο
     const translate = useTransform(
       scrollYProgress,
       [0.1, 0.9],
       ["35%", "0%"]
-    )
-
-    // Ελαφρύ zoom-in
-    const scale = useTransform(scrollYProgress, [0, 0.9], [0.5, 1])
-
-    // Fade-in στην αρχή
-    const opacity = useTransform(scrollYProgress, [0, 0.2], [0, 1])
+    );
+    const scale = useTransform(scrollYProgress, [0, 0.9], [0.5, 1]);
+    const opacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]); // fade-in
 
     return (
       <motion.div
@@ -120,24 +118,24 @@ const BentoCell = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
         style={{ translate, scale, opacity, ...style }}
         {...props}
       />
-    )
+    );
   }
-)
-BentoCell.displayName = "BentoCell"
+);
+BentoCell.displayName = "BentoCell";
 
 const ContainerScale = React.forwardRef<
   HTMLDivElement,
   HTMLMotionProps<"div">
 >(({ className, style, ...props }, ref) => {
-  const { scrollYProgress } = useContainerScrollContext()
+  const { scrollYProgress } = useContainerScrollContext();
 
-  // 🔁 Αντί για fade-out, κάνουμε smooth fade-in στην αρχή
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.6], [0, 1, 1])
-  const scale = useTransform(scrollYProgress, [0, 0.2, 0.6], [0.85, 1, 1])
+  // Smooth fade-in + μικρό zoom-in στην αρχή
+  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.6], [0, 1, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.15, 0.6], [0.9, 1, 1]);
 
   const position = useTransform(scrollYProgress, (pos) =>
     pos >= 0.6 ? "absolute" : "fixed"
-  )
+  );
 
   return (
     <motion.div
@@ -152,8 +150,8 @@ const ContainerScale = React.forwardRef<
       }}
       {...props}
     />
-  )
-})
-ContainerScale.displayName = "ContainerScale"
+  );
+});
+ContainerScale.displayName = "ContainerScale";
 
-export { ContainerScroll, BentoGrid, BentoCell, ContainerScale }
+export { ContainerScroll, BentoGrid, BentoCell, ContainerScale };
