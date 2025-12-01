@@ -6,24 +6,31 @@ import { motion, useScroll, useTransform } from "framer-motion";
 const HeroGalleryScrollSection = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  // Τοπικό scroll μόνο για αυτό το section
+  // Τοπικό scroll ΜΟΝΟ για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"],
+    // 0: όταν η κορυφή του section ακουμπάει την κορυφή του viewport
+    // 1: όταν το κάτω μέρος του section φτάσει στην κορυφή του viewport
+    offset: ["start start", "end start"],
   });
 
   // Όλο το block (τίτλος + gallery) κάνει zoom-out
-  // Στην αρχή αρκετά μεγάλο, αλλά όχι τόσο ώστε να βγαίνει από την οθόνη
-  const galleryScale = useTransform(scrollYProgress, [0, 0.7], [1.25, 0.9]);
+  // Στην αρχή λίγο μεγαλύτερο, στο τέλος λίγο μικρότερο
+  const galleryScale = useTransform(scrollYProgress, [0, 0.6], [1.25, 0.9]);
 
   // Τίτλος + κουμπιά: fade-in + slide-up
-  const titleOpacity = useTransform(scrollYProgress, [0.15, 0.45], [0, 1]);
-  const titleY = useTransform(scrollYProgress, [0.15, 0.45], [40, 0]);
+  const titleOpacity = useTransform(scrollYProgress, [0.1, 0.35], [0, 1]);
+  const titleY = useTransform(scrollYProgress, [0.1, 0.35], [40, 0]);
 
   return (
     <section
       ref={sectionRef}
-      className="relative h-[260vh] bg-white overflow-x-hidden" // ❗ κρύβουμε οτιδήποτε πάει οριζόντια
+      className="
+        relative
+        h-[260vh]           /* μεγάλο μονοπάτι scroll */
+        bg-white
+        overflow-x-hidden   /* ΜΗΔΕΝ οριζόντιο scroll */
+      "
     >
       {/* Sticky “frame” που μένει στην οθόνη όσο παίζει το animation */}
       <div className="sticky top-0 h-screen flex items-center justify-center">
@@ -32,7 +39,7 @@ const HeroGalleryScrollSection = () => {
           style={{ scale: galleryScale }}
           className="w-full flex items-center justify-center"
         >
-          <div className="flex flex-col items-center gap-10 max-w-6xl mx-auto px-6">
+          <div className="flex flex-col items-center gap-10 max-w-5xl mx-auto px-6">
             {/* ΤΙΤΛΟΣ + ΚΟΥΜΠΙΑ */}
             <motion.div
               className="text-center max-w-2xl mx-auto"
@@ -57,10 +64,12 @@ const HeroGalleryScrollSection = () => {
               </div>
             </motion.div>
 
-            {/* GALLERY – πιο απλό grid που χωράει όλο στην οθόνη */}
+            {/* GALLERY – χωράει ολόκληρο στο viewport */}
             <div
               className="
-                w-[90vw] max-w-5xl mt-10
+                w-full
+                max-w-5xl
+                mt-10
                 grid gap-4
                 md:grid-cols-[2fr_1fr]
                 grid-rows-[220px_120px]
