@@ -12,8 +12,9 @@ const HeroGalleryScrollSection = () => {
     offset: ["start start", "end end"],
   });
 
-  // Gallery: στην αρχή ΠΟΛΥ μεγάλο → μικραίνει
-  const galleryScale = useTransform(scrollYProgress, [0, 0.7], [1.5, 0.9]);
+  // Όλο το block (τίτλος + gallery) κάνει zoom-out
+  // Στην αρχή αρκετά μεγάλο, αλλά όχι τόσο ώστε να βγαίνει από την οθόνη
+  const galleryScale = useTransform(scrollYProgress, [0, 0.7], [1.25, 0.9]);
 
   // Τίτλος + κουμπιά: fade-in + slide-up
   const titleOpacity = useTransform(scrollYProgress, [0.15, 0.45], [0, 1]);
@@ -22,11 +23,11 @@ const HeroGalleryScrollSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[260vh] bg-white"
+      className="relative h-[260vh] bg-white overflow-x-hidden" // ❗ κρύβουμε οτιδήποτε πάει οριζόντια
     >
-      {/* Sticky “καρέ” που μένει στην οθόνη όσο παίζει το animation */}
+      {/* Sticky “frame” που μένει στην οθόνη όσο παίζει το animation */}
       <div className="sticky top-0 h-screen flex items-center justify-center">
-        {/* Όλο το block (τίτλος + έργα) κάνει zoom-out */}
+        {/* Όλο το block κάνει zoom-out με το scroll */}
         <motion.div
           style={{ scale: galleryScale }}
           className="w-full flex items-center justify-center"
@@ -56,23 +57,24 @@ const HeroGalleryScrollSection = () => {
               </div>
             </motion.div>
 
-            {/* GALLERY – “Bento” grid, ΠΟΛΥ μεγάλο στην αρχή λόγω galleryScale */}
-            <div className="w-[92vw] max-w-5xl mt-10 grid gap-4
-                            grid-cols-8 grid-rows-[1fr_0.5fr_0.5fr_1fr]">
-              {/* Μεγάλο κύριο block */}
-              <div className="col-span-8 md:col-span-6 row-span-3 rounded-3xl bg-slate-900 shadow-2xl" />
+            {/* GALLERY – πιο απλό grid που χωράει όλο στην οθόνη */}
+            <div
+              className="
+                w-[90vw] max-w-5xl mt-10
+                grid gap-4
+                md:grid-cols-[2fr_1fr]
+                grid-rows-[220px_120px]
+                md:grid-rows-[280px_140px]
+              "
+            >
+              {/* Κύριο μεγάλο έργο (αριστερά, πιάνει 2 σειρές) */}
+              <div className="rounded-3xl bg-slate-900 shadow-2xl row-span-2" />
 
-              {/* Δεξιό πάνω */}
-              <div className="hidden md:block col-span-2 row-span-2 rounded-3xl bg-slate-800 shadow-2xl" />
+              {/* Πάνω δεξί “κουτί” */}
+              <div className="rounded-3xl bg-slate-800 shadow-2xl" />
 
-              {/* Δεξιό κάτω */}
-              <div className="hidden md:block col-span-2 row-span-2 rounded-3xl bg-slate-800 shadow-2xl" />
-
-              {/* Κάτω αριστερά */}
-              <div className="col-span-4 md:col-span-3 rounded-3xl bg-slate-900 shadow-2xl" />
-
-              {/* Κάτω δεξιά */}
-              <div className="col-span-4 md:col-span-3 rounded-3xl bg-slate-900 shadow-2xl" />
+              {/* Κάτω δεξί “κουτί” */}
+              <div className="rounded-3xl bg-slate-800 shadow-2xl" />
             </div>
           </div>
         </motion.div>
