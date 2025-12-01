@@ -14,7 +14,7 @@ import ServicesCards from "@/app/components/sections/ServicesCards";
 import AboutPhilosophy from "@/app/components/sections/AboutPhilosophy/AboutPhilosophy";
 import AboutPhilosophyScrollCards from "@/app/components/sections/AboutPhilosophy/AboutPhilosophyScrollCards";
 import AboutPhilosophySplit from "@/app/components/sections/AboutPhilosophy/AboutPhilosophySplit";
-import HeroGalleryScrollSection from "@/app/components/sections/HeroGalleryScroll/HeroGalleryScrollSection";
+import BentoScroll from "@/app/components/sections/HeroGalleryScroll/BentoScroll";
 
 
 
@@ -29,7 +29,7 @@ export default function ServicesPage() {
       <AboutPhilosophy />
       <AboutPhilosophyScrollCards />
       <AboutPhilosophySplit />
-      <HeroGalleryScrollSection />
+      <BentoScroll />
 
     </>
   );

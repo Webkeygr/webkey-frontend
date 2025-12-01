@@ -1,156 +1,95 @@
 "use client";
 
-import * as React from "react";
-import { VariantProps, cva } from "class-variance-authority";
+import React, { useRef, useState } from "react";
 import {
-  HTMLMotionProps,
-  MotionValue,
   motion,
   useScroll,
   useTransform,
-} from "motion/react";
+  useMotionValueEvent,
+} from "framer-motion";
 
-import { cn } from "@/lib/utils";
+import "./HeroGalleryScroll.css";
 
-const bentoGridVariants = cva(
-  "relative grid gap-4 [&>*:first-child]:origin-top-right [&>*:nth-child(3)]:origin-bottom-right [&>*:nth-child(4)]:origin-top-right",
-  {
-    variants: {
-      variant: {
-        default: `
-          grid-cols-8 grid-rows-[1fr_0.5fr_0.5fr_1fr]
-          [&>*:first-child]:col-span-8 md:[&>*:first-child]:col-span-6 [&>*:first-child]:row-span-3
-          [&>*:nth-child(2)]:col-span-2 md:[&>*:nth-child(2)]:row-span-2 [&>*:nth-child(2)]:hidden md:[&>*:nth-child(2)]:block
-          [&>*:nth-child(3)]:col-span-2 md:[&>*:nth-child(3)]:row-span-2 [&>*:nth-child(3)]:hidden md:[&>*:nth-child(3)]:block
-          [&>*:nth-child(4)]:col-span-4 md:[&>*:nth-child(4)]:col-span-3
-          [&>*:nth-child(5)]:col-span-4 md:[&>*:nth-child(5)]:col-span-3
-        `,
-        threeCells: `
-          grid-cols-2 grid-rows-2
-          [&>*:first-child]:col-span-2
-        `,
-        fourCells: `
-          grid-cols-3 grid-rows-2
-          [&>*:first-child]:col-span-1
-          [&>*:nth-child(2)]:col-span-2
-          [&>*:nth-child(3)]:col-span-2
-        `,
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
+const BentoScroll: React.FC = () => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isPinned, setIsPinned] = useState(false);
 
-interface ContainerScrollContextValue {
-  scrollYProgress: MotionValue<number>;
-}
-
-const ContainerScrollContext =
-  React.createContext<ContainerScrollContextValue | undefined>(undefined);
-
-function useContainerScrollContext() {
-  const context = React.useContext(ContainerScrollContext);
-  if (!context) {
-    throw new Error(
-      "useContainerScroll must be used within a ContainerScroll component"
-    );
-  }
-  return context;
-}
-
-// 👇 αυτό θα το χρησιμοποιήσουμε στο section για το fade του τίτλου
-export const useContainerScroll = () => useContainerScrollContext();
-
-const ContainerScroll = ({
-  children,
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
+  // Scroll ΜΟΝΟ για αυτό το section
   const { scrollYProgress } = useScroll({
-    target: scrollRef,
+    target: sectionRef,
+    offset: ["start start", "end start"],
   });
 
+  // Sticky όσο είναι στο viewport
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setIsPinned(v > 0 && v < 1);
+  });
+
+  // Τα “κουτιά” ξεκινούν ΠΟΛΥ μεγάλα και μικραίνουν (zoom out)
+  const galleryScale = useTransform(scrollYProgress, [0, 0.7], [1.4, 1]);
+  const galleryY = useTransform(scrollYProgress, [0, 0.7], [60, 0]);
+
+  // Τίτλος + κείμενο: fade-in + μικρό lift
+  const headerOpacity = useTransform(scrollYProgress, [0.15, 0.4], [0, 1]);
+  const headerY = useTransform(scrollYProgress, [0.15, 0.4], [30, 0]);
+
+  // Κουμπιά: λίγο πιο μετά
+  const buttonsOpacity = useTransform(scrollYProgress, [0.25, 0.5], [0, 1]);
+  const buttonsY = useTransform(scrollYProgress, [0.25, 0.5], [30, 0]);
+
   return (
-    <ContainerScrollContext.Provider value={{ scrollYProgress }}>
-      <div
-        ref={scrollRef}
-        // αρκετό ύψος για full sticky animation
-        className={cn("relative h-[260vh] w-full", className)}
-        {...props}
-      >
-        {children}
+    <section ref={sectionRef} className="hero-gallery-section">
+      <div className="hero-gallery-scroll-area">
+        <div
+          className={
+            isPinned
+              ? "hero-gallery-sticky hero-gallery-sticky-fixed"
+              : "hero-gallery-sticky"
+          }
+        >
+          <div className="hero-gallery-inner">
+            {/* Τίτλος + κείμενο + κουμπιά */}
+            <motion.div
+              className="hero-gallery-header"
+              style={{ opacity: headerOpacity, y: headerY }}
+            >
+              <p className="hero-gallery-eyebrow">SELECTED WORK</p>
+              <h2 className="hero-gallery-title">Gallery / Project 1</h2>
+              <p className="hero-gallery-subtitle">
+                Εδώ θα βάλεις εικόνα ή περιγραφή του πρώτου project.
+              </p>
+
+              <motion.div
+                className="hero-gallery-buttons"
+                style={{ opacity: buttonsOpacity, y: buttonsY }}
+              >
+                <button className="hero-gallery-btn hero-gallery-btn-primary">
+                  Δες τα projects
+                </button>
+                <button className="hero-gallery-btn hero-gallery-btn-secondary">
+                  Κλείσε ραντεβού
+                </button>
+              </motion.div>
+            </motion.div>
+
+            {/* Τα “κουτιά” – full screen στην αρχή, zoom-out με το scroll */}
+            <motion.div
+              className="hero-gallery-grid-wrapper"
+              style={{ scale: galleryScale, y: galleryY }}
+            >
+              <div className="hero-gallery-grid">
+                <div className="hero-gallery-cell hero-gallery-main" />
+                <div className="hero-gallery-cell hero-gallery-side-top" />
+                <div className="hero-gallery-cell hero-gallery-side-bottom" />
+                <div className="hero-gallery-cell hero-gallery-pill-left" />
+                <div className="hero-gallery-cell hero-gallery-pill-right" />
+              </div>
+            </motion.div>
+          </div>
+        </div>
       </div>
-    </ContainerScrollContext.Provider>
+    </section>
   );
 };
 
-const BentoGrid = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof bentoGridVariants>
->(({ variant, className, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn(bentoGridVariants({ variant }), className)}
-      {...props}
-    />
-  );
-});
-BentoGrid.displayName = "BentoGrid";
-
-const BentoCell = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
-  ({ className, style, ...props }, ref) => {
-    // τα cells πλέον ΔΕΝ κουνιούνται / κάνουν δικό τους scale
-    const { scrollYProgress } = useContainerScrollContext();
-    const translate = useTransform(scrollYProgress, [0, 1], ["0%", "0%"]);
-    const scale = useTransform(scrollYProgress, [0, 1], [1, 1]);
-
-    return (
-      <motion.div
-        ref={ref}
-        className={className}
-        style={{ translate, scale, ...style }}
-        {...props}
-      />
-    );
-  }
-);
-BentoCell.displayName = "BentoCell";
-
-const ContainerScale = React.forwardRef<
-  HTMLDivElement,
-  HTMLMotionProps<"div">
->(({ className, style, ...props }, ref) => {
-  const { scrollYProgress } = useContainerScrollContext();
-
-  // 👉 εδώ γίνεται το "ζουμ": στην αρχή ΠΟΛΥ μεγάλο, μετά μικραίνει
-  const scale = useTransform(scrollYProgress, [0, 0.6], [1.35, 0.9]);
-  // δεν θέλουμε fade, πάντα ορατό
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
-
-  // sticky μέχρι ένα σημείο, μετά "ξεκολλάει"
-  const position = useTransform(scrollYProgress, (pos) =>
-    pos >= 0.6 ? "absolute" : "fixed"
-  );
-
-  return (
-    <motion.div
-      ref={ref}
-      className={cn("left-1/2 top-1/2 size-fit", className)}
-      style={{
-        translate: "-50% -50%",
-        scale,
-        position,
-        opacity,
-        ...style,
-      }}
-      {...props}
-    />
-  );
-});
-ContainerScale.displayName = "ContainerScale";
-
-export { ContainerScroll, BentoGrid, BentoCell, ContainerScale };
+export default BentoScroll;
