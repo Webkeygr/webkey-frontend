@@ -54,11 +54,14 @@ function useContainerScrollContext() {
   const context = React.useContext(ContainerScrollContext);
   if (!context) {
     throw new Error(
-      "useContainerScrollContext must be used within a ContainerScroll Component"
+      "useContainerScroll must be used within a ContainerScroll component"
     );
   }
   return context;
 }
+
+// 👇 αυτό θα το χρησιμοποιήσουμε στο section για το fade του τίτλου
+export const useContainerScroll = () => useContainerScrollContext();
 
 const ContainerScroll = ({
   children,
@@ -74,8 +77,8 @@ const ContainerScroll = ({
     <ContainerScrollContext.Provider value={{ scrollYProgress }}>
       <div
         ref={scrollRef}
-        // ΔΙΝΟΥΜΕ ΜΕΓΑΛΟ ΥΨΟΣ ΓΙΑ ΝΑ ΠΑΙΖΕΙ ΟΛΟ ΤΟ ANIMATION
-        className={cn("relative h-[240vh] w-full", className)}
+        // αρκετό ύψος για full sticky animation
+        className={cn("relative h-[260vh] w-full", className)}
         {...props}
       >
         {children}
@@ -100,22 +103,16 @@ BentoGrid.displayName = "BentoGrid";
 
 const BentoCell = React.forwardRef<HTMLDivElement, HTMLMotionProps<"div">>(
   ({ className, style, ...props }, ref) => {
+    // τα cells πλέον ΔΕΝ κουνιούνται / κάνουν δικό τους scale
     const { scrollYProgress } = useContainerScrollContext();
-
-    // Από δεξιά → κέντρο
-    const translate = useTransform(
-      scrollYProgress,
-      [0.1, 0.9],
-      ["35%", "0%"]
-    );
-    const scale = useTransform(scrollYProgress, [0, 0.9], [0.5, 1]);
-    const opacity = useTransform(scrollYProgress, [0, 0.2], [0, 1]); // fade-in
+    const translate = useTransform(scrollYProgress, [0, 1], ["0%", "0%"]);
+    const scale = useTransform(scrollYProgress, [0, 1], [1, 1]);
 
     return (
       <motion.div
         ref={ref}
         className={className}
-        style={{ translate, scale, opacity, ...style }}
+        style={{ translate, scale, ...style }}
         {...props}
       />
     );
@@ -129,10 +126,12 @@ const ContainerScale = React.forwardRef<
 >(({ className, style, ...props }, ref) => {
   const { scrollYProgress } = useContainerScrollContext();
 
-  // Smooth fade-in + μικρό zoom-in στην αρχή
-  const opacity = useTransform(scrollYProgress, [0, 0.15, 0.6], [0, 1, 1]);
-  const scale = useTransform(scrollYProgress, [0, 0.15, 0.6], [0.9, 1, 1]);
+  // 👉 εδώ γίνεται το "ζουμ": στην αρχή ΠΟΛΥ μεγάλο, μετά μικραίνει
+  const scale = useTransform(scrollYProgress, [0, 0.6], [1.35, 0.9]);
+  // δεν θέλουμε fade, πάντα ορατό
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
 
+  // sticky μέχρι ένα σημείο, μετά "ξεκολλάει"
   const position = useTransform(scrollYProgress, (pos) =>
     pos >= 0.6 ? "absolute" : "fixed"
   );
