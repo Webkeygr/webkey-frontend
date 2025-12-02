@@ -137,7 +137,7 @@ export default function Hero() {
               </p>
 
               <Link href="/contact" className="hero-cta">
-                Unlock your project
+                Start your project
               </Link>
             </div>
           </motion.div>

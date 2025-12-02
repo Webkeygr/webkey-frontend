@@ -38,7 +38,7 @@ const AboutPhilosophySplit: React.FC = () => {
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (typeof window === "undefined") return;
 
-    const isDarkPhase = latest < 0.95;
+    const isDarkPhase = latest < 0.8;
 
     const labels = document.querySelectorAll<HTMLElement>(".lang-label");
     labels.forEach((el) => {

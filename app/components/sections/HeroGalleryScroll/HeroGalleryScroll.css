@@ -1,0 +1,210 @@
+/* ==========================
+   HERO GALLERY SCROLL – LAYOUT
+   ========================== */
+
+.hero-gallery-section {
+  position: relative;
+  z-index: 5;
+  padding: 0;
+  margin: 0;
+  background: #ffffff;
+  overflow: hidden; /* να μην βγαίνει το scale εκτός */
+}
+
+.hero-gallery-scroll-area {
+  position: relative;
+  height: 260vh; /* “μονοπάτι” scroll του animation */
+}
+
+.hero-gallery-sticky {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-gallery-sticky.hero-gallery-sticky-fixed {
+  position: fixed;
+  inset: 0;
+}
+
+/* ==========================
+   INNER WRAPPER
+   ========================== */
+
+.hero-gallery-inner {
+  position: relative;
+  width: min(1120px, 92vw);
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+/* ==========================
+   HEADER / TITLE
+   ========================== */
+
+.hero-gallery-header {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 24px;
+}
+
+.hero-gallery-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-bottom: 10px;
+}
+
+.hero-gallery-title {
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.hero-gallery-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Buttons */
+
+.hero-gallery-buttons {
+  display: inline-flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.hero-gallery-btn {
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+    background 0.18s ease, color 0.18s ease;
+}
+
+.hero-gallery-btn-primary {
+  background: #111827;
+  color: #f9fafb;
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.35);
+}
+
+.hero-gallery-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.45);
+}
+
+.hero-gallery-btn-secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.hero-gallery-btn-secondary:hover {
+  background: #d1d5db;
+}
+
+/* ==========================
+   GALLERY GRID (ΤΑ “ΚΟΥΤΙΑ”)
+   ========================== */
+
+.hero-gallery-grid-wrapper {
+  width: min(960px, 96vw);
+  transform-origin: center center;
+}
+
+.hero-gallery-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.6fr) minmax(0, 1.2fr);
+  grid-template-rows: 260px 140px; /* 2 σειρές, χωρίς τα pills */
+  gap: 18px;
+}
+
+/* βασικό box style */
+
+.hero-gallery-cell {
+  background: #0b1220;
+  border-radius: 18px;
+  box-shadow: 0 26px 65px rgba(15, 23, 42, 0.55);
+  overflow: hidden; /* για να κουμπώσει το video στις γωνίες */
+  position: relative;
+}
+
+/* video μέσα στα κουτιά */
+
+.hero-gallery-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+}
+
+/* layout θέσεις */
+
+.hero-gallery-main {
+  grid-column: 1 / 2;
+  grid-row: 1 / 3; /* πιάνει και τις δύο σειρές αριστερά */
+}
+
+.hero-gallery-side-top {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
+}
+
+.hero-gallery-side-bottom {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
+}
+
+/* ==========================
+   RESPONSIVE
+   ========================== */
+
+@media (max-width: 900px) {
+  .hero-gallery-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px 160px 160px;
+  }
+
+  .hero-gallery-main {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+  }
+
+  .hero-gallery-side-top {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+  }
+
+  .hero-gallery-side-bottom {
+    grid-column: 1 / 2;
+    grid-row: 3 / 4;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-gallery-scroll-area {
+    height: 220vh;
+  }
+
+  .hero-gallery-inner {
+    gap: 28px;
+  }
+
+  .hero-gallery-title {
+    font-size: 24px;
+  }
+}

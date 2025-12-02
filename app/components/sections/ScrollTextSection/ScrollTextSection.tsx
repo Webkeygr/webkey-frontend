@@ -16,7 +16,7 @@ export default function ScrollTextSection() {
         bg-gradient-to-b
         from-white         /* ίδια λευκή αρχή με το προηγούμενο section */
         via-white/90
-        to-transparent     /* σβήνει σταδιακά και αποκαλύπτει το background από κάτω */
+        to-transparent    /* σβήνει σταδιακά και αποκαλύπτει το background από κάτω */
       "
     >
       <div className="flex items-center justify-center">
