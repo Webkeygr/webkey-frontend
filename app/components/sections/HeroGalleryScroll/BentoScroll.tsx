@@ -82,7 +82,7 @@ const BentoScroll: React.FC = () => {
                 <div className="hero-gallery-cell hero-gallery-main">
                   <video
                     className="hero-gallery-video"
-                    src="/videos/project-main.mp4" // άλλαξέ το με το δικό σου path
+                    src="/videos/site_video.mp4" // άλλαξέ το με το δικό σου path
                     autoPlay
                     loop
                     muted
