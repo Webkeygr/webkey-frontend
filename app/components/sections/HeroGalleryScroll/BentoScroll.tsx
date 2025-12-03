@@ -33,7 +33,7 @@ const BentoScroll: React.FC = () => {
   const headerOpacity = useTransform(scrollYProgress, [0.15, 0.4], [0, 1]);
   const headerY = useTransform(scrollYProgress, [0.15, 0.4], [30, 0]);
 
-  // Κουμπιά: λίγο πιο μετά
+  // Κουμπιά header: λίγο πιο μετά
   const buttonsOpacity = useTransform(scrollYProgress, [0.25, 0.5], [0, 1]);
   const buttonsY = useTransform(scrollYProgress, [0.25, 0.5], [30, 0]);
 
@@ -82,7 +82,7 @@ const BentoScroll: React.FC = () => {
                 <div className="hero-gallery-cell hero-gallery-main">
                   <video
                     className="hero-gallery-video"
-                    src="/videos/site_video.mp4" // άλλαξέ το με το δικό σου path
+                    src="/videos/project-main.mp4"
                     autoPlay
                     loop
                     muted
@@ -102,16 +102,16 @@ const BentoScroll: React.FC = () => {
                   />
                 </div>
 
-                {/* ΚΑΤΩ ΔΕΞΙΑ VIDEO */}
+                {/* ΚΑΤΩ ΔΕΞΙΑ – 2 ΚΟΥΜΠΙΑ ΚΑΘΕΤΑ */}
                 <div className="hero-gallery-cell hero-gallery-side-bottom">
-                  <video
-                    className="hero-gallery-video"
-                    src="/videos/project-side-bottom.mp4"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                  />
+                  <div className="hero-gallery-cta-column">
+                    <button className="hero-gallery-btn hero-gallery-btn-primary hero-gallery-btn-full">
+                      Δείτε το portfolio
+                    </button>
+                    <button className="hero-gallery-btn hero-gallery-btn-secondary hero-gallery-btn-full">
+                      Κλείσε ραντεβού
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
