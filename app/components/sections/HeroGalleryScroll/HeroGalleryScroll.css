@@ -77,7 +77,9 @@
   color: #6b7280;
 }
 
-/* Buttons */
+/* ==========================
+   HEADER BUTTONS
+   ========================== */
 
 .hero-gallery-buttons {
   display: inline-flex;
@@ -85,35 +87,42 @@
   margin-top: 20px;
 }
 
+/* βασικό style για όλα τα κουμπιά της gallery */
 .hero-gallery-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 26px;
   border-radius: 999px;
-  padding: 10px 22px;
+  border: 0;
+  cursor: pointer;
+
+  background: #ffffff;
+  color: #000000;
   font-size: 14px;
   font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease,
-    color 0.18s ease;
+  text-decoration: none;
+
+  box-shadow: 0 0 24px rgba(0, 0, 0, 0.22);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease, color 0.15s ease;
 }
 
+/* primary / secondary παραμένουν λευκά, μικρή διαφοροποίηση αν θες αργότερα */
 .hero-gallery-btn-primary {
-  background: #111827;
-  color: #f9fafb;
-  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.35);
-}
-
-.hero-gallery-btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 22px 45px rgba(15, 23, 42, 0.45);
+  background: #ffffff;
+  color: #000000;
 }
 
 .hero-gallery-btn-secondary {
-  background: #e5e7eb;
-  color: #111827;
+  background: #ffffff;
+  color: #000000;
+  opacity: 0.9;
 }
 
-.hero-gallery-btn-secondary:hover {
-  background: #d1d5db;
+.hero-gallery-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.3);
 }
 
 /* ==========================
@@ -208,6 +217,10 @@
     font-size: 24px;
   }
 }
+
+/* ==========================
+   ΚΑΤΩ-ΔΕΞΙΑ ΚΟΥΜΠΙΑ (ΜΕΣΑ ΣΤΟ BOX)
+   ========================== */
 
 /* Στήλη για τα 2 κουμπιά μέσα στο κάτω-δεξιά κουτί */
 .hero-gallery-cta-column {
