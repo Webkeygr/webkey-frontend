@@ -78,16 +78,15 @@
 }
 
 /* ==========================
-   HEADER BUTTONS
+   HEADER BUTTONS (ΚΡΥΦΑ)
    ========================== */
 
+/* Τα κουμπιά κάτω από τον τίτλο – τα κρύβουμε τελείως */
 .hero-gallery-buttons {
-  display: inline-flex;
-  gap: 12px;
-  margin-top: 20px;
+  display: none;
 }
 
-/* βασικό style για όλα τα κουμπιά της gallery */
+/* Βασικό στιλ κουμπιών – το χρησιμοποιούν ΜΟΝΟ αυτά στο κάτω δεξιό box πλέον */
 .hero-gallery-btn {
   display: inline-flex;
   align-items: center;
@@ -108,7 +107,6 @@
     background-color 0.15s ease, color 0.15s ease;
 }
 
-/* primary / secondary παραμένουν λευκά, μικρή διαφοροποίηση αν θες αργότερα */
 .hero-gallery-btn-primary {
   background: #ffffff;
   color: #000000;
@@ -137,7 +135,7 @@
 .hero-gallery-grid {
   display: grid;
   grid-template-columns: minmax(0, 2.6fr) minmax(0, 1.2fr);
-  grid-template-rows: 260px 140px; /* 2 σειρές, χωρίς τα pills */
+  grid-template-rows: 260px 140px; /* 2 σειρές */
   gap: 18px;
 }
 
@@ -173,9 +171,15 @@
   grid-row: 1 / 2;
 }
 
-.hero-gallery-side-bottom {
+/* Κάτω δεξιά: κρατάμε τη θέση στο grid αλλά εξαφανίζουμε το “κουτί” */
+.hero-gallery-cell.hero-gallery-side-bottom {
   grid-column: 2 / 3;
   grid-row: 2 / 3;
+
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  overflow: visible; /* να μη “κόβονται” οι σκιές των κουμπιών */
 }
 
 /* ==========================
@@ -198,7 +202,7 @@
     grid-row: 2 / 3;
   }
 
-  .hero-gallery-side-bottom {
+  .hero-gallery-cell.hero-gallery-side-bottom {
     grid-column: 1 / 2;
     grid-row: 3 / 4;
   }
@@ -222,7 +226,7 @@
    ΚΑΤΩ-ΔΕΞΙΑ ΚΟΥΜΠΙΑ (ΜΕΣΑ ΣΤΟ BOX)
    ========================== */
 
-/* Στήλη για τα 2 κουμπιά μέσα στο κάτω-δεξιά κουτί */
+/* Στήλη για τα 2 κουμπιά στο κάτω δεξιό σημείο */
 .hero-gallery-cta-column {
   position: relative;
   width: 100%;
@@ -234,7 +238,7 @@
   gap: 12px;
 }
 
-/* Να ανοίγουν full width στο κουτί */
+/* Να ανοίγουν full width */
 .hero-gallery-btn-full {
   width: 100%;
   justify-content: center;
