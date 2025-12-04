@@ -1,27 +1,36 @@
+// app/en/page.tsx
 import type { Metadata } from "next";
 
+import Hero from "@/app/components/Hero";
+import ServicesIntro from "@/app/components/sections/ServicesIntro";
+import ServicesCards from "@/app/components/sections/ServicesCards";
+import AboutPhilosophy from "@/app/components/sections/AboutPhilosophy/AboutPhilosophy";
+import AboutPhilosophyScrollCards from "@/app/components/sections/AboutPhilosophy/AboutPhilosophyScrollCards";
+import AboutPhilosophySplit from "@/app/components/sections/AboutPhilosophy/AboutPhilosophySplit";
+import BentoScroll from "@/app/components/sections/HeroGalleryScroll/BentoScroll";
+import ScrollTextSection from "@/app/components/sections/ScrollTextSection/ScrollTextSection";
+import Footer from "@/app/components/Footer";
+
 export const metadata: Metadata = {
-  title: "Creative Digital Studio",
-  description:
-    "Webkey — Creative digital studio for websites, e-shops and standout experiences.",
-  alternates: {
-    canonical: "https://webkey.gr/en/",
-    languages: {
-      en: "https://webkey.gr/en/",
-      el: "https://webkey.gr/",
-    },
-  },
-  openGraph: {
-    locale: "en_US",
-  },
+  title: "Webkey — The Key to the Future",
+  description: "Creative web studio",
 };
 
-export default function PageEN() {
+export default function EnHomePage() {
   return (
-    <main>
-      {/* Χρησιμοποίησε εδώ τα ίδια sections/components της αρχικής με αγγλικά κείμενα */}
-      {/* <HomeHero locale="en" /> */}
-      {/* <Services locale="en" /> */}
-    </main>
+    <>
+      <Hero />
+      <ServicesIntro />
+      <ServicesCards />
+      <AboutPhilosophy />
+      <AboutPhilosophyScrollCards />
+      <AboutPhilosophySplit />
+      <BentoScroll />
+      <ScrollTextSection />
+
+      <div className="-mt-[100vh] relative z-[20]">
+        <Footer />
+      </div>
+    </>
   );
 }
