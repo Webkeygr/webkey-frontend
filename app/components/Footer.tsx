@@ -3,13 +3,39 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 const FOOTER_EMAIL = "info@webkey.gr";
 const FOOTER_PHONE = "+30 6985608579";
 
-const menuItems = ["Υπηρεσίες", "Ποιοι Είμαστε", "Τα έργα μας", "Τα νέα μας"];
+/* ============================================================
+   MENU GR + EN
+============================================================ */
+const menuItemsGR = ["Υπηρεσίες", "Ποιοι Είμαστε", "Τα έργα μας", "Τα νέα μας"];
+const menuItemsEN = ["Services", "Who We Are", "Our Work", "News"];
 
+/* ============================================================
+   FOOTER COMPONENT
+============================================================ */
 export default function Footer() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+
+  const menuItems = isEnglish ? menuItemsEN : menuItemsGR;
+
+  const tagline = isEnglish ? "The Key to the Future" : "Το κλειδί για το Μέλλον";
+
+  const newsletterBtn = isEnglish
+    ? "Sign up to our newsletter"
+    : "Εγγραφή στο newsletter";
+
+  const bubbleCopy = isEnglish ? "Copy email" : "Αντιγραφή email";
+  const bubbleCopied = isEnglish ? "Copied!" : "Αντιγράφηκε!";
+
+  const socialLinkedIn = "LinkedIn ↗";
+  const socialFacebook = "Facebook ↗";
+  const socialInstagram = "Instagram ↗";
+
   const ref = useRef<HTMLDivElement | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -47,7 +73,6 @@ export default function Footer() {
             {/* Left: Logo + tagline */}
             <div className="md:w-1/2 flex flex-col items-center">
               <div className="flex flex-col items-center">
-                {/* Μεγαλύτερο logo */}
                 <div className="relative h-56 w-[460px] md:h-64 md:w-[520px]">
                   <Image
                     src="/images/logo-webkey-white.svg"
@@ -58,9 +83,8 @@ export default function Footer() {
                   />
                 </div>
 
-                {/* Πάντα στο κέντρο, κάτω από το logo */}
                 <p className="mt-5 text-lg font-semibold tracking-wide text-center md:text-xl">
-                  The Key to the Future
+                  {tagline}
                 </p>
               </div>
             </div>
@@ -76,31 +100,28 @@ export default function Footer() {
                   >
                     <span className="py-1">{label}</span>
 
-                    {/* Arrow – μόνο στο hover, πιο χοντρό και πιο “πάνω” */}
-<span
-  className="
-    pointer-events-none
-    absolute
-    right-0
-    top-[40%]
-    h-6
-    w-10
-    -translate-y-1/2
-    origin-right
-    opacity-0
-    -rotate-[35deg]
-    transition-all
-    duration-200
-    group-hover:translate-x-1
-    group-hover:opacity-100
-  "
->
-  {/* γραμμή */}
-  <span className="absolute right-0 top-1/2 h-[2px] w-7 -translate-y-1/2 bg-white" />
-  {/* κεφαλή βέλους */}
-  <span className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r-2 border-t-2 border-white" />
-</span>
-
+                    {/* Arrow */}
+                    <span
+                      className="
+                        pointer-events-none
+                        absolute
+                        right-0
+                        top-[40%]
+                        h-6
+                        w-10
+                        -translate-y-1/2
+                        origin-right
+                        opacity-0
+                        -rotate-[35deg]
+                        transition-all
+                        duration-200
+                        group-hover:translate-x-1
+                        group-hover:opacity-100
+                      "
+                    >
+                      <span className="absolute right-0 top-1/2 h-[2px] w-7 -translate-y-1/2 bg-white" />
+                      <span className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r-2 border-t-2 border-white" />
+                    </span>
                   </button>
                 ))}
               </nav>
@@ -110,20 +131,20 @@ export default function Footer() {
                   type="button"
                   className="rounded-full border border-white px-6 py-2 text-sm font-medium tracking-wide transition-colors duration-200 hover:bg-white hover:text-black"
                 >
-                  Sign up to our newsletter
+                  {newsletterBtn}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Divider line */}
+          {/* Divider */}
           <div className="mt-12 border-t border-white/70" />
 
-          {/* === Bottom: Email / Phone / Social === */}
+          {/* Bottom: Email / Phone / Social */}
           <div className="mt-4 flex flex-col items-start justify-between gap-4 text-sm md:flex-row md:items-center">
             {/* Email + phone */}
             <div className="flex flex-wrap items-center gap-4">
-              {/* Email with copy + bubble */}
+              {/* Email Copy */}
               <div className="relative group">
                 <button
                   type="button"
@@ -133,7 +154,6 @@ export default function Footer() {
                   {FOOTER_EMAIL}
                 </button>
 
-                {/* Bubble */}
                 <span
                   className="
                     pointer-events-none
@@ -157,7 +177,7 @@ export default function Footer() {
                     group-hover:opacity-100
                   "
                 >
-                  {copied ? "Copied!" : "Copy email"}
+                  {copied ? bubbleCopied : bubbleCopy}
                 </span>
               </div>
 
@@ -166,25 +186,16 @@ export default function Footer() {
               <span className="text-sm tracking-wide">{FOOTER_PHONE}</span>
             </div>
 
-            {/* Social (χωρίς links για την ώρα) */}
+            {/* Social icons */}
             <div className="flex flex-wrap items-center gap-6 text-sm tracking-wide">
-              <button
-                type="button"
-                className="transition-opacity hover:opacity-80"
-              >
-                LinkedIn ↗
+              <button type="button" className="transition-opacity hover:opacity-80">
+                {socialLinkedIn}
               </button>
-              <button
-                type="button"
-                className="transition-opacity hover:opacity-80"
-              >
-                Facebook ↗
+              <button type="button" className="transition-opacity hover:opacity-80">
+                {socialFacebook}
               </button>
-              <button
-                type="button"
-                className="transition-opacity hover:opacity-80"
-              >
-                Instagram ↗
+              <button type="button" className="transition-opacity hover:opacity-80">
+                {socialInstagram}
               </button>
             </div>
           </div>
@@ -196,7 +207,7 @@ export default function Footer() {
         </div>
       </motion.div>
 
-      {/* Gradient για να “δέσει” με το προηγούμενο section */}
+      {/* Fade gradient */}
       <div className="pointer-events-none absolute inset-x-0 -top-10 h-24 bg-gradient-to-b from-black/0 to-black" />
     </section>
   );

@@ -8,15 +8,21 @@ import {
   useMotionValueEvent,
   useSpring,
 } from "framer-motion";
+import { usePathname } from "next/navigation";
 import { TextScrub } from "../ui/text-scrub";
 import Lottie from "lottie-react";
 import GlitchText from "@/app/components/sections/AboutPhilosophy/GlitchText";
-
 
 type LottieData = Record<string, any>;
 const LOTTIE_OFFSET = 110;
 
 export default function ServicesIntro() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+
+  /* ====== TEXT (GR + EN) ====== */
+  const titleText = isEnglish ? "Our Services" : "Οι υπηρεσίες μας";
+
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const { scrollYProgress } = useScroll({
@@ -33,9 +39,7 @@ export default function ServicesIntro() {
   const titleScale = useTransform(scrollYProgress, [0.08, 0.24], [0.985, 1]);
   const titleY = useTransform(scrollYProgress, [0.54, 0.6], [0, -50]);
 
-  /* ---- SMOOTH BLUR στο background (όχι overlay) ----
-     Widen range + spring για να «μπει» ομαλά.
-  */
+  /* ---- SMOOTH BLUR στο background ---- */
   const blurBase = useTransform(scrollYProgress, [0.1, 0.3], [0, 24], {
     clamp: true,
   });
@@ -58,7 +62,7 @@ export default function ServicesIntro() {
     };
   }, []);
 
-  /* ---- LOTTIE μαζί με τον τίτλο ---- */
+  /* ---- LOTTIE LOAD ---- */
   const [lottieData, setLottieData] = useState<LottieData | null>(null);
   useEffect(() => {
     (async () => {
@@ -71,6 +75,7 @@ export default function ServicesIntro() {
       }
     })();
   }, []);
+
   const lottieOpacity = useTransform(
     scrollYProgress,
     [0.06, 0.12, 0.6],
@@ -82,23 +87,22 @@ export default function ServicesIntro() {
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="relative z-10 h-full">
           <motion.h1
-  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-             text-center px-6 select-none
-             font-[900] leading-[0.95] tracking-[-0.02em]
-             text-[clamp(22px,4vw,70px)] md:text-[clamp(32px,5vw,90px)]
-             text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
-  style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
->
-  <GlitchText
-    className="normal-case"
-    speed={1.3}
-    enableShadows
-    enableOnHover={false}
-  >
-    Οι υπηρεσίες μας
-  </GlitchText>
-</motion.h1>
-
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+              text-center px-6 select-none
+              font-[900] leading-[0.95] tracking-[-0.02em]
+              text-[clamp(22px,4vw,70px)] md:text-[clamp(32px,5vw,90px)]
+              text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)]"
+            style={{ opacity: titleOpacity, y: titleY, scale: titleScale }}
+          >
+            <GlitchText
+              className="normal-case"
+              speed={1.3}
+              enableShadows
+              enableOnHover={false}
+            >
+              {titleText}
+            </GlitchText>
+          </motion.h1>
 
           <motion.div
             className="absolute w-[120px] md:w-[140px] pointer-events-none z-[12] will-change-[opacity,transform]"

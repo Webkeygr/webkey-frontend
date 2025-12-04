@@ -7,6 +7,7 @@ import {
   useTransform,
   useMotionValueEvent,
 } from "framer-motion";
+import { usePathname } from "next/navigation";
 import Lottie from "lottie-react";
 
 import "./AboutPhilosophy.css";
@@ -17,6 +18,14 @@ import scrollDownWhite from "@/app/lottie/scroll-down-white.json";
 import GlitchText from "./GlitchText";
 
 const AboutPhilosophy: React.FC = () => {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+
+  /* ===========================
+     TEXT GR + EN
+  ============================ */
+  const titleText = isEnglish ? "Who We Are" : "Ποιοι Είμαστε";
+
   const sectionRef = useRef<HTMLElement | null>(null);
   const [isPinned, setIsPinned] = useState(false);
 
@@ -39,21 +48,20 @@ const AboutPhilosophy: React.FC = () => {
 
     const isDark = latest >= 0.8;
 
-    // 1) GR / EN labels
+    // GR / EN labels
     const labels = document.querySelectorAll<HTMLElement>(".lang-label");
     labels.forEach((el) => {
       el.style.color = isDark ? "#ffffff" : "";
     });
 
-    // 2) Logo στο BubbleMenu: η πρώτη εικόνα με class .site-logo
+    // Logo στο BubbleMenu
     const logoImg = document.querySelector<HTMLImageElement>("img.site-logo");
     if (logoImg) {
-      // στο μαύρο → λευκό logo, στο κανονικό → όπως πριν
       logoImg.style.filter = isDark ? "brightness(0) invert(1)" : "";
     }
   });
 
-  // Cleanup όταν φύγει τελείως το component
+  // Cleanup όταν φύγει το component
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -62,6 +70,7 @@ const AboutPhilosophy: React.FC = () => {
       labels.forEach((el) => {
         el.style.color = "";
       });
+
       const logoImg = document.querySelector<HTMLImageElement>("img.site-logo");
       if (logoImg) {
         logoImg.style.filter = "";
@@ -73,33 +82,26 @@ const AboutPhilosophy: React.FC = () => {
   // ANIMATIONS
   // ==========================
 
-  // Τίτλος + lottie – ενιαίο opacity:
-  // 0–0.12: κρυφό, 0.12–0.58: full, 0.58–0.7: fade out
   const contentOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.12, 0.12, 0.7],
     [0, 1, 1, 0]
   );
 
-  // Κύκλος:
-  // μέχρι 0.58: αόρατος
-  // 0.6: μικρή τελεία
-  // 0.6–0.95: μεγαλώνει σε scale 9
-  // 0.95–1: μένει ίδιος (full black, χωρίς spike)
   const circleScale = useTransform(
     scrollYProgress,
     [0.43, 0.95, 1],
     [0.02, 9, 9]
   );
 
-  const circleOpacity = useTransform(scrollYProgress, [0.35, 0.40], [0, 1]);
+  const circleOpacity = useTransform(scrollYProgress, [0.35, 0.4], [0, 1]);
 
-  // Lottie: έγχρωμο στην αρχή, λευκό όσο σκοτεινιάζει
   const colorLottieOpacity = useTransform(
     scrollYProgress,
     [0.0, 0.5, 0.75],
     [1, 1, 0]
   );
+
   const whiteLottieOpacity = useTransform(scrollYProgress, [0.75, 0.9], [0, 1]);
 
   return (
@@ -121,7 +123,7 @@ const AboutPhilosophy: React.FC = () => {
             }}
           />
 
-          {/* Τίτλος + lottie */}
+          {/* Τίτλος + Lottie */}
           <motion.div
             className="about-title-block"
             style={{ opacity: contentOpacity }}
@@ -132,7 +134,7 @@ const AboutPhilosophy: React.FC = () => {
               enableShadows
               enableOnHover={false}
             >
-              Ποιοι Είμαστε
+              {titleText}
             </GlitchText>
 
             <div className="about-lottie-wrapper">
@@ -160,7 +162,7 @@ const AboutPhilosophy: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* ΕΔΩ μετά θα μπουν οι καρτέλες */}
+          {/* ΕΔΩ μπαίνουν οι ScrollCards */}
         </div>
       </div>
     </section>

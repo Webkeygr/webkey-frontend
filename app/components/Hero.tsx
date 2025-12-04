@@ -1,8 +1,8 @@
-// app/components/Hero.tsx
 "use client";
 
 import { motion, type Variants } from "framer-motion";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Iridescence from "./Iridescence";
 
 /* ===================== ANIMATION VARIANTS ===================== */
@@ -13,8 +13,8 @@ const heroContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      delayChildren: 0.25, // πόσο θα περιμένει πριν αρχίσει το stagger
-      staggerChildren: 0.18, // διαφορά χρόνου μεταξύ των γραμμών
+      delayChildren: 0.25,
+      staggerChildren: 0.18,
     },
   },
 };
@@ -27,12 +27,12 @@ const heroLineVariant: Variants = {
     y: 0,
     transition: {
       duration: 0.9,
-      ease: "easeOut", // ασφαλές για Typescript
+      ease: "easeOut",
     },
   },
 };
 
-// Κειμενάκι + CTA (λίγο πιο “μαλακό”, με delay)
+// Κειμενάκι + CTA
 const heroTextVariant: Variants = {
   hidden: { opacity: 0, y: 50 },
   visible: {
@@ -62,6 +62,20 @@ const heroBgVariant: Variants = {
 /* ========================== COMPONENT ========================= */
 
 export default function Hero() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+
+  /* ====== TEXTS (GR & EN) ====== */
+
+  const titleLine1 = isEnglish ? "The Key to the" : "Το κλειδί για το";
+  const titleLine2 = isEnglish ? "Future" : "Ψηφιακό Μέλλον";
+
+  const paragraph = isEnglish
+    ? "We are a digital agency that challenges the ordinary. We create experiences, identities, and websites that don’t follow trends — they start them. For brands that are not just looking for a presence on the web, but a place in the future."
+    : "Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.";
+
+  const cta = isEnglish ? "Start your project" : "Ξεκίνα το project σου";
+
   return (
     <section className="hero-wrapper">
       {/* ---------- BACKGROUND / IRIDESCENCE ---------- */}
@@ -103,41 +117,28 @@ export default function Hero() {
         initial="hidden"
         animate="visible"
       >
-        {/* Γραμμή 1: "Το κλειδί" */}
+        {/* Γραμμή 1 */}
         <motion.div
           className="hero-line hero-line-1"
           variants={heroLineVariant}
         >
-          <h1 className="hero-title font-ITC-Bold">The Key to the</h1>
+          <h1 className="hero-title font-ITC-Bold">{titleLine1}</h1>
         </motion.div>
 
-        {/* Γραμμή 2: "για το Ψηφιακό" 
+        {/* Γραμμή 2 */}
         <motion.div
-          className="hero-line hero-line-2"
+          className="hero-bottom-row"
           variants={heroLineVariant}
         >
-          <h1 className="hero-title font-ITC-Bold">to the</h1>
-        </motion.div>*/}
-
-        {/* Κάτω row: "Μέλλον" + κειμενάκι/CTA δίπλα */}
-        <motion.div className="hero-bottom-row" variants={heroLineVariant}>
           <div className="hero-line hero-line-3">
-            <h1 className="hero-title font-ITC-Bold">Future</h1>
+            <h1 className="hero-title font-ITC-Bold">{titleLine2}</h1>
           </div>
 
           <motion.div className="hero-text-block" variants={heroTextVariant}>
-            {/* 👇 ΜΟΝΗ ΠΡΟΣΘΗΚΗ: inner wrapper για να ρυθμίζεις padding/margin
-                χωρίς να επηρεάζεις τη λέξη "Μέλλον" */}
             <div className="hero-text-inner">
-              <p>
-                Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο.
-                Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν
-                ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν
-                απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.
-              </p>
-
+              <p>{paragraph}</p>
               <Link href="/contact" className="hero-cta">
-                Start your project
+                {cta}
               </Link>
             </div>
           </motion.div>

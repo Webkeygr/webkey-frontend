@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 type CardTiming = {
   enterFrom?: number;
@@ -22,9 +23,12 @@ type CardContent = {
 };
 
 const CARDS_OFFSET_VH = 0;
-const PER_CARD_VH = 160; // ΜΙΚΡΟΤΕΡΗ διάρκεια ανά κάρτα → λιγότερα scrolls
+const PER_CARD_VH = 160;
 
-const CARDS_DATA: CardContent[] = [
+/* ============================================================
+   🔵 ΕΛΛΗΝΙΚΑ ΚΕΙΜΕΝΑ
+============================================================ */
+const CARDS_DATA_GR: CardContent[] = [
   {
     id: "card-1",
     title: "Web development",
@@ -68,7 +72,7 @@ const CARDS_DATA: CardContent[] = [
     title: "Digital Marketing",
     description:
       "Αναπτύσσουμε έξυπνες καμπάνιες που αυξάνουν την προβολή, τη δέσμευση και τις πωλήσεις της επιχείρησής σου.",
-    videoSrc: "/videos/webkey-marketing-srv.mp4", // βάλε το δικό σου path
+    videoSrc: "/videos/webkey-marketing-srv.mp4",
     tags: [
       "SEO Optimization",
       "Google Ads & PPC",
@@ -76,21 +80,94 @@ const CARDS_DATA: CardContent[] = [
       "Email & Content Marketing",
     ],
     timing: {
-      enterFrom: 0.02, // ξεκινά λίγο μετά την αρχή του segment
-      enterTo: 0.36, // αρκετό «παράθυρο» για ομαλή άνοδο
-      offsetPx: 1000, // έρχεται από ΚΑΤΩ-ΚΑΤΩ (εκτός οθόνης)
-      overlapNext: 0.14, // (κρατιέται πάνω από τη 2η)
+      enterFrom: 0.02,
+      enterTo: 0.36,
+      offsetPx: 1000,
+      overlapNext: 0.14,
     },
   },
 ];
 
+/* ============================================================
+   🔵 ΑΓΓΛΙΚΑ ΚΕΙΜΕΝΑ
+============================================================ */
+const CARDS_DATA_EN: CardContent[] = [
+  {
+    id: "card-1",
+    title: "Web Development",
+    description:
+      "Code that pulses. Platforms that breathe. We transform pixels into experiences and every scroll into a small journey of imagination.",
+    videoSrc: "/videos/web-dev.mp4",
+    tags: [
+      "Custom Websites",
+      "E-Commerce",
+      "Web Applications",
+      "Maintenance & Optimization",
+    ],
+    timing: {
+      enterFrom: 0.0,
+      enterTo: 0.06,
+      offsetPx: 60,
+      overlapNext: 0.12,
+    },
+  },
+  {
+    id: "card-2",
+    title: "Branding",
+    description:
+      "We create identities that stand out, combining strategy, aesthetics, and emotion in every brand.",
+    videoSrc: "/videos/webkey-logo-srv.mp4",
+    tags: [
+      "Logo Design",
+      "Visual Web Identity",
+      "UI Style Guide",
+      "Content & Brand Voice",
+    ],
+    timing: {
+      enterFrom: 0.02,
+      enterTo: 0.36,
+      offsetPx: 1000,
+      overlapNext: 0.14,
+    },
+  },
+  {
+    id: "card-3",
+    title: "Digital Marketing",
+    description:
+      "We develop smart campaigns that boost visibility, engagement, and sales for your business.",
+    videoSrc: "/videos/webkey-marketing-srv.mp4",
+    tags: [
+      "SEO Optimization",
+      "Google Ads & PPC",
+      "Social Media Marketing",
+      "Email & Content Marketing",
+    ],
+    timing: {
+      enterFrom: 0.02,
+      enterTo: 0.36,
+      offsetPx: 1000,
+      overlapNext: 0.14,
+    },
+  },
+];
+
+/* ============================================================
+   COMPONENT
+============================================================ */
+
 export default function ServicesCards() {
+  const pathname = usePathname();
+  const isEnglish = pathname.startsWith("/en");
+
+  const CARDS_DATA = isEnglish ? CARDS_DATA_EN : CARDS_DATA_GR;
+
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ["start start", "end end"],
   });
+
   const prog = useSpring(scrollYProgress, {
     stiffness: 200,
     damping: 18,
@@ -130,6 +207,10 @@ export default function ServicesCards() {
   );
 }
 
+/* ============================================================
+   CARD LAYER (UNCHANGED)
+============================================================ */
+
 function CardLayer({
   index,
   total,
@@ -155,13 +236,13 @@ function CardLayer({
   const enterStart = segStart + SEG * t.enterFrom;
   const enterEnd = segStart + SEG * t.enterTo;
 
-  // Κίνηση μόνο — opacity πάντα 1
   const y = useTransform(progress, [enterStart, enterEnd], [t.offsetPx, 0], {
     clamp: true,
   });
   const scale = useTransform(progress, [enterStart, enterEnd], [0.985, 1], {
     clamp: true,
   });
+
   const opacity = 1;
 
   const zIndex = useTransform(progress, (tt: number) =>
@@ -171,14 +252,17 @@ function CardLayer({
   return (
     <motion.article
       className="absolute inset-0"
-      style={{ y, scale, zIndex, opacity }}
+      style={{ y, scale, opacity, zIndex }}
     >
       <CardBody data={data} />
     </motion.article>
   );
 }
 
-/* ------------------------------- Card Body ------------------------------- */
+/* ============================================================
+   CARD BODY (UNCHANGED)
+============================================================ */
+
 function CardBody({ data }: { data: CardContent }) {
   return (
     <div
@@ -190,7 +274,6 @@ function CardBody({ data }: { data: CardContent }) {
         overflow-hidden
       "
     >
-      {/* VIDEO: λίγο μικρότερο για να χωρέσουν άνετα τα pills */}
       <div className="relative h-[52%] overflow-hidden rounded-t-[54px]">
         <video
           className="absolute inset-0 h-full w-full object-cover"
@@ -202,7 +285,6 @@ function CardBody({ data }: { data: CardContent }) {
         />
       </div>
 
-      {/* TEXT + PILL BUTTONS (centered) */}
       <div className="px-6 sm:px-10 lg:px-14 pt-6 sm:pt-8 lg:pt-10 pb-24 sm:pb-28 lg:pb-32">
         <div className="max-w-3xl mx-auto text-center">
           <h3 className="text-[clamp(32px,6vw,78px)] leading-[0.95] font-extrabold tracking-[-0.01em] text-neutral-900">
@@ -213,7 +295,6 @@ function CardBody({ data }: { data: CardContent }) {
             {data.description}
           </p>
 
-          {/* PILL BUTTONS: ίδια διάσταση, wrap αν χρειαστεί, πλήρως κεντραρισμένα */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {data.tags.map((pill, i) => {
               const p = typeof pill === "string" ? { label: pill } : pill;
@@ -232,6 +313,7 @@ function CardBody({ data }: { data: CardContent }) {
                   </a>
                 );
               }
+
               return (
                 <button key={i} className={base} onClick={p.onClick}>
                   {p.label}
