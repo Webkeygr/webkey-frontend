@@ -76,30 +76,31 @@ export default function Footer() {
                   >
                     <span className="py-1">{label}</span>
 
-                    {/* Arrow – μόνο στο hover, διαγώνιο */}
-                    <span
-                      className="
-                        pointer-events-none
-                        absolute
-                        right-0
-                        top-1/2
-                        h-6
-                        w-10
-                        -translate-y-1/2
-                        origin-right
-                        opacity-0
-                        rotate-[18deg]
-                        transition-all
-                        duration-200
-                        group-hover:translate-x-1
-                        group-hover:opacity-100
-                      "
-                    >
-                      {/* γραμμή */}
-                      <span className="absolute right-0 top-1/2 h-[1px] w-7 -translate-y-1/2 bg-white" />
-                      {/* κεφαλή βέλους */}
-                      <span className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r border-t border-white" />
-                    </span>
+                    {/* Arrow – μόνο στο hover, πιο χοντρό και πιο “πάνω” */}
+<span
+  className="
+    pointer-events-none
+    absolute
+    right-0
+    top-1/2
+    h-6
+    w-10
+    -translate-y-1/2
+    origin-right
+    opacity-0
+    -rotate-[35deg]
+    transition-all
+    duration-200
+    group-hover:translate-x-1
+    group-hover:opacity-100
+  "
+>
+  {/* γραμμή */}
+  <span className="absolute right-0 top-1/2 h-[2px] w-7 -translate-y-1/2 bg-white" />
+  {/* κεφαλή βέλους */}
+  <span className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r-2 border-t-2 border-white" />
+</span>
+
                   </button>
                 ))}
               </nav>
