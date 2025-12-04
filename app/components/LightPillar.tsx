@@ -20,10 +20,10 @@ type LightPillarProps = {
 };
 
 const LightPillar = ({
-  topColor = "#5227FF",
-  bottomColor = "#FF9FFC",
-  intensity = 1.0,
-  rotationSpeed = 0.3,
+  topColor = "#38bdf8",
+  bottomColor = "#ff00f2",
+  intensity = 1.4,
+  rotationSpeed = 2.0,
   interactive = false,
   className = "",
   glowAmount = 0.005,
