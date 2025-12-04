@@ -9,7 +9,7 @@ export default function ScrollTextSection() {
       className="relative z-[6] w-full bg-white"
     >
       {/* “μονοπάτι” scroll */}
-      <div className="h-[220vh]">
+      <div className="h-[300vh]">
         {/* Sticky που μένει στην οθόνη */}
         <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
           <ScrollVelocity
