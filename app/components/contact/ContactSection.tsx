@@ -7,109 +7,96 @@ import LightPillar from "@/app/components/LightPillar";
 const interestOptions = ["website", "branding", "ecommerce"] as const;
 type InterestKey = (typeof interestOptions)[number];
 
+type FormState = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  message: string;
+  interests: InterestKey[];
+  newsletter: boolean;
+  privacy: boolean;
+};
+
 export default function ContactSection() {
   const pathname = usePathname();
-  const isEnglish = pathname?.startsWith("/en");
-  const lang: "en" | "el" = isEnglish ? "en" : "el";
+  const isEnglish = pathname.startsWith("/en");
 
-  const [selectedInterests, setSelectedInterests] = useState<InterestKey[]>([]);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [newsletter, setNewsletter] = useState(false);
-  const [privacyConsent, setPrivacyConsent] = useState(true);
+  const [form, setForm] = useState<FormState>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    message: "",
+    interests: [],
+    newsletter: false,
+    privacy: false,
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [status, setStatus] = useState<null | "success" | "error">(null);
-
-  const copy = {
-    en: {
-      title: "I am interested in :",
-      interests: {
-        website: "A new website",
-        branding: "Branding",
-        ecommerce: "E-Commerce",
-      },
-      firstName: "First name*",
-      lastName: "Last name*",
-      email: "Email*",
-      message: "Message",
-      newsletter: "I'm happy to receive a monthly newsletter from Webkey",
-      privacy:
-        "I understand that Webkey will securely hold my data in accordance with their privacy policy",
-      submit: "Submit",
-      sending: "Sending...",
-      success: "Thank you! We will contact you soon.",
-      error: "Something went wrong. Please try again.",
-      startYourProject: "Start your project",
-      phone: "+30 6985608579",
-    },
-    el: {
-      title: "Με ενδιαφέρει:",
-      interests: {
-        website: "Νέα ιστοσελίδα",
-        branding: "Branding",
-        ecommerce: "E-Commerce",
-      },
-      firstName: "Όνομα*",
-      lastName: "Επώνυμο*",
-      email: "Email*",
-      message: "Μήνυμα",
-      newsletter: "Επιθυμώ να λαμβάνω μηνιαίο newsletter από τη Webkey",
-      privacy:
-        "Κατανοώ ότι η Webkey θα διαχειριστεί με ασφάλεια τα δεδομένα μου σύμφωνα με την πολιτική απορρήτου",
-      submit: "Αποστολή",
-      sending: "Αποστολή...",
-      success: "Ευχαριστούμε! Θα επικοινωνήσουμε μαζί σας σύντομα.",
-      error: "Κάτι πήγε στραβά. Δοκιμάστε ξανά.",
-      startYourProject: "Start your project", // δεν μεταφράζεται
-      phone: "+30 6985608579",
-    },
-  }[lang];
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   const toggleInterest = (key: InterestKey) => {
-    setSelectedInterests((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
-    );
+    setForm((prev) => {
+      const exists = prev.interests.includes(key);
+      return {
+        ...prev,
+        interests: exists
+          ? prev.interests.filter((k) => k !== key)
+          : [...prev.interests, key],
+      };
+    });
   };
+
+  const handleChange =
+    (field: keyof FormState) =>
+    (
+      e:
+        | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        | React.ChangeEvent<HTMLInputElement>
+    ) => {
+      const target = e.target as HTMLInputElement | HTMLTextAreaElement;
+      if (target.type === "checkbox") {
+        setForm((prev) => ({
+          ...prev,
+          [field]: (target as HTMLInputElement).checked,
+        }));
+      } else {
+        setForm((prev) => ({ ...prev, [field]: target.value }));
+      }
+    };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus(null);
-
-    if (!firstName || !lastName || !email || !message) {
-      setStatus("error");
-      return;
-    }
-
     setIsSubmitting(true);
+    setStatus("idle");
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lang,
-          interests: selectedInterests,
-          firstName,
-          lastName,
-          email,
-          message,
-          newsletter,
-          privacyConsent,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          email: form.email,
+          message: form.message,
+          interests: form.interests,
+          newsletter: form.newsletter,
+          privacy: form.privacy,
+          locale: isEnglish ? "en" : "el",
         }),
       });
 
       if (!res.ok) throw new Error("Request failed");
 
       setStatus("success");
-      setSelectedInterests([]);
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setMessage("");
-      setNewsletter(false);
-      setPrivacyConsent(true);
+      setForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        message: "",
+        interests: [],
+        newsletter: false,
+        privacy: false,
+      });
     } catch (err) {
       console.error(err);
       setStatus("error");
@@ -118,162 +105,198 @@ export default function ContactSection() {
     }
   };
 
+  const t = {
+    title: isEnglish ? "I am interested in:" : "Με ενδιαφέρει:",
+    interests: {
+      website: isEnglish ? "A new website" : "Νέα ιστοσελίδα",
+      branding: "Branding",
+      ecommerce: "E-Commerce",
+    },
+    firstName: isEnglish ? "First name*" : "Όνομα*",
+    lastName: isEnglish ? "Last name*" : "Επώνυμο*",
+    email: "Email*",
+    messageLabel: isEnglish ? "Message" : "Μήνυμα",
+    newsletter:
+      (isEnglish
+        ? "I'm happy to receive a monthly newsletter from Webkey."
+        : "Θέλω να λαμβάνω μηνιαίο newsletter από τη Webkey.") + "",
+    privacy: isEnglish
+      ? "I understand that Webkey will securely hold my data in accordance with their privacy policy."
+      : "Κατανοώ ότι η Webkey θα διαχειρίζεται τα δεδομένα μου με ασφάλεια σύμφωνα με την πολιτική απορρήτου της.",
+    submit: isEnglish ? "Submit" : "Αποστολή",
+    startYourProject: "Start your project", // ΜΗΝ μεταφράσεις
+  };
+
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden">
-      {/* Φόντο LightPillar */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <LightPillar
-          topColor="#5227FF"
-          bottomColor="#FF9FFC"
-          intensity={1.2}
-          rotationSpeed={0.25}
-          glowAmount={0.006}
-          pillarWidth={3.2}
-          pillarHeight={0.45}
-          noiseIntensity={0.4}
-          pillarRotation={0}
-          interactive={false}
-          mixBlendMode="screen"
-        />
-        <div className="absolute inset-0 bg-black/80" />
-      </div>
+    <section className="relative w-full min-h-screen overflow-hidden bg-black text-white">
+      {/* 🔵 LightPillar background */}
+      <LightPillar
+        className=""
+        topColor="#fcec45" // Webkey yellow
+        bottomColor="#38bdf8" // cyan
+        intensity={1.2}
+        rotationSpeed={0.35} // πιο αργό / premium
+        glowAmount={0.006}
+        pillarWidth={3}
+        pillarHeight={0.5}
+        noiseIntensity={0.4}
+        pillarRotation={0}
+        interactive={false}
+        mixBlendMode="screen"
+      />
 
-      {/* TODO: εδώ βάλε ό,τι trigger χρειάζεσαι για λευκό header (όπως στο AboutPhilosophy) */}
+      {/* 🔴 Content */}
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center gap-16 px-6 py-24">
+        {/* Επικεφαλίδα & επιλογές ενδιαφέροντος */}
+        <div>
+          <h1 className="mb-6 text-3xl sm:text-4xl md:text-5xl font-light">
+            {t.title}
+          </h1>
 
-      {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center">
-        <div className="mx-auto w-full max-w-5xl px-6 md:px-10">
-          {/* I am interested in */}
-          <div className="mb-10 md:mb-12">
-            <p className="text-sm md:text-base tracking-[0.08em] uppercase text-neutral-200 mb-4">
-              {copy.title}
-            </p>
-
-            <div className="flex flex-wrap gap-4">
-              {interestOptions.map((key) => {
-                const label = copy.interests[key];
-                const active = selectedInterests.includes(key);
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => toggleInterest(key)}
-                    className={`px-6 py-2 rounded-full border text-sm md:text-base transition-all ${
-                      active
-                        ? "bg-white text-black border-white"
-                        : "border-neutral-500 text-neutral-100 hover:border-white hover:text-white"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="flex flex-wrap gap-4">
+            {interestOptions.map((key) => {
+              const label = t.interests[key];
+              const isActive = form.interests.includes(key);
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => toggleInterest(key)}
+                  className={`rounded-full border px-6 py-2 text-sm tracking-wide transition-colors ${
+                    isActive
+                      ? "border-white bg-white text-black"
+                      : "border-zinc-500/70 text-zinc-200 hover:border-white/80 hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
+        </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-10 text-neutral-100">
-            {/* First row: First / Last / Email */}
-            <div className="grid gap-6 md:gap-8 md:grid-cols-3">
-              <div className="flex flex-col">
-                <label className="text-sm mb-2">{copy.firstName}</label>
-                <input
-                  type="text"
-                  className="bg-transparent border-b border-neutral-600 focus:border-white outline-none py-2 text-sm md:text-base"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="text-sm mb-2">{copy.lastName}</label>
-                <input
-                  type="text"
-                  className="bg-transparent border-b border-neutral-600 focus:border-white outline-none py-2 text-sm md:text-base"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="text-sm mb-2">{copy.email}</label>
-                <input
-                  type="email"
-                  className="bg-transparent border-b border-neutral-600 focus:border-white outline-none py-2 text-sm md:text-base"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Message */}
-            <div className="flex flex-col">
-              <label className="text-sm mb-2">{copy.message}</label>
-              <textarea
-                rows={4}
-                className="bg-transparent border-b border-neutral-600 focus:border-white outline-none py-2 text-sm md:text-base resize-none"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+        {/* Φόρμα */}
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-10 text-sm sm:text-base"
+        >
+          {/* 3 πεδία στη σειρά */}
+          <div className="grid gap-8 md:grid-cols-3">
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+                {t.firstName}
+              </label>
+              <input
+                type="text"
+                value={form.firstName}
+                onChange={handleChange("firstName")}
+                className="border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+                required
               />
             </div>
 
-            {/* Checkboxes + Submit button */}
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="space-y-3 text-xs md:text-sm text-neutral-200">
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newsletter}
-                    onChange={(e) => setNewsletter(e.target.checked)}
-                    className="mt-0.5 accent-white"
-                  />
-                  <span>{copy.newsletter}</span>
-                </label>
-
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={privacyConsent}
-                    onChange={(e) => setPrivacyConsent(e.target.checked)}
-                    className="mt-0.5 accent-white"
-                  />
-                  <span>{copy.privacy}</span>
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting || !privacyConsent}
-                className="self-end inline-flex items-center justify-center rounded-full border border-white px-8 py-2 text-sm md:text-base font-medium text-black bg-white hover:bg-neutral-100 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? copy.sending : copy.submit}
-                <span className="ml-2">→</span>
-              </button>
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+                {t.lastName}
+              </label>
+              <input
+                type="text"
+                value={form.lastName}
+                onChange={handleChange("lastName")}
+                className="border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+                required
+              />
             </div>
 
-            {/* Status message */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+                {t.email}
+              </label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={handleChange("email")}
+                className="border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Μήνυμα */}
+          <div className="flex flex-col gap-3">
+            <label className="text-sm font-medium tracking-wide">
+              {t.messageLabel}
+            </label>
+            <textarea
+              value={form.message}
+              onChange={handleChange("message")}
+              rows={4}
+              className="resize-none border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+            />
+          </div>
+
+          {/* Checkboxes */}
+          <div className="flex flex-col gap-3 text-xs sm:text-sm text-zinc-300">
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={form.newsletter}
+                onChange={handleChange("newsletter")}
+                className="mt-[2px] h-4 w-4 border border-zinc-500 bg-transparent accent-white"
+              />
+              <span>{t.newsletter}</span>
+            </label>
+
+            <label className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                checked={form.privacy}
+                onChange={handleChange("privacy")}
+                className="mt-[2px] h-4 w-4 border border-zinc-500 bg-transparent accent-white"
+                required
+              />
+              <span>{t.privacy}</span>
+            </label>
+          </div>
+
+          {/* Submit + status */}
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-full border border-white px-8 py-2 text-sm uppercase tracking-[0.2em] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting ? "..." : t.submit}
+            </button>
+
             {status === "success" && (
-              <p className="text-xs md:text-sm text-emerald-400">
-                {copy.success}
-              </p>
+              <span className="text-xs text-emerald-400">
+                {isEnglish
+                  ? "Thank you! We will get back to you soon."
+                  : "Ευχαριστούμε! Θα επικοινωνήσουμε μαζί σου σύντομα."}
+              </span>
             )}
             {status === "error" && (
-              <p className="text-xs md:text-sm text-red-400">{copy.error}</p>
+              <span className="text-xs text-red-400">
+                {isEnglish
+                  ? "Something went wrong. Please try again."
+                  : "Κάτι πήγε στραβά. Δοκίμασε ξανά."}
+              </span>
             )}
-          </form>
-        </div>
-      </div>
-
-      {/* Λευκό block στο κάτω μέρος (Start your project) */}
-      <div className="relative z-10 mt-12">
-        <div className="mx-auto w-full max-w-5xl px-6 md:px-10 pb-10">
-          <div className="bg-white text-black rounded-t-[80px] md:rounded-t-[120px] px-8 md:px-16 py-10 md:py-14">
-            <p className="text-2xl md:text-4xl font-semibold tracking-[0.1em] uppercase mb-6">
-              {copy.startYourProject}
-            </p>
-            <p className="text-lg md:text-2xl mb-1">info@webkey.gr</p>
-            <p className="text-lg md:text-2xl">{copy.phone}</p>
           </div>
+        </form>
+
+        {/* Start your project block */}
+        <div className="relative mt-4 rounded-t-[4rem] bg-white px-8 py-10 text-black sm:px-12 sm:py-12 md:px-16">
+          <p className="mb-4 text-2xl sm:text-3xl md:text-4xl font-medium tracking-[0.12em] uppercase">
+            {t.startYourProject}
+          </p>
+          <p className="text-lg sm:text-xl md:text-2xl font-semibold">
+            info@webkey.gr
+          </p>
+          <p className="text-lg sm:text-xl md:text-2xl mt-2 font-semibold">
+            +30 6985608579
+          </p>
         </div>
       </div>
     </section>
