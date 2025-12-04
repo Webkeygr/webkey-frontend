@@ -1,8 +1,6 @@
 "use client";
 
 import ScrollVelocity from "@/components/ui/shadcn-io/scroll-velocity";
-// αν το shadcn στο έφτιαξε αλλού (π.χ. "@/components/text/scroll-velocity"),
-// άλλαξε απλώς το import path.
 
 export default function ScrollTextSection() {
   return (
@@ -10,13 +8,14 @@ export default function ScrollTextSection() {
       id="scroll-divider"
       className="
         relative
+        z-[6]              /* πάνω από το προηγούμενο section */
         w-full
         overflow-hidden
-        py-16
+        py-24              /* λίγο παραπάνω ύψος */
         bg-gradient-to-b
-        from-white         /* ίδια λευκή αρχή με το προηγούμενο section */
-        via-white/90
-        to-transparent    /* σβήνει σταδιακά και αποκαλύπτει το background από κάτω */
+        from-white
+        via-white
+        to-white           /* ΠΛΗΡΩΣ λευκό – δεν φαίνεται τίποτα από πίσω */
       "
     >
       <div className="flex items-center justify-center">
