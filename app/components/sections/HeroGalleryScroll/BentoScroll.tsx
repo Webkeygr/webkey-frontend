@@ -94,7 +94,7 @@ const BentoScroll: React.FC = () => {
                 <div className="hero-gallery-cell hero-gallery-side-top">
                   <video
                     className="hero-gallery-video"
-                    src="/videos/site_video-1.mp4"
+                    src="/videos/site_video_2.mp4"
                     autoPlay
                     loop
                     muted
