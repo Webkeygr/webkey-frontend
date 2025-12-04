@@ -10,22 +10,26 @@ export default function ScrollTextSection() {
         relative
         z-[6]
         w-full
-        overflow-hidden
-        min-h-screen      /* καλύπτει όλη την οθόνη */
-        bg-white          /* full λευκό φόντο */
+        min-h-[200vh]     /* “μονοπάτι” scroll - μεγαλύτερο από 1 screen */
+        bg-white
       "
     >
+      {/* Sticky wrapper */}
       <div
         className="
+          sticky
+          top-0
+          h-screen
           flex
           items-center
           justify-center
-          pt-[40vh]        /* φέρνει το text στο ίδιο περίπου ύψος */
-          pb-24
         "
       >
         <ScrollVelocity
-          texts={["Custom Websites • Unique Branding • Digital Strategy", "Innovative Ideas • Seamless Experiences • Meaningful Results"]}
+          texts={[
+            "Custom Websites • Unique Branding • Digital Strategy",
+            "Innovative Ideas • Seamless Experiences • Meaningful Results",
+          ]}
           velocity={80}
           className="
             text-black

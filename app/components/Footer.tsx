@@ -22,6 +22,7 @@ export default function Footer() {
 
   const handleCopyEmail = async () => {
     if (typeof navigator === "undefined" || !navigator.clipboard) return;
+
     try {
       await navigator.clipboard.writeText(FOOTER_EMAIL);
       setCopied(true);
@@ -34,7 +35,7 @@ export default function Footer() {
   return (
     <section
       ref={ref}
-      className="relative h-screen bg-black text-white overflow-hidden"
+      className="relative z-[10] h-screen bg-black text-white overflow-hidden"
     >
       <motion.div
         style={{ y }}
@@ -44,9 +45,10 @@ export default function Footer() {
           {/* === Top: Logo + Menu === */}
           <div className="flex flex-1 flex-col gap-12 md:flex-row md:items-center md:justify-between">
             {/* Left: Logo + tagline */}
-            <div className="md:w-1/2 flex flex-col items-center md:items-start">
-              <div className="flex flex-col items-center md:items-start">
-                <div className="relative h-40 w-[360px] md:h-48 md:w-[420px]">
+            <div className="md:w-1/2 flex flex-col items-center">
+              <div className="flex flex-col items-center">
+                {/* Μεγαλύτερο logo */}
+                <div className="relative h-56 w-[460px] md:h-64 md:w-[520px]">
                   <Image
                     src="/images/logo-webkey-white.svg"
                     alt="Webkey logo"
@@ -56,14 +58,15 @@ export default function Footer() {
                   />
                 </div>
 
-                <p className="mt-4 text-lg font-semibold tracking-wide text-center md:text-left md:text-xl">
+                {/* Πάντα στο κέντρο, κάτω από το logo */}
+                <p className="mt-5 text-lg font-semibold tracking-wide text-center md:text-xl">
                   The Key to the Future
                 </p>
               </div>
             </div>
 
             {/* Right: Menu + Newsletter */}
-            <div className="md:w-1/2 md:max-w-sm md:mt-10">
+            <div className="md:w-1/2 md:max-w-sm md:mt-14">
               <nav className="space-y-3">
                 {menuItems.map((label) => (
                   <button
@@ -74,11 +77,28 @@ export default function Footer() {
                     <span className="py-1">{label}</span>
 
                     {/* Arrow – μόνο στο hover, διαγώνιο */}
-                    <span className="pointer-events-none absolute right-0 -top-3 h-6 w-10 opacity-0 transition-all duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:opacity-100">
+                    <span
+                      className="
+                        pointer-events-none
+                        absolute
+                        right-0
+                        top-1/2
+                        h-6
+                        w-10
+                        -translate-y-1/2
+                        origin-right
+                        opacity-0
+                        rotate-[18deg]
+                        transition-all
+                        duration-200
+                        group-hover:translate-x-1
+                        group-hover:opacity-100
+                      "
+                    >
                       {/* γραμμή */}
-                      <span className="absolute left-1 top-3 h-[1px] w-7 rotate-[12deg] bg-white" />
+                      <span className="absolute right-0 top-1/2 h-[1px] w-7 -translate-y-1/2 bg-white" />
                       {/* κεφαλή βέλους */}
-                      <span className="absolute right-1 top-1 h-2 w-2 rotate-45 border-r border-t border-white" />
+                      <span className="absolute right-0 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r border-t border-white" />
                     </span>
                   </button>
                 ))}
@@ -113,7 +133,29 @@ export default function Footer() {
                 </button>
 
                 {/* Bubble */}
-                <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-black shadow-lg opacity-0 whitespace-nowrap transition-all duration-150 group-hover:-translate-y-1 group-hover:opacity-100">
+                <span
+                  className="
+                    pointer-events-none
+                    absolute
+                    -top-8
+                    left-1/2
+                    -translate-x-1/2
+                    whitespace-nowrap
+                    rounded-full
+                    bg-white
+                    px-3
+                    py-1
+                    text-xs
+                    font-semibold
+                    text-black
+                    shadow-lg
+                    opacity-0
+                    transition-all
+                    duration-150
+                    group-hover:-translate-y-1
+                    group-hover:opacity-100
+                  "
+                >
                   {copied ? "Copied!" : "Copy email"}
                 </span>
               </div>
