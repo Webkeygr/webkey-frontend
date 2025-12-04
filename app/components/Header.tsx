@@ -71,6 +71,44 @@ function useAboutDark(): boolean {
   return isDark;
 }
 
+/**
+ * Επιστρέφει true όταν είμαστε κοντά στο τέλος της σελίδας
+ * (τελευταίο ~80% ενός viewport από το bottom) – το θεωρούμε "ζώνη footer".
+ */
+function useFooterZone(): boolean {
+  const [isFooterDark, setIsFooterDark] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handle = () => {
+      const doc = document.documentElement;
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const vh = window.innerHeight || 0;
+      const docHeight = doc.scrollHeight || document.body.scrollHeight || 0;
+
+      const distanceFromBottom = docHeight - (scrollY + vh);
+
+      // Όταν η απόσταση από το bottom είναι μικρότερη από ~0.8 * viewport,
+      // θεωρούμε ότι έχουμε μπει στην περιοχή του footer.
+      const inFooterZone = distanceFromBottom <= vh * 0.8;
+
+      setIsFooterDark(inFooterZone);
+    };
+
+    handle();
+    window.addEventListener("scroll", handle);
+    window.addEventListener("resize", handle);
+
+    return () => {
+      window.removeEventListener("scroll", handle);
+      window.removeEventListener("resize", handle);
+    };
+  }, []);
+
+  return isFooterDark;
+}
+
 export default function Header({
   logoSrc = "/images/logo-webkey.svg",
 }: HeaderProps) {
@@ -113,40 +151,12 @@ export default function Header({
   ];
 
   const isAboutDark = useAboutDark();
+  const isFooterDark = useFooterZone();
 
-  // --- Footer dark detection -----------------------------------
-  const [isFooterDark, setIsFooterDark] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const footer = document.getElementById("home-footer");
-    if (!footer || !(window as any).IntersectionObserver) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const visible =
-          entry.isIntersecting && entry.intersectionRatio > 0.35;
-        setIsFooterDark(visible);
-      },
-      {
-        threshold: [0, 0.35, 0.7],
-      }
-    );
-
-    observer.observe(footer);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  // Συνολική κατάσταση: χρειαζόμαστε "λευκό header" όταν
-  // είτε το about-black-circle έχει γεμίσει την οθόνη
-  // είτε είμαστε πάνω από το footer.
+  // Θέλουμε "λευκό header" είτε στο About dark phase είτε στο footer zone
   const isHeaderDark = isAboutDark || isFooterDark;
 
-  // Προσθέτουμε / αφαιρούμε την .dark-header από το <body>
+  // Προσθέτουμε / αφαιρούμε την .dark-header στο <body>
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -157,15 +167,14 @@ export default function Header({
     }
   }, [isHeaderDark]);
 
-  // Κανονικό logo παντού,
-  // white logo όταν θέλουμε "λευκό header" (About black circle + Footer)
+  // Επιλογή logo: κανονικό ή λευκό
   const effectiveLogo = isHeaderDark
     ? "/images/logo-webkey-white.svg"
     : logoSrc;
 
   return (
     <BubbleMenu
-      /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως πριν */
+      /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως το είχαμε */
       logo={
         <Image
           src={effectiveLogo}
