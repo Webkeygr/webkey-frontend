@@ -82,7 +82,7 @@ const BentoScroll: React.FC = () => {
                 <div className="hero-gallery-cell hero-gallery-main">
                   <video
                     className="hero-gallery-video"
-                    src="/videos/project-main.mp4"
+                    src="/videos/site_video.mp4"
                     autoPlay
                     loop
                     muted
@@ -94,7 +94,7 @@ const BentoScroll: React.FC = () => {
                 <div className="hero-gallery-cell hero-gallery-side-top">
                   <video
                     className="hero-gallery-video"
-                    src="/videos/project-side-top.mp4"
+                    src="/videos/site_video-1.mp4"
                     autoPlay
                     loop
                     muted
