@@ -164,6 +164,12 @@
 .hero-gallery-main {
   grid-column: 1 / 2;
   grid-row: 1 / 3; /* πιάνει και τις δύο σειρές αριστερά */
+  background: #ffffff;
+
+  /* κεντράρισμα περιεχομένου */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .hero-gallery-side-top {
@@ -255,4 +261,12 @@
   height: auto;
   max-height: 100%;
   object-fit: contain; /* να χωράει ολόκληρο */
+}
+
+/* Το video στο αριστερό μεγάλο κουτί να φαίνεται ολόκληρο */
+.hero-gallery-main .hero-gallery-video {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain; /* να χωράει όλο */
 }
