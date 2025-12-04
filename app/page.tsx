@@ -34,7 +34,10 @@ export default function ServicesPage() {
       <AboutPhilosophySplit />
       <BentoScroll />
       <ScrollTextSection />
+      
+      <div className="-mt-[100vh] relative z-[20]">
       <Footer />
+      </div>
     </>
   );
 }
