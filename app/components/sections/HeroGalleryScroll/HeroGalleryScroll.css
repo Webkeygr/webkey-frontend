@@ -169,6 +169,11 @@
 .hero-gallery-side-top {
   grid-column: 2 / 3;
   grid-row: 1 / 2;
+  background: #ffffff;
+ /* κεντράρισμα του περιεχομένου */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Κάτω δεξιά: κρατάμε τη θέση στο grid αλλά εξαφανίζουμε το “κουτί” */
@@ -242,4 +247,12 @@
 .hero-gallery-btn-full {
   width: 100%;
   justify-content: center;
+}
+
+/* Το video / εικόνα στο δεξί επάνω κουτί να φαίνεται ολόκληρο, centered */
+.hero-gallery-side-top .hero-gallery-video {
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain; /* να χωράει ολόκληρο */
 }
