@@ -25,7 +25,7 @@ export default function ScrollTextSection() {
         "
       >
         <ScrollVelocity
-          texts={["Creative Websites", "Digital Identity"]}
+          texts={["Custom Websites • Unique Branding • Digital Strategy", "Innovative Ideas • Seamless Experiences • Meaningful Results"]}
           velocity={80}
           className="
             text-black
