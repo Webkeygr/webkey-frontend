@@ -82,7 +82,7 @@ export default function Footer() {
     pointer-events-none
     absolute
     right-0
-    top-1/2
+    top-[40%]
     h-6
     w-10
     -translate-y-1/2
