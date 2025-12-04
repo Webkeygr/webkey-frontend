@@ -22,17 +22,17 @@ const BentoScroll: React.FC = () => {
   const headerOpacity = useTransform(scrollYProgress, [0.15, 0.4], [0, 1]);
   const headerY = useTransform(scrollYProgress, [0.15, 0.4], [30, 0]);
 
-  // Κουμπιά header: λίγο πιο μετά (αν τα ξαναχρησιμοποιήσεις στο μέλλον)
+  // Κουμπιά header: λίγο πιο μετά (παρότι είναι hidden στο CSS δεν πειράζει)
   const buttonsOpacity = useTransform(scrollYProgress, [0.25, 0.5], [0, 1]);
   const buttonsY = useTransform(scrollYProgress, [0.25, 0.5], [30, 0]);
 
   return (
     <section ref={sectionRef} className="hero-gallery-section">
       <div className="hero-gallery-scroll-area">
-        {/* ΜΟΝΟ hero-gallery-sticky – ΔΕΝ υπάρχει πια fixed/pinned */}
+        {/* ΔΕΝ υπάρχει πια fixed κλάση – μόνο sticky από το CSS */}
         <div className="hero-gallery-sticky">
           <div className="hero-gallery-inner">
-            {/* Τίτλος + κείμενο + (κρυμμένα) κουμπιά */}
+            {/* Τίτλος + κείμενο + κουμπιά */}
             <motion.div
               className="hero-gallery-header"
               style={{ opacity: headerOpacity, y: headerY }}

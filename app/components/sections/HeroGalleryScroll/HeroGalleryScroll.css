@@ -16,7 +16,7 @@
   height: 260vh; /* “μονοπάτι” scroll του animation */
 }
 
-/* ΤΩΡΑ sticky – ΟΧΙ πλέον fixed */
+/* ΤΩΡΑ sticky, ΟΧΙ fixed */
 .hero-gallery-sticky {
   position: sticky;
   top: 0;
@@ -25,12 +25,6 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-}
-
-/* Κρατάω την κλάση για την ιστορία, αλλά δεν χρησιμοποιείται πλέον */
-.hero-gallery-sticky.hero-gallery-sticky-fixed {
-  position: fixed;
-  inset: 0;
 }
 
 /* ==========================
@@ -162,7 +156,7 @@
   border-radius: inherit;
 }
 
-/* layout θέσεις */
+/* layout θέσεις – αριστερό & πάνω δεξί κουτί λευκά, centered content */
 
 .hero-gallery-main {
   grid-column: 1 / 2;
@@ -265,6 +259,7 @@
   height: auto;
   max-height: 100%;
   object-fit: contain; /* να χωράει ολόκληρο */
+  background: #ffffff;
 }
 
 /* Το video στο αριστερό μεγάλο κουτί να φαίνεται ολόκληρο */
@@ -273,4 +268,5 @@
   height: auto;
   max-height: 100%;
   object-fit: contain; /* να χωράει όλο */
+  background: #ffffff;
 }
