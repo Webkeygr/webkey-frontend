@@ -1,28 +1,17 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
-} from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 import "./HeroGalleryScroll.css";
 
 const BentoScroll: React.FC = () => {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [isPinned, setIsPinned] = useState(false);
 
   // Scroll ΜΟΝΟ για αυτό το section
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-
-  // Sticky όσο είναι στο viewport
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setIsPinned(v > 0 && v < 1);
+    offset: ["start start", "end end"],
   });
 
   // Τα “κουτιά” ξεκινούν ΠΟΛΥ μεγάλα και μικραίνουν (zoom out)
@@ -33,22 +22,17 @@ const BentoScroll: React.FC = () => {
   const headerOpacity = useTransform(scrollYProgress, [0.15, 0.4], [0, 1]);
   const headerY = useTransform(scrollYProgress, [0.15, 0.4], [30, 0]);
 
-  // Κουμπιά header: λίγο πιο μετά
+  // Κουμπιά header: λίγο πιο μετά (αν τα ξαναχρησιμοποιήσεις στο μέλλον)
   const buttonsOpacity = useTransform(scrollYProgress, [0.25, 0.5], [0, 1]);
   const buttonsY = useTransform(scrollYProgress, [0.25, 0.5], [30, 0]);
 
   return (
     <section ref={sectionRef} className="hero-gallery-section">
       <div className="hero-gallery-scroll-area">
-        <div
-          className={
-            isPinned
-              ? "hero-gallery-sticky hero-gallery-sticky-fixed"
-              : "hero-gallery-sticky"
-          }
-        >
+        {/* ΜΟΝΟ hero-gallery-sticky – ΔΕΝ υπάρχει πια fixed/pinned */}
+        <div className="hero-gallery-sticky">
           <div className="hero-gallery-inner">
-            {/* Τίτλος + κείμενο + κουμπιά */}
+            {/* Τίτλος + κείμενο + (κρυμμένα) κουμπιά */}
             <motion.div
               className="hero-gallery-header"
               style={{ opacity: headerOpacity, y: headerY }}
