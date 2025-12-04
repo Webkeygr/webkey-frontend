@@ -27,7 +27,8 @@ function useAboutDark(): boolean {
     if (typeof window === "undefined") return;
 
     const check = () => {
-      const circle = document.querySelector<HTMLElement>(".about-black-circle");
+      const circle =
+        document.querySelector<HTMLElement>(".about-black-circle");
 
       // Αν δεν υπάρχει το section, δεν είμαστε σε dark phase
       if (!circle) {
@@ -113,9 +114,54 @@ export default function Header({
 
   const isAboutDark = useAboutDark();
 
+  // --- Footer dark detection -----------------------------------
+  const [isFooterDark, setIsFooterDark] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const footer = document.getElementById("home-footer");
+    if (!footer || !(window as any).IntersectionObserver) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const visible =
+          entry.isIntersecting && entry.intersectionRatio > 0.35;
+        setIsFooterDark(visible);
+      },
+      {
+        threshold: [0, 0.35, 0.7],
+      }
+    );
+
+    observer.observe(footer);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  // Συνολική κατάσταση: χρειαζόμαστε "λευκό header" όταν
+  // είτε το about-black-circle έχει γεμίσει την οθόνη
+  // είτε είμαστε πάνω από το footer.
+  const isHeaderDark = isAboutDark || isFooterDark;
+
+  // Προσθέτουμε / αφαιρούμε την .dark-header από το <body>
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    if (isHeaderDark) {
+      document.body.classList.add("dark-header");
+    } else {
+      document.body.classList.remove("dark-header");
+    }
+  }, [isHeaderDark]);
+
   // Κανονικό logo παντού,
-  // white logo ΜΟΝΟ όταν ο κύκλος έχει γεμίσει την οθόνη
-  const effectiveLogo = isAboutDark ? "/images/logo-webkey-white.svg" : logoSrc;
+  // white logo όταν θέλουμε "λευκό header" (About black circle + Footer)
+  const effectiveLogo = isHeaderDark
+    ? "/images/logo-webkey-white.svg"
+    : logoSrc;
 
   return (
     <BubbleMenu
