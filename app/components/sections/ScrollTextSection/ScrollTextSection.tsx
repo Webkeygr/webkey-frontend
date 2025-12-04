@@ -8,17 +8,22 @@ export default function ScrollTextSection() {
       id="scroll-divider"
       className="
         relative
-        z-[6]              /* πάνω από το προηγούμενο section */
+        z-[6]
         w-full
         overflow-hidden
-        py-24              /* λίγο παραπάνω ύψος */
-        bg-gradient-to-b
-        from-white
-        via-white
-        to-white           /* ΠΛΗΡΩΣ λευκό – δεν φαίνεται τίποτα από πίσω */
+        min-h-screen      /* καλύπτει όλη την οθόνη */
+        bg-white          /* full λευκό φόντο */
       "
     >
-      <div className="flex items-center justify-center">
+      <div
+        className="
+          flex
+          items-center
+          justify-center
+          pt-[40vh]        /* φέρνει το text στο ίδιο περίπου ύψος */
+          pb-24
+        "
+      >
         <ScrollVelocity
           texts={["Creative Websites", "Digital Identity"]}
           velocity={80}
