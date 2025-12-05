@@ -29,10 +29,11 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
+  // Δεν δείχνουμε loader στο πρώτο page load
   const initialPathRef = useRef<string | null>(null);
   const lastPathRef = useRef<string | null>(null);
 
-  // 1️⃣ Αποθήκευση αρχικού pathname (για να μην δείχνουμε loader στο πρώτο load)
+  // Αποθήκευση αρχικού pathname
   useEffect(() => {
     if (!pathname) return;
     if (initialPathRef.current === null) {
@@ -41,7 +42,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
   }, [pathname]);
 
-  // 2️⃣ Σε κάθε αλλαγή pathname, αποφασίζουμε αν θα παίξει το transition
+  // On route change → αποφασίζουμε αν θα δείξουμε transition
   useEffect(() => {
     if (!pathname) return;
 
@@ -51,29 +52,29 @@ export default function PageTransition({ children }: PageTransitionProps) {
       return;
     }
 
-    // Πρώτο load → ποτέ transition
+    // πρώτο load → ποτέ transition
     if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
       return;
     }
 
-    // Αν δεν άλλαξε από το τελευταίο, skip
+    // ίδιο pathname με πριν → skip
     if (lastPathRef.current === pathname) {
       return;
     }
 
-    // Πραγματικό navigation
+    // πραγματικό navigation
     lastPathRef.current = pathname;
     setPageLabel(getPageLabel(pathname));
     setIsVisible(true);
   }, [pathname]);
 
-  // 3️⃣ Κλείνουμε το overlay μετά από λίγο (να προλάβει fill + empty)
+  // Κλείνουμε το overlay μετά από λίγο (να προλάβει fill + empty)
   useEffect(() => {
     if (!isVisible) return;
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 1200); // ~1.2s συνολικά
+    }, 1100); // ~1.1s
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -85,54 +86,41 @@ export default function PageTransition({ children }: PageTransitionProps) {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-950/95"
-            // πάντα fullscreen “σκοτείνιασμα” από το πρώτο frame
-            initial={{ opacity: 0 }}
+            // FULLSCREEN OVERLAY – σταθερά σκούρο, χωρίς fade “flash”
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900"
+            initial={false} // δεν κάνει κανένα initial animation στο overlay
             animate={{ opacity: 1 }}
-            exit={{
-              opacity: 0,
-              transition: {
-                duration: 0.3,
-                ease: [0.22, 1, 0.36, 1],
-              },
-            }}
+            exit={{ opacity: 1 }} // δεν κάνουμε fade-out στο background, μόνο στο “υγρό”
           >
-            {/* ΥΓΡΟ: γεμίζει & αδειάζει με spring από κάτω προς τα πάνω */}
-            <motion.div className="absolute inset-x-0 bottom-0 flex items-end justify-center overflow-hidden pointer-events-none">
+            {/* ΥΓΡΟ: γεμίζει & αδειάζει με bouncy spring */}
+            <div className="absolute inset-0 overflow-hidden flex items-end justify-center pointer-events-none">
               <motion.div
-                className="w-[130vw] bg-black shadow-[0_-20px_60px_rgba(0,0,0,0.7)]"
+                className="w-[140vw] bg-black"
                 style={{
                   borderTopLeftRadius: "999px",
                   borderTopRightRadius: "999px",
+                  height: "150vh",
                   transformOrigin: "bottom center",
-                  height: "140vh",
+                  boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
                 }}
                 initial={{ scaleY: 0 }}
-                animate={{ scaleY: 1 }}
+                animate={{ scaleY: [0, 1.15, 1] }} // μικρό overshoot σαν υγρό
                 exit={{ scaleY: 0 }}
                 transition={{
                   type: "spring",
                   stiffness: 260,
                   damping: 20,
+                  duration: 0.8,
                 }}
               />
-            </motion.div>
+            </div>
 
             {/* Περιεχόμενο πάνω από το “υγρό” */}
             <motion.div
               className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              exit={{
-                opacity: 0,
-                y: -20,
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{
                 type: "spring",
                 stiffness: 220,
