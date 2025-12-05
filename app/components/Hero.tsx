@@ -1,8 +1,8 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { usePageTransition } from "./PageTransition"; // ★ NEW IMPORT
 import Iridescence from "./Iridescence";
 
 /* ===================== ANIMATION VARIANTS ===================== */
@@ -63,13 +63,14 @@ const heroBgVariant: Variants = {
 
 export default function Hero() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { startTransition } = usePageTransition(); // ★ HOOK for transition
+
   const isEnglish = pathname.startsWith("/en");
 
-  /* ====== TITLES (ίδια σε GR & EN) ====== */
   const titleLine1 = "The Key to the";
   const titleLine2 = "Future";
 
-  /* ====== PARAGRAPH & CTA (διγλωσσα) ====== */
   const paragraph = isEnglish
     ? "We are a digital agency that challenges the ordinary. We create experiences, identities, and websites that don’t follow trends — they start them. For brands that are not just looking for a presence on the web, but a place in the future."
     : "Είμαστε ένα digital agency που αμφισβητεί το συνηθισμένο. Δημιουργούμε εμπειρίες, ταυτότητες και ιστοσελίδες που δεν ακολουθούν τάσεις — τις ξεκινούν. Για brands που δεν ψάχνουν απλώς παρουσία στο web, αλλά μία θέση στο μέλλον.";
@@ -110,22 +111,17 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* ---------- MAIN CONTENT (ΚΟΚΚΙΝΟ CONTAINER 1900px) ---------- */}
+      {/* ---------- MAIN CONTENT ---------- */}
       <motion.div
         className="hero-inner"
         variants={heroContainer}
         initial="hidden"
         animate="visible"
       >
-        {/* Γραμμή 1 */}
-        <motion.div
-          className="hero-line hero-line-1"
-          variants={heroLineVariant}
-        >
+        <motion.div className="hero-line hero-line-1" variants={heroLineVariant}>
           <h1 className="hero-title font-ITC-Bold">{titleLine1}</h1>
         </motion.div>
 
-        {/* Κάτω row: "Future" + κειμενάκι/CTA δίπλα */}
         <motion.div className="hero-bottom-row" variants={heroLineVariant}>
           <div className="hero-line hero-line-3">
             <h1 className="hero-title font-ITC-Bold">{titleLine2}</h1>
@@ -134,9 +130,22 @@ export default function Hero() {
           <motion.div className="hero-text-block" variants={heroTextVariant}>
             <div className="hero-text-inner">
               <p>{paragraph}</p>
-              <Link href="/contact" className="hero-cta">
+
+              {/* ★★★ CTA WITH PAGE TRANSITION ★★★ */}
+              <a
+                href="/contact"
+                className="hero-cta"
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  startTransition("Contact", () => {
+                    router.push("/contact");
+                  });
+                }}
+              >
                 {cta}
-              </Link>
+              </a>
+              {/* ★★★★★★★★★★★★★★★★★★★★★★★★★★ */}
             </div>
           </motion.div>
         </motion.div>
