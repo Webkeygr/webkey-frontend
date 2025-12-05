@@ -153,7 +153,7 @@ export default function Header({
 
   const pathname = usePathname() ?? "";
   // Αν έχεις και /en/contact, μπορείς να το κάνεις: pathname?.endsWith("/contact")
-  const isContactPage = pathname.endswith("/contact");
+  const isContactPage = pathname.endsWith("/contact");
 
   const isAboutDark = useAboutDark();
   const isFooterDark = useFooterZone();
