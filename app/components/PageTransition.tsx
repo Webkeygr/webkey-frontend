@@ -29,12 +29,10 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
-  // ΠΡΩΤΟ pathname (για να ΜΗ δείχνουμε loader στο πρώτο load)
   const initialPathRef = useRef<string | null>(null);
-  // Τελευταίο pathname στο οποίο έχουμε ήδη δείξει transition
   const lastPathRef = useRef<string | null>(null);
 
-  // 1️⃣ Αποθηκεύουμε το αρχικό pathname
+  // 1️⃣ Αποθήκευση αρχικού pathname (για να μην δείχνουμε loader στο πρώτο load)
   useEffect(() => {
     if (!pathname) return;
     if (initialPathRef.current === null) {
@@ -43,7 +41,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
   }, [pathname]);
 
-  // 2️⃣ Σε κάθε αλλαγή pathname, αποφασίζουμε αν θα δείξουμε transition
+  // 2️⃣ Σε κάθε αλλαγή pathname, αποφασίζουμε αν θα παίξει το transition
   useEffect(() => {
     if (!pathname) return;
 
@@ -53,12 +51,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
       return;
     }
 
-    // Πρώτο load: δεν δείχνουμε τίποτα
+    // Πρώτο load → ποτέ transition
     if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
       return;
     }
 
-    // Αν δεν άλλαξε σε σχέση με το τελευταίο, skip
+    // Αν δεν άλλαξε από το τελευταίο, skip
     if (lastPathRef.current === pathname) {
       return;
     }
@@ -69,13 +67,13 @@ export default function PageTransition({ children }: PageTransitionProps) {
     setIsVisible(true);
   }, [pathname]);
 
-  // 3️⃣ Κλείνουμε το overlay μετά από λίγο (να προλάβει γέμισμα + άδειασμα)
+  // 3️⃣ Κλείνουμε το overlay μετά από λίγο (να προλάβει fill + empty)
   useEffect(() => {
     if (!isVisible) return;
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 1100); // ~1.1s συνολικά
+    }, 1200); // ~1.2s συνολικά
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -87,42 +85,40 @@ export default function PageTransition({ children }: PageTransitionProps) {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
-            // Το overlay είναι άμεσα fullscreen μαύρο (κρύβει τη νέα σελίδα)
-            initial={{ opacity: 1 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-950/95"
+            // πάντα fullscreen “σκοτείνιασμα” από το πρώτο frame
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{
               opacity: 0,
               transition: {
-                duration: 0.25,
+                duration: 0.3,
                 ease: [0.22, 1, 0.36, 1],
               },
             }}
           >
-            {/* ΥΓΡΟ: γεμίζει από κάτω προς τα πάνω με bouncy spring */}
-            <motion.div
-              className="absolute inset-x-0 bottom-0 flex items-end justify-center overflow-hidden"
-            >
+            {/* ΥΓΡΟ: γεμίζει & αδειάζει με spring από κάτω προς τα πάνω */}
+            <motion.div className="absolute inset-x-0 bottom-0 flex items-end justify-center overflow-hidden pointer-events-none">
               <motion.div
-                className="w-[120vw] bg-black"
+                className="w-[130vw] bg-black shadow-[0_-20px_60px_rgba(0,0,0,0.7)]"
                 style={{
-                  borderTopLeftRadius: "50%",
-                  borderTopRightRadius: "50%",
+                  borderTopLeftRadius: "999px",
+                  borderTopRightRadius: "999px",
                   transformOrigin: "bottom center",
-                  height: "120vh",
+                  height: "140vh",
                 }}
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
                 exit={{ scaleY: 0 }}
                 transition={{
                   type: "spring",
-                  stiffness: 220,
+                  stiffness: 260,
                   damping: 20,
                 }}
               />
             </motion.div>
 
-            {/* Περιεχόμενο του loader (logo + κείμενα) πάνω από το “υγρό” */}
+            {/* Περιεχόμενο πάνω από το “υγρό” */}
             <motion.div
               className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
               initial={{
@@ -139,7 +135,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
               }}
               transition={{
                 type: "spring",
-                stiffness: 200,
+                stiffness: 220,
                 damping: 18,
               }}
             >
@@ -164,7 +160,6 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 {pageLabel}
               </h2>
 
-              {/* “app-like” αίσθηση */}
               <p className="mt-2 text-xs md:text-sm text-neutral-500">
                 Please wait a moment while we prepare your experience.
               </p>
