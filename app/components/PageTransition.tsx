@@ -94,7 +94,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
             <motion.div
               className="bg-black"
               style={{
-                width: "220vw", // 🔥 τεράστιο πλάτος για να καλύπτει πάντα
+                width: "220vw", // μεγάλο για να καλύπτει όλες τις οθόνες
                 borderTopLeftRadius: "999px",
                 borderTopRightRadius: "999px",
                 boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
@@ -102,12 +102,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
               initial={{ height: "0vh" }}
               animate={
                 phase === "fill"
-                  ? { height: "220vh" } // 🔥 τόσο μεγάλο που η καμπύλη πάει πολύ πάνω από το viewport
-                  : { height: "0vh" }
+                  ? { height: "220vh" } // γεμίζει
+                  : { height: "0vh" } // αδειάζει
               }
               transition={{
                 duration: 0.55,
-                ease: [0.22, 1, 0.36, 1], // λίγο bouncy
+                ease: [0.22, 1, 0.36, 1],
               }}
               onAnimationComplete={handleAnimationComplete}
             />
@@ -122,11 +122,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
               className="flex flex-col items-center justify-center gap-4 px-6 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{
-                opacity: phase === "idle" ? 0 : 1,
-                y: phase === "idle" ? 20 : 0,
+                // 🔥 ΜΟΝΟ στο FILL είναι ορατά – στο EMPTY κάνουν fade out
+                opacity: phase === "fill" ? 1 : 0,
+                y: phase === "fill" ? 0 : -20,
               }}
               transition={{
-                duration: 0.35,
+                duration: 0.3,
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
