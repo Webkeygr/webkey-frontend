@@ -306,23 +306,25 @@ export default function ContactSection() {
         </form>
 
         {/* ====== CONTACT CARD ΣΤΟ ΤΕΛΟΣ ΤΟΥ SECTION ====== */}
-        <div className="mt-auto flex justify-center pt-16 md:pt-20 lg:pt-24">
-          <div className="relative w-full max-w-[960px] overflow-hidden rounded-[52px] bg-transparent px-10 py-10 shadow-[0_32px_80px_rgba(0,0,0,0.45)] md:px-16 md:py-12">
-            {/* inner gradient για fade από λευκό σε transparent */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white to-transparent" />
+<div className="mt-auto flex justify-center pt-16 md:pt-20 lg:pt-24">
+  <div className="relative w-full max-w-[960px] overflow-hidden rounded-[52px] bg-transparent px-10 py-10 shadow-[0_32px_80px_rgba(0,0,0,0.45)] md:px-16 md:py-12">
+    {/* inner gradient για fade από λευκό σε transparent */}
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white to-transparent" />
 
-            <div className="relative">
-              <h2 className="text-[20px] font-semibold tracking-[0.3em] text-slate-900 uppercase md:text-[24px]">
-                {labels.contactTitle}
-              </h2>
+    {/* Περιεχόμενο κεντραρισμένο */}
+    <div className="relative flex min-h-[220px] flex-col items-center justify-center text-center">
+      <h2 className="text-[26px] md:text-[32px] font-semibold tracking-[0.35em] text-slate-900 uppercase">
+        {labels.contactTitle}
+      </h2>
 
-              <div className="mt-6 space-y-2 text-[15px] font-medium text-slate-900 md:text-[16px]">
-                <p>{labels.emailLabel}</p>
-                <p>{labels.phoneLabel}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="mt-6 space-y-2 text-[18px] md:text-[20px] font-medium text-slate-900">
+        <p>{labels.emailLabel}</p>
+        <p>{labels.phoneLabel}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
       </div>
     </section>
   );
