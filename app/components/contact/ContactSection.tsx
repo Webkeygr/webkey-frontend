@@ -142,6 +142,9 @@ export default function ContactSection() {
         mixBlendMode="screen"
       />
 
+      {/* 🔻 Bottom fade-out overlay για blend με το μαύρο */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-black/80 to-black z-5" />
+
       {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center gap-16 px-6 py-24">
         {/* Τίτλος & επιλογές ενδιαφέροντος */}
