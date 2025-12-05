@@ -556,3 +556,25 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Λευκό contact card με μαλακό fade προς τα κάτω */
+.contact-project-card {
+  position: relative;
+  overflow: hidden; /* για να ακολουθεί τα rounded corners */
+}
+
+/* Το mask κάνει το ΚΑΤΩ μέρος του πλαισίου να “σβήνει” προς το φόντο */
+.contact-project-card {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { usePathname } from "next/navigation";
-import LightPillar from "@/app/components/LightPillar";
+import LightPillar from "@/components/LightPillar";
 
 const interestOptions = ["website", "branding", "ecommerce"] as const;
 type InterestKey = (typeof interestOptions)[number];
@@ -17,22 +17,23 @@ type FormState = {
   privacy: boolean;
 };
 
+const initialState: FormState = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  message: "",
+  interests: [],
+  newsletter: false,
+  privacy: false,
+};
+
 export default function ContactSection() {
   const pathname = usePathname();
-  const isEnglish = pathname.startsWith("/en");
+  const isGreek = !pathname || pathname === "/" || pathname.startsWith("/gr");
 
-  const [form, setForm] = useState<FormState>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    message: "",
-    interests: [],
-    newsletter: false,
-    privacy: false,
-  });
-
+  const [form, setForm] = useState<FormState>(initialState);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
 
   const toggleInterest = (key: InterestKey) => {
     setForm((prev) => {
@@ -46,263 +47,266 @@ export default function ContactSection() {
     });
   };
 
-  const handleChange =
-    (field: keyof FormState) =>
-    (
-      e:
-        | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-        | React.ChangeEvent<HTMLInputElement>
-    ) => {
-      const target = e.target as HTMLInputElement | HTMLTextAreaElement;
-      if (target.type === "checkbox") {
-        setForm((prev) => ({
-          ...prev,
-          [field]: (target as HTMLInputElement).checked,
-        }));
-      } else {
-        setForm((prev) => ({ ...prev, [field]: target.value }));
-      }
-    };
+  const handleChange = (
+    field: keyof FormState,
+    value: string | boolean | InterestKey[]
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setStatus("idle");
+    setSubmitMessage(null);
+
+    if (!form.privacy) {
+      setSubmitMessage(
+        isGreek
+          ? "Πρέπει να αποδεχτείς την πολιτική απορρήτου για να συνεχίσεις."
+          : "You must accept the privacy policy to continue."
+      );
+      return;
+    }
 
     try {
+      setIsSubmitting(true);
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          firstName: form.firstName,
-          lastName: form.lastName,
-          email: form.email,
-          message: form.message,
-          interests: form.interests,
-          newsletter: form.newsletter,
-          privacy: form.privacy,
-          locale: isEnglish ? "en" : "el",
+          ...form,
+          lang: isGreek ? "gr" : "en",
         }),
       });
 
-      if (!res.ok) throw new Error("Request failed");
+      if (!res.ok) {
+        throw new Error("Request failed");
+      }
 
-      setStatus("success");
-      setForm({
-        firstName: "",
-        lastName: "",
-        email: "",
-        message: "",
-        interests: [],
-        newsletter: false,
-        privacy: false,
-      });
-    } catch (err) {
-      console.error(err);
-      setStatus("error");
+      setForm(initialState);
+      setSubmitMessage(
+        isGreek
+          ? "Ευχαριστούμε! Θα επικοινωνήσουμε μαζί σου σύντομα."
+          : "Thank you! We will get back to you soon."
+      );
+    } catch (error) {
+      console.error(error);
+      setSubmitMessage(
+        isGreek
+          ? "Κάτι πήγε στραβά. Δοκίμασε ξανά σε λίγο."
+          : "Something went wrong. Please try again in a moment."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const t = {
-    title: isEnglish ? "I am interested in:" : "Με ενδιαφέρει:",
+  const labels = {
+    heading: isGreek ? "Με ενδιαφέρει:" : "I am interested in:",
     interests: {
-      website: isEnglish ? "A new website" : "Νέα ιστοσελίδα",
+      website: isGreek ? "Νέα ιστοσελίδα" : "A new website",
       branding: "Branding",
       ecommerce: "E-Commerce",
     },
-    firstName: isEnglish ? "First name*" : "ΟΝΟΜΑ*",
-    lastName: isEnglish ? "Last name*" : "ΕΠΩΝΥΜΟ*",
-    email: "EMAIL*",
-    messageLabel: isEnglish ? "Message" : "Μήνυμα",
-    newsletter:
-      (isEnglish
-        ? "I'm happy to receive a monthly newsletter from Webkey."
-        : "Θέλω να λαμβάνω μηνιαίο newsletter από τη Webkey.") + "",
-    privacy: isEnglish
-      ? "I understand that Webkey will securely hold my data in accordance with their privacy policy."
-      : "Κατανοώ ότι η Webkey θα διαχειρίζεται τα δεδομένα μου με ασφάλεια σύμφωνα με την πολιτική απορρήτου της.",
-    submit: isEnglish ? "Submit" : "ΑΠΟΣΤΟΛΗ",
-    startYourProject: "START YOUR PROJECT",
+    firstName: isGreek ? "Όνομα*" : "First name*",
+    lastName: isGreek ? "Επώνυμο*" : "Last name*",
+    email: "Email*",
+    message: isGreek ? "Μήνυμα" : "Message",
+    newsletter: isGreek
+      ? "Θέλω να λαμβάνω μηνιαίο newsletter από τη Webkey."
+      : "I’m happy to receive the monthly Webkey newsletter.",
+    privacy: isGreek
+      ? "Κατανοώ ότι η Webkey θα διαχειρίζεται τα δεδομένα μου με ασφάλεια σύμφωνα με την πολιτική απορρήτου της."
+      : "I understand that Webkey will securely handle my data in line with its privacy policy.",
+    submit: isGreek ? "ΑΠΟΣΤΟΛΗ" : "Submit",
   };
 
-  return (
-    <section className="relative w-full min-h-screen overflow-hidden bg-black text-white">
-      {/* LightPillar background */}
-      <LightPillar
-        intensity={1.4}
-        rotationSpeed={2.0}
-        glowAmount={0.005}
-        pillarWidth={3.0}
-        pillarHeight={0.4}
-        noiseIntensity={0.5}
-        pillarRotation={0}
-        interactive={false}
-        mixBlendMode="screen"
-      />
+  const interestIsActive = (key: InterestKey) => form.interests.includes(key);
 
-      {/* 🔻 Bottom fade-out overlay για blend με το μαύρο */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent via-black/80 to-black z-5" />
+  return (
+    <section className="relative min-h-screen w-full overflow-hidden bg-[#050510] text-white">
+      {/* 3D background pillar */}
+      <div className="pointer-events-none absolute inset-0">
+        <LightPillar
+          topColor="#ff4fd8"
+          bottomColor="#55c2ff"
+          intensity={1.7}
+          rotationSpeed={1.6}
+          glowAmount={0.008}
+          pillarWidth={2.0}
+          pillarHeight={0.4}
+          noiseIntensity={0.35}
+          pillarRotation={0}
+          mixBlendMode="screen"
+          className=""
+        />
+        {/* Dark vignette to keep focus on the form */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(5,5,15,0)_0,rgba(5,5,15,0.4)_40%,rgba(5,5,10,0.9)_100%)]" />
+      </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center gap-16 px-6 py-24">
-        {/* Τίτλος & επιλογές ενδιαφέροντος */}
-        <div>
-          <h1 className="mb-8 text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white">
-            {t.title}
-          </h1>
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <div className="flex-1">
+          <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 pb-20 pt-28 md:px-8 lg:px-10 lg:pt-32">
+            {/* Heading + interest pills */}
+            <div className="space-y-6">
+              <h1 className="text-3xl font-semibold tracking-[0.12em] text-white md:text-4xl lg:text-[44px]">
+                {labels.heading}
+              </h1>
 
-          <div className="flex flex-wrap gap-4">
-            {interestOptions.map((key) => {
-              const label = t.interests[key];
-              const isActive = form.interests.includes(key);
-              return (
+              <div className="flex flex-wrap gap-4">
+                {(interestOptions as InterestKey[]).map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => toggleInterest(key)}
+                    className={`rounded-full border px-6 py-2 text-sm font-medium tracking-[0.12em] uppercase transition ${
+                      interestIsActive(key)
+                        ? "border-white bg-white/90 text-[#050510]"
+                        : "border-white/50 bg-white/5 text-white/80 hover:border-white hover:bg-white/10"
+                    }`}
+                  >
+                    {labels.interests[key]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Form */}
+            <form
+              onSubmit={handleSubmit}
+              className="mt-4 space-y-10 text-sm md:text-base"
+            >
+              {/* First row – 3 columns */}
+              <div className="grid gap-6 md:grid-cols-3">
+                <div className="space-y-2">
+                  <label className="text-xs font-medium uppercase tracking-[0.18em] text-white/80 md:text-sm">
+                    {labels.firstName}
+                  </label>
+                  <input
+                    type="text"
+                    value={form.firstName}
+                    onChange={(e) => handleChange("firstName", e.target.value)}
+                    className="w-full border-b border-white/60 bg-transparent pb-2 text-base font-medium text-white outline-none placeholder:text-white/40 focus:border-white"
+                    autoComplete="given-name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium uppercase tracking-[0.18em] text-white/80 md:text-sm">
+                    {labels.lastName}
+                  </label>
+                  <input
+                    type="text"
+                    value={form.lastName}
+                    onChange={(e) => handleChange("lastName", e.target.value)}
+                    className="w-full border-b border-white/60 bg-transparent pb-2 text-base font-medium text-white outline-none placeholder:text-white/40 focus:border-white"
+                    autoComplete="family-name"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-medium uppercase tracking-[0.18em] text-white/80 md:text-sm">
+                    {labels.email}
+                  </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    className="w-full border-b border-white/60 bg-transparent pb-2 text-base font-medium text-white outline-none placeholder:text-white/40 focus:border-white"
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="space-y-3">
+                <label className="text-xs font-medium uppercase tracking-[0.18em] text-white/80 md:text-sm">
+                  {labels.message}
+                </label>
+                <textarea
+                  value={form.message}
+                  onChange={(e) => handleChange("message", e.target.value)}
+                  rows={4}
+                  className="w-full resize-none border-b border-white/60 bg-transparent pb-3 text-base font-medium text-white outline-none placeholder:text-white/40 focus:border-white"
+                />
+              </div>
+
+              {/* Checkboxes */}
+              <div className="space-y-3 text-xs leading-relaxed text-white/80 md:text-sm">
+                <label className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={form.newsletter}
+                    onChange={(e) =>
+                      handleChange("newsletter", e.target.checked)
+                    }
+                    className="mt-1 h-4 w-4 rounded border border-white/60 bg-transparent text-white accent-white"
+                  />
+                  <span>{labels.newsletter}</span>
+                </label>
+
+                <label className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={form.privacy}
+                    onChange={(e) => handleChange("privacy", e.target.checked)}
+                    className="mt-1 h-4 w-4 rounded border border-white/60 bg-transparent text-white accent-white"
+                  />
+                  <span>{labels.privacy}</span>
+                </label>
+              </div>
+
+              {/* Submit + message */}
+              <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <button
-                  key={key}
-                  type="button"
-                  onClick={() => toggleInterest(key)}
-                  className={`rounded-full border px-7 py-2.5 text-sm sm:text-base font-medium tracking-wide transition-colors ${
-                    isActive
-                      ? "border-white bg-white text-black"
-                      : "border-white/60 text-white hover:border-white hover:bg-white/10"
-                  }`}
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex h-11 items-center justify-center rounded-full border border-white bg-white/95 px-10 text-xs font-semibold uppercase tracking-[0.2em] text-[#050510] shadow-[0_0_40px_rgba(255,255,255,0.45)] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {label}
+                  {isSubmitting
+                    ? isGreek
+                      ? "ΑΠΟΣΤΟΛΗ..."
+                      : "Sending..."
+                    : labels.submit}
                 </button>
-              );
-            })}
+
+                {submitMessage && (
+                  <p className="max-w-xl text-xs text-white/80 md:text-sm">
+                    {submitMessage}
+                  </p>
+                )}
+              </div>
+            </form>
           </div>
         </div>
 
-        {/* Φόρμα */}
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col gap-10 text-sm sm:text-base text-white"
-        >
-          {/* 3 πεδία στη σειρά */}
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="flex flex-col gap-3">
-              <label className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-white">
-                {t.firstName}
-              </label>
-              <input
-                type="text"
-                value={form.firstName}
-                onChange={handleChange("firstName")}
-                className="border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <label className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-white">
-                {t.lastName}
-              </label>
-              <input
-                type="text"
-                value={form.lastName}
-                onChange={handleChange("lastName")}
-                className="border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <label className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-white">
-                {t.email}
-              </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={handleChange("email")}
-                className="border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Μήνυμα */}
-          <div className="flex flex-col gap-4">
-            <label className="text-base sm:text-lg font-semibold tracking-wide text-white">
-              {t.messageLabel}
-            </label>
-            <textarea
-              value={form.message}
-              onChange={handleChange("message")}
-              rows={4}
-              className="resize-none border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
-            />
-          </div>
-
-          {/* Διαχωριστική γραμμή */}
-          <div className="mt-4 border-b border-white/40" />
-
-          {/* Checkboxes */}
-          <div className="flex flex-col gap-4 text-sm sm:text-base text-white">
-            <label className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={form.newsletter}
-                onChange={handleChange("newsletter")}
-                className="mt-[2px] h-4 w-4 border border-white bg-transparent accent-white"
-              />
-              <span>{t.newsletter}</span>
-            </label>
-
-            <label className="flex items-start gap-3">
-              <input
-                type="checkbox"
-                checked={form.privacy}
-                onChange={handleChange("privacy")}
-                className="mt-[2px] h-4 w-4 border border-white bg-transparent accent-white"
-                required
-              />
-              <span>{t.privacy}</span>
-            </label>
-          </div>
-
-          {/* Submit + status */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-full border border-white px-10 py-2.5 text-sm sm:text-base font-semibold uppercase tracking-[0.25em] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+        {/* START YOUR PROJECT card */}
+        <div className="relative z-10 mb-16 mt-4 px-4 md:px-8">
+          <div className="mx-auto max-w-5xl">
+            <div
+              className="
+                contact-project-card
+                relative mx-auto
+                rounded-[3rem] bg-white
+                px-8 py-10 md:px-12 md:py-12
+                shadow-[0_30px_120px_rgba(0,0,0,0.7)]
+              "
             >
-              {isSubmitting ? "..." : t.submit}
-            </button>
-
-            {status === "success" && (
-              <span className="text-xs sm:text-sm text-emerald-300">
-                {isEnglish
-                  ? "Thank you! We will get back to you soon."
-                  : "Ευχαριστούμε! Θα επικοινωνήσουμε μαζί σου σύντομα."}
-              </span>
-            )}
-            {status === "error" && (
-              <span className="text-xs sm:text-sm text-red-300">
-                {isEnglish
-                  ? "Something went wrong. Please try again."
-                  : "Κάτι πήγε στραβά. Δοκίμασε ξανά."}
-              </span>
-            )}
+              <div className="space-y-6 md:space-y-8">
+                <h2 className="text-xl font-semibold tracking-[0.35em] text-black md:text-2xl lg:text-[26px]">
+                  START YOUR PROJECT
+                </h2>
+                <div className="space-y-2 text-base font-semibold text-black md:text-lg">
+                  <p>info@webkey.gr</p>
+                  <p>+30 6985608579</p>
+                </div>
+              </div>
+            </div>
           </div>
-
-          {/* Spacing πριν το λευκό block */}
-          <div className="mt-4" />
-        </form>
-
-        {/* Start your project block */}
-        <div className="relative mt-2 rounded-t-[4rem] bg-white px-8 py-10 text-black sm:px-12 sm:py-12 md:px-16">
-          <p className="mb-4 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-[0.16em] uppercase">
-            {t.startYourProject}
-          </p>
-          <p className="text-lg sm:text-xl md:text-2xl font-semibold">
-            info@webkey.gr
-          </p>
-          <p className="mt-2 text-lg sm:text-xl md:text-2xl font-semibold">
-            +30 6985608579
-          </p>
         </div>
       </div>
     </section>
