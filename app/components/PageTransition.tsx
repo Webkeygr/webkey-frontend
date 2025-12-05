@@ -41,7 +41,6 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
   const [phase, _setPhase] = useState<Phase>("idle");
   const phaseRef = useRef<Phase>("idle");
-  const navigateRef = useRef<() => void>(() => {});
   const isAnimatingRef = useRef(false);
   const hideTimeoutRef = useRef<number | null>(null);
 
@@ -59,7 +58,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
   const startTransition = useCallback(
     (label: string, navigate: () => void) => {
-      // αν ήδη τρέχει animation, μην ανάβεις δεύτερο overlay
+      // Αν ήδη τρέχει animation, μην ανάβεις δεύτερο overlay
       if (isAnimatingRef.current) {
         navigate();
         return;
@@ -68,31 +67,32 @@ export default function PageTransition({ children }: PageTransitionProps) {
       clearHideTimeout();
       isAnimatingRef.current = true;
       setPageLabel(label);
-      navigateRef.current = navigate;
 
       setIsActive(true);
       setPhase("fill"); // ξεκινάει το γέμισμα
+
+      // 🔥 Κάνουμε ΑΜΕΣΩΣ navigate — η νέα σελίδα φορτώνει όσο γεμίζει & αδειάζει το ποτήρι
+      navigate();
     },
     []
   );
 
   const handleAnimationComplete = () => {
     if (phaseRef.current === "fill") {
-      // Μόλις ΤΕΛΕΙΩΣΕ το γεμισμα → κάνε navigate και ξεκίνα το άδειασμα
-      navigateRef.current?.();
+      // Μόλις ΤΕΛΕΙΩΣΕ το γέμισμα → ξεκινάει το άδειασμα
       setPhase("empty");
       return;
     }
 
     if (phaseRef.current === "empty") {
-      // Μόλις τελειώσει και το άδειασμα → κλείσε overlay (με ένα mini delay)
+      // Μόλις τελειώσει και το άδειασμα → κλείσε overlay με μικρό buffer
       isAnimatingRef.current = false;
 
       clearHideTimeout();
       hideTimeoutRef.current = window.setTimeout(() => {
         setIsActive(false);
         setPhase("idle");
-      }, 120); // 60ms για να προλάβει να "σταθεροποιηθεί" το νέο page render
+      }, 120); // λίγο buffer για να “κάτσει” η νέα σελίδα
     }
   };
 
@@ -119,7 +119,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
                   : { height: "0vh" } // αδειάζει
               }
               transition={{
-                duration: 0.9,
+                duration: 0.9, // πιο αργό fill/empty για να έχει χρόνο να φορτώσει η νέα σελίδα
                 ease: [0.22, 1, 0.36, 1], // λίγο bouncy
               }}
               onAnimationComplete={handleAnimationComplete}
