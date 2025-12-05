@@ -132,10 +132,10 @@ export default function ContactSection() {
       {/* 🔵 LightPillar background */}
       <LightPillar
         className=""
-        topColor="#fcec45" // Webkey yellow
-        bottomColor="#38bdf8" // cyan
+        topColor="#38bdf8" // Webkey yellow
+        bottomColor="#ff00f2" // cyan
         intensity={1.2}
-        rotationSpeed={0.35} // πιο αργό / premium
+        rotationSpeed={1.5} // πιο αργό / premium
         glowAmount={0.006}
         pillarWidth={3}
         pillarHeight={0.5}
