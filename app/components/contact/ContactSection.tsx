@@ -158,7 +158,7 @@ export default function ContactSection() {
   return (
       <section className="relative w-full min-h-[120vh] overflow-hidden bg-gradient-to-b from-[#050816]/40 via-transparent to-[#02030a]/70">
       {/* Light pillar background */}
-      <div className="pointer-events-none absolute inset-0 -z-20">
+      <div className="pointer-events-none absolute inset-0 -z-0">
         <LightPillar
           topColor="#38bdf8"
           bottomColor="#ff00f2"
