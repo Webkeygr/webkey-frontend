@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
@@ -24,24 +24,35 @@ function getPageLabel(pathname: string | null): string {
 export default function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
 
-  // να ξέρουμε αν έχει γίνει ΤΟΥΛΑΧΙΣΤΟΝ 1 navigation
-  const [hasNavigated, setHasNavigated] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
+
+  // κρατάμε αν είναι το ΠΡΩΤΟ render
+  const isFirstRenderRef = useRef(true);
+  // κρατάμε ποιο ήταν το προηγούμενο pathname
+  const prevPathnameRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!pathname) return;
 
-    // ✅ ΠΡΩΤΟ LOAD: απλά το σημειώνουμε και ΔΕΝ δείχνουμε loader
-    if (!hasNavigated) {
-      setHasNavigated(true);
+    // 👉 ΠΡΩΤΟ LOAD: δεν δείχνουμε ΠΟΤΕ overlay
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      prevPathnameRef.current = pathname;
       return;
     }
 
-    // Από εδώ και πέρα, κάθε αλλαγή route → δείχνουμε transition
+    // Αν το pathname δεν άλλαξε, δεν κάνουμε τίποτα
+    if (prevPathnameRef.current === pathname) {
+      return;
+    }
+
+    // Από εδώ και πέρα έχουμε ΠΡΑΓΜΑΤΙΚΗ αλλαγή route
+    prevPathnameRef.current = pathname;
+
     setPageLabel(getPageLabel(pathname));
     setIsVisible(true);
-  }, [pathname, hasNavigated]);
+  }, [pathname]);
 
   // πόση ώρα μένει το overlay πριν αρχίσει να κλείνει
   useEffect(() => {
@@ -49,7 +60,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 650); // ~0.65s πριν ξεκινήσει το exit animation
+    }, 650); // ~0.65s πριν το exit animation
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -59,11 +70,9 @@ export default function PageTransition({ children }: PageTransitionProps) {
       {children}
 
       <AnimatePresence>
-        {/* ✅ Δεν δείχνουμε ΠΟΤΕ overlay αν δεν έχει γίνει navigation */}
-        {hasNavigated && isVisible && (
+        {isVisible && (
           <motion.div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
-            // ✅ Το overlay είναι ΕΞΑΡΧΗΣ full-screen (δεν προλαβαίνει να φανεί η νέα σελίδα)
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{
@@ -74,7 +83,6 @@ export default function PageTransition({ children }: PageTransitionProps) {
               },
             }}
           >
-            {/* Inner “λαστιχένιο” content */}
             <motion.div
               className="flex flex-col items-center justify-center gap-4 px-6 text-center"
               initial={{
