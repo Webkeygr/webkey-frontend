@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
 import "./BubbleMenu.css";
+import { useRouter } from "next/navigation";
+import { usePageTransition } from "./PageTransition";
 
 type Item = {
   label: string;
@@ -25,6 +27,22 @@ type Props = {
   rightSlot?: React.ReactNode;
 };
 
+function getPageLabelFromItem(label: string, href: string): string {
+  const clean = label.toLowerCase();
+
+  if (clean === "home") return "Home";
+  if (clean === "about") return "About";
+  if (clean === "services") return "Services";
+  if (clean === "blog") return "Blog";
+  if (clean === "contact") return "Contact";
+
+  const parts = href.split("/").filter(Boolean);
+  const last = parts[parts.length - 1] || "";
+  return last
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (l) => l.toUpperCase());
+}
+
 export default function BubbleMenu({
   logo,
   items,
@@ -42,6 +60,9 @@ export default function BubbleMenu({
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const bubblesRef = useRef<HTMLAnchorElement[]>([]);
   const labelRefs = useRef<HTMLSpanElement[]>([]);
+
+  const router = useRouter();
+  const { startTransition } = usePageTransition();
 
   const handleToggle = () => setOpen((v) => !v);
 
@@ -201,7 +222,19 @@ export default function BubbleMenu({
                 ref={(el) => {
                   if (el) bubblesRef.current[idx] = el;
                 }}
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+
+                  const label = getPageLabelFromItem(
+                    item.label,
+                    item.href
+                  );
+
+                  startTransition(label, () => {
+                    router.push(item.href);
+                  });
+                }}
               >
                 <span
                   className="pill-label"
