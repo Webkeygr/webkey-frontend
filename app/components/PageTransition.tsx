@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 
 type PageTransitionProps = {
@@ -29,8 +29,9 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
-  // Δεν δείχνουμε loader στο πρώτο page load
+  // Πρώτο pathname (για να ΜΗ δείχνουμε loader στο αρχικό page load)
   const initialPathRef = useRef<string | null>(null);
+  // Τελευταίο pathname στο οποίο έχουμε ήδη δείξει transition
   const lastPathRef = useRef<string | null>(null);
 
   // Αποθήκευση αρχικού pathname
@@ -42,7 +43,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
   }, [pathname]);
 
-  // On route change → αποφασίζουμε αν θα δείξουμε transition
+  // Σε κάθε αλλαγή pathname αποφασίζουμε αν θα δείξουμε transition
   useEffect(() => {
     if (!pathname) return;
 
@@ -52,109 +53,91 @@ export default function PageTransition({ children }: PageTransitionProps) {
       return;
     }
 
-    // πρώτο load → ποτέ transition
+    // Πρώτο load → ποτέ transition
     if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
       return;
     }
 
-    // ίδιο pathname με πριν → skip
+    // Αν δεν έχει αλλάξει από το τελευταίο, skip
     if (lastPathRef.current === pathname) {
       return;
     }
 
-    // πραγματικό navigation
+    // Πραγματικό navigation
     lastPathRef.current = pathname;
     setPageLabel(getPageLabel(pathname));
     setIsVisible(true);
   }, [pathname]);
 
-  // Κλείνουμε το overlay μετά από λίγο (να προλάβει fill + empty)
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const timeout = setTimeout(() => {
-      setIsVisible(false);
-    }, 1100); // ~1.1s
-
-    return () => clearTimeout(timeout);
-  }, [isVisible]);
-
   return (
     <>
       {children}
 
-      <AnimatePresence>
-        {isVisible && (
+      {isVisible && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+          {/* ΥΓΡΟ: γεμίζει και αδειάζει από κάτω προς τα πάνω */}
+          <div className="absolute inset-0 overflow-hidden flex items-end justify-center pointer-events-none">
+            <motion.div
+              className="w-[140vw] bg-black"
+              style={{
+                borderTopLeftRadius: "999px",
+                borderTopRightRadius: "999px",
+                height: "160vh",
+                transformOrigin: "bottom center",
+                boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
+              }}
+              initial={{ scaleY: 0 }}
+              animate={{ scaleY: [0, 1.05, 1, 0] }} // γεμίζει → μικρό overshoot → σταθεροποίηση → αδειάζει
+              transition={{
+                duration: 1.1,
+                ease: "easeInOut",
+                times: [0, 0.35, 0.45, 1],
+              }}
+              onAnimationComplete={() => {
+                // όταν τελειώσει ΟΛΟ το fill+empty, κλείνουμε το overlay
+                setIsVisible(false);
+              }}
+            />
+          </div>
+
+          {/* Περιεχόμενο πάνω από το “υγρό” */}
           <motion.div
-            // FULLSCREEN OVERLAY – σταθερά σκούρο, χωρίς fade “flash”
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-900"
-            initial={false} // δεν κάνει κανένα initial animation στο overlay
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 1 }} // δεν κάνουμε fade-out στο background, μόνο στο “υγρό”
+            className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: [0, 1, 1, 0], y: [20, 0, 0, -20] }}
+            transition={{
+              duration: 1.1,
+              ease: "easeInOut",
+              times: [0, 0.25, 0.75, 1],
+            }}
           >
-            {/* ΥΓΡΟ: γεμίζει & αδειάζει με bouncy spring */}
-            <div className="absolute inset-0 overflow-hidden flex items-end justify-center pointer-events-none">
-              <motion.div
-                className="w-[140vw] bg-black"
-                style={{
-                  borderTopLeftRadius: "999px",
-                  borderTopRightRadius: "999px",
-                  height: "150vh",
-                  transformOrigin: "bottom center",
-                  boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
-                }}
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: [0, 1.15, 1] }} // μικρό overshoot σαν υγρό
-                exit={{ scaleY: 0 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 260,
-                  damping: 20,
-                  duration: 0.8,
-                }}
+            {/* Λευκό λογότυπο */}
+            <div className="relative w-40 h-10 md:w-56 md:h-14">
+              <Image
+                src="/images/logo-webkey-white.svg"
+                alt="Webkey"
+                fill
+                className="object-contain"
+                priority
               />
             </div>
 
-            {/* Περιεχόμενο πάνω από το “υγρό” */}
-            <motion.div
-              className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{
-                type: "spring",
-                stiffness: 220,
-                damping: 18,
-              }}
-            >
-              {/* Λευκό λογότυπο */}
-              <div className="relative w-40 h-10 md:w-56 md:h-14">
-                <Image
-                  src="/images/logo-webkey-white.svg"
-                  alt="Webkey"
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
+            {/* μικρό label */}
+            <p className="mt-3 text-[10px] md:text-xs uppercase tracking-[0.35em] text-neutral-400">
+              Navigating to
+            </p>
 
-              {/* μικρό label */}
-              <p className="mt-3 text-[10px] md:text-xs uppercase tracking-[0.35em] text-neutral-400">
-                Navigating to
-              </p>
+            {/* τίτλος σελίδας */}
+            <h2 className="text-3xl md:text-4xl font-semibold text-white">
+              {pageLabel}
+            </h2>
 
-              {/* τίτλος σελίδας */}
-              <h2 className="text-3xl md:text-4xl font-semibold text-white">
-                {pageLabel}
-              </h2>
-
-              <p className="mt-2 text-xs md:text-sm text-neutral-500">
-                Please wait a moment while we prepare your experience.
-              </p>
-            </motion.div>
+            <p className="mt-2 text-xs md:text-sm text-neutral-500">
+              Please wait a moment while we prepare your experience.
+            </p>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </div>
+      )}
     </>
   );
 }
