@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Header from "./components/Header";
 import StructuredData from "./components/StructuredData";
+import PageTransition from "./components/PageTransition"; // ✅ ΝΕΟ import
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://webkey.gr"),
@@ -50,7 +51,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="el">
-      {/* ✅ Προσθέσαμε head με preload για τη γραμματοσειρά */}
+      {/* ✅ head με preload για τη γραμματοσειρά */}
       <head>
         <link
           rel="preload"
@@ -62,12 +63,14 @@ export default function RootLayout({
       </head>
 
       <body>
-        <Header />
-        {/* ΧΩΡΙΣ padding-top -> το header κάνει overlap πάνω στο hero */}
-        <main>{children}</main>
+        <PageTransition>
+          <Header />
+          {/* ΧΩΡΙΣ padding-top -> το header κάνει overlap πάνω στο hero */}
+          <main>{children}</main>
 
-        {/* JSON-LD Organization (αόρατο, μόνο SEO) */}
-        <StructuredData />
+          {/* JSON-LD Organization (αόρατο, μόνο SEO) */}
+          <StructuredData />
+        </PageTransition>
       </body>
     </html>
   );
