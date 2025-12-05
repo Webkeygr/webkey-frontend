@@ -156,7 +156,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="relative w-full min-h-[120vh] overflow-hidden">
+    <section className="relative w-full min-h-[120vh] overflow-hidden bg-gradient-to-b from-[#050816] via-[#050816] to-[#02030a]">
       {/* Light pillar background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <LightPillar
@@ -173,7 +173,7 @@ export default function ContactSection() {
       </div>
 
       {/* Gradient overlay για fade σε μαύρο στο τέλος του section */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45vh] bg-gradient-to-b from-transparent via-[#050816] to-[#02030a] -z-10" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45vh] bg-gradient-to-b from-transparent via-[#050816] to-[#02030a] -z-20" />
 
       <div className="relative mx-auto flex min-h-[120vh] w-full max-w-[1180px] flex-col px-6 pb-32 pt-32 md:px-8 lg:px-10">
         {/* ====== FORM ====== */}
@@ -306,9 +306,9 @@ export default function ContactSection() {
 
         {/* ====== CONTACT CARD ΣΤΟ ΤΕΛΟΣ ΤΟΥ SECTION ====== */}
         <div className="mt-auto flex justify-center pt-16 md:pt-20 lg:pt-24">
-          <div className="relative w-full max-w-[960px] overflow-hidden rounded-[52px] bg-white/95 px-10 py-10 shadow-[0_32px_80px_rgba(0,0,0,0.45)] md:px-16 md:py-12">
+          <div className="relative w-full max-w-[960px] overflow-hidden rounded-[52px] bg-transparent px-10 py-10 shadow-[0_32px_80px_rgba(0,0,0,0.45)] md:px-16 md:py-12">
             {/* inner gradient για fade από λευκό σε transparent */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-white/0 via-white/40 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white via-white to-transparent" />
 
             <div className="relative">
               <h2 className="text-[20px] font-semibold tracking-[0.3em] text-slate-900 uppercase md:text-[24px]">
