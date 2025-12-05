@@ -4,7 +4,9 @@ import React, { useState, FormEvent } from "react";
 import { usePathname } from "next/navigation";
 import LightPillar from "@/app/components/LightPillar";
 
-const interestOptions = ["website", "branding", "ecommerce"];
+// -------------------- TYPES & CONSTANTS --------------------
+
+const interestOptions = ["website", "branding", "ecommerce"] as const;
 type InterestKey = (typeof interestOptions)[number];
 
 type FormState = {
@@ -24,6 +26,8 @@ const initialFormState: FormState = {
   newsletter: false,
   privacy: false,
 };
+
+// -------------------- COMPONENT --------------------
 
 export default function ContactSection() {
   const pathname = usePathname();
@@ -95,7 +99,18 @@ export default function ContactSection() {
     }
   };
 
-  const labels = {
+  const labels: {
+    title: string;
+    interest: Record<InterestKey, string>;
+    firstName: string;
+    lastName: string;
+    email: string;
+    message: string;
+    newsletter: string;
+    privacy: string;
+    submit: string;
+    cardTitle: string;
+  } = {
     title: isEnglish ? "I'm interested in:" : "Με ενδιαφέρει:",
     interest: {
       website: isEnglish ? "New Website" : "Νέα ιστοσελίδα",
@@ -113,7 +128,7 @@ export default function ContactSection() {
       ? "I understand that Webkey will handle my data securely according to its privacy policy."
       : "Κατανοώ ότι η Webkey θα διαχειρίζεται τα δεδομένα μου με ασφάλεια σύμφωνα με την πολιτική απορρήτου της.",
     submit: isEnglish ? "Send" : "Αποστολή",
-    cardTitle: isEnglish ? "START YOUR PROJECT" : "START YOUR PROJECT",
+    cardTitle: "START YOUR PROJECT",
   };
 
   return (
@@ -155,21 +170,23 @@ export default function ContactSection() {
             </h1>
 
             <div className="flex flex-wrap gap-3 md:gap-4">
-              {interestOptions.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => handleInterestClick(key)}
-                  className={`rounded-full px-6 md:px-7 py-2 md:py-2.5 border text-xs md:text-sm font-semibold tracking-[0.2em] uppercase transition-all
-                    ${
-                      selectedInterest === key
-                        ? "bg-white text-[#050316] border-white shadow-[0_0_40px_rgba(255,255,255,0.45)]"
-                        : "border-white/50 text-white/80 hover:border-white hover:text-white"
-                    }`}
-                >
-                  {labels.interest[key]}
-                </button>
-              ))}
+              {(interestOptions as readonly InterestKey[]).map(
+                (key: InterestKey) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => handleInterestClick(key)}
+                    className={`rounded-full px-6 md:px-7 py-2 md:py-2.5 border text-xs md:text-sm font-semibold tracking-[0.2em] uppercase transition-all
+                      ${
+                        selectedInterest === key
+                          ? "bg-white text-[#050316] border-white shadow-[0_0_40px_rgba(255,255,255,0.45)]"
+                          : "border-white/50 text-white/80 hover:border-white hover:text-white"
+                      }`}
+                  >
+                    {labels.interest[key]}
+                  </button>
+                )
+              )}
             </div>
           </div>
 
