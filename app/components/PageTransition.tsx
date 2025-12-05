@@ -5,7 +5,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useRef,
   useState,
 } from "react";
@@ -37,63 +36,56 @@ type PageTransitionProps = {
 export default function PageTransition({ children }: PageTransitionProps) {
   const [isActive, setIsActive] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
-  const timeoutRef = useRef<number | null>(null);
 
-  const clearTimer = () => {
-    if (timeoutRef.current !== null) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  };
+  // για να μην ξεκινάνε πολλά transitions ταυτόχρονα
+  const isAnimatingRef = useRef(false);
 
   const startTransition = useCallback(
     (label: string, navigate: () => void) => {
-      clearTimer();
+      if (isAnimatingRef.current) {
+        // αν ήδη τρέχει animation, απλά κάνουμε navigate χωρίς άλλο overlay
+        navigate();
+        return;
+      }
 
+      isAnimatingRef.current = true;
       setPageLabel(label);
       setIsActive(true);
 
-      // κάνουμε αμέσως navigation – η νέα σελίδα φορτώνει από πίσω
+      // κάνουμε ΑΜΕΣΑ navigate – η νέα σελίδα φορτώνει από πίσω
       navigate();
-
-      // κλείνουμε το overlay όταν τελειώσει το animation (fill + empty)
-      timeoutRef.current = window.setTimeout(() => {
-        setIsActive(false);
-      }, 1100); // πρέπει να ταιριάζει με το duration του animation
     },
     []
   );
 
-  useEffect(() => {
-    return () => {
-      clearTimer();
-    };
-  }, []);
+  const handleAnimationComplete = () => {
+    isAnimatingRef.current = false;
+    setIsActive(false);
+  };
 
   return (
     <PageTransitionContext.Provider value={{ startTransition }}>
       {children}
 
       {isActive && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-950">
-          {/* ΥΓΡΟ: γεμίζει και αδειάζει από κάτω προς τα πάνω */}
+        <div className="fixed inset-0 z-[9999] bg-neutral-950 flex items-center justify-center">
+          {/* ΥΓΡΟ: γεμίζει (0 → 110vh) και αδειάζει (110vh → 0) */}
           <div className="absolute inset-0 overflow-hidden flex items-end justify-center pointer-events-none">
             <motion.div
               className="w-[140vw] bg-black"
               style={{
                 borderTopLeftRadius: "999px",
                 borderTopRightRadius: "999px",
-                height: "160vh",
-                transformOrigin: "bottom center",
                 boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
               }}
-              initial={{ scaleY: 0 }}
-              animate={{ scaleY: [0, 1.05, 1, 0] }} // γεμίζει → λίγο overshoot → σταθεροποιείται → αδειάζει
+              initial={{ height: "0vh" }}
+              animate={{ height: ["0vh", "110vh", "110vh", "0vh"] }}
               transition={{
                 duration: 1.1,
                 ease: "easeInOut",
-                times: [0, 0.35, 0.45, 1],
+                times: [0, 0.35, 0.7, 1],
               }}
+              onAnimationComplete={handleAnimationComplete}
             />
           </div>
 
