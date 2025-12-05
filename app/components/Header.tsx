@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { usePageTransition } from "./PageTransition"; // ✅ ΜΟΝΟ αυτό το import προστέθηκε
 
 type HeaderProps = {
   logoSrc?: string;
@@ -114,6 +115,7 @@ export default function Header({
 }: HeaderProps) {
   const pathname = usePathname() ?? "";
   const router = useRouter();
+  const { startTransition } = usePageTransition(); // ✅ χρήση του page transition
 
   const isEnglish = pathname.startsWith("/en");
 
@@ -196,7 +198,9 @@ export default function Header({
   const homeHref = isEnglish ? "/en/" : "/";
 
   const handleLogoClick = () => {
-    router.push(homeHref);
+    startTransition("Home", () => {
+      router.push(homeHref);
+    });
   };
 
   return (
