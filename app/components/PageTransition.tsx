@@ -23,28 +23,33 @@ function getPageLabel(pathname: string | null): string {
 
 export default function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+  // να ξέρουμε αν έχει γίνει ΤΟΥΛΑΧΙΣΤΟΝ 1 navigation
+  const [hasNavigated, setHasNavigated] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
   useEffect(() => {
-    if (isFirstLoad) {
-      setIsFirstLoad(false);
+    if (!pathname) return;
+
+    // ✅ ΠΡΩΤΟ LOAD: απλά το σημειώνουμε και ΔΕΝ δείχνουμε loader
+    if (!hasNavigated) {
+      setHasNavigated(true);
       return;
     }
 
-    // όταν αλλάζει το pathname, ξεκινάει το transition
+    // Από εδώ και πέρα, κάθε αλλαγή route → δείχνουμε transition
     setPageLabel(getPageLabel(pathname));
     setIsVisible(true);
-  }, [pathname, isFirstLoad]);
+  }, [pathname, hasNavigated]);
 
-  // κλείσιμο overlay μετά από λίγο
+  // πόση ώρα μένει το overlay πριν αρχίσει να κλείνει
   useEffect(() => {
     if (!isVisible) return;
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 900); // πόση ώρα θα φαίνεται συνολικά
+    }, 650); // ~0.65s πριν ξεκινήσει το exit animation
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -54,30 +59,46 @@ export default function PageTransition({ children }: PageTransitionProps) {
       {children}
 
       <AnimatePresence>
-        {isVisible && (
+        {/* ✅ Δεν δείχνουμε ΠΟΤΕ overlay αν δεν έχει γίνει navigation */}
+        {hasNavigated && isVisible && (
           <motion.div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
-            initial={{ scaleY: 0.0, borderRadius: "0% 0% 50% 50% / 0% 0% 12% 12%" }}
-            animate={{
-              scaleY: 1,
-              borderRadius: "0%",
-              transition: {
-                duration: 0.45,
-                ease: [0.22, 1, 0.36, 1], // λίγο “λαστιχένιο”
-              },
-            }}
+            // ✅ Το overlay είναι ΕΞΑΡΧΗΣ full-screen (δεν προλαβαίνει να φανεί η νέα σελίδα)
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
             exit={{
-              scaleY: 0,
-              originY: 1,
+              opacity: 0,
               transition: {
-                duration: 0.45,
+                duration: 0.35,
                 ease: [0.22, 1, 0.36, 1],
               },
             }}
-            style={{ transformOrigin: "top" }}
           >
-            <div className="flex flex-col items-center justify-center gap-4 px-6 text-center">
-              {/* ΛΟΓΟΤΥΠΟ – βάλε εδώ το λευκό σου logo */}
+            {/* Inner “λαστιχένιο” content */}
+            <motion.div
+              className="flex flex-col items-center justify-center gap-4 px-6 text-center"
+              initial={{
+                scale: 0.85,
+                opacity: 0,
+              }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+                transition: {
+                  duration: 0.45,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              }}
+              exit={{
+                scale: 1.05,
+                opacity: 0,
+                transition: {
+                  duration: 0.35,
+                  ease: [0.22, 1, 0.36, 1],
+                },
+              }}
+            >
+              {/* ΛΟΓΟΤΥΠΟ – λευκό */}
               <div className="relative w-40 h-10 md:w-56 md:h-14">
                 <Image
                   src="/images/logo-webkey-white.svg"
@@ -88,8 +109,8 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 />
               </div>
 
-              {/* μικρή περιγραφή */}
-              <p className="mt-3 text-xs uppercase tracking-[0.35em] text-neutral-400">
+              {/* μικρό label */}
+              <p className="mt-3 text-[10px] md:text-xs uppercase tracking-[0.35em] text-neutral-400">
                 Navigating to
               </p>
 
@@ -98,11 +119,11 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 {pageLabel}
               </h2>
 
-              {/* “σαν app” feeling */}
-              <p className="mt-2 text-sm text-neutral-500">
+              {/* “app-like” αίσθηση */}
+              <p className="mt-2 text-xs md:text-sm text-neutral-500">
                 Please wait a moment while we prepare your experience.
               </p>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
