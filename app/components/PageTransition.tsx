@@ -27,12 +27,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
-  // αποθηκεύουμε το ΠΡΩΤΟ pathname που φορτώνει το tab
+  // κρατάμε το ΠΡΩΤΟ pathname
   const initialPathRef = useRef<string | null>(null);
-  // αποθηκεύουμε το τελευταίο pathname στο οποίο έχουμε ήδη δείξει transition
+  // κρατάμε σε ποιο pathname έχουμε ήδη δείξει transition
   const lastPathRef = useRef<string | null>(null);
 
-  // 1️⃣ Μόλις ανέβει το component, κρατάμε το αρχικό pathname
+  // 1️⃣ Αρχικό pathname
   useEffect(() => {
     if (!pathname) return;
     if (initialPathRef.current === null) {
@@ -41,28 +41,27 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
   }, [pathname]);
 
-  // 2️⃣ Kάθε φορά που αλλάζει το pathname, αποφασίζουμε αν πρέπει να δείξουμε overlay
+  // 2️⃣ Κάθε αλλαγή pathname → αποφασίζουμε αν θα δείξουμε transition
   useEffect(() => {
     if (!pathname) return;
 
-    // Αν για κάποιο λόγο δεν έχει set-αριστεί ακόμα, το κάνουμε εδώ
     if (initialPathRef.current === null) {
       initialPathRef.current = pathname;
       lastPathRef.current = pathname;
       return;
     }
 
-    // 👉 Αν είναι ΙΔΙΟ με το αρχικό pathname (πρώτο load), δεν δείχνουμε τίποτα
+    // Πρώτο load στο αρχικό pathname → ποτέ transition
     if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
       return;
     }
 
-    // 👉 Αν δεν έχει αλλάξει σε σχέση με το τελευταίο, δεν κάνουμε τίποτα
+    // Αν δεν άλλαξε σε σχέση με το τελευταίο, skip
     if (lastPathRef.current === pathname) {
       return;
     }
 
-    // Από εδώ και πέρα έχουμε ΠΡΑΓΜΑΤΙΚΟ navigation
+    // Πραγματικό navigation
     lastPathRef.current = pathname;
     setPageLabel(getPageLabel(pathname));
     setIsVisible(true);
@@ -74,7 +73,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 650); // πόση ώρα μένει ανοιχτό πριν το fade-out
+    }, 850); // λίγο πιο “cinematic” για να προλάβει το grow
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -86,7 +85,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       <AnimatePresence>
         {isVisible && (
           <motion.div
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
+            className="fixed inset-0 z-[9999] flex items-center justify-center"
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{
@@ -97,27 +96,47 @@ export default function PageTransition({ children }: PageTransitionProps) {
               },
             }}
           >
+            {/* Μαύρο “λαστιχένιο” bubble που μεγαλώνει σε fullscreen */}
             <motion.div
-              className="flex flex-col items-center justify-center gap-4 px-6 text-center"
+              className="absolute inset-0 flex items-center justify-center"
               initial={{
-                scale: 0.85,
+                scale: 0,
+                borderRadius: "999px",
+              }}
+              animate={{
+                scale: 1.1, // λίγο μεγαλύτερο από την οθόνη
+                borderRadius: "0px",
+              }}
+              exit={{
+                scale: 0.9,
+                borderRadius: "999px",
+              }}
+              transition={{
+                duration: 0.6,
+                ease: [0.22, 1, 0.36, 1], // cubic-bezier “λαστιχένιο”
+              }}
+            >
+              <div className="w-[140vw] h-[140vh] bg-black" />
+            </motion.div>
+
+            {/* Περιεχόμενο (logo + κείμενα) πάνω από το bubble */}
+            <motion.div
+              className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
+              initial={{
+                scale: 0.9,
                 opacity: 0,
               }}
               animate={{
                 scale: 1,
                 opacity: 1,
-                transition: {
-                  duration: 0.45,
-                  ease: [0.22, 1, 0.36, 1],
-                },
               }}
               exit={{
                 scale: 1.05,
                 opacity: 0,
-                transition: {
-                  duration: 0.35,
-                  ease: [0.22, 1, 0.36, 1],
-                },
+              }}
+              transition={{
+                duration: 0.45,
+                ease: [0.22, 1, 0.36, 1],
               }}
             >
               {/* Λευκό λογότυπο */}
