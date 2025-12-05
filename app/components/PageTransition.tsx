@@ -89,6 +89,9 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
       {isActive && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+          {/* 🔥 FULLSCREEN ΜΑΥΡΟ BACKGROUND – δεν αφήνει να φανεί τίποτα από πίσω */}
+          <div className="absolute inset-0 bg-black" />
+
           {/* ΥΓΡΟ: γεμίζει κι αδειάζει από κάτω προς τα πάνω */}
           <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
             <motion.div
@@ -122,7 +125,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
               className="flex flex-col items-center justify-center gap-4 px-6 text-center"
               initial={{ opacity: 0, y: 20 }}
               animate={{
-                // 🔥 ΜΟΝΟ στο FILL είναι ορατά – στο EMPTY κάνουν fade out
+                // ΜΟΝΟ στο FILL είναι ορατά – στο EMPTY κάνουν fade out
                 opacity: phase === "fill" ? 1 : 0,
                 y: phase === "fill" ? 0 : -20,
               }}
