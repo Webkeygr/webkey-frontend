@@ -92,7 +92,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       hideTimeoutRef.current = window.setTimeout(() => {
         setIsActive(false);
         setPhase("idle");
-      }, 60); // 60ms για να προλάβει να "σταθεροποιηθεί" το νέο page render
+      }, 120); // 60ms για να προλάβει να "σταθεροποιηθεί" το νέο page render
     }
   };
 
@@ -119,7 +119,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
                   : { height: "0vh" } // αδειάζει
               }
               transition={{
-                duration: 0.55,
+                duration: 0.9,
                 ease: [0.22, 1, 0.36, 1], // λίγο bouncy
               }}
               onAnimationComplete={handleAnimationComplete}
