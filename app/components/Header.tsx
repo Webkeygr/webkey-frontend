@@ -2,11 +2,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
-import { usePageTransition } from "./PageTransition";
 
 type HeaderProps = {
   logoSrc?: string;
@@ -29,8 +29,7 @@ function useAboutDark(): boolean {
     if (typeof window === "undefined") return;
 
     const check = () => {
-      const circle =
-        document.querySelector<HTMLElement>(".about-black-circle");
+      const circle = document.querySelector<HTMLElement>(".about-black-circle");
 
       // Αν δεν υπάρχει το section, δεν είμαστε σε dark phase
       if (!circle) {
@@ -114,49 +113,61 @@ function useFooterZone(): boolean {
 export default function Header({
   logoSrc = "/images/logo-webkey.svg",
 }: HeaderProps) {
-  const items = [
+  const pathname = usePathname() ?? "";
+
+  const isEnglish = pathname.startsWith("/en");
+
+  // Βασικά paths ΧΩΡΙΣ locale
+  const rawItems = [
     {
       label: "home",
-      href: "/",
+      baseHref: "/",
       ariaLabel: "Home",
       rotation: -8,
       hoverStyles: { bgColor: "#4FAAFF", textColor: "#fff" },
     },
     {
       label: "about",
-      href: "/about",
+      baseHref: "/about",
       ariaLabel: "About",
       rotation: 8,
       hoverStyles: { bgColor: "#70D3F3", textColor: "#fff" },
     },
     {
       label: "services",
-      href: "/services",
+      baseHref: "/services",
       ariaLabel: "Services",
       rotation: 8,
       hoverStyles: { bgColor: "#F823F4", textColor: "#fff" },
     },
     {
       label: "blog",
-      href: "/blog",
+      baseHref: "/blog",
       ariaLabel: "Blog",
       rotation: 8,
       hoverStyles: { bgColor: "#C48CFC", textColor: "#fff" },
     },
     {
       label: "contact",
-      href: "/contact",
+      baseHref: "/contact",
       ariaLabel: "Contact",
       rotation: -8,
       hoverStyles: { bgColor: "#9DA5FA", textColor: "#fff" },
     },
-  ];
+  ] as const;
 
-  const pathname = usePathname() ?? "";
-  const router = useRouter();
-  const { startTransition } = usePageTransition();
+  // Αν είμαστε σε EN, προσθέτουμε /en μπροστά στα href
+  const items = rawItems.map(({ baseHref, ...rest }) => {
+    const href = isEnglish
+      ? baseHref === "/"
+        ? "/en/"
+        : `/en${baseHref}`
+      : baseHref;
 
-  // Αν έχεις και /en/contact, μπορείς να το κάνεις: pathname?.endsWith("/contact")
+    return { ...rest, href };
+  });
+
+  // Πιάνει ΚΑΙ /contact ΚΑΙ /en/contact
   const isContactPage = pathname.endsWith("/contact");
 
   const isAboutDark = useAboutDark();
@@ -181,24 +192,24 @@ export default function Header({
     ? "/images/logo-webkey-white.svg"
     : logoSrc;
 
+  // Αν είμαστε σε /en/... στέλνουμε το logo στο /en/, αλλιώς στο /
+  const homeHref = isEnglish ? "/en/" : "/";
+
   return (
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως το είχαμε */
       logo={
-        <Image
-          src={effectiveLogo}
-          alt="WebKey"
-          width={250}
-          height={100}
-          priority
-          style={{ paddingTop: 20 }}
-          className="header-logo cursor-pointer"
-          onClick={() =>
-            startTransition("Home", () => {
-              router.push("/");
-            })
-          }
-        />
+        <Link href={homeHref} aria-label="Webkey home" className="inline-block">
+          <Image
+            src={effectiveLogo}
+            alt="WebKey"
+            width={250}
+            height={100}
+            priority
+            style={{ paddingTop: 20 }}
+            className="header-logo"
+          />
+        </Link>
       }
       items={items}
       menuAriaLabel="Toggle navigation"
