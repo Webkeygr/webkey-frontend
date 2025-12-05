@@ -33,34 +33,54 @@ type PageTransitionProps = {
   children: ReactNode;
 };
 
+type Phase = "idle" | "fill" | "empty";
+
 export default function PageTransition({ children }: PageTransitionProps) {
   const [isActive, setIsActive] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
-  // για να μην ξεκινάνε πολλά transitions ταυτόχρονα
+  const [phase, _setPhase] = useState<Phase>("idle");
+  const phaseRef = useRef<Phase>("idle");
+  const navigateRef = useRef<() => void>(() => {});
   const isAnimatingRef = useRef(false);
+
+  const setPhase = (next: Phase) => {
+    phaseRef.current = next;
+    _setPhase(next);
+  };
 
   const startTransition = useCallback(
     (label: string, navigate: () => void) => {
+      // αν ήδη τρέχει animation, απλά κάνε navigate χωρίς δεύτερο overlay
       if (isAnimatingRef.current) {
-        // αν ήδη τρέχει animation, απλά κάνουμε navigate χωρίς άλλο overlay
         navigate();
         return;
       }
 
       isAnimatingRef.current = true;
       setPageLabel(label);
-      setIsActive(true);
+      navigateRef.current = navigate;
 
-      // κάνουμε ΑΜΕΣΑ navigate – η νέα σελίδα φορτώνει από πίσω
-      navigate();
+      setIsActive(true);
+      setPhase("fill"); // ξεκινάει να γεμίζει
     },
     []
   );
 
   const handleAnimationComplete = () => {
-    isAnimatingRef.current = false;
-    setIsActive(false);
+    if (phaseRef.current === "fill") {
+      // μόλις ΤΕΛΕΙΩΣΕ το γέμισμα → κάνε navigate και ξεκίνα άδειασμα
+      navigateRef.current?.();
+      setPhase("empty");
+      return;
+    }
+
+    if (phaseRef.current === "empty") {
+      // μόλις τελείωσε και το άδειασμα → κλείσε overlay
+      isAnimatingRef.current = false;
+      setIsActive(false);
+      setPhase("idle");
+    }
   };
 
   return (
@@ -68,9 +88,9 @@ export default function PageTransition({ children }: PageTransitionProps) {
       {children}
 
       {isActive && (
-        <div className="fixed inset-0 z-[9999] bg-neutral-950 flex items-center justify-center">
-          {/* ΥΓΡΟ: γεμίζει (0 → 110vh) και αδειάζει (110vh → 0) */}
-          <div className="absolute inset-0 overflow-hidden flex items-end justify-center pointer-events-none">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+          {/* ΥΓΡΟ: γεμίζει κι αδειάζει από κάτω προς τα πάνω */}
+          <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
             <motion.div
               className="w-[140vw] bg-black"
               style={{
@@ -79,49 +99,54 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
               }}
               initial={{ height: "0vh" }}
-              animate={{ height: ["0vh", "110vh", "110vh", "0vh"] }}
+              animate={
+                phase === "fill"
+                  ? { height: "120vh" } // γεμίζει
+                  : { height: "0vh" } // αδειάζει
+              }
               transition={{
-                duration: 1.1,
-                ease: "easeInOut",
-                times: [0, 0.35, 0.7, 1],
+                duration: 0.55,
+                ease: [0.22, 1, 0.36, 1], // λίγο bouncy
               }}
               onAnimationComplete={handleAnimationComplete}
             />
           </div>
 
-          {/* Περιεχόμενο πάνω από το “υγρό” */}
+          {/* Περιεχόμενο (logo + κείμενο) στο κέντρο */}
           <motion.div
-            className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: [0, 1, 1, 0], y: [20, 0, 0, -20] }}
-            transition={{
-              duration: 1.1,
-              ease: "easeInOut",
-              times: [0, 0.25, 0.75, 1],
-            }}
+            className="absolute inset-0 flex items-center justify-center"
+            initial={false}
           >
-            {/* Λευκό λογότυπο */}
-            <div className="relative w-40 h-10 md:w-56 md:h-14">
-              <Image
-                src="/images/logo-webkey-white.svg"
-                alt="Webkey"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
+            <motion.div
+              className="flex flex-col items-center justify-center gap-4 px-6 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{
+                opacity: phase === "idle" ? 0 : 1,
+                y: phase === "idle" ? 20 : 0,
+              }}
+              transition={{
+                duration: 0.35,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <div className="relative w-40 h-10 md:w-56 md:h-14 pointer-events-none">
+                <Image
+                  src="/images/logo-webkey-white.svg"
+                  alt="Webkey"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
 
-            <p className="mt-3 text-[10px] md:text-xs uppercase tracking-[0.35em] text-neutral-400">
-              Navigating to
-            </p>
+              <p className="mt-3 text-[10px] md:text-xs uppercase tracking-[0.35em] text-neutral-400 pointer-events-none">
+                Navigating to
+              </p>
 
-            <h2 className="text-3xl md:text-4xl font-semibold text-white">
-              {pageLabel}
-            </h2>
-
-            <p className="mt-2 text-xs md:text-sm text-neutral-500">
-              Please wait a moment while we prepare your experience.
-            </p>
+              <h2 className="text-3xl md:text-4xl font-semibold text-white pointer-events-none">
+                {pageLabel}
+              </h2>
+            </motion.div>
           </motion.div>
         </div>
       )}
