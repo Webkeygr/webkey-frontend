@@ -112,9 +112,9 @@ export default function ContactSection() {
       branding: "Branding",
       ecommerce: "E-Commerce",
     },
-    firstName: isEnglish ? "First name*" : "Όνομα*",
-    lastName: isEnglish ? "Last name*" : "Επώνυμο*",
-    email: "Email*",
+    firstName: isEnglish ? "First name*" : "ΟΝΟΜΑ*",
+    lastName: isEnglish ? "Last name*" : "ΕΠΩΝΥΜΟ*",
+    email: "EMAIL*",
     messageLabel: isEnglish ? "Message" : "Μήνυμα",
     newsletter:
       (isEnglish
@@ -123,33 +123,30 @@ export default function ContactSection() {
     privacy: isEnglish
       ? "I understand that Webkey will securely hold my data in accordance with their privacy policy."
       : "Κατανοώ ότι η Webkey θα διαχειρίζεται τα δεδομένα μου με ασφάλεια σύμφωνα με την πολιτική απορρήτου της.",
-    submit: isEnglish ? "Submit" : "Αποστολή",
-    startYourProject: "Start your project", // ΜΗΝ μεταφράσεις
+    submit: isEnglish ? "Submit" : "ΑΠΟΣΤΟΛΗ",
+    startYourProject: "START YOUR PROJECT",
   };
 
   return (
     <section className="relative w-full min-h-screen overflow-hidden bg-black text-white">
-      {/* 🔵 LightPillar background */}
+      {/* LightPillar background */}
       <LightPillar
-        className=""
-        topColor="#38bdf8" // Webkey yellow
-        bottomColor="#ff00f2" // cyan
-        intensity={1.2}
-        rotationSpeed={1.5} // πιο αργό / premium
-        glowAmount={0.006}
-        pillarWidth={3}
-        pillarHeight={0.5}
-        noiseIntensity={0.4}
+        intensity={1.4}
+        rotationSpeed={2.0}
+        glowAmount={0.005}
+        pillarWidth={3.0}
+        pillarHeight={0.4}
+        noiseIntensity={0.5}
         pillarRotation={0}
         interactive={false}
         mixBlendMode="screen"
       />
 
-      {/* 🔴 Content */}
+      {/* Content */}
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-5xl flex-col justify-center gap-16 px-6 py-24">
-        {/* Επικεφαλίδα & επιλογές ενδιαφέροντος */}
+        {/* Τίτλος & επιλογές ενδιαφέροντος */}
         <div>
-          <h1 className="mb-6 text-3xl sm:text-4xl md:text-5xl font-light">
+          <h1 className="mb-8 text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-white">
             {t.title}
           </h1>
 
@@ -162,10 +159,10 @@ export default function ContactSection() {
                   key={key}
                   type="button"
                   onClick={() => toggleInterest(key)}
-                  className={`rounded-full border px-6 py-2 text-sm tracking-wide transition-colors ${
+                  className={`rounded-full border px-7 py-2.5 text-sm sm:text-base font-medium tracking-wide transition-colors ${
                     isActive
                       ? "border-white bg-white text-black"
-                      : "border-zinc-500/70 text-zinc-200 hover:border-white/80 hover:text-white"
+                      : "border-white/60 text-white hover:border-white hover:bg-white/10"
                   }`}
                 >
                   {label}
@@ -178,71 +175,74 @@ export default function ContactSection() {
         {/* Φόρμα */}
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col gap-10 text-sm sm:text-base"
+          className="flex flex-col gap-10 text-sm sm:text-base text-white"
         >
           {/* 3 πεδία στη σειρά */}
           <div className="grid gap-8 md:grid-cols-3">
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-white">
                 {t.firstName}
               </label>
               <input
                 type="text"
                 value={form.firstName}
                 onChange={handleChange("firstName")}
-                className="border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+                className="border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
                 required
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-white">
                 {t.lastName}
               </label>
               <input
                 type="text"
                 value={form.lastName}
                 onChange={handleChange("lastName")}
-                className="border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+                className="border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
                 required
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-xs uppercase tracking-[0.2em] text-zinc-400">
+            <div className="flex flex-col gap-3">
+              <label className="text-xs sm:text-sm font-semibold uppercase tracking-[0.25em] text-white">
                 {t.email}
               </label>
               <input
                 type="email"
                 value={form.email}
                 onChange={handleChange("email")}
-                className="border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+                className="border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
                 required
               />
             </div>
           </div>
 
           {/* Μήνυμα */}
-          <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium tracking-wide">
+          <div className="flex flex-col gap-4">
+            <label className="text-base sm:text-lg font-semibold tracking-wide text-white">
               {t.messageLabel}
             </label>
             <textarea
               value={form.message}
               onChange={handleChange("message")}
               rows={4}
-              className="resize-none border-b border-zinc-600 bg-transparent pb-2 outline-none transition-colors focus:border-white"
+              className="resize-none border-b border-white/80 bg-transparent pb-2 text-base outline-none transition-colors focus:border-white"
             />
           </div>
 
+          {/* Διαχωριστική γραμμή */}
+          <div className="mt-4 border-b border-white/40" />
+
           {/* Checkboxes */}
-          <div className="flex flex-col gap-3 text-xs sm:text-sm text-zinc-300">
+          <div className="flex flex-col gap-4 text-sm sm:text-base text-white">
             <label className="flex items-start gap-3">
               <input
                 type="checkbox"
                 checked={form.newsletter}
                 onChange={handleChange("newsletter")}
-                className="mt-[2px] h-4 w-4 border border-zinc-500 bg-transparent accent-white"
+                className="mt-[2px] h-4 w-4 border border-white bg-transparent accent-white"
               />
               <span>{t.newsletter}</span>
             </label>
@@ -252,7 +252,7 @@ export default function ContactSection() {
                 type="checkbox"
                 checked={form.privacy}
                 onChange={handleChange("privacy")}
-                className="mt-[2px] h-4 w-4 border border-zinc-500 bg-transparent accent-white"
+                className="mt-[2px] h-4 w-4 border border-white bg-transparent accent-white"
                 required
               />
               <span>{t.privacy}</span>
@@ -260,41 +260,44 @@ export default function ContactSection() {
           </div>
 
           {/* Submit + status */}
-          <div className="mt-4 flex items-center justify-between gap-4">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-full border border-white px-8 py-2 text-sm uppercase tracking-[0.2em] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full border border-white px-10 py-2.5 text-sm sm:text-base font-semibold uppercase tracking-[0.25em] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "..." : t.submit}
             </button>
 
             {status === "success" && (
-              <span className="text-xs text-emerald-400">
+              <span className="text-xs sm:text-sm text-emerald-300">
                 {isEnglish
                   ? "Thank you! We will get back to you soon."
                   : "Ευχαριστούμε! Θα επικοινωνήσουμε μαζί σου σύντομα."}
               </span>
             )}
             {status === "error" && (
-              <span className="text-xs text-red-400">
+              <span className="text-xs sm:text-sm text-red-300">
                 {isEnglish
                   ? "Something went wrong. Please try again."
                   : "Κάτι πήγε στραβά. Δοκίμασε ξανά."}
               </span>
             )}
           </div>
+
+          {/* Spacing πριν το λευκό block */}
+          <div className="mt-4" />
         </form>
 
         {/* Start your project block */}
-        <div className="relative mt-4 rounded-t-[4rem] bg-white px-8 py-10 text-black sm:px-12 sm:py-12 md:px-16">
-          <p className="mb-4 text-2xl sm:text-3xl md:text-4xl font-medium tracking-[0.12em] uppercase">
+        <div className="relative mt-2 rounded-t-[4rem] bg-white px-8 py-10 text-black sm:px-12 sm:py-12 md:px-16">
+          <p className="mb-4 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-[0.16em] uppercase">
             {t.startYourProject}
           </p>
           <p className="text-lg sm:text-xl md:text-2xl font-semibold">
             info@webkey.gr
           </p>
-          <p className="text-lg sm:text-xl md:text-2xl mt-2 font-semibold">
+          <p className="mt-2 text-lg sm:text-xl md:text-2xl font-semibold">
             +30 6985608579
           </p>
         </div>
