@@ -212,7 +212,7 @@ export default function ContactSection() {
             {/* Name / Surname / Email */}
             <div className="grid gap-y-10 md:grid-cols-3 md:gap-x-12">
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-semibold tracking-[0.2em] text-white/80 md:text-[13px]">
+                <label className="text-sm font-semibold tracking-[0.2em] text-white/80 md:text-[18px]">
                   {labels.fields.name}
                 </label>
                 <input
@@ -224,7 +224,7 @@ export default function ContactSection() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-semibold tracking-[0.2em] text-white/80 md:text-[13px]">
+                <label className="text-sm font-semibold tracking-[0.2em] text-white/80 md:text-[18px]">
                   {labels.fields.surname}
                 </label>
                 <input
@@ -236,7 +236,7 @@ export default function ContactSection() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <label className="text-xs font-semibold tracking-[0.2em] text-white/80 md:text-[13px]">
+                <label className="text-sm font-semibold tracking-[0.2em] text-white/80 md:text-[18px]">
                   {labels.fields.email}
                 </label>
                 <input
@@ -251,7 +251,7 @@ export default function ContactSection() {
 
             {/* Message */}
             <div className="flex flex-col gap-3">
-              <label className="text-xs font-semibold tracking-[0.2em] text-white/80 md:text-[13px]">
+              <label className="text-sm font-semibold tracking-[0.2em] text-white/80 md:text-[18px]">
                 {labels.fields.message}
               </label>
               <textarea
@@ -292,7 +292,7 @@ export default function ContactSection() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-4 inline-flex min-w-[180px] items-center justify-center rounded-full border border-white px-10 py-3 text-xs font-semibold tracking-[0.25em] uppercase text-white transition-all hover:bg-white hover:text-slate-900 disabled:opacity-60 md:text-[13px]"
+                className="mt-4 inline-flex min-w-[180px] items-center justify-center rounded-full border border-white px-10 py-3 text-sm font-semibold tracking-[0.25em] uppercase text-white transition-all hover:bg-white hover:text-slate-900 disabled:opacity-60 md:text-[18px]"
               >
                 {isSubmitting ? "..." : labels.submit}
               </button>
