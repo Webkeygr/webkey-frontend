@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { usePageTransition } from "./PageTransition";
 
 type HeaderProps = {
   logoSrc?: string;
@@ -153,6 +154,7 @@ export default function Header({
 
   const pathname = usePathname() ?? "";
   const router = useRouter();
+  const { startTransition } = usePageTransition();
 
   // Αν έχεις και /en/contact, μπορείς να το κάνεις: pathname?.endsWith("/contact")
   const isContactPage = pathname.endsWith("/contact");
@@ -191,7 +193,11 @@ export default function Header({
           priority
           style={{ paddingTop: 20 }}
           className="header-logo cursor-pointer"
-          onClick={() => router.push("/")}
+          onClick={() =>
+            startTransition("Home", () => {
+              router.push("/");
+            })
+          }
         />
       }
       items={items}

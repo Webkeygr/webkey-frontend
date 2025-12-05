@@ -1,80 +1,81 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+
+type PageTransitionContextValue = {
+  startTransition: (label: string, navigate: () => void) => void;
+};
+
+const PageTransitionContext = createContext<PageTransitionContextValue | null>(
+  null
+);
+
+export function usePageTransition() {
+  const ctx = useContext(PageTransitionContext);
+  if (!ctx) {
+    throw new Error(
+      "usePageTransition must be used inside <PageTransition> provider"
+    );
+  }
+  return ctx;
+}
 
 type PageTransitionProps = {
   children: ReactNode;
 };
 
-function getPageLabel(pathname: string | null): string {
-  if (!pathname || pathname === "/") return "Home";
-  if (pathname === "/en" || pathname === "/en/") return "Home";
-  if (pathname === "/contact") return "Contact";
-  if (pathname === "/en/contact") return "Contact";
-
-  const parts = pathname.split("/").filter(Boolean);
-  const last = parts[parts.length - 1] || "";
-
-  return last
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase());
-}
-
 export default function PageTransition({ children }: PageTransitionProps) {
-  const pathname = usePathname();
-
-  const [isVisible, setIsVisible] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
+  const timeoutRef = useRef<number | null>(null);
 
-  // Πρώτο pathname (για να ΜΗ δείχνουμε loader στο αρχικό page load)
-  const initialPathRef = useRef<string | null>(null);
-  // Τελευταίο pathname στο οποίο έχουμε ήδη δείξει transition
-  const lastPathRef = useRef<string | null>(null);
+  const clearTimer = () => {
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
 
-  // Αποθήκευση αρχικού pathname
+  const startTransition = useCallback(
+    (label: string, navigate: () => void) => {
+      clearTimer();
+
+      setPageLabel(label);
+      setIsActive(true);
+
+      // κάνουμε αμέσως navigation – η νέα σελίδα φορτώνει από πίσω
+      navigate();
+
+      // κλείνουμε το overlay όταν τελειώσει το animation (fill + empty)
+      timeoutRef.current = window.setTimeout(() => {
+        setIsActive(false);
+      }, 1100); // πρέπει να ταιριάζει με το duration του animation
+    },
+    []
+  );
+
   useEffect(() => {
-    if (!pathname) return;
-    if (initialPathRef.current === null) {
-      initialPathRef.current = pathname;
-      lastPathRef.current = pathname;
-    }
-  }, [pathname]);
-
-  // Σε κάθε αλλαγή pathname αποφασίζουμε αν θα δείξουμε transition
-  useEffect(() => {
-    if (!pathname) return;
-
-    if (initialPathRef.current === null) {
-      initialPathRef.current = pathname;
-      lastPathRef.current = pathname;
-      return;
-    }
-
-    // Πρώτο load → ποτέ transition
-    if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
-      return;
-    }
-
-    // Αν δεν έχει αλλάξει από το τελευταίο, skip
-    if (lastPathRef.current === pathname) {
-      return;
-    }
-
-    // Πραγματικό navigation
-    lastPathRef.current = pathname;
-    setPageLabel(getPageLabel(pathname));
-    setIsVisible(true);
-  }, [pathname]);
+    return () => {
+      clearTimer();
+    };
+  }, []);
 
   return (
-    <>
+    <PageTransitionContext.Provider value={{ startTransition }}>
       {children}
 
-      {isVisible && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+      {isActive && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-neutral-950">
           {/* ΥΓΡΟ: γεμίζει και αδειάζει από κάτω προς τα πάνω */}
           <div className="absolute inset-0 overflow-hidden flex items-end justify-center pointer-events-none">
             <motion.div
@@ -87,15 +88,11 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
               }}
               initial={{ scaleY: 0 }}
-              animate={{ scaleY: [0, 1.05, 1, 0] }} // γεμίζει → μικρό overshoot → σταθεροποίηση → αδειάζει
+              animate={{ scaleY: [0, 1.05, 1, 0] }} // γεμίζει → λίγο overshoot → σταθεροποιείται → αδειάζει
               transition={{
                 duration: 1.1,
                 ease: "easeInOut",
                 times: [0, 0.35, 0.45, 1],
-              }}
-              onAnimationComplete={() => {
-                // όταν τελειώσει ΟΛΟ το fill+empty, κλείνουμε το overlay
-                setIsVisible(false);
               }}
             />
           </div>
@@ -122,12 +119,10 @@ export default function PageTransition({ children }: PageTransitionProps) {
               />
             </div>
 
-            {/* μικρό label */}
             <p className="mt-3 text-[10px] md:text-xs uppercase tracking-[0.35em] text-neutral-400">
               Navigating to
             </p>
 
-            {/* τίτλος σελίδας */}
             <h2 className="text-3xl md:text-4xl font-semibold text-white">
               {pageLabel}
             </h2>
@@ -138,6 +133,6 @@ export default function PageTransition({ children }: PageTransitionProps) {
           </motion.div>
         </div>
       )}
-    </>
+    </PageTransitionContext.Provider>
   );
 }
