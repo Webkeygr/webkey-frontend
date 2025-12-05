@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -150,11 +151,15 @@ export default function Header({
     },
   ];
 
+  const pathname = usePathname();
+  // Αν έχεις και /en/contact, μπορείς να το κάνεις: pathname?.endsWith("/contact")
+  const isContactPage = pathname === "/contact";
+
   const isAboutDark = useAboutDark();
   const isFooterDark = useFooterZone();
 
-  // Θέλουμε "λευκό header" είτε στο About dark phase είτε στο footer zone
-  const isHeaderDark = isAboutDark || isFooterDark;
+  // Θέλουμε "λευκό header" είτε στο About dark phase είτε στο footer zone είτε στη σελίδα contact
+  const isHeaderDark = isAboutDark || isFooterDark || isContactPage;
 
   // Προσθέτουμε / αφαιρούμε την .dark-header στο <body>
   useEffect(() => {
