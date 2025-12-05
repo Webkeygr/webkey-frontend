@@ -3,7 +3,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Header from "./components/Header";
 import StructuredData from "./components/StructuredData";
-import PageTransition from "./components/PageTransition"; // ✅ ΝΕΟ import
+import PageTransition from "./components/PageTransition";
+import HistoryTransitionBridge from "./components/HistoryTransitionBridge"; // ✅ ΝΕΟ import
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://webkey.gr"),
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://webkey.gr/",
     siteName: "Webkey",
-    title: "Webkey — Dare Against Normal",
+    title: "Webkey — The Key to the Future",
     description: "Creative web experiences",
     images: [{ url: "/og/webkey-og.jpg", width: 1200, height: 630 }],
     locale: "el_GR",
@@ -51,7 +52,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="el">
-      {/* ✅ head με preload για τη γραμματοσειρά */}
       <head>
         <link
           rel="preload"
@@ -64,11 +64,11 @@ export default function RootLayout({
 
       <body>
         <PageTransition>
-          <Header />
-          {/* ΧΩΡΙΣ padding-top -> το header κάνει overlap πάνω στο hero */}
-          <main>{children}</main>
+          {/* 🔥 Bridge για back/forward του browser */}
+          <HistoryTransitionBridge />
 
-          {/* JSON-LD Organization (αόρατο, μόνο SEO) */}
+          <Header />
+          <main>{children}</main>
           <StructuredData />
         </PageTransition>
       </body>
