@@ -92,8 +92,9 @@ export default function PageTransition({ children }: PageTransitionProps) {
           {/* ΥΓΡΟ: γεμίζει κι αδειάζει από κάτω προς τα πάνω */}
           <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
             <motion.div
-              className="w-[140vw] bg-black"
+              className="bg-black"
               style={{
+                width: "220vw", // 🔥 τεράστιο πλάτος για να καλύπτει πάντα
                 borderTopLeftRadius: "999px",
                 borderTopRightRadius: "999px",
                 boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
@@ -101,8 +102,8 @@ export default function PageTransition({ children }: PageTransitionProps) {
               initial={{ height: "0vh" }}
               animate={
                 phase === "fill"
-                  ? { height: "120vh" } // γεμίζει
-                  : { height: "0vh" } // αδειάζει
+                  ? { height: "220vh" } // 🔥 τόσο μεγάλο που η καμπύλη πάει πολύ πάνω από το viewport
+                  : { height: "0vh" }
               }
               transition={{
                 duration: 0.55,
