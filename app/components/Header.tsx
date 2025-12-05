@@ -151,7 +151,7 @@ export default function Header({
     },
   ];
 
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   // Αν έχεις και /en/contact, μπορείς να το κάνεις: pathname?.endsWith("/contact")
   const isContactPage = pathname.endswith("/contact");
 
