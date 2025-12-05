@@ -29,12 +29,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
-  // κρατάμε το ΠΡΩΤΟ pathname (για να μην δείξουμε τίποτα στο πρώτο load)
+  // ΠΡΩΤΟ pathname (για να ΜΗ δείχνουμε loader στο πρώτο load)
   const initialPathRef = useRef<string | null>(null);
-  // κρατάμε το τελευταίο pathname για το οποίο έχουμε ήδη δείξει transition
+  // Τελευταίο pathname στο οποίο έχουμε ήδη δείξει transition
   const lastPathRef = useRef<string | null>(null);
 
-  // 1️⃣ Αρχικό pathname
+  // 1️⃣ Αποθηκεύουμε το αρχικό pathname
   useEffect(() => {
     if (!pathname) return;
     if (initialPathRef.current === null) {
@@ -43,7 +43,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
   }, [pathname]);
 
-  // 2️⃣ Κάθε αλλαγή pathname → αποφασίζουμε αν θα δείξουμε transition
+  // 2️⃣ Σε κάθε αλλαγή pathname, αποφασίζουμε αν θα δείξουμε transition
   useEffect(() => {
     if (!pathname) return;
 
@@ -53,7 +53,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       return;
     }
 
-    // Πρώτο load στο αρχικό pathname → ποτέ transition
+    // Πρώτο load: δεν δείχνουμε τίποτα
     if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
       return;
     }
@@ -69,13 +69,13 @@ export default function PageTransition({ children }: PageTransitionProps) {
     setIsVisible(true);
   }, [pathname]);
 
-  // 3️⃣ Κλείσιμο overlay μετά από λίγο
+  // 3️⃣ Κλείνουμε το overlay μετά από λίγο (να προλάβει γέμισμα + άδειασμα)
   useEffect(() => {
     if (!isVisible) return;
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 900); // δίνει χρόνο στο bouncy enter + exit
+    }, 1100); // ~1.1s συνολικά
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -88,8 +88,8 @@ export default function PageTransition({ children }: PageTransitionProps) {
         {isVisible && (
           <motion.div
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
-            // Το μαύρο background είναι ΠΑΝΤΑ fullscreen από το πρώτο frame
-            initial={{ opacity: 0 }}
+            // Το overlay είναι άμεσα fullscreen μαύρο (κρύβει τη νέα σελίδα)
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             exit={{
               opacity: 0,
@@ -99,24 +99,47 @@ export default function PageTransition({ children }: PageTransitionProps) {
               },
             }}
           >
-            {/* Bouncy “card” με logo + text */}
+            {/* ΥΓΡΟ: γεμίζει από κάτω προς τα πάνω με bouncy spring */}
             <motion.div
-              className="flex flex-col items-center justify-center gap-4 px-6 text-center"
+              className="absolute inset-x-0 bottom-0 flex items-end justify-center overflow-hidden"
+            >
+              <motion.div
+                className="w-[120vw] bg-black"
+                style={{
+                  borderTopLeftRadius: "50%",
+                  borderTopRightRadius: "50%",
+                  transformOrigin: "bottom center",
+                  height: "120vh",
+                }}
+                initial={{ scaleY: 0 }}
+                animate={{ scaleY: 1 }}
+                exit={{ scaleY: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 220,
+                  damping: 20,
+                }}
+              />
+            </motion.div>
+
+            {/* Περιεχόμενο του loader (logo + κείμενα) πάνω από το “υγρό” */}
+            <motion.div
+              className="relative z-10 flex flex-col items-center justify-center gap-4 px-6 text-center"
               initial={{
-                scale: 0.8,
                 opacity: 0,
+                y: 20,
               }}
               animate={{
-                scale: 1.05,
                 opacity: 1,
+                y: 0,
               }}
               exit={{
-                scale: 0.7,
                 opacity: 0,
+                y: -20,
               }}
               transition={{
                 type: "spring",
-                stiffness: 260,
+                stiffness: 200,
                 damping: 18,
               }}
             >
