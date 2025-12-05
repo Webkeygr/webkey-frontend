@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { usePathname } from "next/navigation";
-import LightPillar from "@/components/LightPillar";
+import LightPillar from "../LightPillar";
 
 const interestOptions = ["website", "branding", "ecommerce"] as const;
 type InterestKey = (typeof interestOptions)[number];
