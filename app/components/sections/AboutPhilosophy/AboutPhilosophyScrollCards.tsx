@@ -64,7 +64,9 @@ const AboutPhilosophyScrollCards: React.FC = () => {
   const [isDark, setIsDark] = useState(false);
   const [step, setStep] = useState(0);
   const [hasStarted, setHasStarted] = useState(false);
-  const [globalOpacity, setGlobalOpacity] = useState(1);
+
+  // ⬇️ ΜΟΝΗ ΣΗΜΑΝΤΙΚΗ ΑΛΛΑΓΗ: ξεκινάμε με 0, όχι 1
+  const [globalOpacity, setGlobalOpacity] = useState(0);
 
   const baseScrollRef = useRef<number | null>(null);
 
