@@ -56,26 +56,23 @@ export default function PageTransition({ children }: PageTransitionProps) {
     }
   };
 
-  const startTransition = useCallback(
-    (label: string, navigate: () => void) => {
-      // Αν ήδη τρέχει animation, μην ανάβεις δεύτερο overlay
-      if (isAnimatingRef.current) {
-        navigate();
-        return;
-      }
-
-      clearHideTimeout();
-      isAnimatingRef.current = true;
-      setPageLabel(label);
-
-      setIsActive(true);
-      setPhase("fill"); // ξεκινάει το γέμισμα
-
-      // 🔥 Κάνουμε ΑΜΕΣΩΣ navigate — η νέα σελίδα φορτώνει όσο γεμίζει & αδειάζει το ποτήρι
+  const startTransition = useCallback((label: string, navigate: () => void) => {
+    // Αν ήδη τρέχει animation, μην ανάβεις δεύτερο overlay
+    if (isAnimatingRef.current) {
       navigate();
-    },
-    []
-  );
+      return;
+    }
+
+    clearHideTimeout();
+    isAnimatingRef.current = true;
+    setPageLabel(label);
+
+    setIsActive(true);
+    setPhase("fill"); // ξεκινάει το γέμισμα
+
+    // 🔥 Κάνουμε ΑΜΕΣΩΣ navigate — η νέα σελίδα φορτώνει όσο γεμίζει & αδειάζει το ποτήρι
+    navigate();
+  }, []);
 
   const handleAnimationComplete = () => {
     if (phaseRef.current === "fill") {
@@ -144,7 +141,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              <div className="relative w-40 h-10 md:w-56 md:h-14 pointer-events-none">
+              <div className="relative w-40 h-10 md:w-72 md:h-20 pointer-events-none">
                 <Image
                   src="/images/logo-webkey-white.svg"
                   alt="Webkey"
@@ -158,7 +155,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 Navigating to
               </p>
 
-              <h2 className="text-3xl md:text-4xl font-semibold text-white pointer-events-none">
+              <h2 className="text-5xl md:text-6xl font-bold text-white pointer-events-none">
                 {pageLabel}
               </h2>
             </motion.div>
