@@ -41,44 +41,58 @@ export default function PageTransition({ children }: PageTransitionProps) {
 
   const [phase, _setPhase] = useState<Phase>("idle");
   const phaseRef = useRef<Phase>("idle");
+  const navigateRef = useRef<() => void>(() => {});
   const isAnimatingRef = useRef(false);
+  const hideTimeoutRef = useRef<number | null>(null);
 
   const setPhase = (next: Phase) => {
     phaseRef.current = next;
     _setPhase(next);
   };
 
+  const clearHideTimeout = () => {
+    if (hideTimeoutRef.current !== null) {
+      window.clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  };
+
   const startTransition = useCallback(
     (label: string, navigate: () => void) => {
-      // αν ήδη τρέχει animation, απλά κάνε navigate χωρίς δεύτερο overlay
+      // αν ήδη τρέχει animation, μην ανάβεις δεύτερο overlay
       if (isAnimatingRef.current) {
         navigate();
         return;
       }
 
+      clearHideTimeout();
       isAnimatingRef.current = true;
       setPageLabel(label);
-      setIsActive(true);
-      setPhase("fill");
+      navigateRef.current = navigate;
 
-      // 🔥 κάνουμε ΑΜΕΣΑ navigate: η νέα σελίδα φορτώνει όσο γεμίζει το “ποτήρι”
-      navigate();
+      setIsActive(true);
+      setPhase("fill"); // ξεκινάει το γέμισμα
     },
     []
   );
 
   const handleAnimationComplete = () => {
     if (phaseRef.current === "fill") {
-      // Μόλις τελειώσει το FILL → ξεκινάμε το EMPTY
+      // Μόλις ΤΕΛΕΙΩΣΕ το γεμισμα → κάνε navigate και ξεκίνα το άδειασμα
+      navigateRef.current?.();
       setPhase("empty");
       return;
     }
 
     if (phaseRef.current === "empty") {
-      // Μόλις τελειώσει και το άδειασμα → κλείνουμε το overlay
+      // Μόλις τελειώσει και το άδειασμα → κλείσε overlay (με ένα mini delay)
       isAnimatingRef.current = false;
-      setIsActive(false);
-      setPhase("idle");
+
+      clearHideTimeout();
+      hideTimeoutRef.current = window.setTimeout(() => {
+        setIsActive(false);
+        setPhase("idle");
+      }, 60); // 60ms για να προλάβει να "σταθεροποιηθεί" το νέο page render
     }
   };
 
@@ -87,13 +101,13 @@ export default function PageTransition({ children }: PageTransitionProps) {
       {children}
 
       {isActive && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none bg-neutral-950">
-          {/* ΥΓΡΟ: γεμίζει & αδειάζει από κάτω προς τα πάνω */}
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+          {/* ΥΓΡΟ: γεμίζει κι αδειάζει από κάτω προς τα πάνω */}
           <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
             <motion.div
               className="bg-black"
               style={{
-                width: "220vw", // τεράστιο για να καλύπτει όλες τις οθόνες
+                width: "220vw", // υπερβολικό πλάτος για να καλύπτει όλες τις οθόνες
                 borderTopLeftRadius: "999px",
                 borderTopRightRadius: "999px",
                 boxShadow: "0 -24px 80px rgba(0,0,0,0.9)",
@@ -101,7 +115,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
               initial={{ height: "0vh" }}
               animate={
                 phase === "fill"
-                  ? { height: "220vh" } // γεμίζει (πολύ πάνω από viewport)
+                  ? { height: "220vh" } // γεμίζει (πολύ πάνω από το viewport)
                   : { height: "0vh" } // αδειάζει
               }
               transition={{
