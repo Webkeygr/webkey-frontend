@@ -173,10 +173,10 @@ export default function ContactSection() {
       </div>
 
       {/* Gradient overlay για fade σε μαύρο στο τέλος του section */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[70vh] bg-gradient-to-b from-transparent via-[#050816]/60 to-black -z-10" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[70vh] bg-gradient-to-b from-transparent via-[#050816]/60 to-black z-10" />
 
 
-      <div className="relative z-10 mx-auto flex min-h-[120vh] w-full max-w-[1180px] flex-col px-6 pb-0 pt-32 md:px-8 lg:px-10">
+      <div className="relative z-20 mx-auto flex min-h-[120vh] w-full max-w-[1180px] flex-col px-6 pb-0 pt-32 md:px-8 lg:px-10">
         {/* ====== FORM ====== */}
         <form onSubmit={handleSubmit} className="w-full max-w-[1180px]">
           {/* Title + interests */}
