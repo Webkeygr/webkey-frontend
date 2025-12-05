@@ -313,11 +313,11 @@ export default function ContactSection() {
 
     {/* Περιεχόμενο κεντραρισμένο */}
     <div className="relative flex min-h-[220px] flex-col items-center justify-center text-center">
-      <h2 className="text-[26px] md:text-[32px] font-semibold tracking-[0.35em] text-slate-900 uppercase">
+      <h2 className="text-[26px] md:text-[32px] font-bold tracking-[0.35em] text-slate-900 uppercase">
         {labels.contactTitle}
       </h2>
 
-      <div className="mt-6 space-y-2 text-[18px] md:text-[20px] font-medium text-slate-900">
+      <div className="mt-6 space-y-2 text-[25px] md:text-[30px] font-medium text-slate-900">
         <p>{labels.emailLabel}</p>
         <p>{labels.phoneLabel}</p>
       </div>
