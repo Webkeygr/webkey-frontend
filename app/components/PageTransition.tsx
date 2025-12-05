@@ -27,40 +27,54 @@ export default function PageTransition({ children }: PageTransitionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [pageLabel, setPageLabel] = useState<string>("");
 
-  // κρατάμε αν είναι το ΠΡΩΤΟ render
-  const isFirstRenderRef = useRef(true);
-  // κρατάμε ποιο ήταν το προηγούμενο pathname
-  const prevPathnameRef = useRef<string | null>(null);
+  // αποθηκεύουμε το ΠΡΩΤΟ pathname που φορτώνει το tab
+  const initialPathRef = useRef<string | null>(null);
+  // αποθηκεύουμε το τελευταίο pathname στο οποίο έχουμε ήδη δείξει transition
+  const lastPathRef = useRef<string | null>(null);
 
+  // 1️⃣ Μόλις ανέβει το component, κρατάμε το αρχικό pathname
+  useEffect(() => {
+    if (!pathname) return;
+    if (initialPathRef.current === null) {
+      initialPathRef.current = pathname;
+      lastPathRef.current = pathname;
+    }
+  }, [pathname]);
+
+  // 2️⃣ Kάθε φορά που αλλάζει το pathname, αποφασίζουμε αν πρέπει να δείξουμε overlay
   useEffect(() => {
     if (!pathname) return;
 
-    // 👉 ΠΡΩΤΟ LOAD: δεν δείχνουμε ΠΟΤΕ overlay
-    if (isFirstRenderRef.current) {
-      isFirstRenderRef.current = false;
-      prevPathnameRef.current = pathname;
+    // Αν για κάποιο λόγο δεν έχει set-αριστεί ακόμα, το κάνουμε εδώ
+    if (initialPathRef.current === null) {
+      initialPathRef.current = pathname;
+      lastPathRef.current = pathname;
       return;
     }
 
-    // Αν το pathname δεν άλλαξε, δεν κάνουμε τίποτα
-    if (prevPathnameRef.current === pathname) {
+    // 👉 Αν είναι ΙΔΙΟ με το αρχικό pathname (πρώτο load), δεν δείχνουμε τίποτα
+    if (pathname === initialPathRef.current && lastPathRef.current === pathname) {
       return;
     }
 
-    // Από εδώ και πέρα έχουμε ΠΡΑΓΜΑΤΙΚΗ αλλαγή route
-    prevPathnameRef.current = pathname;
+    // 👉 Αν δεν έχει αλλάξει σε σχέση με το τελευταίο, δεν κάνουμε τίποτα
+    if (lastPathRef.current === pathname) {
+      return;
+    }
 
+    // Από εδώ και πέρα έχουμε ΠΡΑΓΜΑΤΙΚΟ navigation
+    lastPathRef.current = pathname;
     setPageLabel(getPageLabel(pathname));
     setIsVisible(true);
   }, [pathname]);
 
-  // πόση ώρα μένει το overlay πριν αρχίσει να κλείνει
+  // 3️⃣ Κλείσιμο overlay μετά από λίγο
   useEffect(() => {
     if (!isVisible) return;
 
     const timeout = setTimeout(() => {
       setIsVisible(false);
-    }, 650); // ~0.65s πριν το exit animation
+    }, 650); // πόση ώρα μένει ανοιχτό πριν το fade-out
 
     return () => clearTimeout(timeout);
   }, [isVisible]);
@@ -106,7 +120,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 },
               }}
             >
-              {/* ΛΟΓΟΤΥΠΟ – λευκό */}
+              {/* Λευκό λογότυπο */}
               <div className="relative w-40 h-10 md:w-56 md:h-14">
                 <Image
                   src="/images/logo-webkey-white.svg"
