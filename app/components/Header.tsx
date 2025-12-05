@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -181,15 +182,17 @@ export default function Header({
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως το είχαμε */
       logo={
-        <Image
-          src={effectiveLogo}
-          alt="WebKey"
-          width={250}
-          height={100}
-          priority
-          style={{ paddingTop: 20 }}
-          className="header-logo"
-        />
+        <Link href="/" aria-label="Go to homepage">
+          <Image
+            src={effectiveLogo}
+            alt="WebKey"
+            width={250}
+            height={100}
+            priority
+            style={{ paddingTop: 20 }}
+            className="header-logo"
+          />
+        </Link>
       }
       items={items}
       menuAriaLabel="Toggle navigation"
