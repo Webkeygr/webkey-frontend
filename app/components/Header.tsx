@@ -2,9 +2,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -153,6 +152,8 @@ export default function Header({
   ];
 
   const pathname = usePathname() ?? "";
+  const router = useRouter();
+
   // Αν έχεις και /en/contact, μπορείς να το κάνεις: pathname?.endsWith("/contact")
   const isContactPage = pathname.endsWith("/contact");
 
@@ -182,17 +183,16 @@ export default function Header({
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως το είχαμε */
       logo={
-        <Link href="/" aria-label="Go to homepage">
-          <Image
-            src={effectiveLogo}
-            alt="WebKey"
-            width={250}
-            height={100}
-            priority
-            style={{ paddingTop: 20 }}
-            className="header-logo"
-          />
-        </Link>
+        <Image
+          src={effectiveLogo}
+          alt="WebKey"
+          width={250}
+          height={100}
+          priority
+          style={{ paddingTop: 20 }}
+          className="header-logo cursor-pointer"
+          onClick={() => router.push("/")}
+        />
       }
       items={items}
       menuAriaLabel="Toggle navigation"
