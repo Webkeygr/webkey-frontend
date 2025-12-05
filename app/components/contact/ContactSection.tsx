@@ -308,7 +308,7 @@ export default function ContactSection() {
         </form>
 
         {/* BOTTOM CARD ΜΕ FADE-OUT */}
-        <div className="pb-6 md:pb-8 lg:pb-10">
+        <div className="pb-6 md:pb-8 lg:pb-10 mt:10">
           <div className="flex justify-center">
             <div className="relative w-full max-w-5xl rounded-[64px] overflow-hidden bg-transparent">
               {/* GRADIENT: ΛΕΥΚΟ → TRANSPARENT */}
