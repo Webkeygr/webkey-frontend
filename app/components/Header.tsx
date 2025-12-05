@@ -203,22 +203,16 @@ export default function Header({
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως το είχαμε */
       logo={
-        <button
-          type="button"
+        <Image
+          src={effectiveLogo}
+          alt="WebKey"
+          width={250}
+          height={100}
+          priority
           onClick={handleLogoClick}
-          aria-label="Webkey home"
-          className="inline-block"
-        >
-          <Image
-            src={effectiveLogo}
-            alt="WebKey"
-            width={250}
-            height={100}
-            priority
-            style={{ paddingTop: 20 }}
-            className="site-logo header-logo"
-          />
-        </button>
+          style={{ paddingTop: 20, cursor: "pointer" }}
+          className="site-logo header-logo"
+        />
       }
       items={items}
       menuAriaLabel="Toggle navigation"
@@ -228,7 +222,6 @@ export default function Header({
       animationEase="back.out(1.5)"
       animationDuration={0.5}
       staggerDelay={0.12}
-      /* Δίπλα από το toggle βάζουμε μόνο το language switcher */
       rightSlot={
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
