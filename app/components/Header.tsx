@@ -2,8 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import BubbleMenu from "./BubbleMenu";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -114,6 +113,7 @@ export default function Header({
   logoSrc = "/images/logo-webkey.svg",
 }: HeaderProps) {
   const pathname = usePathname() ?? "";
+  const router = useRouter();
 
   const isEnglish = pathname.startsWith("/en");
 
@@ -195,11 +195,20 @@ export default function Header({
   // Αν είμαστε σε /en/... στέλνουμε το logo στο /en/, αλλιώς στο /
   const homeHref = isEnglish ? "/en/" : "/";
 
+  const handleLogoClick = () => {
+    router.push(homeHref);
+  };
+
   return (
     <BubbleMenu
       /* LOGO χωρίς background “pill” και ~25% πιο μεγάλο – όπως το είχαμε */
       logo={
-        <Link href={homeHref} aria-label="Webkey home" className="inline-block">
+        <button
+          type="button"
+          onClick={handleLogoClick}
+          aria-label="Webkey home"
+          className="inline-block"
+        >
           <Image
             src={effectiveLogo}
             alt="WebKey"
@@ -207,9 +216,9 @@ export default function Header({
             height={100}
             priority
             style={{ paddingTop: 20 }}
-            className="header-logo"
+            className="site-logo header-logo"
           />
-        </Link>
+        </button>
       }
       items={items}
       menuAriaLabel="Toggle navigation"
