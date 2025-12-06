@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import TextPressure from "@/app/components/TextPressure";
 
 type PortfolioItem = {
@@ -30,7 +30,7 @@ const mockItems: PortfolioItem[] = [
   },
 ];
 
-const overlayVariants = {
+const overlayVariants: Variants = {
   rest: { opacity: 0 },
   hover: {
     opacity: 1,
@@ -41,7 +41,7 @@ const overlayVariants = {
   },
 };
 
-const techListVariants = {
+const techListVariants: Variants = {
   rest: {},
   hover: {
     transition: {
@@ -50,13 +50,13 @@ const techListVariants = {
   },
 };
 
-const techItemVariants = {
+const techItemVariants: Variants = {
   rest: { x: -24, opacity: 0 },
   hover: {
     x: 0,
     opacity: 1,
     transition: {
-      type: "spring",
+      // type: "spring",  // <– ΑΦΑΙΡΕΘΗΚΕ
       stiffness: 260,
       damping: 20,
     },
