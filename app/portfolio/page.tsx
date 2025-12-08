@@ -1,172 +1,118 @@
-"use client";
+// app/portfolio/page.tsx
+import { Metadata } from 'next';
+import Image from 'next/image';
+import TextPressure from '@/app/components/TextPressure';
+import { fetchPortfolioProjects } from '@/lib/wordpress';
 
-import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
-import TextPressure from "@/app/components/TextPressure";
-
-type PortfolioItem = {
-  id: string;
-  slug: string;
-  title: string;
-  mainImageUrl: string;
-  technologies: string[];
+export const metadata: Metadata = {
+  title: 'Portfolio | Webkey',
+  description: 'Επιλεγμένα έργα web design, development και digital branding.',
 };
 
-// προσωρινό mock – αργότερα θα έρθει από WordPress
-const mockItems: PortfolioItem[] = [
-  {
-    id: "1",
-    slug: "project-1",
-    title: "Project One",
-    mainImageUrl: "/images/portfolio/project-1.jpg",
-    technologies: ["Next.js", "WordPress", "WooCommerce", "GSAP"],
-  },
-  {
-    id: "2",
-    slug: "project-2",
-    title: "Project Two",
-    mainImageUrl: "/images/portfolio/project-2.jpg",
-    technologies: ["React", "Headless WP", "Framer Motion"],
-  },
-];
-
-const overlayVariants: Variants = {
-  rest: { opacity: 0 },
-  hover: {
-    opacity: 1,
-    transition: {
-      duration: 0.25,
-      when: "beforeChildren",
-    },
-  },
-};
-
-const techListVariants: Variants = {
-  rest: {},
-  hover: {
-    transition: {
-      staggerChildren: 0.07,
-    },
-  },
-};
-
-const techItemVariants: Variants = {
-  rest: { x: -24, opacity: 0 },
-  hover: {
-    x: 0,
-    opacity: 1,
-    transition: {
-      // type: "spring",  // <– ΑΦΑΙΡΕΘΗΚΕ
-      stiffness: 260,
-      damping: 20,
-    },
-  },
-};
-
-function PortfolioCard({ item }: { item: PortfolioItem }) {
-  return (
-    <motion.article
-      className="group flex flex-col overflow-hidden rounded-[32px] border border-zinc-200 bg-white shadow-sm"
-      initial="rest"
-      animate="rest"
-      whileHover="hover"
-    >
-      {/* Title bar */}
-      <div className="border-b border-zinc-100 px-6 py-3 text-center text-lg font-medium tracking-[0.35em] uppercase text-zinc-900">
-        {item.title}
-      </div>
-
-      {/* Main image + hover overlay */}
-      <div className="relative aspect-[4/3]">
-        <Image
-          src={item.mainImageUrl}
-          alt={item.title}
-          fill
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="object-cover"
-        />
-
-        <motion.div
-          variants={overlayVariants}
-          className="absolute inset-0 flex items-center justify-center bg-neutral-900/55"
-        >
-          <motion.ul
-            variants={techListVariants}
-            className="space-y-3 text-2xl font-semibold uppercase tracking-wide text-white md:text-3xl"
-          >
-            {item.technologies.map((tech) => (
-              <motion.li key={tech} variants={techItemVariants}>
-                {tech}
-              </motion.li>
-            ))}
-          </motion.ul>
-        </motion.div>
-      </div>
-    </motion.article>
-  );
-}
-
-export default function PortfolioPage() {
-  const items = mockItems; // εδώ αργότερα θα μπει το fetch από WordPress
+export default async function PortfolioPage() {
+  const projects = await fetchPortfolioProjects();
 
   return (
-    <main className="min-h-screen bg-white text-zinc-900">
-      {/* HERO 100vh */}
-      <section className="relative flex min-h-screen flex-col overflow-hidden bg-black text-white hero-iridescence">
-        {/* Iridescence background – βάλε εδώ ό,τι χρησιμοποιείς και στο Hero */}
-        {/* π.χ. <IridescenceBackground className="absolute inset-0 -z-10" /> */}
-        <div className="absolute inset-0 -z-10 opacity-80" />
+    <>
+      {/* Hero Section - 100vh με Iridescence Background */}
+      <section className="relative h-screen flex flex-col justify-center items-center overflow-hidden">
+        {/* Iridescence Background - ίδιο με το Hero σου */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-pink-900 opacity-80" />
+        <div className="absolute inset-0 bg-[url('/noise.png')] mix-blend-soft-light opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
-        <div className="container mx-auto flex flex-1 flex-col items-center justify-center gap-12 px-4">
-          {/* VIDEO badge + Portfolio word */}
-          <div className="flex w-full max-w-5xl flex-col items-center gap-8 md:flex-row md:items-end md:justify-between">
-            {/* VIDEO bubble */}
-            <div className="relative h-36 w-36 md:h-44 md:w-44">
-              <div className="absolute inset-0 -rotate-12 rounded-full bg-white" />
-              <div className="relative flex h-full w-full items-center justify-center -rotate-12">
-                <span className="text-2xl font-extrabold tracking-[0.25em] text-black">
-                  VIDEO
-                </span>
-              </div>
-            </div>
-
-            {/* TextPressure "Portfolio" */}
-            <div className="relative w-full max-w-xl" style={{ height: 120 }}>
-              <TextPressure
-                text="Portfolio"
-                flex={false}
-                alpha={false}
-                stroke={false}
-                width={true}
-                weight={true}
-                italic={true}
-                textColor="#ffffff"
-                minFontSize={40}
-                className="justify-center"
-              />
-            </div>
+        {/* VIDEO Circle */}
+        <div className="absolute left-8 lg:left-16 top-1/2 -translate-y-1/2">
+          <div className="w-32 h-32 lg:w-40 lg:h-40 bg-red-600 rounded-full flex items-center justify-center text-white font-black text-lg lg:text-2xl rotate-[-20deg] shadow-2xl">
+            VIDEO
           </div>
+        </div>
 
-          {/* Intro κείμενο */}
-          <p className="max-w-xl text-center text-sm leading-relaxed text-zinc-200 md:text-base">
-            Ένα showcase επιλεγμένων digital έργων, όπου το design, η τεχνολογία
-            και η στρατηγική συναντιούνται. Projects χτισμένα με Next.js,
-            WordPress, WooCommerce και custom animations – όλα με έναν στόχο: να
-            ξεχωρίζουν.
+        {/* Portfolio Title με το μαγικό effect */}
+        <div className="relative z-10 w-full max-w-7xl px-8">
+          <div className="h-80 lg:h-96">
+            <TextPressure
+              text="Portfolio"
+              textColor="#ffffff"
+              minFontSize={60}
+              weight={true
+              width={true}
+              italic={true}
+              alpha={false}
+              stroke={false}
+            />
+          </div>
+        </div>
+
+        {/* Περιγραφή κάτω από τον τίτλο */}
+        <div className="relative z-10 text-center px-8 max-w-4xl mt-8">
+          <p className="text-lg lg:text-xl text-white/90 leading-relaxed">
+            Ένα showcase επιλεγμένων digital έργων <br className="hidden md:block" />
+            όπου το design, η τεχνολογία και η <br className="hidden md:block" />
+            τυπογραφική αισθητική συναντιούνται.
+          </p>
+          <p className="text-sm lg:text-base text-white/60 mt-6">
+            Projects χτισμένα με Next.js, WordPress, WooCommerce και custom animations – όλα με έναν στόχο: να ξεχωρίζουν.
           </p>
         </div>
       </section>
 
-      {/* GRID με τα κουτιά (προς το παρόν mock data) */}
-      <section className="bg-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-10 md:grid-cols-2">
-            {items.map((item) => (
-              <PortfolioCard key={item.id} item={item} />
-            ))}
-          </div>
+      {/* Projects Grid */}
+      <section className="py-20 lg:py-32 px-6 lg:px-16 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+          {projects.map((project) => {
+            const mainImage = project.acf?.main_image?.url || project.acf?.main_image || '';
+            const technologies: string[] = project.acf?.technologies || [];
+
+            return (
+              <article
+                key={project.id}
+                className="group relative overflow-hidden rounded-2xl bg-zinc-900 shadow-2xl cursor-pointer"
+              >
+                {/* Image Container */}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  {mainImage ? (
+                    <Image
+                      src={mainImage}
+                      alt={project.title.rendered}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center">
+                      <span className="text-zinc-600 text-xl">No image</span>
+                    </div>
+                  )}
+
+                  {/* Overlay + Technologies on Hover */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-500 flex items-end p-8">
+                    <div className="translate-y-full group-hover:translate-y-0 transition-transform duration-700 delay-100">
+                      {technologies.map((tech, idx) => (
+                        <div
+                          key={idx}
+                          className="text-4xl lg:text-5xl font-black text-white opacity-0 group-hover:opacity-100 translate-x-[-100px] group-hover:translate-x-0 transition-all duration-500 ease-out"
+                          style={{ transitionDelay: `${idx * 0.15 + 0.2}s` }}
+                        >
+                          {tech}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Title κάτω από την εικόνα */}
+                <div className="p-8 lg:p-10">
+                  <h3
+                    className="text-2xl lg:text-3xl font-bold text-white"
+                    dangerouslySetInnerHTML={{ __html: project.title.rendered }}
+                  />
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
-    </main>
+    </>
   );
 }
