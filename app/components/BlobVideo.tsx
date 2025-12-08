@@ -2,12 +2,13 @@
 
 export default function BlobVideo({ videoSrc }: { videoSrc: string }) {
   return (
-    <div className="relative my-12 max-w-5xl w-full">
-      <div 
-        className="relative aspect-video overflow-hidden shadow-2xl"
+    <div className="relative w-full aspect-video max-w-5xl mx-auto">
+      <div
+        className="absolute inset-0 overflow-hidden shadow-2xl"
         style={{
-          clipPath: "polygon(8% 0%, 92% 0%, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0% 85%, 0% 15%)",
-          transform: "rotate(-1deg)"
+          clipPath:
+            "polygon(5% 0%, 95% 0%, 100% 20%, 100% 80%, 92% 100%, 8% 100%, 0% 80%, 0% 20%)",
+          transform: "rotate(-1deg) scale(1.02)"
         }}
       >
         <video
@@ -16,7 +17,7 @@ export default function BlobVideo({ videoSrc }: { videoSrc: string }) {
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover scale-105"
+          className="w-full h-full object-cover"
         />
       </div>
     </div>

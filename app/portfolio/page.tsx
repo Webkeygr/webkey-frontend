@@ -1,8 +1,7 @@
 import TextPressure from '@/app/components/TextPressure';
 import { PortfolioCard } from '@/app/components/PortfolioCard';
-import BlobVideo from '@/app/components/BlobVideo'; // θα τον φτιάξουμε σε 5 δευτερόλεπτα
+import BlobVideo from '@/app/components/BlobVideo';
 
-// Νέο Client Component για το video + animations (ξεχωριστό αρχείο)
 export default function PortfolioPage() {
   const projects = [
     {
@@ -41,24 +40,22 @@ export default function PortfolioPage() {
 
   return (
     <>
-      {/* STICKY ANIMATED BACKGROUND – χωρίς styled-jsx */}
+      {/* ΑΚΙΝΗΤΟ ANIMATED BACKGROUND – σε όλη τη σελίδα */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-cyan-600/30" />
         <div className="absolute inset-0 bg-gradient-to-tl from-yellow-400/20 via-transparent to-purple-800/30 animate-pulse" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,#ff00ff20_0%,transparent_50%),radial-gradient(circle_at_80%_20%,#00ffff20_0%,transparent_50%),radial-gradient(circle_at_40%_40%,#ffff0020_0%,transparent_50%)] animate-float" />
       </div>
 
-      {/* HERO */}
-      <section className="relative min-h-screen flex flex-col justify-center items-center text-white px-6">
-        {/* Blob Video – Client Component */}
-        <BlobVideo videoSrc="/public/videos/site_video_2.mp4" />
-
-        {/* Title */}
-        <div className="h-80 w-full max-w-7xl flex items-center justify-center pointer-events-none select-none mt-12">
+      {/* HERO – 100vh */}
+      <section className="relative min-h-screen flex flex-col items-center justify-start pt-20 px-6 text-white">
+        
+        {/* 1. ΤΙΤΛΟΣ "PORTFOLIO" ΣΤΟ TOP (κεντραρισμένος) */}
+        <div className="w-full max-w-7xl mx-auto text-center mt-10 mb-16">
           <TextPressure
             text="Portfolio"
             textColor="#ffffff"
-            minFontSize={80}
+            minFontSize={90}
             weight={true}
             width={true}
             italic={true}
@@ -69,21 +66,26 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* Έντονο κείμενο */}
-        <div className="text-center max-w-5xl -mt-8">
-          <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent leading-tight">
+        {/* 2. BLOB VIDEO ΣΤΗ ΜΕΣΗ */}
+        <div className="w-full max-w-5xl">
+          <BlobVideo videoSrc="/videos/site_video_2.mp4" />
+        </div>
+
+        {/* 3. ΚΕΙΜΕΝΟ ΑΠΟ ΚΑΤΩ (πιο έντονο & κεντραρισμένο) */}
+        <div className="text-center max-w-4xl mt-20">
+          <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
             Ένα showcase επιλεγμένων digital έργων
           </h2>
-          <p className="mt-6 text-lg md:text-xl opacity-90 max-w-3xl mx-auto">
-            όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.<br />
-            Projects χτισμένα με Next.js, WordPress, WooCommerce και custom animations – όλα με έναν στόχο: να ξεχωρίζουν.
+          <p className="mt-8 text-xl md:text-2xl opacity-90 leading-relaxed">
+            όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.<br className="hidden md:block" />
+            Projects χτισμένα με Next.js, WordPress, WooCommerce και custom animations — όλα με έναν στόχο: να ξεχωρίζουν.
           </p>
         </div>
       </section>
 
-      {/* PROJECTS */}
-      <section className="relative py-24 px-6 max-w-7xl mx-auto z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
+      {/* PROJECTS GRID */}
+      <section className="relative py-32 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {projects.map((project: any) => (
             <PortfolioCard key={project.id} project={project} />
           ))}
