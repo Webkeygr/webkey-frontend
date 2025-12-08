@@ -612,3 +612,23 @@ input[type="reset"] {
 .animate-float {
   animation: float 20s ease-in-out infinite;
 }
+
+@keyframes color-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes color-shift-reverse {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.animate-color-shift {
+  animation: color-shift 15s ease infinite;
+}
+
+.animate-color-shift-reverse {
+  animation: color-shift-reverse 20s ease infinite;
+}

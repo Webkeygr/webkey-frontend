@@ -1,8 +1,20 @@
 import TextPressure from '@/app/components/TextPressure';
 import { PortfolioCard } from '@/app/components/PortfolioCard';
 import BlobVideo from '@/app/components/BlobVideo';
+import { useEffect } from 'react';
 
 export default function PortfolioPage() {
+  // Απενεργοποίηση dark mode detection μόνο γι' αυτή τη σελίδα
+  useEffect(() => {
+    // Προσθέτουμε class στο body για override
+    document.body.classList.add('no-dark-mode');
+    
+    // Cleanup όταν φεύγουμε από τη σελίδα
+    return () => {
+      document.body.classList.remove('no-dark-mode');
+    };
+  }, []);
+
   const projects = [
     {
       id: 1,
@@ -40,17 +52,16 @@ export default function PortfolioPage() {
 
   return (
     <>
-      {/* ΑΚΙΝΗΤΟ ANIMATED BACKGROUND – σε όλη τη σελίδα */}
+      {/* ANIMATED SHIFTING BACKGROUND – χρώματα κυλάνε */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-cyan-600/30" />
-        <div className="absolute inset-0 bg-gradient-to-tl from-yellow-400/20 via-transparent to-purple-800/30 animate-pulse" />
+        <div className="absolute inset-0 bg-[size:400%_400%] bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-cyan-600/30 animate-color-shift" />
+        <div className="absolute inset-0 bg-[size:400%_400%] bg-gradient-to-tl from-yellow-400/20 via-transparent to-purple-800/30 animate-color-shift-reverse" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,#ff00ff20_0%,transparent_50%),radial-gradient(circle_at_80%_20%,#00ffff20_0%,transparent_50%),radial-gradient(circle_at_40%_40%,#ffff0020_0%,transparent_50%)] animate-float" />
       </div>
 
-      {/* HERO – 100vh */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start pt-20 px-6 text-white">
-        
-        {/* 1. ΤΙΤΛΟΣ "PORTFOLIO" ΣΤΟ TOP (κεντραρισμένος) */}
+      {/* HERO – χωρίς padding */}
+      <section className="relative min-h-screen flex flex-col items-center justify-start pt-20 text-white">
+        {/* ΤΙΤΛΟΣ ΣΤΟ TOP */}
         <div className="w-full max-w-7xl mx-auto text-center mt-10 mb-16">
           <TextPressure
             text="Portfolio"
@@ -66,12 +77,12 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* 2. BLOB VIDEO ΣΤΗ ΜΕΣΗ */}
+        {/* BLOB VIDEO ΣΤΗ ΜΕΣΗ */}
         <div className="w-full max-w-5xl">
           <BlobVideo videoSrc="/videos/site_video_2.mp4" />
         </div>
 
-        {/* 3. ΚΕΙΜΕΝΟ ΑΠΟ ΚΑΤΩ (πιο έντονο & κεντραρισμένο) */}
+        {/* ΚΕΙΜΕΝΟ ΑΠΟ ΚΑΤΩ */}
         <div className="text-center max-w-4xl mt-20">
           <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
             Ένα showcase επιλεγμένων digital έργων
@@ -83,8 +94,8 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      {/* PROJECTS GRID */}
-      <section className="relative py-32 px-6 max-w-7xl mx-auto">
+      {/* PROJECTS GRID – χωρίς padding */}
+      <section className="relative py-32 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {projects.map((project: any) => (
             <PortfolioCard key={project.id} project={project} />
