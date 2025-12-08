@@ -632,3 +632,34 @@ input[type="reset"] {
 .animate-color-shift-reverse {
   animation: color-shift-reverse 20s ease infinite;
 }
+/* Απενεργοποίηση dark mode detection στη σελίδα portfolio */
+body.portfolio-no-dark .logo,
+body.portfolio-no-dark .language-switcher a,
+body.portfolio-no-dark .language-switcher span {
+  color: #000000 !important;
+  fill: #000000 !important;
+}
+body.portfolio-no-dark .logo svg path {
+  fill: #000000 !important;
+}
+
+/* Animated background */
+@keyframes color-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes color-shift-reverse {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(1deg); }
+  66% { transform: translate(-20px, -10px) rotate(-1deg); }
+}
+
+.animate-color-shift { animation: color-shift 18s ease infinite; }
+.animate-color-shift-reverse { animation: color-shift-reverse 22s ease infinite; }
+.animate-float { animation: float 20s ease-in-out infinite; }
