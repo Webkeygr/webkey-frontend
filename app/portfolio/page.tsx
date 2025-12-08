@@ -51,7 +51,7 @@ export default function PortfolioPage() {
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center items-center text-white px-6">
         {/* Blob Video – Client Component */}
-        <BlobVideo videoSrc="/videos/portfolio-showreel.mp4" />
+        <BlobVideo videoSrc="/public/videos/site_video_2.mp4" />
 
         {/* Title */}
         <div className="h-80 w-full max-w-7xl flex items-center justify-center pointer-events-none select-none mt-12">
