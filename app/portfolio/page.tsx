@@ -1,12 +1,9 @@
 import TextPressure from '@/app/components/TextPressure';
 import { PortfolioCard } from '@/app/components/PortfolioCard';
+import BlobVideo from '@/app/components/BlobVideo'; // θα τον φτιάξουμε σε 5 δευτερόλεπτα
 
-// Ανέβασε το βίντεό σου στο /public/videos/portfolio-showreel.mp4
-// ή άλλαξε το path στο src παρακάτω
-const SHOWREEL_VIDEO = "/videos/portfolio-showreel.mp4";
-
+// Νέο Client Component για το video + animations (ξεχωριστό αρχείο)
 export default function PortfolioPage() {
-  // Dummy data (θα αντικατασταθούν αργότερα με το WordPress)
   const projects = [
     {
       id: 1,
@@ -21,7 +18,7 @@ export default function PortfolioPage() {
       title: { rendered: "Corporate Website με Custom 3D Animations" },
       acf: {
         main_image: { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&h=1000&fit=crop" },
-        technologies: ["React", "Three.js","Framer Motion"]
+        technologies: ["React", "Three.js", "Framer Motion"]
       }
     },
     {
@@ -29,7 +26,7 @@ export default function PortfolioPage() {
       title: { rendered: "Brand Identity & Headless WordPress" },
       acf: {
         main_image: { url: "https://images.unsplash.com/photo-1558655146-9f40138ed1cb?w=1400&h=1000&fit=crop" },
-        technologies: ["WordPress Headless", "Next.js", "ACF", "GraphQL"]
+        technologies: ["WordPress Headless", "Next.js", "ACF"]
       }
     },
     {
@@ -37,48 +34,27 @@ export default function PortfolioPage() {
       title: { rendered: "Web App με Real-time Data" },
       acf: {
         main_image: { url: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1400&h=1000&fit=crop" },
-        technologies: ["Next.js API Routes", "Supabase", "Shadcn/ui"]
+        technologies: ["Next.js API", "Supabase", "Shadcn/ui"]
       }
     }
   ];
 
   return (
     <>
-      {/* FULL-PAGE STICKY & ANIMATED BACKGROUND */}
+      {/* STICKY ANIMATED BACKGROUND – χωρίς styled-jsx */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-cyan-600/30" />
-        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/20 via-transparent to-purple-800/30 animate-pulse" />
-        <div 
-          className="absolute inset-0 opacity-40"
-          style={{
-            background: "radial-gradient(circle at 20% 80%, #ff00ff 0%, transparent 50%), radial-gradient(circle at 80% 20%, #00ffff 0%, transparent 50%), radial-gradient(circle at 40% 40%, #ffff00 0%, transparent 50%)",
-            animation: "float 20s ease-in-out infinite"
-          }}
-        />
+        <div className="absolute inset-0 bg-gradient-to-tl from-yellow-400/20 via-transparent to-purple-800/30 animate-pulse" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,#ff00ff20_0%,transparent_50%),radial-gradient(circle_at_80%_20%,#00ffff20_0%,transparent_50%),radial-gradient(circle_at_40%_40%,#ffff0020_0%,transparent_50%)] animate-float" />
       </div>
 
-      {/* HERO SECTION – 100vh */}
+      {/* HERO */}
       <section className="relative min-h-screen flex flex-col justify-center items-center text-white px-6">
-        {/* Blob Video Container – κεντραρισμένο, περίεργο σχήμα */}
-        <div className="relative my-12 max-w-4xl w-full">
-          <div className="relative aspect-video overflow-hidden" 
-               style={{
-                 clipPath: "polygon(5% 0%, 95% 0%, 100% 20%, 100% 80%, 90% 100%, 10% 100%, 0% 80%, 0% 20%)",
-                 transform: "rotate(-1deg)"
-               }}>
-            <video
-              src={SHOWREEL_VIDEO}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover scale-110"
-            />
-          </div>
-        </div>
+        {/* Blob Video – Client Component */}
+        <BlobVideo videoSrc="/videos/portfolio-showreel.mp4" />
 
-        {/* Portfolio Title με το effect */}
-        <div className="h-80 w-full max-w-7xl flex items-center justify-center pointer-events-none select-none">
+        {/* Title */}
+        <div className="h-80 w-full max-w-7xl flex items-center justify-center pointer-events-none select-none mt-12">
           <TextPressure
             text="Portfolio"
             textColor="#ffffff"
@@ -93,19 +69,19 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* Κείμενο – πιο πάνω και πιο έντονο */}
-        <div className="text-center max-w-4xl mt-8">
-          <p className="text-2xl md:text-4xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+        {/* Έντονο κείμενο */}
+        <div className="text-center max-w-5xl -mt-8">
+          <h2 className="text-3xl md:text-5xl font-black bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent leading-tight">
             Ένα showcase επιλεγμένων digital έργων
-          </p>
-          <p className="mt-4 text-lg md:text-xl opacity-90">
+          </h2>
+          <p className="mt-6 text-lg md:text-xl opacity-90 max-w-3xl mx-auto">
             όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.<br />
             Projects χτισμένα με Next.js, WordPress, WooCommerce και custom animations – όλα με έναν στόχο: να ξεχωρίζουν.
           </p>
         </div>
       </section>
 
-      {/* PROJECTS GRID */}
+      {/* PROJECTS */}
       <section className="relative py-24 px-6 max-w-7xl mx-auto z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           {projects.map((project: any) => (
@@ -113,15 +89,6 @@ export default function PortfolioPage() {
           ))}
         </div>
       </section>
-
-      {/* CSS Animations */}
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) rotate(0deg); }
-          33% { transform: translate(30px, -30px) rotate(1deg); }
-          66% { transform: translate(-20px, -10px) rotate(-1deg); }
-        }
-      `}</style>
     </>
   );
 }

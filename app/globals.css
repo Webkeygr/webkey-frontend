@@ -602,3 +602,13 @@ input[type="reset"] {
   50% { transform: translate(100px, 100px); }
   100% { transform: translate(0, 0); }
 }
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(1deg); }
+  66% { transform: translate(-20px, -10px) rotate(-1deg); }
+}
+
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
