@@ -13,9 +13,9 @@ const IridescentBackground = () => (
 export default async function PortfolioPage() {
   // Φέρνουμε τα portfolio posts από το headless WordPress
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_WORDPRESS_URL}/wp-json/wp/v2/portfolio?per_page=12&_embed&acf_format=standard`,
-    { next: { revalidate: 60 } } // cache 60 δευτερόλεπτα
-  );
+  `https://wp.webkey.gr/wp-json/wp/v2/portfolio?per_page=12&_embed&acf_format=standard`, // ← το δικό σου URL
+  { next: { revalidate: 60 } }
+);
 
   const projects = await res.json();
 
