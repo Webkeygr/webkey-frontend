@@ -1,67 +1,88 @@
-// app/portfolio/page.tsx
-
 import TextPressure from '@/app/components/TextPressure';
 import { PortfolioCard } from '@/app/components/PortfolioCard';
 
+// Ανέβασε το βίντεό σου στο /public/videos/portfolio-showreel.mp4
+// ή άλλαξε το path στο src παρακάτω
+const SHOWREEL_VIDEO = "/videos/portfolio-showreel.mp4";
+
 export default function PortfolioPage() {
-  // Προσωρινά dummy projects μέχρι να συνδέσουμε το πραγματικό WordPress
+  // Dummy data (θα αντικατασταθούν αργότερα με το WordPress)
   const projects = [
     {
       id: 1,
-      title: { rendered: 'E-shop με Next.js & WooCommerce' },
+      title: { rendered: "Luxury E-shop με Next.js 14 & WooCommerce" },
       acf: {
-        main_image: { url: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&h=900&fit=crop' },
-        technologies: ['Next.js', 'WooCommerce', 'Tailwind', 'GSAP'],
-      },
+        main_image: { url: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1400&h=1000&fit=crop" },
+        technologies: ["Next.js", "WooCommerce", "Tailwind", "GSAP"]
+      }
     },
     {
       id: 2,
-      title: { rendered: 'Corporate Website με Custom Animations' },
+      title: { rendered: "Corporate Website με Custom 3D Animations" },
       acf: {
-        main_image: { url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=900&fit=crop' },
-        technologies: ['React', 'Framer Motion', 'WordPress Headless'],
-      },
+        main_image: { url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&h=1000&fit=crop" },
+        technologies: ["React", "Three.js","Framer Motion"]
+      }
     },
     {
       id: 3,
-      title: { rendered: '3D Portfolio Experience' },
+      title: { rendered: "Brand Identity & Headless WordPress" },
       acf: {
-        main_image: { url: 'https://images.unsplash.com/photo-1558655146-9f40138ed1cb?w=1200&h=900&fit=crop' },
-        technologies: ['Three.js', 'Next.js 16', 'Shader'],
-      },
+        main_image: { url: "https://images.unsplash.com/photo-1558655146-9f40138ed1cb?w=1400&h=1000&fit=crop" },
+        technologies: ["WordPress Headless", "Next.js", "ACF", "GraphQL"]
+      }
     },
     {
       id: 4,
-      title: { rendered: 'Brand Identity & Web Development' },
+      title: { rendered: "Web App με Real-time Data" },
       acf: {
-        main_image: { url: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=900&fit=crop' },
-        technologies: ['Figma', 'Webflow', 'Custom CSS'],
-      },
-    },
+        main_image: { url: "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1400&h=1000&fit=crop" },
+        technologies: ["Next.js API Routes", "Supabase", "Shadcn/ui"]
+      }
+    }
   ];
 
   return (
     <>
-      {/* HERO SECTION */}
-      <section className="relative h-screen flex flex-col justify-center items-center text-white overflow-hidden">
-        {/* Iridescent Background – inline, χωρίς ξεχωριστό component */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/40 via-pink-600/30 to-cyan-600/40" />
-          <div className="absolute inset-0 bg-gradient-to-tl from-orange-500/20 via-transparent to-blue-600/20 animate-pulse" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-[shimmer_8s_infinite]" />
+      {/* FULL-PAGE STICKY & ANIMATED BACKGROUND */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-cyan-600/30" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400/20 via-transparent to-purple-800/30 animate-pulse" />
+        <div 
+          className="absolute inset-0 opacity-40"
+          style={{
+            background: "radial-gradient(circle at 20% 80%, #ff00ff 0%, transparent 50%), radial-gradient(circle at 80% 20%, #00ffff 0%, transparent 50%), radial-gradient(circle at 40% 40%, #ffff00 0%, transparent 50%)",
+            animation: "float 20s ease-in-out infinite"
+          }}
+        />
+      </div>
+
+      {/* HERO SECTION – 100vh */}
+      <section className="relative min-h-screen flex flex-col justify-center items-center text-white px-6">
+        {/* Blob Video Container – κεντραρισμένο, περίεργο σχήμα */}
+        <div className="relative my-12 max-w-4xl w-full">
+          <div className="relative aspect-video overflow-hidden" 
+               style={{
+                 clipPath: "polygon(5% 0%, 95% 0%, 100% 20%, 100% 80%, 90% 100%, 10% 100%, 0% 80%, 0% 20%)",
+                 transform: "rotate(-1deg)"
+               }}>
+            <video
+              src={SHOWREEL_VIDEO}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover scale-110"
+            />
+          </div>
         </div>
 
-        {/* VIDEO Circle */}
-        <div className="absolute left-8 top-1/2 -translate-y-1/2 bg-black text-white px-8 py-4 rounded-full text-sm font-bold -rotate-90 hidden lg:block select-none">
-          VIDEO
-        </div>
-
-        {/* Portfolio Title με TextPressure effect */}
-        <div className="relative h-80 w-full max-w-7xl flex items-center justify-center pointer-events-none select-none">
+        {/* Portfolio Title με το effect */}
+        <div className="h-80 w-full max-w-7xl flex items-center justify-center pointer-events-none select-none">
           <TextPressure
             text="Portfolio"
             textColor="#ffffff"
-            minFontSize={60}
+            minFontSize={80}
             weight={true}
             width={true}
             italic={true}
@@ -72,23 +93,35 @@ export default function PortfolioPage() {
           />
         </div>
 
-        {/* Περιγραφή */}
-        <div className="text-center px-6 max-w-3xl z-10">
-          <p className="text-lg lg:text-xl opacity-90 leading-relaxed">
-            Ένα showcase επιλεγμένων digital έργων όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται. 
-            Projects χτισμένα με Next.js, WordPress, WooCommerce και custom animations — όλα με έναν στόχο: να ξεχωρίζουν.
+        {/* Κείμενο – πιο πάνω και πιο έντονο */}
+        <div className="text-center max-w-4xl mt-8">
+          <p className="text-2xl md:text-4xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+            Ένα showcase επιλεγμένων digital έργων
+          </p>
+          <p className="mt-4 text-lg md:text-xl opacity-90">
+            όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.<br />
+            Projects χτισμένα με Next.js, WordPress, WooCommerce και custom animations – όλα με έναν στόχο: να ξεχωρίζουν.
           </p>
         </div>
       </section>
 
       {/* PROJECTS GRID */}
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
+      <section className="relative py-24 px-6 max-w-7xl mx-auto z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
           {projects.map((project: any) => (
             <PortfolioCard key={project.id} project={project} />
           ))}
         </div>
       </section>
+
+      {/* CSS Animations */}
+      <style jsx global>{`
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(30px, -30px) rotate(1deg); }
+          66% { transform: translate(-20px, -10px) rotate(-1deg); }
+        }
+      `}</style>
     </>
   );
 }
