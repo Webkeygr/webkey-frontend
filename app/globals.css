@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ================== ROOT COLORS & THEMING ================== */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -45,35 +46,593 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ================== FONTS ================== */
+/* ================== ITC-Bold FONT ================== */
+
 @font-face {
   font-family: "ITC-Bold";
-  font-family: "ITC-Bold";
   src: url("/fonts/ITC-Bold.woff2") format("woff2"),
-       url("/fonts/ITC-Bold.woff") format("woff"),
-       url("/fonts/ITC-Bold.otf") format("opentype");
+    url("/fonts/ITC-Bold.woff") format("woff"),
+    url("/fonts/ITC-Bold.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
-/* ================== BASE ================== */
-body {
-  min-height: 100vh;
-  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
+/* Όταν το AboutPhilosophy “σκοτεινιάζει” και βάζει .dark-header στο <body>,
+   κάνε τα GR / EN λευκά για να φαίνονται πάνω στο μαύρο. */
 
-@layer base {
-  * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; }
-}
-
-/* ================== HEADER DARK OVERRIDE (άλλες σελίδες) ================== */
 body.dark-header .lang-label {
   color: #ffffff !important;
 }
 
-/* ================== PORTFOLIO: FORCE BLACK LOGO & LANG ================== */
+/* Utility class για χρήση ITC-Bold όπου θέλεις */
+.font-ITC-Bold {
+  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+/* ================== BODY ================== */
+
+body {
+  min-height: 100vh;
+  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+/* ===================================================== */
+/* ===============  MAINTENANCE STYLES  ================ */
+/* ===================================================== */
+
+.maintenance-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #0f172a 0%, #020617 55%, #000 100%);
+  color: #fff;
+  padding: 1.5rem;
+}
+
+.maintenance-card {
+  background: rgba(2, 6, 23, 0.4);
+  border: 1px solid rgba(252, 236, 69, 0.4);
+  backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+  padding: 2.5rem 3rem;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.maintenance-card h1 {
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
+  margin-bottom: 1rem;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.maintenance-card p {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.maintenance-sub {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 0.75rem;
+}
+
+/* Βασικό CTA button (γενικό) */
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 10px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  color: #111;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* ===================================================== */
+/* ================  HERO (NEW LAYOUT)  ================ */
+/* ===================================================== */
+
+/*
+  hero-wrapper = Section στον Elementor
+  hero-inner   = το "κόκκινο" container max-width 1900px
+*/
+
+/* ΕΞΩΤΕΡΙΚΟ SECTION – σαν Section στον Elementor */
+.hero-wrapper {
+  position: relative;
+  min-height: 80vh;
+  overflow: hidden;
+
+  /* Elementor: Section > Advanced > Padding (Top / Right / Bottom / Left)
+     Χρησιμοποιούμε clamp για να κρατάει παρόμοιο layout σε διάφορα widths. */
+  padding-block: clamp(80px, 13vh, 340px); /* πάνω / κάτω */
+  padding-inline: clamp(100px, 40vw, 240px); /* δεξιά / αριστερά */
+}
+
+/* Background container (σταθερό fullscreen) */
+.hero-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+}
+
+/* Iridescence να γεμίζει όλο το background */
+.hero-iridescence {
+  width: 100%;
+  height: 100%;
+}
+
+/* Κεντρικό “κόκκινο” box – max-width 1900px */
+.hero-inner {
+  padding-top: 150px;
+  max-width: 1900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px; /* Απόσταση μεταξύ των 3 γραμμών */
+}
+
+/* Κοινές ρυθμίσεις για κάθε γραμμή τίτλου */
+
+/* Βασικός τίτλος – μέγεθος, γραμματοσειρά, κλπ */
+.hero-title {
+  margin: 0;
+  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-weight: 600;
+  line-height: 0.9;
+  color: #000000;
+  text-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  user-select: none;
+
+  /* Elementor: Typography > Size (responsive με clamp)
+     Μπορείς να αλλάξεις το MIN/FLUID/MAX όπως θες. */
+  font-size: clamp(64px, 9vw, 160px);
+}
+
+/* ===== ΡΥΘΜΙΣΕΙΣ ΑΝΑ ΓΡΑΜΜΗ (σαν 3 headings στον Elementor) ===== */
+/* Εδώ έχεις τον πλήρη “Elementor έλεγχο” για κάθε σειρά */
+
+/* Γραμμή 1: "Το Κλειδί" */
+.hero-line-1 {
+  /* Padding: top right bottom left */
+  padding: 40px 0 25px 60px;
+  /* Αν θέλεις να είναι πιο δεξιά/αριστερά → άλλαξε μόνο το 4ο νούμερο (left). */
+}
+
+/* Γραμμή 2: "για το Ψηφιακό" */
+.hero-line-2 {
+  padding: 0 0 70px 60px;
+}
+
+/* Γραμμή 3: "Μέλλον" (μέσα στο hero-bottom-row) */
+.hero-line-3 {
+  padding: 0 0 0 60px;
+}
+
+/* ===== Κάτω σειρά: “Μέλλον” + κειμενάκι δίπλα ===== */
+
+.hero-bottom-row {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+
+/* Σε desktop: αριστερά το "Μέλλον", δεξιά το κείμενο/CTA */
+@media (min-width: 1024px) {
+  .hero-bottom-row {
+    flex-direction: row;
+    align-items: flex-start; /* 👈 ΜΟΝΟ αυτό άλλαξε */
+    justify-content: flex-start;
+    column-gap: 40px;
+  }
+
+  .hero-line-3 {
+    flex: 0 0 auto;
+  }
+
+  .hero-text-block {
+    flex: 0 0 420px;
+    margin-top: -100px; /* εδώ πειράζεις όσο θέλεις το πόσο κατεβαίνει ΜΟΝΟ το κείμενο */
+  }
+}
+
+/* Κειμενάκι + CTA δεξιά από το “Μέλλον” */
+.hero-text-block {
+  max-width: 420px;
+  font-size: 14px;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+
+  /*
+    Elementor: Column > Advanced > Padding
+    padding: top right bottom left
+
+    Για να το φέρεις πιο αριστερά/δεξιά:
+    - αύξησε/μείωσε το LEFT (4ο νούμερο)
+    - ή παίξε και με το column-gap στο .hero-bottom-row
+  */
+  padding: 0px 0px 40px 0;
+}
+
+/* Εσωτερικό wrapper ΜΟΝΟ για το κείμενο + CTA */
+.hero-text-inner {
+  padding-top: 0; /* base value – θα το ανεβάζεις/κατεβάζεις με media queries αν θες */
+}
+
+@media (min-width: 1024px) {
+  .hero-text-block {
+    margin-top: 0; /* να μη σπρώχνει προς τα κάτω όλο το block σε σχέση με το "Μέλλον" */
+  }
+
+  .hero-text-inner {
+    padding-top: 10px; /* εδώ ρυθμίζεις πόσο θα κατέβει ΜΟΝΟ το κείμενο/CTA */
+  }
+}
+
+.hero-text-block p {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+/* CTA του hero */
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 32px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.24);
+  transition: transform 0.15s ease;
+  margin-top: 24px;
+  margin-left: 50px; /* ➜ το πάει λίγο δεξιά */
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+}
+
+/* ===================================================== */
+/* ==============  HERO RESPONSIVE (<=1023px) ========= */
+/* ===================================================== */
+
+@media (max-width: 1023px) {
+  /* 20px padding δεξιά–αριστερά, λίγο “αέρας” πάνω/κάτω */
+  .hero-wrapper {
+    padding-inline: 20px;
+    padding-block: 96px 72px;
+  }
+
+  /* Όλα σε μια στήλη, αριστερή στοίχιση */
+  .hero-inner {
+    align-items: flex-start;
+  }
+
+  /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
+  .hero-line-1,
+  .hero-line-2,
+  .hero-line-3 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Τίτλος πιο μικρός, να σπάει σωστά σε γραμμές */
+  .hero-title {
+    font-size: clamp(40px, 11vw, 64px);
+    white-space: normal;
+    line-height: 1.05;
+  }
+
+  /* Κάτω row πάντα κάθετα */
+  .hero-bottom-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .hero-text-block {
+    max-width: 100%;
+    padding: 0 0 32px 0;
+  }
+  .hero-text-block p {
+    font-size: 15px; /* π.χ. 15px ή 16px */
+  }
+
+  .hero-text-inner {
+    padding-top: 16px;
+  }
+
+  /* CTA κάτω από το κείμενο, αριστερά, χωρίς extra margin-left */
+  .hero-cta {
+    align-self: flex-start;
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  .hero-line-1 {
+    padding-bottom: 10px;
+    padding-top: 60px;
+  }
+  .hero-line-2 {
+    padding-bottom: 10px;
+  }
+  .hero-line-3 {
+    padding-bottom: 0;
+  }
+}
+
+@media only screen and (max-width: 915px) and (min-width: 360px) {
+  /* 20px padding δεξιά–αριστερά, λίγο “αέρας” πάνω/κάτω */
+  .hero-wrapper {
+    padding-inline: 20px;
+    padding-block: 96px 72px;
+  }
+
+  /* Όλα σε μια στήλη, αριστερή στοίχιση */
+  .hero-inner {
+    align-items: flex-start;
+    row-gap: 0;
+    padding-top: 5px;
+  }
+
+  /* Βγάζουμε τα extra left paddings στις γραμμές τίτλου */
+  .hero-line-1,
+  .hero-line-2,
+  .hero-line-3 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .bubble-menu.fixed {
+    padding-bottom: 50px;
+    min-height: 88px;
+  }
+
+  .header-logo {
+    height: auto;
+    width: 580px; /* δοκίμασε 260–300 αν το θες πιο πολύ ή λιγότερο */
+  }
+
+  .logo-plain img {
+    height: 90px !important; /* παίξε 60–80px ανάλογα τι σου κάθεται όμορφα */
+    width: auto !important;
+  }
+
+  /* Αν το container του logo έχει περιορισμό πλάτους/ύψους, τον σπάμε */
+  .logo-plain {
+    max-height: none !important;
+    max-width: none !important;
+  }
+
+  .hero-line-2 .hero-title {
+    line-height: 1.6;
+  }
+
+  /* Τίτλος πιο μικρός, να σπάει σωστά σε γραμμές */
+  .hero-title {
+    font-size: clamp(60px, 11vw, 74px);
+    white-space: normal;
+    line-height: 1.1;
+  }
+
+  /* Κάτω row πάντα κάθετα */
+  .hero-bottom-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .hero-text-block {
+    max-width: 100%;
+    padding: 0 0 32px 0;
+  }
+  .hero-text-block p {
+    font-size: 15px; /* π.χ. 15px ή 16px */
+  }
+
+  .hero-text-inner {
+    padding-top: 0;
+  }
+
+  /* CTA κάτω από το κείμενο, αριστερά, χωρίς extra margin-left */
+  .hero-cta {
+    align-self: flex-start;
+    margin-left: 0;
+    margin-top: 20px;
+  }
+
+  .hero-line-1 {
+    padding-bottom: 0;
+  }
+  .hero-line-2 {
+    padding-bottom: 0;
+  }
+  .hero-line-3 {
+    padding-bottom: 0;
+  }
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Λευκό contact card με μαλακό fade προς τα κάτω */
+.contact-project-card {
+  position: relative;
+  overflow: hidden; /* για να ακολουθεί τα rounded corners */
+}
+
+/* Το mask κάνει το ΚΑΤΩ μέρος του πλαισίου να “σβήνει” προς το φόντο */
+.contact-project-card {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 1) 70%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  cursor: pointer;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes gradient-xy {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(100px, 100px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(1deg); }
+  66% { transform: translate(-20px, -10px) rotate(-1deg); }
+}
+
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
+
+@keyframes color-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes color-shift-reverse {
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.animate-color-shift {
+  animation: color-shift 15s ease infinite;
+}
+
+.animate-color-shift-reverse {
+  animation: color-shift-reverse 20s ease infinite;
+}
+/* Απενεργοποίηση dark mode detection στη σελίδα portfolio */
 body.portfolio-no-dark .logo,
 body.portfolio-no-dark .language-switcher a,
 body.portfolio-no-dark .language-switcher span {
@@ -84,95 +643,23 @@ body.portfolio-no-dark .logo svg path {
   fill: #000000 !important;
 }
 
-/* ================== ANIMATIONS (μόνο μία φορά) ================== */
-@keyframes slideIn {
-  from { transform: translateX(-100%); opacity: 0; }
-  to   { transform: translateX(0); opacity: 1; }
-}
-@keyframes gradient-xy {
-  0%, 100% { transform: translate(0, 0); }
-  50%      { transform: translate(100px, 100px); }
-}
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-   33%     { transform: translate(30px, -30px) rotate(1deg); }
-  66%     { transform: translate(-20px, -10px) rotate(-1deg); }
-}
+/* Animated background */
 @keyframes color-shift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 @keyframes color-shift-reverse {
-  0%   { background-position: 100% 50%; }
-  50%  { background-position: 0% 50%; }
+  0% { background-position: 100% 50%; }
+  50% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -30px) rotate(1deg); }
+  66% { transform: translate(-20px, -10px) rotate(-1deg); }
+}
 
-.animate-float               { animation: float 20s ease-in-out infinite; }
-.animate-color-shift         { animation: color-shift 18s ease infinite; }
+.animate-color-shift { animation: color-shift 18s ease infinite; }
 .animate-color-shift-reverse { animation: color-shift-reverse 22s ease infinite; }
-
-/* ================== HERO LAYOUT (όλα όπως τα είχες) ================== */
-.hero-wrapper {
-  position: relative;
-  min-height: 80vh;
-  overflow: hidden;
-  padding-block: clamp(80px, 13vh, 340px);
-  padding-inline: clamp(100px, 40vw, 240px);
-}
-.hero-bg { position: fixed; inset: 0; z-index: -10; pointer-events: none; }
-.hero-iridescence { width: 100%; height: 100%; }
-.hero-inner { padding-top: 150px; max-width: 1900px; margin: 0 auto; display: flex; flex-direction: column; row-gap: 12px; }
-.hero-title {
-  margin: 0;
-  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-weight: 600;
-  line-height: 0.9;
-  color: #000000;
-  text-shadow: 0 8px 0 rgba(0,0,0,0.1);
-  white-space: nowrap;
-  user-select: none;
-  font-size: clamp(64px, 9vw, 160px);
-}
-.hero-line-1 { padding: 40px 0 25px 60px; }
-.hero-line-2 { padding: 0 0 70px 60px; }
-.hero-line-3 { padding: 0 0 0 60px; }
-.hero-bottom-row { display: flex; flex-direction: column; gap: 24px; align-items: flex-start; margin-top: 8px; }
-@media (min-width: 1024px) {
-  .hero-bottom-row { flex-direction: row; justify-content: flex-start; column-gap: 40px; }
-  .hero-text-block { flex: 0 0 420px; margin-top: -100px; }
-}
-.hero-text-block { max-width: 420px; font-size: 14px; color: #000; display: flex; flex-direction: column; row-gap: 16px; padding: 0 0 40px 0; }
-.hero-text-block p { font-size: 18px; line-height: 1.5; }
-.hero-cta {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 12px 32px; border-radius: 999px; background: #ffffff; color: #000;
-  font-size: 14px; font-weight: 500; text-decoration: none;
-  backdrop-filter: blur(12px); box-shadow: 0 0 32px rgba(0,0,0,0.24);
-  transition: transform 0.15s ease; margin-top: 24px; margin-left: 50px;
-}
-.hero-cta:hover { transform: translateY(-2px); }
-
-/* Responsive hero – όλα όπως τα είχες */
-@media (max-width: 1023px) { /* … τα styles σου … */ }
-@media only screen and (max-width: 915px) and (min-width: 360px) { /* … τα styles σου … */ }
-
-/* ================== MAINTENANCE & CONTACT CARD ================== */
-.maintenance-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: radial-gradient(circle, #0f172a 0%, #020617 55%, #000 100%); color: #fff; padding: 1.5rem; }
-.maintenance-card { background: rgba(2,6,23,0.4); border: 1px solid rgba(252,236,69,0.4);
-  backdrop-filter: blur(16px); border-radius: 1.5rem; padding: 2.5rem 3rem; max-width: 500px;
-  text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
-.maintenance-card h1 { font-size: clamp(1.9rem, 3vw, 2.4rem); margin-bottom: 1rem; }
-
-/* ================== CONTACT CARD MASK ================== */
-.contact-project-card {
-  position: relative; overflow: hidden;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 70%, rgba(0,0,0,0) 100%);
-}
-
-/* ================== ROOT VARIABLES (light/dark) ================== */
-:root { --radius: 0.625rem; --background: oklch(1 0 0); --foreground: oklch(0.145 0 0); /* … όλα τα variables σου … */ }
-.dark { --background: oklch(0.145 0 0); --foreground: oklch(0.985 0 0); /* … όλα τα dark variables … */ }
+.animate-float { animation: float 20s ease-in-out infinite; }
