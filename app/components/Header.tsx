@@ -119,6 +119,10 @@ export default function Header({
 
   const isEnglish = pathname.startsWith("/en");
 
+  // ➕ ΝΕΟ: σελίδες στις οποίες ΘΕΛΟΥΜΕ ΠΑΝΤΑ light header
+  const disableDarkHeader =
+    pathname === "/portfolio" || pathname === "/en/portfolio";
+
   // Βασικά paths ΧΩΡΙΣ locale
   const rawItems = [
     {
@@ -176,7 +180,10 @@ export default function Header({
   const isFooterDark = useFooterZone();
 
   // Θέλουμε "λευκό header" είτε στο About dark phase είτε στο footer zone είτε στη σελίδα contact
-  const isHeaderDark = isAboutDark || isFooterDark || isContactPage;
+  // ➕ αλλά ΟΧΙ όταν είμαστε στο /portfolio
+  const isHeaderDark = disableDarkHeader
+    ? false
+    : isAboutDark || isFooterDark || isContactPage;
 
   // Προσθέτουμε / αφαιρούμε την .dark-header στο <body>
   useEffect(() => {
