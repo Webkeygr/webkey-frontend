@@ -63,40 +63,42 @@ export default function PortfolioPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,#ff00ff20_0%,transparent_50%),radial-gradient(circle_at_80%_20%,#00ffff20_0%,transparent_50%),radial-gradient(circle_at_40%_40%,#ffff0020_0%,transparent_50%)] animate-float" />
       </div>
 
-      {/* HERO – ZERO PADDING */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start pt-10 text-white">
-        {/* ΤΙΤΛΟΣ */}
-        <div className="w-full max-w-7xl mx-auto text-center mt-10 mb-8">
-          <TextPressure
-            text="Portfolio"
-            textColor="#ffffff"
-            minFontSize={90}
-            weight
-            width
-            italic
-            alpha={false}
-            stroke={false}
-            scale={false}
-            flex
-          />
-        </div>
+      {/* HERO */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center text-white">
+        {/* Wrapper για ΤΙΤΛΟ + ΚΕΙΜΕΝΟ */}
+        <div className="w-full max-w-7xl mx-auto flex flex-col items-center text-center gap-10 pt-24">
+          {/* ΤΙΤΛΟΣ */}
+          <div className="w-full">
+            <TextPressure
+              text="Portfolio"
+              textColor="#ffffff"
+              minFontSize={90}
+              weight
+              width
+              italic
+              alpha={false}
+              stroke={false}
+              scale={false}
+              flex
+            />
+          </div>
 
-        {/* ΚΕΙΜΕΝΟ */}
-        {/* ΚΕΙΜΕΝΟ */}
-        <div className="text-center max-w-4xl mt-8 portfolio-hero-text">
-          <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
-            Ένα showcase επιλεγμένων digital έργων
-          </h2>
-          <p className="mt-8 text-xl md:text-2xl opacity-90 leading-relaxed">
-            όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.
-            <br className="hidden md:block" />
-            Projects χτισμένα με Next.js, WordPress, WooCommerce και custom
-            animations — όλα με έναν στόχο: να ξεχωρίζουν.
-          </p>
+          {/* ΚΕΙΜΕΝΟ */}
+          <div className="max-w-4xl">
+            <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
+              Ένα showcase επιλεγμένων digital έργων
+            </h2>
+            <p className="mt-6 text-xl md:text-2xl opacity-90 leading-relaxed">
+              όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.
+              <br className="hidden md:block" />
+              Projects χτισμένα με Next.js, WordPress, WooCommerce και custom
+              animations — όλα με έναν στόχο: να ξεχωρίζουν.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* PROJECTS – ZERO PADDING */}
+      {/* PROJECTS */}
       <section className="relative py-32 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {projects.map((project: any) => (
