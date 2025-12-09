@@ -598,15 +598,29 @@ input[type="reset"] {
 }
 
 @keyframes gradient-xy {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(100px, 100px); }
-  100% { transform: translate(0, 0); }
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(100px, 100px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(30px, -30px) rotate(1deg); }
-  66% { transform: translate(-20px, -10px) rotate(-1deg); }
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, -30px) rotate(1deg);
+  }
+  66% {
+    transform: translate(-20px, -10px) rotate(-1deg);
+  }
 }
 
 .animate-float {
@@ -614,15 +628,27 @@ input[type="reset"] {
 }
 
 @keyframes color-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes color-shift-reverse {
-  0% { background-position: 100% 50%; }
-  50% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  0% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
 .animate-color-shift {
@@ -645,21 +671,73 @@ body.portfolio-no-dark .logo svg path {
 
 /* Animated background */
 @keyframes color-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 @keyframes color-shift-reverse {
-  0% { background-position: 100% 50%; }
-  50% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  0% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
 @keyframes float {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(30px, -30px) rotate(1deg); }
-  66% { transform: translate(-20px, -10px) rotate(-1deg); }
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(30px, -30px) rotate(1deg);
+  }
+  66% {
+    transform: translate(-20px, -10px) rotate(-1deg);
+  }
 }
 
-.animate-color-shift { animation: color-shift 18s ease infinite; }
-.animate-color-shift-reverse { animation: color-shift-reverse 22s ease infinite; }
-.animate-float { animation: float 20s ease-in-out infinite; }
+.animate-color-shift {
+  animation: color-shift 18s ease infinite;
+}
+.animate-color-shift-reverse {
+  animation: color-shift-reverse 22s ease infinite;
+}
+.animate-float {
+  animation: float 20s ease-in-out infinite;
+}
+
+/* ================== PORTFOLIO HERO TEXT ================== */
+
+/* Βασική θέση του κειμένου στο Portfolio hero */
+.portfolio-hero-text {
+  margin-top: 2rem; /* 32px */
+}
+
+/* Σε μεγαλύτερες οθόνες, λίγο πιο κάτω ή πιο πάνω */
+@media (min-width: 1024px) {
+  .portfolio-hero-text {
+    margin-top: 3rem; /* 48px – άλλαξέ το όπως θες */
+  }
+}
+/* ================== PORTFOLIO HERO TEXT ================== */
+
+/* Βασική θέση του κειμένου στο Portfolio hero */
+.portfolio-hero-text {
+  margin-top: 2rem; /* 32px */
+}
+
+/* Σε μεγαλύτερες οθόνες, λίγο πιο κάτω ή πιο πάνω */
+@media (min-width: 1024px) {
+  .portfolio-hero-text {
+    margin-top: 3rem; /* 48px – άλλαξέ το όπως θες */
+  }
+}
