@@ -12,10 +12,8 @@ function getImageUrl(project: PortfolioProject): string | null {
   const field = (project.acf?.main_image ?? null) as any;
   if (!field) return null;
 
-  // Αν το ACF είναι "Image URL"
   if (typeof field === "string") return field;
 
-  // Αν είναι "Image Array" ή "Image Object"
   if (typeof field === "object") {
     if (typeof field.url === "string") return field.url;
     if (typeof field.source_url === "string") return field.source_url;
@@ -29,15 +27,7 @@ function getTechnologies(project: PortfolioProject): string[] {
   if (!raw) return [];
 
   if (Array.isArray(raw)) {
-    return raw
-      .map((item) => {
-        if (typeof item === "string") return item;
-        if (item && typeof item === "object") {
-          return item.label ?? item.name ?? "";
-        }
-        return "";
-      })
-      .filter(Boolean);
+    return raw.filter((t) => typeof t === "string" && t.trim().length > 0);
   }
 
   if (typeof raw === "string") {
