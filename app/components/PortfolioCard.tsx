@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 import type { PortfolioProject } from "@/app/portfolio/page";
@@ -61,7 +62,7 @@ const techListVariants: Variants = {
   rest: {},
   hover: {
     transition: {
-      staggerChildren: 0.08, // 👈 μικρό delay ανάμεσα στα items
+      staggerChildren: 0.08, // μικρό delay μεταξύ των items
     },
   },
 };
@@ -79,26 +80,29 @@ const techItemVariants: Variants = {
 };
 
 export function PortfolioCard({ project }: PortfolioCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   const imageUrl = getImageUrl(project);
   const technologies = getTechnologies(project);
   const title = project.title?.rendered ?? "";
 
+  const animateState: "rest" | "hover" = isHovered ? "hover" : "rest";
+
   return (
     <motion.article
       className="group flex flex-col overflow-hidden rounded-[32px] bg-black/90 text-white shadow-xl"
-      initial="rest"
-      animate="rest"
-      whileHover="hover"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
-      {/* Εικόνα */}
-      <div className="relative aspect-[16/9] w-full bg-black">
+      {/* Εικόνα – ratio 1901x943 ≈ 2:1, χωρίς μαύρο πάνω/κάτω */}
+      <div className="relative aspect-[1901/943] w-full">
         {imageUrl && (
           <Image
             src={imageUrl}
             alt={title || "Portfolio project"}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-contain" // 👈 να ΜΗΝ κόβεται
+            className="object-cover" // τώρα που ταιριάζει το ratio, δεν κόβεται
           />
         )}
 
@@ -106,14 +110,18 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black" />
         )}
 
-        {/* Hover overlay με staggered technologies */}
+        {/* Hover overlay με staggered technologies – κάνει animation ΚΑΘΕ φορά */}
         {technologies.length > 0 && (
           <motion.div
             variants={overlayVariants}
+            initial="rest"
+            animate={animateState}
             className="absolute inset-0 flex items-center justify-center bg-black/65"
           >
             <motion.ul
               variants={techListVariants}
+              initial="rest"
+              animate={animateState}
               className="space-y-3 text-2xl font-semibold uppercase tracking-wide text-white md:text-3xl"
             >
               {technologies.map((tech) => (
