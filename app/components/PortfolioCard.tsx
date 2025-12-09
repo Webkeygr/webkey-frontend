@@ -85,14 +85,14 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
       whileHover="hover"
     >
       {/* Εικόνα */}
-      <div className="relative aspect-[16/9] w-full">
+      <div className="relative aspect-[16/9] w-full bg-black">
         {imageUrl && (
           <Image
             src={imageUrl}
             alt={title || "Portfolio project"}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover"
+            className="object-contain"
           />
         )}
 
