@@ -82,7 +82,7 @@ export default function PortfolioPage() {
         </div>
 
         {/* ΚΕΙΜΕΝΟ */}
-        <div className="text-center max-w-4xl mt-8">
+        <div className="text-center max-w-4xl mt-24 md:-mt-32">
           <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
             Ένα showcase επιλεγμένων digital έργων
           </h2>
