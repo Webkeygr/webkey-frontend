@@ -1,64 +1,149 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import Image from "next/image";
+import { motion, type Variants } from "framer-motion";
+import type { PortfolioProject } from "@/app/portfolio/page";
 
-export function PortfolioCard({ project }: { project: any }) {
-  const [isHovered, setIsHovered] = useState(false);
+type PortfolioCardProps = {
+  project: PortfolioProject;
+};
 
-  // ΣΩΣΤΗ γραμμή – δεν υπάρχει πια "const main image"
-  const mainImage =
-    project.acf?.main_image?.url ||
-    project._embedded?.['wp:featuredmedia']?.[0]?.source_url ||
-    '/placeholder.jpg';
+/* ---------- Helpers για image & technologies ---------- */
 
-  const technologies: string[] = project.acf?.technologies || [];
+function getImageUrl(project: PortfolioProject): string | null {
+  const field = (project.acf?.main_image ?? null) as any;
+
+  if (!field) return null;
+
+  // Αν το ACF είναι ρυθμισμένο να επιστρέφει "Image URL"
+  if (typeof field === "string") return field;
+
+  // Αν είναι "Image Array" ή "Image Object"
+  if (typeof field === "object") {
+    if (typeof field.url === "string") return field.url;
+    if (typeof field.source_url === "string") return field.source_url;
+  }
+
+  return null;
+}
+
+function getTechnologies(project: PortfolioProject): string[] {
+  const raw = (project.acf?.technologies ?? null) as any;
+
+  if (!raw) return [];
+
+  // Αν είναι array
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => {
+        if (typeof item === "string") return item;
+        if (item && typeof item === "object") {
+          return item.label ?? item.name ?? "";
+        }
+        return "";
+      })
+      .filter(Boolean);
+  }
+
+  // Αν είναι string με κόμμα
+  if (typeof raw === "string") {
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+/* ---------- Framer Motion variants ---------- */
+
+const overlayVariants: Variants = {
+  rest: { opacity: 0 },
+  hover: {
+    opacity: 1,
+    transition: {
+      duration: 0.25,
+      when: "beforeChildren",
+    },
+  },
+};
+
+const techListVariants: Variants = {
+  rest: {},
+  hover: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+
+const techItemVariants: Variants = {
+  rest: { x: -24, opacity: 0 },
+  hover: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      stiffness: 260,
+      damping: 20,
+    },
+  },
+};
+
+export function PortfolioCard({ project }: PortfolioCardProps) {
+  const imageUrl = getImageUrl(project);
+  const technologies = getTechnologies(project);
+  const title = project.title?.rendered ?? "";
 
   return (
-    <div
-      className="group relative overflow-hidden rounded-2xl bg-neutral-900 cursor-pointer"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <motion.article
+      className="group flex flex-col overflow-hidden rounded-[32px] bg-black/90 text-white shadow-xl"
+      initial="rest"
+      animate="rest"
+      whileHover="hover"
     >
-      {/* Image */}
-      <div className="aspect-[4/3] relative">
-        <Image
-          src={mainImage}
-          alt={project.title.rendered}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-      </div>
-
-      {/* Overlay + Technologies */}
-      <div
-        className={cn(
-          'absolute inset-0 bg-black/50 flex items-end p-10 transition-opacity duration-500',
-          isHovered ? 'opacity-100' : 'opacity-0'
+      {/* Εικόνα / main area */}
+      <div className="relative aspect-[16/9] w-full">
+        {/* Αν υπάρχει εικόνα από ACF */}
+        {imageUrl && (
+          <Image
+            src={imageUrl}
+            alt={title || "Portfolio project"}
+            fill
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover"
+          />
         )}
-      >
-        <div className="space-y-4">
-          {technologies.map((tech: string, i: number) => (
-            <div
-              key={i}
-              className="text-4xl md:text-6xl font-black text-white translate-x-[-120%] group-hover:translate-x-0 opacity-0 group-hover:opacity-100 transition-all duration-700"
-              style={{ transitionDelay: `${i * 0.15 + 0.1}s` }}
+
+        {/* Ελαφρύ gradient για να μην είναι καμένο αν λείπει η εικόνα */}
+        {!imageUrl && (
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black" />
+        )}
+
+        {/* Hover overlay με technologies */}
+        {technologies.length > 0 && (
+          <motion.div
+            variants={overlayVariants}
+            className="absolute inset-0 flex items-center justify-center bg-black/65"
+          >
+            <motion.ul
+              variants={techListVariants}
+              className="space-y-3 text-2xl font-semibold uppercase tracking-wide text-white md:text-3xl"
             >
-              {tech}
-            </div>
-          ))}
-        </div>
+              {technologies.map((tech) => (
+                <motion.li key={tech} variants={techItemVariants}>
+                  {tech}
+                </motion.li>
+              ))}
+            </motion.ul>
+          </motion.div>
+        )}
       </div>
 
-      {/* Title */}
-      <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/90 via-black/30 to-transparent">
-        <h3
-          className="text-2xl md:text-3xl font-bold text-white drop-shadow-2xl"
-          dangerouslySetInnerHTML={{ __html: project.title.rendered }}
-        />
+      {/* Τίτλος κάτω */}
+      <div className="px-8 py-6 text-xl font-semibold tracking-tight">
+        {title}
       </div>
-    </div>
+    </motion.article>
   );
 }
