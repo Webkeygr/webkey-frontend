@@ -64,7 +64,7 @@ export default function PortfolioPage() {
       </div>
 
       {/* HERO – ZERO PADDING */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start pt-20 text-white">
+      <section className="relative min-h-screen flex flex-col items-center justify-start pt-10 text-white">
         {/* ΤΙΤΛΟΣ */}
         <div className="w-full max-w-7xl mx-auto text-center mt-10 mb-16">
           <TextPressure
