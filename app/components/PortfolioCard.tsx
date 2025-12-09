@@ -8,14 +8,11 @@ type PortfolioCardProps = {
   project: PortfolioProject;
 };
 
-/* ---------- Helpers για image & technologies ---------- */
-
 function getImageUrl(project: PortfolioProject): string | null {
   const field = (project.acf?.main_image ?? null) as any;
-
   if (!field) return null;
 
-  // Αν το ACF είναι ρυθμισμένο να επιστρέφει "Image URL"
+  // Αν το ACF είναι "Image URL"
   if (typeof field === "string") return field;
 
   // Αν είναι "Image Array" ή "Image Object"
@@ -29,10 +26,8 @@ function getImageUrl(project: PortfolioProject): string | null {
 
 function getTechnologies(project: PortfolioProject): string[] {
   const raw = (project.acf?.technologies ?? null) as any;
-
   if (!raw) return [];
 
-  // Αν είναι array
   if (Array.isArray(raw)) {
     return raw
       .map((item) => {
@@ -45,7 +40,6 @@ function getTechnologies(project: PortfolioProject): string[] {
       .filter(Boolean);
   }
 
-  // Αν είναι string με κόμμα
   if (typeof raw === "string") {
     return raw
       .split(",")
@@ -55,8 +49,6 @@ function getTechnologies(project: PortfolioProject): string[] {
 
   return [];
 }
-
-/* ---------- Framer Motion variants ---------- */
 
 const overlayVariants: Variants = {
   rest: { opacity: 0 },
@@ -102,9 +94,8 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
       animate="rest"
       whileHover="hover"
     >
-      {/* Εικόνα / main area */}
+      {/* Εικόνα */}
       <div className="relative aspect-[16/9] w-full">
-        {/* Αν υπάρχει εικόνα από ACF */}
         {imageUrl && (
           <Image
             src={imageUrl}
@@ -115,12 +106,10 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
           />
         )}
 
-        {/* Ελαφρύ gradient για να μην είναι καμένο αν λείπει η εικόνα */}
         {!imageUrl && (
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black" />
         )}
 
-        {/* Hover overlay με technologies */}
         {technologies.length > 0 && (
           <motion.div
             variants={overlayVariants}
@@ -140,7 +129,7 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
         )}
       </div>
 
-      {/* Τίτλος κάτω */}
+      {/* Τίτλος */}
       <div className="px-8 py-6 text-xl font-semibold tracking-tight">
         {title}
       </div>
