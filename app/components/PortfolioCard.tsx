@@ -8,6 +8,8 @@ type PortfolioCardProps = {
   project: PortfolioProject;
 };
 
+/* ---------- Helpers για image & technologies ---------- */
+
 function getImageUrl(project: PortfolioProject): string | null {
   const field = (project.acf?.main_image ?? null) as any;
   if (!field) return null;
@@ -27,7 +29,9 @@ function getTechnologies(project: PortfolioProject): string[] {
   if (!raw) return [];
 
   if (Array.isArray(raw)) {
-    return raw.filter((t) => typeof t === "string" && t.trim().length > 0);
+    return raw
+      .map((item) => (typeof item === "string" ? item : ""))
+      .filter((t) => t.trim().length > 0);
   }
 
   if (typeof raw === "string") {
@@ -39,6 +43,8 @@ function getTechnologies(project: PortfolioProject): string[] {
 
   return [];
 }
+
+/* ---------- Framer Motion variants ---------- */
 
 const overlayVariants: Variants = {
   rest: { opacity: 0 },
@@ -55,7 +61,7 @@ const techListVariants: Variants = {
   rest: {},
   hover: {
     transition: {
-      staggerChildren: 0.07,
+      staggerChildren: 0.08, // 👈 μικρό delay ανάμεσα στα items
     },
   },
 };
@@ -66,8 +72,8 @@ const techItemVariants: Variants = {
     x: 0,
     opacity: 1,
     transition: {
-      stiffness: 260,
-      damping: 20,
+      stiffness: 240,
+      damping: 22,
     },
   },
 };
@@ -92,7 +98,7 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
             alt={title || "Portfolio project"}
             fill
             sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-contain"
+            className="object-contain" // 👈 να ΜΗΝ κόβεται
           />
         )}
 
@@ -100,6 +106,7 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black" />
         )}
 
+        {/* Hover overlay με staggered technologies */}
         {technologies.length > 0 && (
           <motion.div
             variants={overlayVariants}
