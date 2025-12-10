@@ -1,15 +1,15 @@
 // app/portfolio/ProjectDetailClient.tsx
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import gsap from "gsap";
 import type { PortfolioDetail } from "./[slug]/page";
 
-type Props = {
-  project: PortfolioDetail;
-};
-
+/* ----------------------------------------------------
+ * Helper: παίρνουμε URL από ACF image field (object/string)
+ * ---------------------------------------------------- */
 function getImageUrl(field: any): string | null {
   if (!field) return null;
   if (typeof field === "string") return field;
@@ -19,6 +19,79 @@ function getImageUrl(field: any): string | null {
   }
   return null;
 }
+
+/* ----------------------------------------------------
+ * AutoScrollImage – κάνει το long screenshot να scrollάρει μόνο του
+ * ---------------------------------------------------- */
+type AutoScrollImageProps = {
+  src: string;
+  duration?: number; // σε δευτερόλεπτα
+};
+
+function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const img = imgRef.current;
+    if (!container || !img) return;
+
+    const run = () => {
+      const imgHeight = img.offsetHeight;
+      const viewHeight = container.offsetHeight;
+      const distance = imgHeight - viewHeight;
+
+      if (distance <= 0) return;
+
+      gsap.fromTo(
+        img,
+        { y: 0 },
+        {
+          y: -distance,
+          ease: "none",
+          duration,
+          delay: 0.4,
+        }
+      );
+    };
+
+    if (img.complete) {
+      run();
+    } else {
+      img.addEventListener("load", run);
+    }
+
+    return () => {
+      if (img) {
+        gsap.killTweensOf(img);
+        img.removeEventListener("load", run);
+      }
+    };
+  }, [duration]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full h-full overflow-hidden rounded-[32px] border border-white/10 bg-black shadow-2xl"
+    >
+      <img
+        ref={imgRef}
+        src={src}
+        alt="Whole site preview"
+        className="absolute top-0 left-0 w-full h-auto object-cover"
+        style={{ willChange: "transform" }}
+      />
+    </div>
+  );
+}
+
+/* ----------------------------------------------------
+ * Κύριο component λεπτομερειών project
+ * ---------------------------------------------------- */
+type Props = {
+  project: PortfolioDetail;
+};
 
 export default function ProjectDetailClient({ project }: Props) {
   // κρατάμε το header “light” όπως στο portfolio list
@@ -62,7 +135,7 @@ export default function ProjectDetailClient({ project }: Props) {
           />
         )}
 
-        {/* dark overlay για να διαβάζεται το κείμενο */}
+        {/* overlay για να διαβάζεται το κείμενο */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/10" />
 
         <motion.div
@@ -159,7 +232,7 @@ export default function ProjectDetailClient({ project }: Props) {
       >
         <div className="md:w-1/2 space-y-6 text-slate-900">
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
-            Στόχος & Προσέγγιση
+            Στόχος &amp; Προσέγγιση
           </h2>
           {text1 && (
             <p className="text-sm md:text-base leading-relaxed text-slate-800">
@@ -188,7 +261,7 @@ export default function ProjectDetailClient({ project }: Props) {
         )}
       </motion.section>
 
-      {/* WHOLE SITE – 100vh, scrolls μόνο του */}
+      {/* WHOLE SITE – 100vh, auto-scroll μέσα στο frame */}
       {wholeSiteUrl && (
         <motion.section
           className="relative h-screen bg-slate-950/90 flex flex-col items-center justify-center px-4 py-10"
@@ -197,17 +270,12 @@ export default function ProjectDetailClient({ project }: Props) {
           transition={{ duration: 0.7 }}
           viewport={{ once: true, amount: 0.3 }}
         >
-          <div className="max-w-5xl w-full h-[80vh] overflow-y-auto rounded-[32px] border border-white/10 bg-black/80 shadow-2xl">
-            <Image
-              src={wholeSiteUrl}
-              alt={`${title} – full website`}
-              width={1200}
-              height={2600}
-              className="w-full h-auto object-contain"
-            />
+          <div className="max-w-5xl w-full h-full">
+            <AutoScrollImage src={wholeSiteUrl} duration={20} />
           </div>
           <p className="mt-4 text-xs md:text-sm text-white/60">
-            Scroll μέσα στο πλαίσιο για να δεις ολόκληρο το website.
+            Αυτόματο scroll του full site preview — σαν να βλέπεις ένα μικρό
+            video του website.
           </p>
         </motion.section>
       )}
