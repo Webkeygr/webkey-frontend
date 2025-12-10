@@ -21,51 +21,68 @@ function getImageUrl(field: any): string | null {
 }
 
 /* ----------------------------------------------------
- * AutoScrollImage – κάνει το long screenshot να scrollάρει μόνο του
+ * AutoScrollImage – κάνει το long screenshot να scrollάρει μόνο του σε loop
  * ---------------------------------------------------- */
 type AutoScrollImageProps = {
   src: string;
-  duration?: number; // σε δευτερόλεπτα
+  duration?: number; // σε δευτερόλεπτα για ένα "run" από πάνω μέχρι κάτω
 };
 
 function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
     const img = imgRef.current;
     if (!container || !img) return;
 
-    const run = () => {
+    const setup = () => {
       const imgHeight = img.offsetHeight;
       const viewHeight = container.offsetHeight;
       const distance = imgHeight - viewHeight;
 
+      // Αν η εικόνα δεν είναι μεγαλύτερη από το viewport, δεν χρειάζεται scroll
       if (distance <= 0) return;
 
-      gsap.fromTo(
+      // Καθαρίζουμε τυχόν παλιό timeline
+      if (tlRef.current) {
+        tlRef.current.kill();
+        tlRef.current = null;
+      }
+
+      const tl = gsap.timeline({
+        repeat: -1, // infinite loop
+        repeatDelay: 0.6, // μικρή παύση στο τέλος
+      });
+
+      tl.fromTo(
         img,
         { y: 0 },
         {
           y: -distance,
           ease: "none",
           duration,
-          delay: 0.4,
         }
-      );
+      ).set(img, { y: 0 }); // reset πάνω πριν ξαναξεκινήσει
+
+      tlRef.current = tl;
     };
 
     if (img.complete) {
-      run();
+      setup();
     } else {
-      img.addEventListener("load", run);
+      img.addEventListener("load", setup);
     }
 
     return () => {
+      if (tlRef.current) {
+        tlRef.current.kill();
+        tlRef.current = null;
+      }
       if (img) {
-        gsap.killTweensOf(img);
-        img.removeEventListener("load", run);
+        img.removeEventListener("load", setup);
       }
     };
   }, [duration]);
@@ -261,7 +278,7 @@ export default function ProjectDetailClient({ project }: Props) {
         )}
       </motion.section>
 
-      {/* WHOLE SITE – 100vh, auto-scroll μέσα στο frame */}
+      {/* WHOLE SITE – 100vh, auto-scroll σε loop μέσα στο frame */}
       {wholeSiteUrl && (
         <motion.section
           className="relative h-screen bg-slate-950/90 flex flex-col items-center justify-center px-4 py-10"
@@ -271,12 +288,9 @@ export default function ProjectDetailClient({ project }: Props) {
           viewport={{ once: true, amount: 0.3 }}
         >
           <div className="max-w-5xl w-full h-full">
+            {/* 🔁 Εδώ είναι το looping auto-scroll */}
             <AutoScrollImage src={wholeSiteUrl} duration={20} />
           </div>
-          <p className="mt-4 text-xs md:text-sm text-white/60">
-            Αυτόματο scroll του full site preview — σαν να βλέπεις ένα μικρό
-            video του website.
-          </p>
         </motion.section>
       )}
 
