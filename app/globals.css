@@ -741,3 +741,20 @@ body.portfolio-no-dark .logo svg path {
     margin-top: 3rem; /* 48px – άλλαξέ το όπως θες */
   }
 }
+
+/* ================== PORTFOLIO DETAIL MARQUEE ================== */
+
+@keyframes portfolio-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.portfolio-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: portfolio-marquee 25s linear infinite;
+}
