@@ -61,11 +61,11 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    const duration = 1300; // πιο αργό για να φανεί το wave
+    const duration = 1200;
 
     const animation = clone.animate(
       [
-        // start
+        // start – θέση κάρτας
         {
           left: `${rect.left}px`,
           top: `${rect.top}px`,
@@ -74,37 +74,31 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
           borderRadius: "32px",
           transform: "translate3d(0,0,0) scale(1) rotate(0deg)",
         },
-        // WAVE 1 – δυνατό φούσκωμα προς τα πάνω
+        // wave 1 – πάνω, μικρό φούσκωμα
         {
-          left: `${rect.left - rect.width * 0.06}px`,
-          top: `${rect.top - rect.height * 0.12}px`,
-          width: `${rect.width * 1.18}px`,
-          height: `${rect.height * 1.18}px`,
-          borderRadius: "80px 180px 60px 160px",
-          transform: "translate3d(0,-40px,0) scale(1.14) rotate(-3deg)",
-          offset: 0.28,
+          borderRadius: "60px 140px 40px 120px",
+          transform: "translate3d(0,-26px,0) scale(1.06) rotate(-1.4deg)",
+          offset: 0.2,
         },
-        // WAVE 2 – χτύπημα προς τα κάτω / δεξιά
+        // wave 2 – κάτω, πιο πολύ φούσκωμα
         {
-          left: `${rect.left + rect.width * 0.05}px`,
-          top: `${rect.top + rect.height * 0.06}px`,
-          width: `${rect.width * 1.25}px`,
-          height: `${rect.height * 1.25}px`,
-          borderRadius: "180px 60px 170px 70px",
-          transform: "translate3d(0,35px,0) scale(1.22) rotate(3.5deg)",
-          offset: 0.55,
+          borderRadius: "150px 50px 170px 60px",
+          transform: "translate3d(0,22px,0) scale(1.12) rotate(1.6deg)",
+          offset: 0.4,
         },
-        // WAVE 3 – ξανά προς τα πάνω, λίγο πιο ήπιο
+        // wave 3 – ξανά πάνω
         {
-          left: `${rect.left - rect.width * 0.04}px`,
-          top: `${rect.top - rect.height * 0.04}px`,
-          width: `${rect.width * 1.2}px`,
-          height: `${rect.height * 1.2}px`,
-          borderRadius: "90px 160px 120px 200px",
-          transform: "translate3d(0,-25px,0) scale(1.16) rotate(-2deg)",
+          borderRadius: "80px 160px 90px 190px",
+          transform: "translate3d(0,-18px,0) scale(1.1) rotate(-1.1deg)",
+          offset: 0.6,
+        },
+        // wave 4 – μικρό “ηρεμικό” πριν γεμίσει
+        {
+          borderRadius: "50px 110px 70px 140px",
+          transform: "translate3d(0,10px,0) scale(1.05) rotate(0.6deg)",
           offset: 0.8,
         },
-        // FULLSCREEN – ίδια κλίμακα με το hero (όχι έξτρα zoom)
+        // fullscreen – τελική, ίδια κλίμακα με hero
         {
           left: "0px",
           top: "0px",
@@ -116,7 +110,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       ],
       {
         duration,
-        easing: "cubic-bezier(0.45, 0.01, 0.15, 0.99)", // πιο οργανικό
+        easing: "ease-in-out",
         fill: "forwards",
       }
     );
