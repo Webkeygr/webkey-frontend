@@ -1,8 +1,8 @@
 // app/portfolio/PortfolioClient.tsx
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
+import { useEffect, useRef, MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioProject } from "./page";
@@ -12,11 +12,123 @@ type PortfolioClientProps = {
 };
 
 export default function PortfolioClient({ projects }: PortfolioClientProps) {
+  const router = useRouter();
+
+  // refs για κάθε κάρτα ώστε να βρούμε την εικόνα που πατήθηκε
+  const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
   // Απενεργοποίηση dark-mode detection μόνο σε αυτή τη σελίδα
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
   }, []);
+
+  const handleProjectClick = (
+    project: PortfolioProject,
+    e: MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+
+    if (typeof window === "undefined") {
+      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      return;
+    }
+
+    const cardEl = cardRefs.current[project.id];
+    if (!cardEl) {
+      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      return;
+    }
+
+    const img = cardEl.querySelector("img");
+    if (!img) {
+      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      return;
+    }
+
+    const rect = img.getBoundingClientRect();
+
+    // Φτιάχνουμε ένα clone της εικόνας
+    const clone = img.cloneNode(true) as HTMLImageElement;
+    clone.style.position = "fixed";
+    clone.style.left = `${rect.left}px`;
+    clone.style.top = `${rect.top}px`;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.zIndex = "9999";
+    clone.style.borderRadius = "32px";
+    clone.style.objectFit = "cover";
+    clone.style.pointerEvents = "none";
+    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
+    clone.style.transformOrigin = "center center";
+
+    document.body.appendChild(clone);
+
+    // Κρύβουμε την αρχική κάρτα για να μην φαίνεται από κάτω
+    cardEl.style.opacity = "0";
+
+    const duration = 900; // ms
+
+    const animation = clone.animate(
+      [
+        {
+          left: `${rect.left}px`,
+          top: `${rect.top}px`,
+          width: `${rect.width}px`,
+          height: `${rect.height}px`,
+          borderRadius: "32px",
+          transform: "translate3d(0,0,0) scale(1)",
+        },
+        {
+          // πρώτο “κύμα”
+          left: `${rect.left - rect.width * 0.02}px`,
+          top: `${rect.top - rect.height * 0.04}px`,
+          width: `${rect.width * 1.08}px`,
+          height: `${rect.height * 1.08}px`,
+          borderRadius: "40px 120px 60px 100px",
+          transform: "translate3d(0,-16px,0) scale(1.05)",
+          offset: 0.35,
+        },
+        {
+          // δεύτερο “κύμα”
+          left: `${rect.left - rect.width * 0.04}px`,
+          top: `${rect.top + rect.height * 0.02}px`,
+          width: `${rect.width * 1.2}px`,
+          height: `${rect.height * 1.2}px`,
+          borderRadius: "80px 40px 120px 40px",
+          transform: "translate3d(0,10px,0) scale(1.12)",
+          offset: 0.7,
+        },
+        {
+          // πλήρες fullscreen
+          left: "0px",
+          top: "0px",
+          width: "100vw",
+          height: "100vh",
+          borderRadius: "0px",
+          transform: "translate3d(0,0,0) scale(1.15)",
+        },
+      ],
+      {
+        duration,
+        easing: "ease-in-out",
+        fill: "forwards",
+      }
+    );
+
+    animation.finished
+      .catch(() => {})
+      .then(() => {
+        // πλοήγηση στη σελίδα του project
+        router.push(`/portfolio/${project.slug}?id=${project.id}`);
+
+        // καθάρισμα DOM αφού αλλάξει σελίδα
+        setTimeout(() => {
+          clone.remove();
+          if (cardEl) cardEl.style.opacity = "";
+        }, 1500);
+      });
+  };
 
   return (
     <>
@@ -65,14 +177,17 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       <section className="relative py-32 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {projects.map((project) => (
-            <Link
+            <button
               key={project.id}
-              href={`/portfolio/${project.slug}?id=${project.id}`}
-              className="block"
-              aria-label={project.title?.rendered || "View project"}
+              type="button"
+              className="block text-left"
+              onClick={(e) => handleProjectClick(project, e)}
+              ref={(el) => {
+                cardRefs.current[project.id] = el;
+              }}
             >
               <PortfolioCard project={project} />
-            </Link>
+            </button>
           ))}
         </div>
       </section>
