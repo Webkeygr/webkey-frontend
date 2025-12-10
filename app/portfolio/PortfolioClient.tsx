@@ -14,8 +14,8 @@ type PortfolioClientProps = {
 export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
 
-  // refs για κάθε κάρτα ώστε να βρούμε την εικόνα που πατήθηκε
-  const cardRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  // 🔧 ΕΔΩ η διόρθωση: κρατάμε refs σε HTMLButtonElement, όχι div
+  const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
   // Απενεργοποίηση dark-mode detection μόνο σε αυτή τη σελίδα
   useEffect(() => {
