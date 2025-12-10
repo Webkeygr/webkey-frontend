@@ -10,27 +10,29 @@ export type PortfolioDetail = {
   slug: string;
   title: { rendered: string };
   acf?: {
-    title?: string;
-    heading_2?: string;
-    heading_3?: string;
-    description?: string;
-    technologies?: string[];
-    quote?: string;
-    logo?: any;
-    main_image?: any;
-    whole_site?: any;
-    highlight_1?: any;
-    highlight_2?: any;
-    highlight_3?: any;
-    highlight_4?: any;
-    text_1?: string;
-    text_2?: string;
-    industry?: string;
-    location?: string;
     [key: string]: any;
   };
 };
 
+// fetch με βάση ID (σίγουρη δουλειά)
+async function fetchPortfolioById(id: string): Promise<PortfolioDetail | null> {
+  const res = await fetch(
+    `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`,
+    {
+      next: { revalidate: 60 },
+    }
+  );
+
+  if (!res.ok) {
+    console.error("Failed to fetch portfolio by ID", id, res.status);
+    return null;
+  }
+
+  const data = (await res.json()) as PortfolioDetail;
+  return data ?? null;
+}
+
+// fallback: fetch με βάση slug (σε περίπτωση που δεν έχουμε id)
 async function fetchPortfolioBySlug(
   slug: string
 ): Promise<PortfolioDetail | null> {
@@ -42,22 +44,33 @@ async function fetchPortfolioBySlug(
   );
 
   if (!res.ok) {
-    console.error("Failed to fetch portfolio detail", res.status);
+    console.error("Failed to fetch portfolio by slug", res.status);
     return null;
   }
 
   const data = (await res.json()) as PortfolioDetail[];
   if (!data.length) return null;
-
   return data[0];
 }
 
 type PageProps = {
   params: { slug: string };
+  searchParams: { id?: string };
 };
 
-export default async function PortfolioDetailPage({ params }: PageProps) {
-  const project = await fetchPortfolioBySlug(params.slug);
+export default async function PortfolioDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
+  const id = searchParams.id;
+  let project: PortfolioDetail | null = null;
+
+  if (id) {
+    project = await fetchPortfolioById(id);
+  } else {
+    // αν για κάποιο λόγο έρθει χωρίς id, δοκίμασε με slug
+    project = await fetchPortfolioBySlug(params.slug);
+  }
 
   if (!project) {
     notFound();

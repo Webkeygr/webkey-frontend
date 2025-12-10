@@ -67,7 +67,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
           {projects.map((project) => (
             <Link
               key={project.id}
-              href={`/portfolio/${project.slug}`}
+              href={`/portfolio/${project.slug}?id=${project.id}`}
               className="block"
               aria-label={project.title?.rendered || "View project"}
             >
