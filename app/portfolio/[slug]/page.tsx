@@ -1,6 +1,6 @@
 // app/portfolio/[slug]/page.tsx
 import { notFound } from "next/navigation";
-import ProjectDetailClient from "./ProjectDetailClient";
+import ProjectDetailClient from "../ProjectDetailClient";
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
