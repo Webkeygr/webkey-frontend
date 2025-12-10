@@ -1,4 +1,6 @@
 // app/portfolio/[slug]/page.tsx
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import ProjectDetailClient from "../ProjectDetailClient";
 
@@ -68,7 +70,6 @@ export default async function PortfolioDetailPage({
   if (id) {
     project = await fetchPortfolioById(id);
   } else {
-    // αν για κάποιο λόγο έρθει χωρίς id, δοκίμασε με slug
     project = await fetchPortfolioBySlug(params.slug);
   }
 
