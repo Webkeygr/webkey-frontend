@@ -14,14 +14,11 @@ export type PortfolioDetail = {
   };
 };
 
-// fetch με βάση ID
+// ✅ fetch με βάση ID – ΧΩΡΙΣ acf_format
 async function fetchPortfolioById(id: string): Promise<PortfolioDetail | null> {
-  const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`,
-    {
-      next: { revalidate: 60 },
-    }
-  );
+  const res = await fetch(`${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}`, {
+    next: { revalidate: 60 },
+  });
 
   if (!res.ok) {
     console.error("Failed to fetch portfolio by ID", id, res.status);
@@ -32,7 +29,7 @@ async function fetchPortfolioById(id: string): Promise<PortfolioDetail | null> {
   return data ?? null;
 }
 
-// fallback: fetch με βάση slug
+// fetch με βάση slug – εδώ κρατάμε acf_format
 async function fetchPortfolioBySlug(
   slug: string
 ): Promise<PortfolioDetail | null> {
@@ -53,7 +50,7 @@ async function fetchPortfolioBySlug(
   return data[0];
 }
 
-// όλα τα projects για να βρούμε previous / next
+// όλα τα projects για prev/next
 async function fetchAllPortfolios(): Promise<PortfolioDetail[]> {
   const res = await fetch(
     `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
