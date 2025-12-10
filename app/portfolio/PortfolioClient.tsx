@@ -1,6 +1,8 @@
+// app/portfolio/PortfolioClient.tsx
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioProject } from "./page";
@@ -63,7 +65,14 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       <section className="relative py-32 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {projects.map((project) => (
-            <PortfolioCard key={project.id} project={project} />
+            <Link
+              key={project.id}
+              href={`/portfolio/${project.slug}`}
+              className="block"
+              aria-label={project.title?.rendered || "View project"}
+            >
+              <PortfolioCard project={project} />
+            </Link>
           ))}
         </div>
       </section>
