@@ -90,7 +90,7 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden rounded-[32px] border border-white/10 bg-black shadow-2xl"
+      className="relative w-full h-full overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl"
     >
       <img
         ref={imgRef}
@@ -133,14 +133,14 @@ export default function ProjectDetailClient({ project }: Props) {
   const mainImageUrl = getImageUrl(acf.main_image);
   const wholeSiteUrl = getImageUrl(acf.whole_site);
   const logoUrl = getImageUrl(acf.logo);
-  const highlight1 = getImageUrl(acf.highlight_1);
+  const highlight1 = getImageUrl(acf.highlight_1); // για το section "Technologies"
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
 
   return (
-    <main className="relative min-h-screen bg-gradient-to-br from-pink-300 via-rose-200 to-indigo-200 text-white">
-      {/* HERO: main_image 100vh */}
+    <main className="relative min-h-screen bg-white text-slate-900">
+      {/* HERO: main_image 100vh, μόνο η εικόνα */}
       <section className="relative h-screen overflow-hidden">
         {mainImageUrl && (
           <Image
@@ -151,197 +151,216 @@ export default function ProjectDetailClient({ project }: Props) {
             className="object-cover"
           />
         )}
-
-        {/* overlay για να διαβάζεται το κείμενο */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/10" />
-
-        <motion.div
-          className="relative z-10 flex h-full flex-col justify-between px-8 pb-12 pt-32 md:px-16"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-        >
-          {/* top area: logo + heading2 + technologies */}
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <div className="max-w-3xl space-y-4">
-              {heading2 && (
-                <h1 className="text-3xl md:text-5xl font-black leading-tight">
-                  {heading2}
-                </h1>
-              )}
-              {heading3 && (
-                <p className="text-lg md:text-xl text-white/80">{heading3}</p>
-              )}
-              {description && (
-                <p className="max-w-2xl text-sm md:text-base text-white/70">
-                  {description}
-                </p>
-              )}
-              {technologies.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {technologies.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded-full bg-white/15 px-3 py-1 text-xs md:text-sm font-medium uppercase tracking-wide"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {logoUrl && (
-              <motion.div
-                className="relative h-28 w-28 md:h-36 md:w-36 shrink-0 rounded-full bg-white/10 backdrop-blur"
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-              >
-                <Image
-                  src={logoUrl}
-                  alt={`${title} logo`}
-                  fill
-                  className="object-contain p-4"
-                />
-              </motion.div>
-            )}
-          </div>
-
-          {/* bottom meta */}
-          <div className="flex flex-col gap-3 text-xs md:flex-row md:items-center md:justify-between md:text-sm text-white/70">
-            <div className="flex gap-6">
-              {industry && (
-                <div>
-                  <span className="font-semibold text-white/90">Industry</span>
-                  <div>{industry}</div>
-                </div>
-              )}
-              {location && (
-                <div>
-                  <span className="font-semibold text-white/90">Location</span>
-                  <div>{location}</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
       </section>
 
-      {/* SCROLLING TITLE / MARQUEE */}
-      <section className="overflow-hidden border-y border-white/10 bg-black/20 py-4">
+      {/* MARQUEE – Nikolopoulou Foods • ... */}
+      <section className="overflow-hidden border-y border-slate-200 bg-slate-50 py-4">
         <div className="whitespace-nowrap">
-          <div className="portfolio-marquee text-2xl md:text-3xl font-semibold tracking-[0.35em] uppercase text-white/70">
-            {Array.from({ length: 8 })
+          <div className="portfolio-marquee text-xs md:text-sm font-semibold tracking-[0.35em] uppercase text-slate-500">
+            {Array.from({ length: 12 })
               .map(() => `${title} •`)
               .join(" ")}
           </div>
         </div>
       </section>
 
-      {/* OVERVIEW + HIGHLIGHT_1 */}
-      <motion.section
-        className="relative mx-auto flex max-w-6xl flex-col gap-12 px-6 py-20 md:flex-row md:px-10"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        viewport={{ once: true, amount: 0.3 }}
-      >
-        <div className="md:w-1/2 space-y-6 text-slate-900">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900">
-            Στόχος &amp; Προσέγγιση
-          </h2>
-          {text1 && (
-            <div
-              className="text-sm md:text-base leading-relaxed text-slate-800 space-y-4"
-              dangerouslySetInnerHTML={{ __html: text1 }}
-            />
-          )}
+      {/* HEADING 2 + LOGO + TECHNOLOGY TAGS (λευκό section) */}
+      <section className="bg-white py-16 md:py-20">
+        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
+          {/* Αριστερή στήλη: heading2, heading3, description, technologies tags */}
+          <div className="md:w-2/3 space-y-6">
+            {heading2 && (
+              <div className="space-y-3">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                  Case Study
+                </h2>
+                <h1 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">
+                  {heading2}
+                </h1>
+              </div>
+            )}
+            {heading3 && (
+              <p className="text-base md:text-lg text-slate-600">{heading3}</p>
+            )}
+            {description && (
+              <p className="text-sm md:text-base leading-relaxed text-slate-600">
+                {description}
+              </p>
+            )}
 
-          {text2 && (
-            <div
-              className="text-sm md:text-base leading-relaxed text-slate-800 space-y-4"
-              dangerouslySetInnerHTML={{ __html: text2 }}
-            />
+            {technologies.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                  Technologies
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs md:text-[13px] font-medium text-slate-700"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Δεξιά στήλη: Logo */}
+          {logoUrl && (
+            <div className="md:w-1/3 flex md:justify-end">
+              <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
+                <Image
+                  src={logoUrl}
+                  alt={`${title} logo`}
+                  fill
+                  className="object-contain p-6"
+                />
+              </div>
+            </div>
           )}
         </div>
 
+        {/* Φαρδύ banner για "Technologies" visual (Highlight_1) */}
         {highlight1 && (
-          <div className="md:w-1/2">
-            <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl">
+          <div className="mx-auto mt-16 max-w-6xl px-6 md:px-8">
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+              Technologies
+            </h3>
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-md">
               <Image
                 src={highlight1}
-                alt={`${title} highlight 1`}
-                width={1200}
+                alt={`${title} technologies visual`}
+                width={1600}
                 height={800}
                 className="h-full w-full object-cover"
               />
             </div>
           </div>
         )}
-      </motion.section>
+      </section>
 
-      {/* WHOLE SITE – 100vh, auto-scroll σε loop μέσα στο frame */}
+      {/* WHOLE SITE – 100vh, auto-scroll σε loop + Industry / Location card */}
       {wholeSiteUrl && (
-        <motion.section
-          className="relative h-screen bg-slate-950/90 flex flex-col items-center justify-center px-4 py-10"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true, amount: 0.3 }}
-        >
-          <div className="max-w-5xl w-full h-full">
-            {/* 🔁 Εδώ είναι το looping auto-scroll */}
-            <AutoScrollImage src={wholeSiteUrl} duration={20} />
+        <section className="bg-slate-50 py-16">
+          <div className="mx-auto max-w-6xl px-6 md:px-8">
+            <div className="grid h-screen gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,1.2fr)] items-stretch">
+              {/* Αριστερά: τίτλος + auto-scroll image */}
+              <div className="flex h-full flex-col">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                  Whole Site
+                </h3>
+                <div className="mt-4 flex-1">
+                  <AutoScrollImage src={wholeSiteUrl} duration={20} />
+                </div>
+              </div>
+
+              {/* Δεξιά: Industry / Location / μικρό summary */}
+              <div className="flex flex-col items-stretch">
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+                  <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
+                    Project Info
+                  </h4>
+                  <div className="space-y-4 text-sm text-slate-700">
+                    {industry && (
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                          Industry
+                        </div>
+                        <div>{industry}</div>
+                      </div>
+                    )}
+                    {location && (
+                      <div>
+                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                          Location
+                        </div>
+                        <div>{location}</div>
+                      </div>
+                    )}
+                    {(heading3 || description) && (
+                      <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
+                        {heading3 || description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </motion.section>
+        </section>
       )}
 
-      {/* GRID με Highlights 2–4 */}
-      {(highlight2 || highlight3 || highlight4) && (
-        <motion.section
-          className="mx-auto max-w-6xl px-6 py-24 md:px-10"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true, amount: 0.3 }}
-        >
-          <div className="grid gap-8 md:grid-cols-3">
+      {/* TEXT_1 + HIGHLIGHT_2 */}
+      {(text1 || highlight2) && (
+        <section className="bg-white py-16 md:py-20">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
+            {text1 && (
+              <div
+                className="text-sm md:text-base leading-relaxed text-slate-700 space-y-4"
+                dangerouslySetInnerHTML={{ __html: text1 }}
+              />
+            )}
+
             {highlight2 && (
-              <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
                   src={highlight2}
                   alt={`${title} highlight 2`}
-                  width={800}
-                  height={1000}
+                  width={1200}
+                  height={900}
                   className="h-full w-full object-cover"
                 />
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* HIGHLIGHT_3 + HIGHLIGHT_4 σε δύο στήλες */}
+      {(highlight3 || highlight4) && (
+        <section className="bg-white py-12 md:py-16">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8">
             {highlight3 && (
-              <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
                   src={highlight3}
                   alt={`${title} highlight 3`}
-                  width={800}
-                  height={1000}
+                  width={1200}
+                  height={900}
                   className="h-full w-full object-cover"
                 />
               </div>
             )}
             {highlight4 && (
-              <div className="relative overflow-hidden rounded-3xl bg-white shadow-xl md:col-span-1">
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
                   src={highlight4}
                   alt={`${title} highlight 4`}
-                  width={800}
-                  height={1000}
+                  width={1200}
+                  height={900}
                   className="h-full w-full object-cover"
                 />
               </div>
             )}
           </div>
-        </motion.section>
+        </section>
+      )}
+
+      {/* TEXT_2 τελικό section */}
+      {text2 && (
+        <section className="bg-slate-50 py-16 md:py-20">
+          <div className="mx-auto max-w-5xl px-6 md:px-8">
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+              Website
+            </h3>
+            <div
+              className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
+              dangerouslySetInnerHTML={{ __html: text2 }}
+            />
+          </div>
+        </section>
       )}
     </main>
   );
