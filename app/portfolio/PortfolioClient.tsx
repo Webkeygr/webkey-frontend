@@ -13,11 +13,8 @@ type PortfolioClientProps = {
 
 export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
-
-  // refs για τα buttons των καρτών
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  // Απενεργοποίηση dark-mode detection μόνο σε αυτή τη σελίδα
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -48,7 +45,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     const rect = img.getBoundingClientRect();
 
-    // Clone της εικόνας
     const clone = img.cloneNode(true) as HTMLImageElement;
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
@@ -63,11 +59,9 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     clone.style.transformOrigin = "center center";
 
     document.body.appendChild(clone);
-
-    // Κρύψε την αρχική κάρτα
     cardEl.style.opacity = "0";
 
-    const duration = 1100; // λίγο πιο αργό για να "νιώσεις" το κύμα
+    const duration = 1300; // πιο αργό για να φανεί το wave
 
     const animation = clone.animate(
       [
@@ -80,37 +74,37 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
           borderRadius: "32px",
           transform: "translate3d(0,0,0) scale(1) rotate(0deg)",
         },
-        // πρώτο κύμα
+        // WAVE 1 – δυνατό φούσκωμα προς τα πάνω
         {
-          left: `${rect.left - rect.width * 0.02}px`,
-          top: `${rect.top - rect.height * 0.05}px`,
-          width: `${rect.width * 1.06}px`,
-          height: `${rect.height * 1.06}px`,
-          borderRadius: "40px 120px 60px 130px",
-          transform: "translate3d(0,-12px,0) scale(1.04) rotate(-1deg)",
-          offset: 0.25,
+          left: `${rect.left - rect.width * 0.06}px`,
+          top: `${rect.top - rect.height * 0.12}px`,
+          width: `${rect.width * 1.18}px`,
+          height: `${rect.height * 1.18}px`,
+          borderRadius: "80px 180px 60px 160px",
+          transform: "translate3d(0,-40px,0) scale(1.14) rotate(-3deg)",
+          offset: 0.28,
         },
-        // δεύτερο κύμα
+        // WAVE 2 – χτύπημα προς τα κάτω / δεξιά
         {
-          left: `${rect.left + rect.width * 0.02}px`,
-          top: `${rect.top + rect.height * 0.02}px`,
-          width: `${rect.width * 1.1}px`,
-          height: `${rect.height * 1.1}px`,
-          borderRadius: "90px 40px 120px 60px",
-          transform: "translate3d(0,10px,0) scale(1.08) rotate(1.2deg)",
-          offset: 0.5,
+          left: `${rect.left + rect.width * 0.05}px`,
+          top: `${rect.top + rect.height * 0.06}px`,
+          width: `${rect.width * 1.25}px`,
+          height: `${rect.height * 1.25}px`,
+          borderRadius: "180px 60px 170px 70px",
+          transform: "translate3d(0,35px,0) scale(1.22) rotate(3.5deg)",
+          offset: 0.55,
         },
-        // τρίτο κύμα (επιστροφή λίγο πάνω)
+        // WAVE 3 – ξανά προς τα πάνω, λίγο πιο ήπιο
         {
-          left: `${rect.left - rect.width * 0.015}px`,
-          top: `${rect.top - rect.height * 0.02}px`,
-          width: `${rect.width * 1.08}px`,
-          height: `${rect.height * 1.08}px`,
-          borderRadius: "60px 110px 80px 140px",
-          transform: "translate3d(0,-6px,0) scale(1.05) rotate(-0.6deg)",
-          offset: 0.75,
+          left: `${rect.left - rect.width * 0.04}px`,
+          top: `${rect.top - rect.height * 0.04}px`,
+          width: `${rect.width * 1.2}px`,
+          height: `${rect.height * 1.2}px`,
+          borderRadius: "90px 160px 120px 200px",
+          transform: "translate3d(0,-25px,0) scale(1.16) rotate(-2deg)",
+          offset: 0.8,
         },
-        // fullscreen – χωρίς επιπλέον zoom
+        // FULLSCREEN – ίδια κλίμακα με το hero (όχι έξτρα zoom)
         {
           left: "0px",
           top: "0px",
@@ -122,7 +116,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       ],
       {
         duration,
-        easing: "ease-in-out",
+        easing: "cubic-bezier(0.45, 0.01, 0.15, 0.99)", // πιο οργανικό
         fill: "forwards",
       }
     );
@@ -132,7 +126,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       .then(() => {
         router.push(`/portfolio/${project.slug}?id=${project.id}`);
 
-        // καθάρισμα DOM μετά το navigation
         setTimeout(() => {
           clone.remove();
           if (cardEl) cardEl.style.opacity = "";
