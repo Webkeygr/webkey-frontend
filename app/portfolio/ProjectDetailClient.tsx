@@ -252,14 +252,17 @@ export default function ProjectDetailClient({ project }: Props) {
             Στόχος &amp; Προσέγγιση
           </h2>
           {text1 && (
-            <p className="text-sm md:text-base leading-relaxed text-slate-800">
-              {text1}
-            </p>
+            <div
+              className="text-sm md:text-base leading-relaxed text-slate-800 space-y-4"
+              dangerouslySetInnerHTML={{ __html: text1 }}
+            />
           )}
+
           {text2 && (
-            <p className="text-sm md:text-base leading-relaxed text-slate-800">
-              {text2}
-            </p>
+            <div
+              className="text-sm md:text-base leading-relaxed text-slate-800 space-y-4"
+              dangerouslySetInnerHTML={{ __html: text2 }}
+            />
           )}
         </div>
 
