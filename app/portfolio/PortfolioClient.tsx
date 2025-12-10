@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
+import gsap from "gsap";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioProject } from "./page";
@@ -44,7 +45,10 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     }
 
     const rect = img.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
+    // Clone της εικόνας
     const clone = img.cloneNode(true) as HTMLImageElement;
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
@@ -56,90 +60,89 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     clone.style.objectFit = "cover";
     clone.style.pointerEvents = "none";
     clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
-    clone.style.transformOrigin = "center center";
+    clone.style.transformOrigin = "50% 50%";
 
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    const duration = 1200;
+    // 3D perspective για πιο έντονο wave
+    gsap.set(clone, {
+      transformPerspective: 1400,
+    });
 
-    const animation = clone.animate(
-      [
-        // 0% – ακριβής θέση της κάρτας
-        {
-          left: `${rect.left}px`,
-          top: `${rect.top}px`,
-          width: `${rect.width}px`,
-          height: `${rect.height}px`,
-          borderRadius: "32px",
-          transform:
-            "perspective(1400px) translate3d(0,0,0) rotateX(0deg) rotateY(0deg) scale(1)",
-        },
-
-        // 20% – wave #1: μια «βουτιά»
-        {
-          borderRadius: "28px",
-          transform:
-            "perspective(1400px) translate3d(0, -20px, 30px) rotateX(6deg) rotateY(-5deg) scale(1.05)",
-          offset: 0.2,
-          easing: "ease-in-out",
-        },
-
-        // 40% – wave #2: άλλη μια κυματιστή κίνηση
-        {
-          borderRadius: "24px",
-          transform:
-            "perspective(1400px) translate3d(0, 25px, -20px) rotateX(-8deg) rotateY(8deg) scale(1.08)",
-          offset: 0.4,
-          easing: "ease-in-out",
-        },
-
-        // 60% – wave #3: μικρότερο κύμα
-        {
-          borderRadius: "20px",
-          transform:
-            "perspective(1400px) translate3d(0, -15px, 15px) rotateX(4deg) rotateY(-3deg) scale(1.06)",
-          offset: 0.6,
-          easing: "ease-in-out",
-        },
-
-        // 80% – ηρεμία πριν το fullscreen
-        {
-          borderRadius: "12px",
-          transform:
-            "perspective(1400px) translate3d(0, 8px, -10px) rotateX(-2deg) rotateY(2deg) scale(1.03)",
-          offset: 0.8,
-          easing: "ease-in-out",
-        },
-
-        // 100% – fullscreen, ΚΑΘΑΡΗ θέση χωρίς zoom
-        {
-          left: "0px",
-          top: "0px",
-          width: "100vw",
-          height: "100vh",
-          borderRadius: "0px",
-          transform:
-            "perspective(1400px) translate3d(0,0,0) rotateX(0deg) rotateY(0deg) scale(1)",
-        },
-      ],
-      {
-        duration: 1500,
-        easing: "ease-in-out",
-        fill: "forwards",
-      }
-    );
-
-    animation.finished
-      .catch(() => {})
-      .then(() => {
+    const tl = gsap.timeline({
+      defaults: { duration: 0.32, ease: "power2.inOut" },
+      onComplete: () => {
         router.push(`/portfolio/${project.slug}?id=${project.id}`);
 
+        // καθάρισμα μετά από λίγο, για να προλάβει να γίνει το navigation
         setTimeout(() => {
           clone.remove();
           if (cardEl) cardEl.style.opacity = "";
         }, 1500);
-      });
+      },
+    });
+
+    // start state (για σιγουριά)
+    tl.set(clone, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotationX: 0,
+      rotationY: 0,
+      borderRadius: "32px",
+    });
+
+    // WAVE 1 – ελαφριά βουτιά μπροστά & πάνω
+    tl.to(clone, {
+      y: -28,
+      rotationX: 10,
+      rotationY: -10,
+      scale: 1.06,
+      borderRadius: "40px 120px 30px 100px",
+    });
+
+    // WAVE 2 – πιο έντονη κίνηση προς τα κάτω & δεξιά
+    tl.to(clone, {
+      y: 26,
+      rotationX: -12,
+      rotationY: 12,
+      scale: 1.12,
+      borderRadius: "130px 40px 150px 50px",
+    });
+
+    // WAVE 3 – ξανά πάνω, λίγο πιο ήπιο
+    tl.to(clone, {
+      y: -18,
+      rotationX: 8,
+      rotationY: -6,
+      scale: 1.08,
+      borderRadius: "60px 140px 80px 160px",
+    });
+
+    // WAVE 4 – ηρεμεί, ετοιμάζεται για fullscreen
+    tl.to(clone, {
+      y: 8,
+      rotationX: -4,
+      rotationY: 4,
+      scale: 1.03,
+      borderRadius: "30px 80px 50px 90px",
+      duration: 0.28,
+    });
+
+    // ΤΕΛΙΚΟ STEP – γεμίζει την οθόνη, ίδια κλίμακα με το project hero
+    tl.to(clone, {
+      x: rect.left * -1,
+      y: rect.top * -1,
+      width: viewportWidth,
+      height: viewportHeight,
+      rotationX: 0,
+      rotationY: 0,
+      scale: 1,
+      borderRadius: "0px",
+      duration: 0.55,
+      ease: "power3.inOut",
+    });
   };
 
   return (
