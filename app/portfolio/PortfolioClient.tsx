@@ -14,7 +14,7 @@ type PortfolioClientProps = {
 export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
 
-  // 🔧 ΕΔΩ η διόρθωση: κρατάμε refs σε HTMLButtonElement, όχι div
+  // refs για τα buttons των καρτών
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
   // Απενεργοποίηση dark-mode detection μόνο σε αυτή τη σελίδα
@@ -48,7 +48,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     const rect = img.getBoundingClientRect();
 
-    // Φτιάχνουμε ένα clone της εικόνας
+    // Clone της εικόνας
     const clone = img.cloneNode(true) as HTMLImageElement;
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
@@ -64,49 +64,60 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     document.body.appendChild(clone);
 
-    // Κρύβουμε την αρχική κάρτα για να μην φαίνεται από κάτω
+    // Κρύψε την αρχική κάρτα
     cardEl.style.opacity = "0";
 
-    const duration = 900; // ms
+    const duration = 1100; // λίγο πιο αργό για να "νιώσεις" το κύμα
 
     const animation = clone.animate(
       [
+        // start
         {
           left: `${rect.left}px`,
           top: `${rect.top}px`,
           width: `${rect.width}px`,
           height: `${rect.height}px`,
           borderRadius: "32px",
-          transform: "translate3d(0,0,0) scale(1)",
+          transform: "translate3d(0,0,0) scale(1) rotate(0deg)",
         },
+        // πρώτο κύμα
         {
-          // πρώτο “κύμα”
           left: `${rect.left - rect.width * 0.02}px`,
-          top: `${rect.top - rect.height * 0.04}px`,
+          top: `${rect.top - rect.height * 0.05}px`,
+          width: `${rect.width * 1.06}px`,
+          height: `${rect.height * 1.06}px`,
+          borderRadius: "40px 120px 60px 130px",
+          transform: "translate3d(0,-12px,0) scale(1.04) rotate(-1deg)",
+          offset: 0.25,
+        },
+        // δεύτερο κύμα
+        {
+          left: `${rect.left + rect.width * 0.02}px`,
+          top: `${rect.top + rect.height * 0.02}px`,
+          width: `${rect.width * 1.1}px`,
+          height: `${rect.height * 1.1}px`,
+          borderRadius: "90px 40px 120px 60px",
+          transform: "translate3d(0,10px,0) scale(1.08) rotate(1.2deg)",
+          offset: 0.5,
+        },
+        // τρίτο κύμα (επιστροφή λίγο πάνω)
+        {
+          left: `${rect.left - rect.width * 0.015}px`,
+          top: `${rect.top - rect.height * 0.02}px`,
           width: `${rect.width * 1.08}px`,
           height: `${rect.height * 1.08}px`,
-          borderRadius: "40px 120px 60px 100px",
-          transform: "translate3d(0,-16px,0) scale(1.05)",
-          offset: 0.35,
+          borderRadius: "60px 110px 80px 140px",
+          transform: "translate3d(0,-6px,0) scale(1.05) rotate(-0.6deg)",
+          offset: 0.75,
         },
+        // fullscreen – χωρίς επιπλέον zoom
         {
-          // δεύτερο “κύμα”
-          left: `${rect.left - rect.width * 0.04}px`,
-          top: `${rect.top + rect.height * 0.02}px`,
-          width: `${rect.width * 1.2}px`,
-          height: `${rect.height * 1.2}px`,
-          borderRadius: "80px 40px 120px 40px",
-          transform: "translate3d(0,10px,0) scale(1.12)",
-          offset: 0.7,
-        },
-        {
-          // πλήρες fullscreen
           left: "0px",
           top: "0px",
           width: "100vw",
           height: "100vh",
           borderRadius: "0px",
-          transform: "translate3d(0,0,0) scale(1.15)",
+          transform: "translate3d(0,0,0) scale(1) rotate(0deg)",
         },
       ],
       {
@@ -119,10 +130,9 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     animation.finished
       .catch(() => {})
       .then(() => {
-        // πλοήγηση στη σελίδα του project
         router.push(`/portfolio/${project.slug}?id=${project.id}`);
 
-        // καθάρισμα DOM αφού αλλάξει σελίδα
+        // καθάρισμα DOM μετά το navigation
         setTimeout(() => {
           clone.remove();
           if (cardEl) cardEl.style.opacity = "";
@@ -142,7 +152,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       {/* HERO */}
       <section className="relative min-h-screen flex flex-col items-center justify-center text-white">
         <div className="w-full max-w-7xl mx-auto flex flex-col items-center text-center gap-10 pt-24">
-          {/* ΤΙΤΛΟΣ */}
           <div className="w-full">
             <TextPressure
               text="Portfolio"
@@ -158,7 +167,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
             />
           </div>
 
-          {/* ΚΕΙΜΕΝΟ */}
           <div className="max-w-4xl">
             <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
               Ένα showcase επιλεγμένων digital έργων
