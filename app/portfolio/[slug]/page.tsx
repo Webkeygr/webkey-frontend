@@ -1,6 +1,8 @@
 // app/portfolio/[slug]/page.tsx
-export const dynamic = "force-dynamic";
+"use client";
 
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import ProjectDetailClient from "../ProjectDetailClient";
 
 const WP_BASE_URL =
@@ -15,87 +17,123 @@ export type PortfolioDetail = {
   };
 };
 
-type PageProps = {
-  params: { slug: string };
-  searchParams: { [key: string]: string | string[] | undefined };
-};
+export default function PortfolioDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
 
-export default async function PortfolioDetailPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const idParam = searchParams.id;
-  const id =
-    typeof idParam === "string"
-      ? idParam
-      : Array.isArray(idParam)
-      ? idParam[0]
-      : undefined;
+  const [project, setProject] = useState<PortfolioDetail | null | "loading">(
+    "loading"
+  );
+  const [debug, setDebug] = useState<any | null>(null);
 
-  const debug: any = {
-    params,
-    searchParams,
-    resolvedId: id,
-  };
+  const slug = params?.slug;
+  const id = searchParams.get("id") || undefined;
 
-  let project: PortfolioDetail | null = null;
+  useEffect(() => {
+    let cancelled = false;
 
-  // 1) ΔΟΚΙΜΗ με ID
-  if (id) {
-    const urlById = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
-    debug.byIdUrl = urlById;
-
-    try {
-      const res = await fetch(urlById, { cache: "no-store" });
-      debug.byIdStatus = res.status;
-
-      if (res.ok) {
-        const data = (await res.json()) as PortfolioDetail;
-        project = data ?? null;
-      } else {
-        debug.byIdBody = (await res.text()).slice(0, 2000);
+    async function load() {
+      if (!slug && !id) {
+        setProject(null);
+        setDebug({ reason: "missing slug and id", slug, id });
+        return;
       }
-    } catch (err: any) {
-      debug.byIdError = String(err);
+
+      const dbg: any = { slug, id, steps: [] };
+
+      let found: PortfolioDetail | null = null;
+
+      // 1) ΔΟΚΙΜΗ με ID (αν υπάρχει)
+      if (id) {
+        const byIdUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
+        dbg.steps.push({ type: "byId", url: byIdUrl });
+
+        try {
+          const res = await fetch(byIdUrl, { cache: "no-store" });
+          dbg.steps[dbg.steps.length - 1].status = res.status;
+          if (res.ok) {
+            const data = (await res.json()) as PortfolioDetail;
+            found = data ?? null;
+          } else {
+            dbg.steps[dbg.steps.length - 1].body = await res.text();
+          }
+        } catch (err: any) {
+          dbg.steps[dbg.steps.length - 1].error = String(err);
+        }
+      }
+
+      // 2) Αν δεν βρήκαμε, δοκίμασε με slug
+      if (!found && slug) {
+        const bySlugUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?slug=${slug}&acf_format=standard`;
+        dbg.steps.push({ type: "bySlug", url: bySlugUrl });
+
+        try {
+          const res = await fetch(bySlugUrl, { cache: "no-store" });
+          dbg.steps[dbg.steps.length - 1].status = res.status;
+          if (res.ok) {
+            const arr = (await res.json()) as PortfolioDetail[];
+            dbg.steps[dbg.steps.length - 1].length = arr.length;
+            found = arr[0] ?? null;
+          } else {
+            dbg.steps[dbg.steps.length - 1].body = await res.text();
+          }
+        } catch (err: any) {
+          dbg.steps[dbg.steps.length - 1].error = String(err);
+        }
+      }
+
+      if (cancelled) return;
+
+      if (!found) {
+        setProject(null);
+        setDebug(dbg);
+      } else {
+        setProject(found);
+        setDebug(null);
+      }
     }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, id]);
+
+  // Loading state
+  if (project === "loading") {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-pulse text-sm md:text-base">
+          Φορτώνω το project...
+        </div>
+      </main>
+    );
   }
 
-  // 2) ΑΝ δεν βρήκαμε με ID, δοκίμασε με slug
-  if (!project) {
-    const urlBySlug = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?slug=${params.slug}&acf_format=standard`;
-    debug.bySlugUrl = urlBySlug;
-
-    try {
-      const res = await fetch(urlBySlug, { cache: "no-store" });
-      debug.bySlugStatus = res.status;
-
-      if (res.ok) {
-        const arr = (await res.json()) as PortfolioDetail[];
-        debug.bySlugLength = arr.length;
-        project = arr[0] ?? null;
-      } else {
-        debug.bySlugBody = (await res.text()).slice(0, 2000);
-      }
-    } catch (err: any) {
-      debug.bySlugError = String(err);
-    }
-  }
-
-  // 3) Αν ακόμα δεν βρήκαμε project, ΔΕΝ ρίχνουμε 404 – δείξε debug info
+  // Δεν βρέθηκε – δείξε debug info (μέχρι να είμαστε 100% σίγουροι)
   if (!project) {
     return (
       <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-2xl mb-4">Portfolio detail – debug</h1>
+        <h1 className="text-2xl mb-4">Portfolio detail – debug (client)</h1>
         <p className="mb-2">
-          Δεν βρέθηκε project. Δες παρακάτω τι γύρισε το σύστημα:
+          Δεν βρέθηκε project. Δες τι γύρισε το σύστημα από τον browser:
         </p>
         <pre className="whitespace-pre-wrap text-xs bg-zinc-900/80 p-4 rounded-lg overflow-auto max-h-[80vh]">
-          {JSON.stringify(debug, null, 2)}
+          {JSON.stringify(
+            {
+              slug,
+              id,
+              debug,
+            },
+            null,
+            2
+          )}
         </pre>
       </main>
     );
   }
 
-  // 4) Όλα ΟΚ → κανονικό template
+  // Όλα ΟΚ → κανονικό template
   return <ProjectDetailClient project={project} />;
 }
