@@ -65,51 +65,66 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     const animation = clone.animate(
       [
-        // start – θέση κάρτας
+        // 0% – ακριβής θέση της κάρτας
         {
           left: `${rect.left}px`,
           top: `${rect.top}px`,
           width: `${rect.width}px`,
           height: `${rect.height}px`,
           borderRadius: "32px",
-          transform: "translate3d(0,0,0) scale(1) rotate(0deg)",
+          transform:
+            "perspective(1400px) translate3d(0,0,0) rotateX(0deg) rotateY(0deg) scale(1)",
         },
-        // wave 1 – πάνω, μικρό φούσκωμα
+
+        // 20% – wave #1: μια «βουτιά»
         {
-          borderRadius: "60px 140px 40px 120px",
-          transform: "translate3d(0,-26px,0) scale(1.06) rotate(-1.4deg)",
+          borderRadius: "28px",
+          transform:
+            "perspective(1400px) translate3d(0, -20px, 30px) rotateX(6deg) rotateY(-5deg) scale(1.05)",
           offset: 0.2,
+          easing: "ease-in-out",
         },
-        // wave 2 – κάτω, πιο πολύ φούσκωμα
+
+        // 40% – wave #2: άλλη μια κυματιστή κίνηση
         {
-          borderRadius: "150px 50px 170px 60px",
-          transform: "translate3d(0,22px,0) scale(1.12) rotate(1.6deg)",
+          borderRadius: "24px",
+          transform:
+            "perspective(1400px) translate3d(0, 25px, -20px) rotateX(-8deg) rotateY(8deg) scale(1.08)",
           offset: 0.4,
+          easing: "ease-in-out",
         },
-        // wave 3 – ξανά πάνω
+
+        // 60% – wave #3: μικρότερο κύμα
         {
-          borderRadius: "80px 160px 90px 190px",
-          transform: "translate3d(0,-18px,0) scale(1.1) rotate(-1.1deg)",
+          borderRadius: "20px",
+          transform:
+            "perspective(1400px) translate3d(0, -15px, 15px) rotateX(4deg) rotateY(-3deg) scale(1.06)",
           offset: 0.6,
+          easing: "ease-in-out",
         },
-        // wave 4 – μικρό “ηρεμικό” πριν γεμίσει
+
+        // 80% – ηρεμία πριν το fullscreen
         {
-          borderRadius: "50px 110px 70px 140px",
-          transform: "translate3d(0,10px,0) scale(1.05) rotate(0.6deg)",
+          borderRadius: "12px",
+          transform:
+            "perspective(1400px) translate3d(0, 8px, -10px) rotateX(-2deg) rotateY(2deg) scale(1.03)",
           offset: 0.8,
+          easing: "ease-in-out",
         },
-        // fullscreen – τελική, ίδια κλίμακα με hero
+
+        // 100% – fullscreen, ΚΑΘΑΡΗ θέση χωρίς zoom
         {
           left: "0px",
           top: "0px",
           width: "100vw",
           height: "100vh",
           borderRadius: "0px",
-          transform: "translate3d(0,0,0) scale(1) rotate(0deg)",
+          transform:
+            "perspective(1400px) translate3d(0,0,0) rotateX(0deg) rotateY(0deg) scale(1)",
         },
       ],
       {
-        duration,
+        duration: 1500,
         easing: "ease-in-out",
         fill: "forwards",
       }
