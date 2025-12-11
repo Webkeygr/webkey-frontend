@@ -29,19 +29,19 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     // SSR safety
     if (typeof window === "undefined") {
-      router.push(`/project?id=${project.id}`);
+      router.push(`/project/${project.id}`);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(`/project?id=${project.id}`);
+      router.push(`/project/${project.id}`);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(`/project?id=${project.id}`);
+      router.push(`/project/${project.id}`);
       return;
     }
 
@@ -75,7 +75,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(`/project?id=${project.id}`);
+        router.push(`/project/${project.id}`);
 
         setTimeout(() => {
           clone.remove();

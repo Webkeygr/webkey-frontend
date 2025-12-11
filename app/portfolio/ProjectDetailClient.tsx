@@ -6,19 +6,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useRouter } from "next/navigation";
+import type { PortfolioProject } from "./page";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
-
-// Βασικός τύπος project που χρησιμοποιούμε παντού εδώ
-export type PortfolioDetail = {
-  id: number;
-  slug: string;
-  title: { rendered: string };
-  acf?: {
-    [key: string]: any;
-  };
-};
-
-type PortfolioProject = PortfolioDetail;
 
 /* ----------------------------------------------------
  * Helper: παίρνουμε URL από ACF image field (object/string)
@@ -114,6 +103,15 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
   );
 }
 
+// Local type για να μη χρειαζόμαστε import από route
+type PortfolioDetail = {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  acf?: {
+    [key: string]: any;
+  };
+};
 /* ----------------------------------------------------
  * Κύριο component λεπτομερειών project
  * ---------------------------------------------------- */
@@ -153,30 +151,28 @@ export default function ProjectDetailClient({
   const mainImageUrl = getImageUrl(acf.main_image);
   const wholeSiteUrl = getImageUrl(acf.whole_site);
   const logoUrl = getImageUrl(acf.logo);
-  const highlight1 = getImageUrl(acf.highlight_1);
+  const highlight1 = getImageUrl(acf.highlight_1); // για το section "Technologies"
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
   const highlight5 = getImageUrl(acf.highlight_5);
 
   /* ------------------------ wave transition για next/prev ------------------------ */
-  const animateAndGo = (project: PortfolioProject) => {
-    const targetUrl = `/portfolio/${project.slug}?id=${project.id}`;
-
+  const handleProjectClick = (project: PortfolioProject) => {
     if (typeof window === "undefined") {
-      router.push(targetUrl);
+      router.push(`/project/${project.id}`);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(targetUrl);
+      router.push(`/project/${project.id}`);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(targetUrl);
+      router.push(`/project/${project.id}`);
       return;
     }
 
@@ -194,7 +190,7 @@ export default function ProjectDetailClient({
     clone.style.borderRadius = "32px";
     clone.style.objectFit = "cover";
     clone.style.pointerEvents = "none";
-    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
+    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)`;
     clone.style.transformOrigin = "50% 50%";
 
     document.body.appendChild(clone);
@@ -207,7 +203,7 @@ export default function ProjectDetailClient({
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(targetUrl);
+        router.push(`/project/${project.id}`);
 
         setTimeout(() => {
           clone.remove();
@@ -272,59 +268,25 @@ export default function ProjectDetailClient({
     });
   };
 
-  // ----- εδώ κάτω ολόκληρο το layout σου, ΟΠΩΣ ΤΟ ΕΙΧΑΜΕ -----
-  // (δεν το ξανακόβω για να μην γίνει σεντόνι, αλλά κράτα ό,τι είχες ήδη
-  //   για main_image, whole_site, text_1, highlights, text_2, highlight_5,
-  //   και στο τέλος ΜΟΝΟ πρόσεξε τα onClick/refs για prev/next: )
-
-  /* ... ΟΛΟ ΤΟ ΥΠΟΛΟΙΠΟ JSX ΣΟΥ ΟΠΩΣ ΤΟ ΕΙΧΕΣ ... */
-
-  // στο τέλος, τα κουτιά Previous / Next:
-  // (αντικατέστησε μόνο αυτό το κομμάτι στο τέλος του JSX)
-
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
-      {/* ... όλα τα sections όπως τα είχες ... */}
+      {/* HERO: main_image 100vh */}
+      <section className="relative h-screen overflow-hidden">
+        {mainImageUrl && (
+          <Image
+            src={mainImageUrl}
+            alt={title}
+            fill
+            priority
+            className="object-cover"
+          />
+        )}
+      </section>
 
-      {(prevProject || nextProject) && (
-        <section className="bg-slate-50 py-16 md:py-20 border-t border-slate-200">
-          <div className="mx-auto max-w-6xl px-6 md:px-8 grid gap-10 md:grid-cols-2">
-            {prevProject && (
-              <button
-                type="button"
-                className="text-left group flex flex-col gap-3"
-                ref={(el) => {
-                  cardRefs.current[prevProject.id] = el;
-                }}
-                onClick={() => animateAndGo(prevProject)}
-              >
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
-                  Previous Project
-                </span>
-                <PortfolioCard project={prevProject} />
-              </button>
-            )}
+      {/* ... ΟΛΗ η υπόλοιπη σελίδα όπως την έχεις ήδη ... */}
+      {/* (για να μην το επικολλήσω ξανά όλο, ΚΡΑΤΑΣ το υπόλοιπο όπως στο τωρινό σου αρχείο) */}
 
-            {nextProject && (
-              <button
-                type="button"
-                className="text-left group flex flex-col gap-3 md:items-end"
-                ref={(el) => {
-                  cardRefs.current[nextProject.id] = el;
-                }}
-                onClick={() => animateAndGo(nextProject)}
-              >
-                <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400 text-right w-full">
-                  Next Project
-                </span>
-                <div className="w-full md:max-w-full">
-                  <PortfolioCard project={nextProject} />
-                </div>
-              </button>
-            )}
-          </div>
-        </section>
-      )}
+      {/* ΣΗΜΕΙΟ ΠΟΥ ΜΑΣ ΕΝΔΙΑΦΕΡΕΙ ΕΙΝΑΙ ΜΟΝΟ το handleProjectClick + τα refs */}
     </main>
   );
 }
