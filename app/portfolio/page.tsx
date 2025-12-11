@@ -37,5 +37,28 @@ async function fetchPortfolios(): Promise<PortfolioProject[]> {
 
 export default async function PortfolioPage() {
   const projects = await fetchPortfolios();
+
+  // μικρό debug fallback για να βλέπεις *κάτι* αν για κάποιο λόγο έρθει [].
+  if (!projects.length) {
+    return (
+      <main className="min-h-screen bg-black text-white p-8">
+        <h1 className="text-3xl font-bold mb-4">Portfolio – debug</h1>
+        <p className="mb-2">
+          Δεν βρέθηκαν projects από το WordPress (η λίστα είναι κενή).
+        </p>
+        <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
+          {JSON.stringify(
+            {
+              wpUrl: `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
+              count: projects.length,
+            },
+            null,
+            2
+          )}
+        </pre>
+      </main>
+    );
+  }
+
   return <PortfolioClient projects={projects} />;
 }
