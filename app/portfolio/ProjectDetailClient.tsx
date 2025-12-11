@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useRouter } from "next/navigation";
-import type { PortfolioDetail } from "./[slug]/page";
+import type { PortfolioDetail } from "./project/page";
 import type { PortfolioProject } from "./page";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 
