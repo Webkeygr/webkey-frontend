@@ -5,7 +5,21 @@ import { useEffect, useRef, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
-import type { PortfolioProject } from "./page";
+
+// ✅ Τοπικός τύπος για τα projects του portfolio
+type PortfolioProject = {
+  id: number;
+  slug: string;
+  title?: { rendered: string };
+  acf?: {
+    main_image?: {
+      url?: string;
+      sizes?: { [key: string]: string };
+    };
+    technologies?: string[];
+    [key: string]: any;
+  };
+};
 
 type PortfolioClientProps = {
   projects: PortfolioProject[];
@@ -58,7 +72,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     clone.style.borderRadius = "32px";
     clone.style.objectFit = "cover";
     clone.style.pointerEvents = "none";
-    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
+    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)`;
     clone.style.transformOrigin = "50% 50%";
 
     document.body.appendChild(clone);
