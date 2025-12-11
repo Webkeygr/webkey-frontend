@@ -15,32 +15,33 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  // Απενεργοποίηση dark-mode μόνο εδώ
+  // μόνο για αυτή τη σελίδα θέλουμε το header να ΜΗΝ γίνεται dark
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
   }, []);
 
-  const handleProjectClick = async (
+  const handleProjectClick = (
     project: PortfolioProject,
     e: MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
 
+    // SSR fallback – σκέτο redirect
     if (typeof window === "undefined") {
-      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      router.push(`/project?id=${project.id}`);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      router.push(`/project?id=${project.id}`);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      router.push(`/project?id=${project.id}`);
       return;
     }
 
@@ -64,8 +65,8 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    // dynamic import για να μην μπλέκουμε με require/TS
-    const { gsap } = await import("gsap");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const gsap: any = require("gsap").gsap || require("gsap");
 
     gsap.set(clone, {
       transformPerspective: 1400,
@@ -74,7 +75,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(`/portfolio/${project.slug}?id=${project.id}`);
+        router.push(`/project?id=${project.id}`);
 
         setTimeout(() => {
           clone.remove();

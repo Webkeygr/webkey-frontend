@@ -13,53 +13,52 @@ export type PortfolioProject = {
   };
 };
 
-async function fetchProjects(): Promise<PortfolioProject[]> {
-  const url =
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio` +
-    `?per_page=100` +
-    `&orderby=menu_order` +
-    `&order=asc` +
-    `&acf_format=standard` +
-    `&lang=all`; // ασφαλές και με Polylang
+async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
+  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`;
 
-  const res = await fetch(url, {
-    // απλό revalidate
-    next: { revalidate: 60 },
-  });
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 60 },
+    });
 
-  if (!res.ok) {
-    console.error("Failed to fetch portfolio list", res.status);
+    if (!res.ok) {
+      console.error("Failed to fetch portfolio list", res.status);
+      return [];
+    }
+
+    const data = (await res.json()) as PortfolioProject[];
+
+    if (!Array.isArray(data)) {
+      console.error("Portfolio list is not an array", data);
+      return [];
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Error fetching portfolio list", err);
     return [];
   }
-
-  const data = (await res.json()) as PortfolioProject[] | any;
-
-  // αν για κάποιο λόγο δεν είναι array
-  if (!Array.isArray(data)) {
-    console.warn("Portfolio list is not an array:", data);
-    return [];
-  }
-
-  return data;
 }
 
 export default async function PortfolioPage() {
-  const projects = await fetchProjects();
+  const projects = await fetchPortfolioProjects();
 
   if (!projects.length) {
-    const debug = {
-      wpUrl:
-        `${WP_BASE_URL}/wp-json/wp/v2/portfolio` +
-        `?per_page=100&orderby=menu_order&order=asc&acf_format=standard&lang=all`,
-      count: projects.length,
-    };
+    const debugUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`;
 
     return (
       <main className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="max-w-2xl text-center space-y-4">
+        <div className="text-center space-y-4">
           <p>Δεν βρέθηκαν projects από το WordPress (η λίστα είναι κενή).</p>
-          <pre className="mt-4 text-xs bg-neutral-900/80 p-4 rounded-lg text-left overflow-x-auto">
-            {JSON.stringify(debug, null, 2)}
+          <pre className="text-xs bg-neutral-900 text-neutral-300 px-4 py-3 rounded-lg text-left inline-block max-w-full overflow-auto">
+            {JSON.stringify(
+              {
+                wpUrl: debugUrl,
+                count: projects.length,
+              },
+              null,
+              2
+            )}
           </pre>
         </div>
       </main>

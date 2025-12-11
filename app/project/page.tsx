@@ -1,4 +1,5 @@
 // app/project/page.tsx
+import { notFound } from "next/navigation";
 import ProjectDetailClient from "../portfolio/ProjectDetailClient";
 
 const WP_BASE_URL =
@@ -13,98 +14,58 @@ export type PortfolioDetail = {
   };
 };
 
-async function fetchPortfolioById(id: string) {
-  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
-  const res = await fetch(url, { next: { revalidate: 60 } });
-  const status = res.status;
-
-  if (!res.ok) {
-    console.error("Failed to fetch portfolio by ID", id, status);
-    return { project: null as PortfolioDetail | null, status, url };
-  }
-
-  const data = (await res.json()) as PortfolioDetail;
-  return { project: data ?? null, status, url };
-}
-
-async function fetchAllPortfolios(): Promise<PortfolioDetail[]> {
-  const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard&acf_format=standard`,
-    { next: { revalidate: 60 } }
-  );
-
-  if (!res.ok) {
-    console.error("Failed to fetch all portfolios", res.status);
-    return [];
-  }
-
-  const data = (await res.json()) as PortfolioDetail[];
-  return data ?? [];
-}
-
 type PageProps = {
-  searchParams: { id?: string };
+  searchParams?: { id?: string };
 };
+
+async function fetchPortfolioById(id: string): Promise<PortfolioDetail | null> {
+  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
+
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch portfolio by ID", id, res.status);
+      return null;
+    }
+
+    const data = (await res.json()) as PortfolioDetail;
+    if (!data || !data.id) return null;
+    return data;
+  } catch (err) {
+    console.error("Error fetching portfolio by ID", err);
+    return null;
+  }
+}
 
 export default async function ProjectPage({ searchParams }: PageProps) {
   const id = searchParams?.id;
 
   if (!id) {
     return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-2xl font-bold mb-4">Project detail – debug</h1>
-        <p className="mb-2">
-          Δεν δόθηκε id στο query string. Περίμενα κάτι σαν /project?id=39.
-        </p>
-        <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
-{JSON.stringify({ searchParams }, null, 2)}
-        </pre>
+      <main className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="space-y-4 text-center">
+          <h1 className="text-2xl font-semibold">
+            Δεν δόθηκε id στο query string.
+          </h1>
+          <p className="text-sm opacity-80">
+            Περίμενα κάτι σαν <code>/project?id=39</code>.
+          </p>
+          <pre className="bg-neutral-900 text-neutral-300 text-xs px-4 py-3 rounded-lg inline-block text-left max-w-full overflow-auto">
+            {JSON.stringify({ searchParams: searchParams ?? {} }, null, 2)}
+          </pre>
+        </div>
       </main>
     );
   }
 
-  const { project, status, url } = await fetchPortfolioById(id);
+  const project = await fetchPortfolioById(id);
 
   if (!project) {
-    return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-2xl font-bold mb-4">Project detail – debug</h1>
-        <p className="mb-2">
-          Δεν βρέθηκε project με αυτό το id. Δες τα debug στοιχεία:
-        </p>
-        <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
-{JSON.stringify(
-  {
-    id,
-    url,
-    status,
-  },
-  null,
-  2
-)}
-        </pre>
-      </main>
-    );
+    notFound();
   }
 
-  const allProjects = await fetchAllPortfolios();
-
-  let prevProject: PortfolioDetail | null = null;
-  let nextProject: PortfolioDetail | null = null;
-
-  if (allProjects.length) {
-    const index = allProjects.findIndex((p) => p.id === project.id);
-    if (index !== -1) {
-      if (index > 0) prevProject = allProjects[index - 1];
-      if (index < allProjects.length - 1) nextProject = allProjects[index + 1];
-    }
-  }
-
-  return (
-    <ProjectDetailClient
-      project={project}
-      prevProject={prevProject}
-      nextProject={nextProject}
-    />
-  );
+  return <ProjectDetailClient project={project} />;
 }
