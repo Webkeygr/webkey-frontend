@@ -1,71 +1,65 @@
 // app/project/page.tsx
-import { notFound } from "next/navigation";
-import ProjectDetailClient from "../portfolio/ProjectDetailClient";
+import { redirect } from "next/navigation";
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
 
-export type PortfolioDetail = {
+type PortfolioDetail = {
   id: number;
   slug: string;
-  title: { rendered: string };
-  acf?: {
-    [key: string]: any;
-  };
 };
 
 type PageProps = {
-  searchParams?: { id?: string };
+  searchParams: {
+    id?: string | string[];
+  };
 };
 
-async function fetchPortfolioById(id: string): Promise<PortfolioDetail | null> {
-  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
-
-  try {
-    const res = await fetch(url, {
-      next: { revalidate: 60 },
-    });
-
-    if (!res.ok) {
-      console.error("Failed to fetch portfolio by ID", id, res.status);
-      return null;
-    }
-
-    const data = (await res.json()) as PortfolioDetail;
-    if (!data || !data.id) return null;
-    return data;
-  } catch (err) {
-    console.error("Error fetching portfolio by ID", err);
-    return null;
-  }
-}
-
-export default async function ProjectPage({ searchParams }: PageProps) {
-  const id = searchParams?.id;
+export default async function LegacyProjectPage({ searchParams }: PageProps) {
+  const idParam = searchParams.id;
+  const id =
+    typeof idParam === "string"
+      ? idParam
+      : Array.isArray(idParam)
+      ? idParam[0]
+      : undefined;
 
   if (!id) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-black text-white">
         <div className="space-y-4 text-center">
-          <h1 className="text-2xl font-semibold">
-            Δεν δόθηκε id στο query string.
-          </h1>
-          <p className="text-sm opacity-80">
-            Περίμενα κάτι σαν <code>/project?id=39</code>.
+          <p>
+            Δεν δόθηκε id στο query string. Περίμενα κάτι σαν /project?id=39.
           </p>
-          <pre className="bg-neutral-900 text-neutral-300 text-xs px-4 py-3 rounded-lg inline-block text-left max-w-full overflow-auto">
-            {JSON.stringify({ searchParams: searchParams ?? {} }, null, 2)}
+          <pre className="text-xs bg-neutral-900 text-neutral-300 px-4 py-3 rounded-lg inline-block text-left">
+            {JSON.stringify({ searchParams }, null, 2)}
           </pre>
         </div>
       </main>
     );
   }
 
-  const project = await fetchPortfolioById(id);
+  // Φέρνουμε το project από WP μόνο για να πάρουμε το slug
+  const res = await fetch(
+    `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`,
+    { next: { revalidate: 60 } }
+  );
 
-  if (!project) {
-    notFound();
+  if (!res.ok) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="space-y-4 text-center">
+          <p>Δεν βρέθηκε project με αυτό το id.</p>
+          <pre className="text-xs bg-neutral-900 text-neutral-300 px-4 py-3 rounded-lg inline-block text-left">
+            {JSON.stringify({ id, status: res.status }, null, 2)}
+          </pre>
+        </div>
+      </main>
+    );
   }
 
-  return <ProjectDetailClient project={project} />;
+  const data = (await res.json()) as PortfolioDetail;
+
+  // Redirect στο καινούργιο URL του portfolio
+  redirect(`/portfolio/${data.slug}?id=${data.id}`);
 }
