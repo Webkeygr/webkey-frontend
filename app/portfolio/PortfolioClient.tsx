@@ -15,6 +15,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
+  // Απενεργοποίηση dark header στη σελίδα portfolio
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -63,7 +64,9 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    const gsap = require("gsap").default as typeof import("gsap");
+    // ⬇️ ΕΔΩ η αλλαγή: τύπος any για να μη διαμαρτύρεται ο TS
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const gsap: any = require("gsap").gsap || require("gsap");
 
     gsap.set(clone, {
       transformPerspective: 1400,
