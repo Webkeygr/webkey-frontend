@@ -82,17 +82,17 @@ export default async function PortfolioDetailPage({
     | Awaited<ReturnType<typeof fetchPortfolioById>>
     | Awaited<ReturnType<typeof fetchPortfolioBySlug>>;
 
-  // ✅ 1. Πρώτα δοκιμάζουμε με ID (πιο σίγουρο, αφού το περνάς από το PortfolioClient)
+  // 1️⃣ Προσπαθούμε ΠΡΩΤΑ με id (γιατί το στέλνουμε από το PortfolioClient)
   if (id) {
     projectResult = await fetchPortfolioById(id);
   } else {
-    // ✅ 2. Αν δεν υπάρχει id, δοκιμάζουμε με slug (για direct hits στο URL)
+    // 2️⃣ fallback: δοκιμή με slug, αν κάποιος μπει απευθείας στο URL
     projectResult = await fetchPortfolioBySlug(slug);
   }
 
   const { project, status, url } = projectResult;
 
-  // ❌ Αν δεν βρεθεί, δείχνουμε debug αντί για 404
+  // Αν πάλι δεν βρήκαμε, δείχνουμε debug (για να μη βλέπεις τυφλό 404)
   if (!project) {
     return (
       <main className="min-h-screen bg-black text-white p-8">
@@ -101,22 +101,21 @@ export default async function PortfolioDetailPage({
           Δεν βρέθηκε project. Δες παρακάτω τι γύρισε το σύστημα:
         </p>
         <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
-          {JSON.stringify(
-            {
-              params,
-              searchParams,
-              byIdOrSlugUrl: url,
-              byIdOrSlugStatus: status,
-            },
-            null,
-            2
-          )}
+{JSON.stringify(
+  {
+    params,
+    searchParams,
+    byIdOrSlugUrl: url,
+    byIdOrSlugStatus: status,
+  },
+  null,
+  2
+)}
         </pre>
       </main>
     );
   }
 
-  // Αν ΒΡΕΘΗΚΕ project, συνεχίζουμε κανονικά με previous / next
   const allProjects = await fetchAllPortfolios();
 
   let prevProject: PortfolioDetail | null = null;

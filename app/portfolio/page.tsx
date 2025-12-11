@@ -1,21 +1,23 @@
+// app/portfolio/page.tsx
 import PortfolioClient from "./PortfolioClient";
-
-export type PortfolioProject = {
-  id: number;
-  title: { rendered: string };
-  slug: string;
-  acf?: {
-    [key: string]: any;
-  };
-};
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
 
-// 1. Φέρνουμε ΛΙΣΤΑ (χωρίς ACF)
-async function fetchPortfolioList(): Promise<PortfolioProject[]> {
+export type PortfolioProject = {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  acf?: {
+    main_image?: any;
+    technologies?: string[];
+    [key: string]: any;
+  };
+};
+
+async function fetchPortfolios(): Promise<PortfolioProject[]> {
   const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100`,
+    `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
     {
       next: { revalidate: 60 },
     }
@@ -26,50 +28,12 @@ async function fetchPortfolioList(): Promise<PortfolioProject[]> {
     return [];
   }
 
-  const data = (await res.json()) as any[];
-
-  return data.map((item) => ({
-    id: item.id,
-    title: item.title,
-    slug: item.slug,
-    acf: item.acf, // μπορεί να είναι [] εδώ, δεν μας νοιάζει
-  }));
-}
-
-// 2. Για κάθε ID φέρνουμε το πλήρες post με ACF
-async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
-  const list = await fetchPortfolioList();
-  if (!list.length) return [];
-
-  const detailed = await Promise.all(
-    list.map(async (item) => {
-      const res = await fetch(
-        `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${item.id}?acf_format=standard`,
-        {
-          next: { revalidate: 60 },
-        }
-      );
-
-      if (!res.ok) {
-        console.error("Failed to fetch portfolio item", item.id, res.status);
-        return item; // γύρνα τουλάχιστον τον τίτλο
-      }
-
-      const full = (await res.json()) as any;
-
-      return {
-        id: full.id,
-        title: full.title,
-        slug: full.slug,
-        acf: full.acf ?? {},
-      } satisfies PortfolioProject;
-    })
-  );
-
-  return detailed;
+  const data = (await res.json()) as PortfolioProject[];
+  return data ?? [];
 }
 
 export default async function PortfolioPage() {
-  const projects = await fetchPortfolioProjects();
+  const projects = await fetchPortfolios();
+
   return <PortfolioClient projects={projects} />;
 }
