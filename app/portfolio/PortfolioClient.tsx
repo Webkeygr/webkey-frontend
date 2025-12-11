@@ -3,7 +3,6 @@
 
 import { useEffect, useRef, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
-import gsap from "gsap";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioProject } from "./page";
@@ -28,19 +27,19 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     e.preventDefault();
 
     if (typeof window === "undefined") {
-      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      router.push(`/project?id=${project.id}`);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      router.push(`/project?id=${project.id}`);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(`/portfolio/${project.slug}?id=${project.id}`);
+      router.push(`/project?id=${project.id}`);
       return;
     }
 
@@ -48,7 +47,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    // Clone της εικόνας
     const clone = img.cloneNode(true) as HTMLImageElement;
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
@@ -65,7 +63,8 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    // 3D perspective για πιο έντονο wave
+    const gsap = require("gsap").default as typeof import("gsap");
+
     gsap.set(clone, {
       transformPerspective: 1400,
     });
@@ -73,9 +72,8 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(`/portfolio/${project.slug}?id=${project.id}`);
+        router.push(`/project?id=${project.id}`);
 
-        // καθάρισμα μετά από λίγο, για να προλάβει να γίνει το navigation
         setTimeout(() => {
           clone.remove();
           if (cardEl) cardEl.style.opacity = "";
@@ -83,7 +81,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       },
     });
 
-    // start state (για σιγουριά)
     tl.set(clone, {
       x: 0,
       y: 0,
@@ -93,7 +90,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       borderRadius: "32px",
     });
 
-    // WAVE 1 – ελαφριά βουτιά μπροστά & πάνω
     tl.to(clone, {
       y: -28,
       rotationX: 10,
@@ -102,7 +98,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       borderRadius: "40px 120px 30px 100px",
     });
 
-    // WAVE 2 – πιο έντονη κίνηση προς τα κάτω & δεξιά
     tl.to(clone, {
       y: 26,
       rotationX: -12,
@@ -111,7 +106,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       borderRadius: "130px 40px 150px 50px",
     });
 
-    // WAVE 3 – ξανά πάνω, λίγο πιο ήπιο
     tl.to(clone, {
       y: -18,
       rotationX: 8,
@@ -120,7 +114,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       borderRadius: "60px 140px 80px 160px",
     });
 
-    // WAVE 4 – ηρεμεί, ετοιμάζεται για fullscreen
     tl.to(clone, {
       y: 8,
       rotationX: -4,
@@ -130,7 +123,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       duration: 0.28,
     });
 
-    // ΤΕΛΙΚΟ STEP – γεμίζει την οθόνη, ίδια κλίμακα με το project hero
     tl.to(clone, {
       x: rect.left * -1,
       y: rect.top * -1,
