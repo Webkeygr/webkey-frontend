@@ -67,7 +67,7 @@ async function fetchAllPortfolios(): Promise<PortfolioDetail[]> {
 }
 
 type PageProps = {
-  params: { slug?: string };
+  params: { slug: string };
   searchParams: { id?: string };
 };
 
@@ -75,24 +75,24 @@ export default async function PortfolioDetailPage({
   params,
   searchParams,
 }: PageProps) {
-  const slug = params?.slug;
+  const slug = params.slug;
   const id = searchParams?.id;
 
   let projectResult:
     | Awaited<ReturnType<typeof fetchPortfolioById>>
     | Awaited<ReturnType<typeof fetchPortfolioBySlug>>;
 
-  // 1️⃣ Προσπαθούμε ΠΡΩΤΑ με id (γιατί το στέλνουμε από το PortfolioClient)
+  // 1️⃣ Πρώτα δοκιμάζουμε με ID (από το ?id=39 που στέλνουμε από το grid)
   if (id) {
     projectResult = await fetchPortfolioById(id);
   } else {
-    // 2️⃣ fallback: δοκιμή με slug, αν κάποιος μπει απευθείας στο URL
+    // 2️⃣ Fallback: αν (για κάποιο λόγο) δεν έχει id, δοκιμάζουμε με slug
     projectResult = await fetchPortfolioBySlug(slug);
   }
 
   const { project, status, url } = projectResult;
 
-  // Αν πάλι δεν βρήκαμε, δείχνουμε debug (για να μη βλέπεις τυφλό 404)
+  // Αν δεν βρεθεί, δείχνουμε DEBUG σελίδα (όχι 404)
   if (!project) {
     return (
       <main className="min-h-screen bg-black text-white p-8">
@@ -116,6 +116,7 @@ export default async function PortfolioDetailPage({
     );
   }
 
+  // Βρίσκουμε previous / next
   const allProjects = await fetchAllPortfolios();
 
   let prevProject: PortfolioDetail | null = null;

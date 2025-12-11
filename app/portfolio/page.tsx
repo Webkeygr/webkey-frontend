@@ -9,7 +9,10 @@ export type PortfolioProject = {
   slug: string;
   title: { rendered: string };
   acf?: {
-    main_image?: any;
+    main_image?: {
+      url?: string;
+      sizes?: { [key: string]: string };
+    };
     technologies?: string[];
     [key: string]: any;
   };
@@ -34,6 +37,5 @@ async function fetchPortfolios(): Promise<PortfolioProject[]> {
 
 export default async function PortfolioPage() {
   const projects = await fetchPortfolios();
-
   return <PortfolioClient projects={projects} />;
 }
