@@ -19,27 +19,38 @@ export type PortfolioProject = {
 };
 
 async function fetchPortfolios(): Promise<PortfolioProject[]> {
-  const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
-    {
-      next: { revalidate: 60 },
-    }
-  );
+  // ✅ ΧΤΥΠΑΜΕ ΤΟ ΙΔΙΟ URL ΠΟΥ ΞΕΡΟΥΜΕ ΟΤΙ ΔΟΥΛΕΥΕ:
+  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?acf_format=standard`;
 
-  if (!res.ok) {
-    console.error("Failed to fetch portfolio list", res.status);
+  try {
+    const res = await fetch(url, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      console.error("Failed to fetch portfolio list", res.status);
+      return [];
+    }
+
+    const data = (await res.json()) as unknown;
+
+    if (!Array.isArray(data)) {
+      console.error("Portfolio list is not an array:", data);
+      return [];
+    }
+
+    return data as PortfolioProject[];
+  } catch (error) {
+    console.error("Portfolio list fetch crashed:", error);
     return [];
   }
-
-  const data = (await res.json()) as PortfolioProject[];
-  return data ?? [];
 }
 
 export default async function PortfolioPage() {
   const projects = await fetchPortfolios();
 
-  // μικρό debug fallback για να βλέπεις *κάτι* αν για κάποιο λόγο έρθει [].
   if (!projects.length) {
+    // 👇 προσωρινό debug αν ΠΑΛΙ γυρίσει κενό
     return (
       <main className="min-h-screen bg-black text-white p-8">
         <h1 className="text-3xl font-bold mb-4">Portfolio – debug</h1>
@@ -49,7 +60,7 @@ export default async function PortfolioPage() {
         <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
           {JSON.stringify(
             {
-              wpUrl: `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
+              wpUrl: `${WP_BASE_URL}/wp-json/wp/v2/portfolio?acf_format=standard`,
               count: projects.length,
             },
             null,
