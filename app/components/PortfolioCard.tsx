@@ -1,142 +1,101 @@
+// app/components/PortfolioCard.tsx
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
-import type { PortfolioProject } from "@/app/portfolio/page";
+
+// Τοπικός τύπος – δεν εξαρτόμαστε πια από το page.tsx
+type PortfolioProject = {
+  id: number;
+  slug?: string;
+  title?: { rendered: string };
+  acf?: {
+    main_image?: {
+      url?: string;
+      sizes?: { [key: string]: string };
+    };
+    technologies?: string[];
+    [key: string]: any;
+  };
+};
 
 type PortfolioCardProps = {
   project: PortfolioProject;
 };
 
-/* ---------- Helpers για image & technologies ---------- */
-
-function getImageUrl(project: PortfolioProject): string | null {
-  const field = (project.acf?.main_image ?? null) as any;
-  if (!field) return null;
-
-  if (typeof field === "string") return field;
-
-  if (typeof field === "object") {
-    if (typeof field.url === "string") return field.url;
-    if (typeof field.source_url === "string") return field.source_url;
-  }
-
-  return null;
-}
-
-function getTechnologies(project: PortfolioProject): string[] {
-  const raw = (project.acf?.technologies ?? null) as any;
-  if (!raw) return [];
-
-  if (Array.isArray(raw)) {
-    return raw
-      .map((item) => (typeof item === "string" ? item : ""))
-      .filter((t) => t.trim().length > 0);
-  }
-
-  if (typeof raw === "string") {
-    return raw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-}
-
-/* ---------- Framer Motion variants ---------- */
-
-const overlayVariants: Variants = {
-  rest: { opacity: 0 },
-  hover: {
-    opacity: 1,
-    transition: {
-      duration: 0.25,
-      when: "beforeChildren",
-    },
-  },
-};
-
-const techListVariants: Variants = {
-  rest: {},
-  hover: {
-    transition: {
-      staggerChildren: 0.08, // μικρό delay μεταξύ των items
-    },
-  },
-};
-
 const techItemVariants: Variants = {
-  rest: { x: -24, opacity: 0 },
-  hover: {
+  hidden: { x: -15, opacity: 0 },
+  visible: (i: number) => ({
     x: 0,
     opacity: 1,
     transition: {
-      stiffness: 240,
-      damping: 22,
+      delay: 0.05 * i,
+      type: "spring",
+      stiffness: 260,
+      damping: 20,
     },
-  },
+  }),
 };
 
 export function PortfolioCard({ project }: PortfolioCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const title = project.title?.rendered ?? "Untitled project";
 
-  const imageUrl = getImageUrl(project);
-  const technologies = getTechnologies(project);
-  const title = project.title?.rendered ?? "";
+  const mainImage =
+    project.acf?.main_image?.sizes?.["large"] ??
+    project.acf?.main_image?.sizes?.["medium_large"] ??
+    project.acf?.main_image?.url ??
+    "/images/placeholder-portfolio.jpg";
 
-  const animateState: "rest" | "hover" = isHovered ? "hover" : "rest";
+  const technologies = project.acf?.technologies ?? [];
 
   return (
     <motion.article
-      className="group flex flex-col overflow-hidden rounded-[32px] bg-black/90 text-white shadow-xl"
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+      className="group relative overflow-hidden rounded-[32px] bg-black/80 text-white shadow-[0_40px_120px_rgba(0,0,0,0.7)] border border-white/10"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
     >
-      {/* Εικόνα – ratio 1901x943 ≈ 2:1, χωρίς μαύρο πάνω/κάτω */}
-      <div className="relative aspect-[1901/943] w-full">
-        {imageUrl && (
-          <Image
-            src={imageUrl}
-            alt={title || "Portfolio project"}
-            fill
-            sizes="(min-width: 1024px) 50vw, 100vw"
-            className="object-cover" // τώρα που ταιριάζει το ratio, δεν κόβεται
-          />
-        )}
+      {/* Εικόνα */}
+      <div className="relative aspect-[1901/943] w-full overflow-hidden">
+        <Image
+          src={mainImage}
+          alt={title}
+          fill
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+          sizes="(min-width: 1024px) 560px, 100vw"
+        />
 
-        {!imageUrl && (
-          <div className="absolute inset-0 bg-gradient-to-br from-zinc-900 via-zinc-800 to-black" />
-        )}
+        {/* Overlay στο hover */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
 
-        {/* Hover overlay με staggered technologies – κάνει animation ΚΑΘΕ φορά */}
+        {/* Technologies στο hover */}
         {technologies.length > 0 && (
-          <motion.div
-            variants={overlayVariants}
-            initial="rest"
-            animate={animateState}
-            className="absolute inset-0 flex items-center justify-center bg-black/65"
+          <motion.ul
+            className="pointer-events-none absolute inset-x-6 bottom-6 flex flex-wrap gap-x-3 gap-y-1 text-sm md:text-[15px] font-medium tracking-[0.08em] uppercase"
+            initial="hidden"
+            whileHover="visible"
+            whileTap="visible"
           >
-            <motion.ul
-              variants={techListVariants}
-              initial="rest"
-              animate={animateState}
-              className="space-y-3 text-2xl font-semibold uppercase tracking-wide text-white md:text-3xl"
-            >
-              {technologies.map((tech) => (
-                <motion.li key={tech} variants={techItemVariants}>
-                  {tech}
-                </motion.li>
-              ))}
-            </motion.ul>
-          </motion.div>
+            {technologies.map((tech, index) => (
+              <motion.li
+                key={tech + index}
+                custom={index}
+                variants={techItemVariants}
+                className="rounded-full bg-white/12 px-4 py-1.5 backdrop-blur-md border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+              >
+                {tech}
+              </motion.li>
+            ))}
+          </motion.ul>
         )}
       </div>
 
-      {/* Τίτλος */}
-      <div className="px-8 py-6 text-xl font-semibold tracking-tight">
-        {title}
+      {/* Κάτω μέρος – τίτλος */}
+      <div className="relative px-6 py-5 md:px-7 md:py-6 bg-gradient-to-t from-black/80 via-black/60 to-black/0">
+        <h3 className="text-lg md:text-xl font-semibold leading-snug">
+          {title}
+        </h3>
       </div>
     </motion.article>
   );
