@@ -14,7 +14,8 @@ export type PortfolioProject = {
 };
 
 async function fetchPortfolioProjects(): Promise<PortfolioProject[]> {
-  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`;
+  // 🔧 ΑΛΛΑΓΗ: βγάλαμε το menu_order και βάζουμε title
+  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=title&order=asc&acf_format=standard`;
 
   try {
     const res = await fetch(url, {
@@ -44,7 +45,8 @@ export default async function PortfolioPage() {
   const projects = await fetchPortfolioProjects();
 
   if (!projects.length) {
-    const debugUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`;
+    // 🔧 ΑΛΛΑΓΗ: ίδιο URL και εδώ για debug
+    const debugUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=title&order=asc&acf_format=standard`;
 
     return (
       <main className="min-h-screen flex items-center justify-center bg-black text-white">
