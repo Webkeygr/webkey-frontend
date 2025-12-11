@@ -5,21 +5,7 @@ import { useEffect, useRef, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
-
-// ✅ Τοπικός τύπος για τα projects του portfolio
-type PortfolioProject = {
-  id: number;
-  slug: string;
-  title?: { rendered: string };
-  acf?: {
-    main_image?: {
-      url?: string;
-      sizes?: { [key: string]: string };
-    };
-    technologies?: string[];
-    [key: string]: any;
-  };
-};
+import type { PortfolioProject } from "./page";
 
 type PortfolioClientProps = {
   projects: PortfolioProject[];
@@ -41,20 +27,21 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   ) => {
     e.preventDefault();
 
+    // Αν για κάποιο λόγο δεν έχουμε window (SSR fallback)
     if (typeof window === "undefined") {
-      router.push(`/project?id=${project.id}`);
+      router.push(`/portfolio/${project.slug}`);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(`/project?id=${project.id}`);
+      router.push(`/portfolio/${project.slug}`);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(`/project?id=${project.id}`);
+      router.push(`/portfolio/${project.slug}`);
       return;
     }
 
@@ -73,12 +60,11 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     clone.style.objectFit = "cover";
     clone.style.pointerEvents = "none";
     clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
-    clone.style.transformOrigin = "50% 50%";
+    clone.style.transformOrigin = "50% 50%`;
 
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    // gsap χωρίς TS ζόρια
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const gsap: any = require("gsap").gsap || require("gsap");
 
@@ -89,7 +75,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(`/project?id=${project.id}`);
+        router.push(`/portfolio/${project.slug}`);
 
         setTimeout(() => {
           clone.remove();

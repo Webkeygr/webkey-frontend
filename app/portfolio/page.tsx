@@ -1,114 +1,48 @@
-// app/project/page.tsx
-import { notFound } from "next/navigation";
-import ProjectDetailClient from "../portfolio/ProjectDetailClient";
+// app/portfolio/page.tsx
+import PortfolioClient from "./PortfolioClient";
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
 
-type PortfolioDetail = {
+export type PortfolioProject = {
   id: number;
   slug: string;
   title: { rendered: string };
   acf?: {
-    main_image?: {
-      url?: string;
-      sizes?: { [key: string]: string };
-    };
-    whole_site?: {
-      url?: string;
-      sizes?: { [key: string]: string };
-    };
-    text_1?: string;
-    text_2?: string;
+    main_image?: any;
     technologies?: string[];
-    highlight_1?: string[];
-    highlight_2?: string[];
-    highlight_3?: string[];
-    highlight_4?: string[];
-    highlight_5?: string[];
     [key: string]: any;
   };
 };
 
-// 🔹 Φέρνουμε project ΜΟΝΟ με βάση το ID (ασφαλές & ξεκάθαρο)
-async function fetchProjectById(id: string): Promise<PortfolioDetail | null> {
-  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
+async function fetchPortfolio(): Promise<PortfolioProject[]> {
+  const url = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`;
 
-  try {
-    const res = await fetch(url, {
-      next: { revalidate: 60 },
-    });
+  const res = await fetch(url, { next: { revalidate: 60 } });
 
-    if (!res.ok) {
-      console.error("Failed to fetch project by id", id, res.status);
-      return null;
-    }
-
-    const data = (await res.json()) as PortfolioDetail;
-    if (!data || !data.id) return null;
-
-    return data;
-  } catch (error) {
-    console.error("Project fetch crashed:", error);
-    return null;
+  if (!res.ok) {
+    console.error("Failed to fetch portfolio list", res.status);
+    return [];
   }
+
+  const data = (await res.json()) as PortfolioProject[];
+  return data ?? [];
 }
 
-type PageProps = {
-  searchParams?: {
-    id?: string;
-  };
-};
+export default async function PortfolioPage() {
+  const projects = await fetchPortfolio();
 
-export default async function ProjectPage({ searchParams }: PageProps) {
-  const id = searchParams?.id;
-
-  // ❌ Δεν ήρθε id στο query string
-  if (!id) {
+  if (!projects.length) {
     return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-3xl font-bold mb-4">
-          Δεν δόθηκε <code>id</code> στο query string.
-        </h1>
-        <p className="mb-2">Περίμενα κάτι σαν /project?id=39.</p>
-        <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
-          {JSON.stringify(
-            {
-              searchParams: searchParams ?? {},
-            },
-            null,
-            2
-          )}
-        </pre>
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="max-w-xl px-6 text-center">
+          <p className="text-lg mb-4">
+            Δεν βρέθηκαν projects από το WordPress (η λίστα είναι κενή).
+          </p>
+        </div>
       </main>
     );
   }
 
-  const project = await fetchProjectById(id);
-
-  // ❌ Δεν βρέθηκε project με αυτό το id
-  if (!project) {
-    return (
-      <main className="min-h-screen bg-black text-white p-8">
-        <h1 className="text-3xl font-bold mb-4">
-          Δεν βρέθηκε project με id = {id}
-        </h1>
-        <p className="mb-2">
-          Δοκίμασε να ελέγξεις αν υπάρχει αντίστοιχο post στο WordPress.
-        </p>
-        <pre className="mt-4 text-sm whitespace-pre-wrap bg-zinc-900 p-4 rounded-lg">
-          {JSON.stringify(
-            {
-              triedUrl: `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`,
-            },
-            null,
-            2
-          )}
-        </pre>
-      </main>
-    );
-  }
-
-  // ✅ Όλα καλά – στέλνουμε τα δεδομένα στο client component
-  return <ProjectDetailClient project={project} />;
+  return <PortfolioClient projects={projects} />;
 }
