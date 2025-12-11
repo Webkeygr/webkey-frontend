@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
+import gsap from "gsap";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioProject } from "./page";
@@ -15,7 +16,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  // μόνο για αυτή τη σελίδα θέλουμε το header να ΜΗΝ γίνεται dark
+  // Απενεργοποίηση dark-mode detection μόνο σε αυτή τη σελίδα
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -27,21 +28,23 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   ) => {
     e.preventDefault();
 
-    // SSR fallback – σκέτο redirect
+    // URL ΠΟΥ ΘΑ ΑΝΟΙΓΟΥΜΕ ΠΑΝΤΑ
+    const targetUrl = `/portfolio/${project.slug}?id=${project.id}`;
+
     if (typeof window === "undefined") {
-      router.push(`/project?id=${project.id}`);
+      router.push(targetUrl);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(`/project?id=${project.id}`);
+      router.push(targetUrl);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(`/project?id=${project.id}`);
+      router.push(targetUrl);
       return;
     }
 
@@ -65,9 +68,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const gsap: any = require("gsap").gsap || require("gsap");
-
     gsap.set(clone, {
       transformPerspective: 1400,
     });
@@ -75,7 +75,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(`/project?id=${project.id}`);
+        router.push(targetUrl);
 
         setTimeout(() => {
           clone.remove();
@@ -142,7 +142,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
   return (
     <>
-      {/* BACKGROUND */}
+      {/* ANIMATED BACKGROUND */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-[size:400%_400%] bg-gradient-to-br from-purple-600/30 via-pink-500/30 to-cyan-600/30 animate-color-shift" />
         <div className="absolute inset-0 bg-[size:400%_400%] bg-gradient-to-tl from-yellow-400/20 via-transparent to-purple-800/30 animate-color-shift-reverse" />
@@ -181,7 +181,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
         </div>
       </section>
 
-      {/* GRID */}
+      {/* PROJECTS GRID */}
       <section className="relative py-32 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {projects.map((project) => (
