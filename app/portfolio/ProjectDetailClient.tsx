@@ -6,7 +6,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useRouter } from "next/navigation";
-import type { PortfolioProject } from "./page";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 
 /* ----------------------------------------------------
@@ -103,7 +102,24 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
   );
 }
 
-// Local type για να μη χρειαζόμαστε import από route
+/* ----------------------------------------------------
+ * Local types – για να μη χρειαζόμαστε import από route
+ * ---------------------------------------------------- */
+
+type PortfolioProject = {
+  id: number;
+  slug: string;
+  title?: { rendered: string };
+  acf?: {
+    main_image?: {
+      url?: string;
+      sizes?: Record<string, string>;
+    };
+    technologies?: string[];
+    [key: string]: any;
+  };
+};
+
 type PortfolioDetail = {
   id: number;
   slug: string;
@@ -112,6 +128,7 @@ type PortfolioDetail = {
     [key: string]: any;
   };
 };
+
 /* ----------------------------------------------------
  * Κύριο component λεπτομερειών project
  * ---------------------------------------------------- */
