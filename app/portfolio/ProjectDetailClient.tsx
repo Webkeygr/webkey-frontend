@@ -134,14 +134,14 @@ type PortfolioDetail = {
  * ---------------------------------------------------- */
 type Props = {
   project: PortfolioDetail;
-  prevProject: PortfolioProject | null;
-  nextProject: PortfolioProject | null;
+  prevProject?: PortfolioProject | null;
+  nextProject?: PortfolioProject | null;
 };
 
 export default function ProjectDetailClient({
   project,
-  prevProject,
-  nextProject,
+  prevProject = null,
+  nextProject = null,
 }: Props) {
   const router = useRouter();
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
