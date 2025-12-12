@@ -104,7 +104,7 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
 }
 
 // Local type για να μη χρειαζόμαστε import από route
-type PortfolioDetail = {
+export type PortfolioDetail = {
   id: number;
   slug: string;
   title: { rendered: string };
