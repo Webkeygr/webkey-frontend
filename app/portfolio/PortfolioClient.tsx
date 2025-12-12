@@ -27,21 +27,20 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   ) => {
     e.preventDefault();
 
-    // SSR safety
     if (typeof window === "undefined") {
-      router.push(`/project/${project.id}`);
+      router.push(`/portfolio/${project.slug}`);
       return;
     }
 
     const cardEl = cardRefs.current[project.id];
     if (!cardEl) {
-      router.push(`/project/${project.id}`);
+      router.push(`/portfolio/${project.slug}`);
       return;
     }
 
     const img = cardEl.querySelector("img");
     if (!img) {
-      router.push(`/project/${project.id}`);
+      router.push(`/portfolio/${project.slug}`);
       return;
     }
 
@@ -49,7 +48,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    // Clone της εικόνας για το wave-zoom animation
     const clone = img.cloneNode(true) as HTMLImageElement;
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
@@ -66,16 +64,18 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    // dynamic import για gsap
+    // gsap χωρίς TS ζόρια
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const gsap: any = require("gsap").gsap || require("gsap");
 
-    gsap.set(clone, { transformPerspective: 1400 });
+    gsap.set(clone, {
+      transformPerspective: 1400,
+    });
 
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
-        router.push(`/project/${project.id}`);
+        router.push(`/portfolio/${project.slug}`);
 
         setTimeout(() => {
           clone.remove();
