@@ -167,7 +167,7 @@ export default function ProjectDetailClient({ project }: Props) {
 
       {/* HEADING 2 + LOGO + TECHNOLOGY TAGS (λευκό section) */}
       <section className="bg-white py-16 md:py-20">
-        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
           {/* Αριστερή στήλη: heading2, heading3, description, technologies tags */}
           <div className="md:w-2/3 space-y-6">
             {heading2 && (
@@ -225,7 +225,7 @@ export default function ProjectDetailClient({ project }: Props) {
 
         {/* Φαρδύ banner για "Technologies" visual (Highlight_1) */}
         {highlight1 && (
-          <div className="mx-auto mt-16 max-w-6xl px-6 md:px-8">
+          <div className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
               Technologies
             </h3>
@@ -245,7 +245,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* WHOLE SITE – 100vh, auto-scroll σε loop + Industry / Location card */}
       {wholeSiteUrl && (
         <section className="bg-slate-50 py-16">
-          <div className="mx-auto max-w-6xl px-6 md:px-8">
+          <div className="mx-auto max-w-[1440px] px-6 md:px-8">
             <div className="grid h-screen gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,1.2fr)] items-stretch">
               {/* Αριστερά: τίτλος + auto-scroll image */}
               <div className="flex h-full flex-col">
@@ -296,7 +296,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* TEXT_1 + HIGHLIGHT_2 */}
       {(text1 || highlight2) && (
         <section className="bg-white py-16 md:py-20">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
             {text1 && (
               <div
                 className="text-sm md:text-base leading-relaxed text-slate-700 space-y-4"
@@ -322,7 +322,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* HIGHLIGHT_3 + HIGHLIGHT_4 σε δύο στήλες */}
       {(highlight3 || highlight4) && (
         <section className="bg-white py-12 md:py-16">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8">
             {highlight3 && (
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
@@ -352,7 +352,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* TEXT_2 τελικό section */}
       {text2 && (
         <section className="bg-slate-50 py-16 md:py-20">
-          <div className="mx-auto max-w-5xl px-6 md:px-8">
+          <div className="mx-auto max-w-[1440px] px-6 md:px-8">
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
               Website
             </h3>
@@ -363,9 +363,10 @@ export default function ProjectDetailClient({ project }: Props) {
           </div>
         </section>
       )}
+
       {/* HIGHLIGHT_5 – ίδιο wrapper με highlight_1 */}
       {highlight5 && (
-        <div className="mx-auto mt-16 max-w-6xl px-6 md:px-8">
+        <div className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
             Highlight
           </h3>
