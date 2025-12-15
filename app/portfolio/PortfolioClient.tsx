@@ -50,6 +50,19 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     // Clone της εικόνας
     const clone = img.cloneNode(true) as HTMLImageElement;
+
+    // ✅ Force full-res image for the transition (avoid thumbnail pixelation)
+    const hiResSrc =
+      project?.acf?.main_image?.url ??
+      project?.acf?.main_image?.sizes?.["2048x2048"] ??
+      project?.acf?.main_image?.sizes?.["1536x1536"];
+
+    if (hiResSrc) {
+      clone.src = hiResSrc;
+      clone.srcset = "";
+      clone.sizes = "";
+    }
+
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
     clone.style.top = `${rect.top}px`;
@@ -58,7 +71,8 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     clone.style.zIndex = "9999";
     clone.style.borderRadius = "32px";
     clone.style.objectFit = "cover";
-    clone.style.pointerEvents = "none";
+    clone.style.pointerEvents = "
+    "none";
     clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
     clone.style.transformOrigin = "50% 50%";
 
