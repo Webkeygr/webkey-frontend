@@ -137,6 +137,7 @@ export default function ProjectDetailClient({ project }: Props) {
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
+  const highlight5 = getImageUrl(acf.highlight_5);
 
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
