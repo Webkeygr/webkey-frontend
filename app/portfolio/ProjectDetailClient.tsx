@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import gsap from "gsap";
-import type { PortfolioDetail } from "./[slug]/page";
+import type { PortfolioDetail } from "./types";
 
 /* ----------------------------------------------------
  * Helper: παίρνουμε URL από ACF image field (object/string)

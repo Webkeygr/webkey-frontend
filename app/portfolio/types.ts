@@ -1,4 +1,5 @@
 // app/portfolio/types.ts
+
 export type PortfolioProject = {
   id: number;
   slug: string;

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import gsap from "gsap";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
-import type { PortfolioProject } from "./page";
+import type { PortfolioProject } from "./types";
 
 type PortfolioClientProps = {
   projects: PortfolioProject[];

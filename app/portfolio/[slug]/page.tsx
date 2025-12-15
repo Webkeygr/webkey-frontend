@@ -4,18 +4,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import ProjectDetailClient from "../ProjectDetailClient";
+import type { PortfolioDetail } from "../types";
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
 
-export type PortfolioDetail = {
-  id: number;
-  slug: string;
-  title: { rendered: string };
-  acf?: {
-    [key: string]: any;
-  };
-};
 
 export default function PortfolioDetailPage() {
   const params = useParams<{ slug: string }>();
