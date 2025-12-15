@@ -71,8 +71,7 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
     clone.style.zIndex = "9999";
     clone.style.borderRadius = "32px";
     clone.style.objectFit = "cover";
-    clone.style.pointerEvents = "
-    "none";
+    clone.style.pointerEvents = "none";
     clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
     clone.style.transformOrigin = "50% 50%";
 
