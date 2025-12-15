@@ -55,13 +55,13 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
         {/* Overlay στο hover */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
 
-        {/* Technologies στο hover (pills κάτω, κέντρο) */}
+        {/* Technologies στο hover (pills κάτω, κέντρο, πιο κοντά) */}
         {technologies.length > 0 && (
-          <ul className="pointer-events-none absolute inset-x-6 bottom-6 flex flex-wrap justify-center gap-2 opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+          <ul className="pointer-events-none absolute left-1/2 bottom-6 -translate-x-1/2 flex flex-wrap justify-center gap-x-2 gap-y-2 max-w-[86%] w-max opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
             {technologies.map((tech, index) => (
               <li
                 key={tech + index}
-                className="rounded-full bg-white/12 px-4 py-1.5 text-xs md:text-[13px] font-medium tracking-[0.08em] uppercase backdrop-blur-md border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                className="rounded-full bg-white/12 px-3 py-1 text-xs md:text-[13px] font-medium tracking-[0.08em] uppercase backdrop-blur-md border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
               >
                 {tech}
               </li>
