@@ -1,13 +1,11 @@
 // app/portfolio/ProjectDetailClient.tsx
 "use client";
 
-import { useEffect, useRef, useState, MouseEvent } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import type { PortfolioDetail } from "./types";
-import { PortfolioCard } from "@/app/components/PortfolioCard";
 
 /* ----------------------------------------------------
  * Helper: παίρνουμε URL από ACF image field (object/string)
@@ -33,6 +31,7 @@ type AutoScrollImageProps = {
 function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -40,62 +39,65 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
     if (!container || !img) return;
 
     const setup = () => {
-      const imgHeight = img.naturalHeight;
-      const imgWidth = img.naturalWidth;
-
-      if (!imgHeight || !imgWidth) return;
-
-      // Προσαρμόζουμε scale ώστε να γεμίζει το container οριζόντια (όπως object-cover)
-      const containerWidth = container.offsetWidth;
-      const scale = containerWidth / imgWidth;
-      const scaledHeight = imgHeight * scale;
-
+      const imgHeight = img.offsetHeight;
       const viewHeight = container.offsetHeight;
-      const scrollDistance = Math.max(0, scaledHeight - viewHeight);
+      const distance = imgHeight - viewHeight;
 
-      if (scrollDistance <= 0) return;
+      // Αν η εικόνα δεν είναι μεγαλύτερη από το viewport, δεν χρειάζεται scroll
+      if (distance <= 0) return;
 
-      gsap.killTweensOf(img);
+      // Καθαρίζουμε τυχόν παλιό timeline
+      if (tlRef.current) {
+        tlRef.current.kill();
+        tlRef.current = null;
+      }
 
-      gsap.fromTo(
+      const tl = gsap.timeline({
+        repeat: -1, // infinite loop
+        repeatDelay: 0.6, // μικρή παύση στο τέλος
+      });
+
+      tl.fromTo(
         img,
         { y: 0 },
         {
-          y: -scrollDistance,
+          y: -distance,
           ease: "none",
           duration,
-          repeat: -1,
-          yoyo: true,
         }
-      );
+      ).set(img, { y: 0 }); // reset πάνω πριν ξαναξεκινήσει
+
+      tlRef.current = tl;
     };
 
-    if (img.complete) setup();
-    else img.addEventListener("load", setup);
-
-    const onResize = () => setup();
-    window.addEventListener("resize", onResize);
+    if (img.complete) {
+      setup();
+    } else {
+      img.addEventListener("load", setup);
+    }
 
     return () => {
-      img.removeEventListener("load", setup);
-      window.removeEventListener("resize", onResize);
-      gsap.killTweensOf(img);
+      if (tlRef.current) {
+        tlRef.current.kill();
+        tlRef.current = null;
+      }
+      if (img) {
+        img.removeEventListener("load", setup);
+      }
     };
-  }, [src, duration]);
+  }, [duration]);
 
   return (
     <div
       ref={containerRef}
-      className="relative h-full w-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl"
+      className="relative w-full h-full overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-2xl"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={imgRef}
         src={src}
-        alt=""
-        className="absolute left-0 top-0 w-full select-none"
+        alt="Whole site preview"
+        className="absolute top-0 left-0 w-full h-auto object-cover"
         style={{ willChange: "transform" }}
-        draggable={false}
       />
     </div>
   );
@@ -114,191 +116,6 @@ export default function ProjectDetailClient({ project }: Props) {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
   }, []);
-
-  const router = useRouter();
-
-  type NavProject = {
-    id: number;
-    slug: string;
-    title?: { rendered?: string };
-    acf?: {
-      main_image?: any;
-      technologies?: string[];
-      [key: string]: any;
-    };
-  };
-
-  const [nav, setNav] = useState<{
-    prev: NavProject | null;
-    next: NavProject | null;
-  }>({
-    prev: null,
-    next: null,
-  });
-
-  const navCardRefs = useRef<Record<"prev" | "next", HTMLButtonElement | null>>(
-    {
-      prev: null,
-      next: null,
-    }
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const load = async () => {
-      try {
-        const base =
-          process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://cms.webkey.gr";
-        const res = await fetch(
-          `${base}/wp-json/wp/v2/projects?per_page=100&orderby=menu_order&order=asc`,
-          { cache: "no-store" }
-        );
-        if (!res.ok) return;
-
-        const list = (await res.json()) as NavProject[];
-        if (!Array.isArray(list) || list.length === 0) return;
-
-        const currentIndex = list.findIndex((p) => p?.id === project.id);
-        if (currentIndex === -1) return;
-
-        const prev =
-          list[(currentIndex - 1 + list.length) % list.length] ?? null;
-        const next = list[(currentIndex + 1) % list.length] ?? null;
-
-        if (!cancelled) setNav({ prev, next });
-      } catch {
-        // ignore
-      }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [project.id]);
-
-  const animateNavClick = (
-    target: NavProject,
-    key: "prev" | "next",
-    e: MouseEvent<HTMLButtonElement>
-  ) => {
-    e.preventDefault();
-
-    if (typeof window === "undefined") {
-      router.push(`/portfolio/${target.slug}?id=${target.id}`);
-      return;
-    }
-
-    const cardEl = navCardRefs.current[key];
-    if (!cardEl) {
-      router.push(`/portfolio/${target.slug}?id=${target.id}`);
-      return;
-    }
-
-    const img = cardEl.querySelector("img");
-    if (!img) {
-      router.push(`/portfolio/${target.slug}?id=${target.id}`);
-      return;
-    }
-
-    const rect = img.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    const clone = img.cloneNode(true) as HTMLImageElement;
-
-    // ✅ full-res για το transition (ίδια λογική με PortfolioClient)
-    const hiResSrc = getImageUrl(target?.acf?.main_image);
-    if (hiResSrc) {
-      clone.src = hiResSrc;
-      clone.srcset = "";
-      clone.sizes = "";
-    }
-
-    clone.style.position = "fixed";
-    clone.style.left = `${rect.left}px`;
-    clone.style.top = `${rect.top}px`;
-    clone.style.width = `${rect.width}px`;
-    clone.style.height = `${rect.height}px`;
-    clone.style.zIndex = "9999";
-    clone.style.borderRadius = "32px";
-    clone.style.objectFit = "cover";
-    clone.style.pointerEvents = "none";
-    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
-    clone.style.transformOrigin = "50% 50%";
-
-    document.body.appendChild(clone);
-    cardEl.style.opacity = "0";
-
-    gsap.set(clone, { transformPerspective: 1400 });
-
-    const tl = gsap.timeline({
-      defaults: { duration: 0.32, ease: "power2.inOut" },
-      onComplete: () => {
-        router.push(`/portfolio/${target.slug}?id=${target.id}`);
-        setTimeout(() => {
-          clone.remove();
-          cardEl.style.opacity = "";
-        }, 1500);
-      },
-    });
-
-    tl.set(clone, {
-      x: 0,
-      y: 0,
-      scale: 1,
-      rotationX: 0,
-      rotationY: 0,
-      borderRadius: "32px",
-    });
-
-    tl.to(clone, {
-      y: -28,
-      rotationX: 10,
-      rotationY: -10,
-      scale: 1.06,
-      borderRadius: "40px 120px 30px 100px",
-    });
-
-    tl.to(clone, {
-      y: 26,
-      rotationX: -12,
-      rotationY: 12,
-      scale: 1.12,
-      borderRadius: "130px 40px 150px 50px",
-    });
-
-    tl.to(clone, {
-      y: -18,
-      rotationX: 8,
-      rotationY: -6,
-      scale: 1.08,
-      borderRadius: "60px 140px 80px 160px",
-    });
-
-    tl.to(clone, {
-      y: 8,
-      rotationX: -4,
-      rotationY: 4,
-      scale: 1.03,
-      borderRadius: "30px 80px 50px 90px",
-      duration: 0.28,
-    });
-
-    tl.to(clone, {
-      x: rect.left * -1,
-      y: rect.top * -1,
-      width: viewportWidth,
-      height: viewportHeight,
-      rotationX: 0,
-      rotationY: 0,
-      scale: 1,
-      borderRadius: "0px",
-      duration: 0.55,
-      ease: "power3.inOut",
-    });
-  };
 
   const acf = project.acf ?? {};
   const title = acf.title || project.title?.rendered || "";
@@ -320,7 +137,6 @@ export default function ProjectDetailClient({ project }: Props) {
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
-  const highlight5 = getImageUrl(acf.highlight_5);
 
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
@@ -356,36 +172,37 @@ export default function ProjectDetailClient({ project }: Props) {
             {heading2 && (
               <div className="space-y-3">
                 <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                  Project
+                  Case Study
                 </h2>
-                <div className="text-3xl md:text-5xl font-black tracking-tight">
+                <h1 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">
                   {heading2}
-                </div>
+                </h1>
               </div>
             )}
-
             {heading3 && (
-              <div className="text-lg md:text-xl font-semibold text-slate-700">
-                {heading3}
-              </div>
+              <p className="text-base md:text-lg text-slate-600">{heading3}</p>
             )}
-
             {description && (
-              <div className="text-sm md:text-base leading-relaxed text-slate-700 space-y-4">
+              <p className="text-sm md:text-base leading-relaxed text-slate-600">
                 {description}
-              </div>
+              </p>
             )}
 
             {technologies.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {technologies.map((t, idx) => (
-                  <span
-                    key={`${t}-${idx}`}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-700 shadow-sm"
-                  >
-                    {t}
-                  </span>
-                ))}
+              <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                  Technologies
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs md:text-[13px] font-medium text-slate-700"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -393,7 +210,7 @@ export default function ProjectDetailClient({ project }: Props) {
           {/* Δεξιά στήλη: Logo */}
           {logoUrl && (
             <div className="md:w-1/3 flex md:justify-end">
-              <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-3xl border border-slate-200 bg-white shadow-lg flex items-center justify-center">
+              <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
                 <Image
                   src={logoUrl}
                   alt={`${title} logo`}
@@ -405,7 +222,7 @@ export default function ProjectDetailClient({ project }: Props) {
           )}
         </div>
 
-        {/* Highlight 1 */}
+        {/* Φαρδύ banner για "Technologies" visual (Highlight_1) */}
         {highlight1 && (
           <div className="mx-auto mt-16 max-w-6xl px-6 md:px-8">
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
@@ -424,7 +241,7 @@ export default function ProjectDetailClient({ project }: Props) {
         )}
       </section>
 
-      {/* WHOLE_SITE + Project Info */}
+      {/* WHOLE SITE – 100vh, auto-scroll σε loop + Industry / Location card */}
       {wholeSiteUrl && (
         <section className="bg-slate-50 py-16">
           <div className="mx-auto max-w-6xl px-6 md:px-8">
@@ -462,36 +279,13 @@ export default function ProjectDetailClient({ project }: Props) {
                         <div>{location}</div>
                       </div>
                     )}
-                    {highlight3 && (
-                      <div className="pt-4 border-t border-slate-100">
-                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                          Highlight
-                        </div>
-                        <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-md">
-                          <Image
-                            src={highlight3}
-                            alt={`${title} highlight 3`}
-                            width={1200}
-                            height={900}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
+                    {(heading3 || description) && (
+                      <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
+                        {heading3 || description}
                       </div>
                     )}
                   </div>
                 </div>
-
-                {highlight4 && (
-                  <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
-                    <Image
-                      src={highlight4}
-                      alt={`${title} highlight 4`}
-                      width={1200}
-                      height={900}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -501,32 +295,55 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* TEXT_1 + HIGHLIGHT_2 */}
       {(text1 || highlight2) && (
         <section className="bg-white py-16 md:py-20">
-          <div className="mx-auto max-w-6xl px-6 md:px-8">
-            <div className="grid gap-10 md:grid-cols-2 md:gap-14 items-start">
-              {text1 && (
-                <div>
-                  <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                    Details
-                  </h3>
-                  <div
-                    className="rounded-3xl border border-slate-200 bg-slate-50 p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
-                    dangerouslySetInnerHTML={{ __html: text1 }}
-                  />
-                </div>
-              )}
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
+            {text1 && (
+              <div
+                className="text-sm md:text-base leading-relaxed text-slate-700 space-y-4"
+                dangerouslySetInnerHTML={{ __html: text1 }}
+              />
+            )}
 
-              {highlight2 && (
-                <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
-                  <Image
-                    src={highlight2}
-                    alt={`${title} highlight 2`}
-                    width={1200}
-                    height={900}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
+            {highlight2 && (
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+                <Image
+                  src={highlight2}
+                  alt={`${title} highlight 2`}
+                  width={1200}
+                  height={900}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* HIGHLIGHT_3 + HIGHLIGHT_4 σε δύο στήλες */}
+      {(highlight3 || highlight4) && (
+        <section className="bg-white py-12 md:py-16">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8">
+            {highlight3 && (
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+                <Image
+                  src={highlight3}
+                  alt={`${title} highlight 3`}
+                  width={1200}
+                  height={900}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+            {highlight4 && (
+              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+                <Image
+                  src={highlight4}
+                  alt={`${title} highlight 4`}
+                  width={1200}
+                  height={900}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -539,74 +356,9 @@ export default function ProjectDetailClient({ project }: Props) {
               Website
             </h3>
             <div
-              className="rounded-3xl border border-slate-200 bg-slate-50 p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
+              className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
               dangerouslySetInnerHTML={{ __html: text2 }}
             />
-          </div>
-        </section>
-      )}
-
-      {/* HIGHLIGHT_5 (ίδιο wrapper/attributes με Highlight_1) */}
-      {highlight5 && (
-        <section className="bg-slate-50 py-16 md:py-20">
-          <div className="mx-auto max-w-6xl px-6 md:px-8">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-              Highlight
-            </h3>
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-md">
-              <Image
-                src={highlight5}
-                alt={`${title} highlight 5`}
-                width={1600}
-                height={800}
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* PREVIOUS / NEXT PROJECT */}
-      {(nav.prev || nav.next) && (
-        <section className="bg-white py-16 md:py-20">
-          <div className="mx-auto max-w-6xl px-6 md:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-              {nav.prev && (
-                <div>
-                  <div className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                    Previous Project
-                  </div>
-                  <button
-                    type="button"
-                    className="block w-full text-left"
-                    ref={(el) => {
-                      navCardRefs.current.prev = el;
-                    }}
-                    onClick={(e) => animateNavClick(nav.prev as any, "prev", e)}
-                  >
-                    <PortfolioCard project={nav.prev as any} />
-                  </button>
-                </div>
-              )}
-
-              {nav.next && (
-                <div>
-                  <div className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                    Next Project
-                  </div>
-                  <button
-                    type="button"
-                    className="block w-full text-left"
-                    ref={(el) => {
-                      navCardRefs.current.next = el;
-                    }}
-                    onClick={(e) => animateNavClick(nav.next as any, "next", e)}
-                  >
-                    <PortfolioCard project={nav.next as any} />
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
         </section>
       )}
