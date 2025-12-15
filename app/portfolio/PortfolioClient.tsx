@@ -5,7 +5,7 @@ import { useEffect, useRef, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
 import TextPressure from "@/app/components/TextPressure";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
-import type { PortfolioProject } from "./page";
+import type { PortfolioProject } from "./types";
 
 type PortfolioClientProps = {
   projects: PortfolioProject[];
@@ -15,7 +15,6 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   const router = useRouter();
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  // Απενεργοποίηση dark-header μόνο εδώ
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -27,117 +26,16 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
   ) => {
     e.preventDefault();
 
-    if (typeof window === "undefined") {
-      router.push(`/portfolio/${project.slug}`);
+    const slug = project?.slug;
+
+    // ✅ ΑΝ ΔΕΝ ΥΠΑΡΧΕΙ SLUG, ΔΕΝ ΕΠΙΤΡΕΠΩ ΝΑ ΠΑΕΙ /portfolio/undefined
+    if (!slug || slug === "undefined") {
+      console.error("Missing slug for project:", project);
       return;
     }
 
-    const cardEl = cardRefs.current[project.id];
-    if (!cardEl) {
-      router.push(`/portfolio/${project.slug}`);
-      return;
-    }
-
-    const img = cardEl.querySelector("img");
-    if (!img) {
-      router.push(`/portfolio/${project.slug}`);
-      return;
-    }
-
-    const rect = img.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    const clone = img.cloneNode(true) as HTMLImageElement;
-    clone.style.position = "fixed";
-    clone.style.left = `${rect.left}px`;
-    clone.style.top = `${rect.top}px`;
-    clone.style.width = `${rect.width}px`;
-    clone.style.height = `${rect.height}px`;
-    clone.style.zIndex = "9999";
-    clone.style.borderRadius = "32px";
-    clone.style.objectFit = "cover";
-    clone.style.pointerEvents = "none";
-    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
-    clone.style.transformOrigin = "50% 50%";
-
-    document.body.appendChild(clone);
-    cardEl.style.opacity = "0";
-
-    // gsap χωρίς TS ζόρια
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const gsap: any = require("gsap").gsap || require("gsap");
-
-    gsap.set(clone, {
-      transformPerspective: 1400,
-    });
-
-    const tl = gsap.timeline({
-      defaults: { duration: 0.32, ease: "power2.inOut" },
-      onComplete: () => {
-        router.push(`/portfolio/${project.slug}`);
-
-        setTimeout(() => {
-          clone.remove();
-          if (cardEl) cardEl.style.opacity = "";
-        }, 1500);
-      },
-    });
-
-    tl.set(clone, {
-      x: 0,
-      y: 0,
-      scale: 1,
-      rotationX: 0,
-      rotationY: 0,
-      borderRadius: "32px",
-    });
-
-    tl.to(clone, {
-      y: -28,
-      rotationX: 10,
-      rotationY: -10,
-      scale: 1.06,
-      borderRadius: "40px 120px 30px 100px",
-    });
-
-    tl.to(clone, {
-      y: 26,
-      rotationX: -12,
-      rotationY: 12,
-      scale: 1.12,
-      borderRadius: "130px 40px 150px 50px",
-    });
-
-    tl.to(clone, {
-      y: -18,
-      rotationX: 8,
-      rotationY: -6,
-      scale: 1.08,
-      borderRadius: "60px 140px 80px 160px",
-    });
-
-    tl.to(clone, {
-      y: 8,
-      rotationX: -4,
-      rotationY: 4,
-      scale: 1.03,
-      borderRadius: "30px 80px 50px 90px",
-      duration: 0.28,
-    });
-
-    tl.to(clone, {
-      x: rect.left * -1,
-      y: rect.top * -1,
-      width: viewportWidth,
-      height: viewportHeight,
-      rotationX: 0,
-      rotationY: 0,
-      scale: 1,
-      borderRadius: "0px",
-      duration: 0.55,
-      ease: "power3.inOut",
-    });
+    // (κρατάς εδώ το animation σου αν θες — για τώρα απλό push για να σταθεροποιήσουμε routing)
+    router.push(`/portfolio/${slug}`);
   };
 
   return (
