@@ -2,7 +2,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, type Variants } from "framer-motion";
+import { motion } from "framer-motion";
 
 // Τοπικός τύπος – δεν εξαρτόμαστε πια από το page.tsx
 type PortfolioProject = {
@@ -21,20 +21,6 @@ type PortfolioProject = {
 
 type PortfolioCardProps = {
   project: PortfolioProject;
-};
-
-const techItemVariants: Variants = {
-  hidden: { x: -15, opacity: 0 },
-  visible: (i: number) => ({
-    x: 0,
-    opacity: 1,
-    transition: {
-      delay: 0.05 * i,
-      type: "spring",
-      stiffness: 260,
-      damping: 20,
-    },
-  }),
 };
 
 export function PortfolioCard({ project }: PortfolioCardProps) {
@@ -69,25 +55,18 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
         {/* Overlay στο hover */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 transition-opacity duration-400 group-hover:opacity-100" />
 
-        {/* Technologies στο hover */}
+        {/* Technologies στο hover (pills κάτω, κέντρο) */}
         {technologies.length > 0 && (
-          <motion.ul
-            className="pointer-events-none absolute inset-x-6 bottom-6 flex flex-wrap gap-x-3 gap-y-1 text-sm md:text-[15px] font-medium tracking-[0.08em] uppercase"
-            initial="hidden"
-            whileHover="visible"
-            whileTap="visible"
-          >
+          <ul className="pointer-events-none absolute inset-x-6 bottom-6 flex flex-wrap justify-center gap-2 opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
             {technologies.map((tech, index) => (
-              <motion.li
+              <li
                 key={tech + index}
-                custom={index}
-                variants={techItemVariants}
-                className="rounded-full bg-white/12 px-4 py-1.5 backdrop-blur-md border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
+                className="rounded-full bg-white/12 px-4 py-1.5 text-xs md:text-[13px] font-medium tracking-[0.08em] uppercase backdrop-blur-md border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.5)]"
               >
                 {tech}
-              </motion.li>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
         )}
       </div>
 
