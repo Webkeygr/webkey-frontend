@@ -1,5 +1,4 @@
 // app/portfolio/[slug]/page.tsx
-import { notFound } from "next/navigation";
 import ProjectDetailClient, {
   type PortfolioDetail,
 } from "../ProjectDetailClient";
@@ -7,98 +6,101 @@ import ProjectDetailClient, {
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
 
-async function fetchById(id: string): Promise<PortfolioDetail | null> {
-  const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`,
-    { next: { revalidate: 60 } }
-  );
+async function fetchBySlug(slug: string): Promise<{
+  project: PortfolioDetail | null;
+  debug: {
+    apiUrl: string;
+    status: number;
+    length: number;
+    raw: any;
+  };
+}> {
+  const apiUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?slug=${encodeURIComponent(
+    slug
+  )}&acf_format=standard`;
 
-  if (!res.ok) {
-    console.error("Failed to fetch portfolio by ID", id, res.status);
-    return null;
+  try {
+    const res = await fetch(apiUrl, {
+      next: { revalidate: 60 },
+    });
+
+    const status = res.status;
+    let raw: any = null;
+
+    try {
+      raw = await res.json();
+    } catch {
+      raw = null;
+    }
+
+    if (!res.ok || !Array.isArray(raw) || raw.length === 0) {
+      return {
+        project: null,
+        debug: {
+          apiUrl,
+          status,
+          length: Array.isArray(raw) ? raw.length : -1,
+          raw,
+        },
+      };
+    }
+
+    const project = raw[0] as PortfolioDetail;
+
+    return {
+      project,
+      debug: {
+        apiUrl,
+        status,
+        length: raw.length,
+        raw,
+      },
+    };
+  } catch (err: any) {
+    return {
+      project: null,
+      debug: {
+        apiUrl,
+        status: 0,
+        length: -1,
+        raw: { error: String(err) },
+      },
+    };
   }
-
-  return (await res.json()) as PortfolioDetail;
-}
-
-async function fetchBySlug(slug: string): Promise<PortfolioDetail | null> {
-  const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio?slug=${slug}&acf_format=standard`,
-    { next: { revalidate: 60 } }
-  );
-
-  if (!res.ok) {
-    console.error("Failed to fetch portfolio by slug", slug, res.status);
-    return null;
-  }
-
-  const data = (await res.json()) as PortfolioDetail[];
-  return data[0] ?? null;
-}
-
-async function fetchAllProjects(): Promise<PortfolioDetail[]> {
-  const res = await fetch(
-    `${WP_BASE_URL}/wp-json/wp/v2/portfolio?per_page=100&orderby=title&order=asc&acf_format=standard`,
-    { next: { revalidate: 60 } }
-  );
-
-  if (!res.ok) return [];
-  const data = (await res.json()) as PortfolioDetail[];
-  return Array.isArray(data) ? data : [];
 }
 
 type PageProps = {
   params: { slug: string };
-  searchParams: { id?: string | string[] };
 };
 
-export default async function PortfolioDetailPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const slug = params.slug;
-  const idParam = searchParams.id;
-  const id =
-    typeof idParam === "string"
-      ? idParam
-      : Array.isArray(idParam)
-      ? idParam[0]
-      : undefined;
+export default async function PortfolioDetailPage({ params }: PageProps) {
+  const { slug } = params;
+  const { project, debug } = await fetchBySlug(slug);
 
-  let project: PortfolioDetail | null = null;
-
-  if (id) {
-    project = await fetchById(id);
-  }
-
-  // fallback σε slug αν δεν βρεθεί με id
+  // Αν ΔΕΝ βρούμε project, δείξε DEBUG αντί για 404
   if (!project) {
-    project = await fetchBySlug(slug);
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="max-w-3xl px-4 text-left space-y-4">
+          <h1 className="text-lg font-semibold">
+            Δεν βρέθηκε project με αυτό το slug.
+          </h1>
+          <p>Άνοιξες URL: <span className="font-mono">{`/portfolio/${slug}`}</span></p>
+          <pre className="text-xs bg-neutral-900 text-neutral-300 px-4 py-3 rounded-lg overflow-auto max-h-[60vh]">
+            {JSON.stringify(
+              {
+                params,
+                debug,
+              },
+              null,
+              2
+            )}
+          </pre>
+        </div>
+      </main>
+    );
   }
 
-  if (!project) {
-    notFound();
-  }
-
-  const all = await fetchAllProjects();
-  let prevProject: PortfolioDetail | null = null;
-  let nextProject: PortfolioDetail | null = null;
-
-  if (all.length) {
-    const index = all.findIndex((p) => p.id === project!.id);
-    if (index !== -1) {
-      const prevIndex = (index - 1 + all.length) % all.length;
-      const nextIndex = (index + 1) % all.length;
-      prevProject = all[prevIndex] ?? null;
-      nextProject = all[nextIndex] ?? null;
-    }
-  }
-
-  return (
-    <ProjectDetailClient
-      project={project}
-      prevProject={prevProject}
-      nextProject={nextProject}
-    />
-  );
+  // ✅ Αν όλα είναι ΟΚ, δείξε τη σελίδα του project
+  return <ProjectDetailClient project={project} />;
 }

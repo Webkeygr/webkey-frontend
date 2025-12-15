@@ -102,7 +102,7 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
   );
 }
 
-// Τύπος project για detailed view + prev/next
+// Τύπος project για detailed view
 export type PortfolioDetail = {
   id: number;
   slug: string;
@@ -117,14 +117,14 @@ export type PortfolioDetail = {
  * ---------------------------------------------------- */
 type Props = {
   project: PortfolioDetail;
-  prevProject: PortfolioDetail | null;
-  nextProject: PortfolioDetail | null;
+  prevProject?: PortfolioDetail | null;
+  nextProject?: PortfolioDetail | null;
 };
 
 export default function ProjectDetailClient({
   project,
-  prevProject,
-  nextProject,
+  prevProject = null,
+  nextProject = null,
 }: Props) {
   const router = useRouter();
   const cardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
@@ -373,7 +373,8 @@ export default function ProjectDetailClient({
 
       {/* WHOLE SITE – 100vh auto-scroll + info card */}
       {wholeSiteUrl && (
-        <section className="bg-slate-50 py-16">
+        <section className="bg-s
+late-50 py-16">
           <div className="mx-auto max-w-6xl px-6 md:px-8">
             <div className="grid h-screen gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,1.2fr)] items-stretch">
               <div className="flex h-full flex-col">
