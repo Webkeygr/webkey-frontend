@@ -78,11 +78,6 @@ export default async function ProjectPage({ params }: PageProps) {
     }
   }
 
-  return (
-    <ProjectDetailClient
-      project={project}
-      prevProject={prevProject}
-      nextProject={nextProject}
-    />
-  );
+ return <ProjectDetailClient project={project} />;
+
 }
