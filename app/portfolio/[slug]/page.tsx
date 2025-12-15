@@ -1,89 +1,139 @@
 // app/portfolio/[slug]/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
 import ProjectDetailClient from "../ProjectDetailClient";
-import type { PortfolioDetail } from "../types";
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
 
-async function resolveMaybePromise<T>(value: T | Promise<T>): Promise<T> {
-  return value instanceof Promise ? await value : value;
-}
-
-async function fetchBySlug(slug: string) {
-  const apiUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?slug=${encodeURIComponent(
-    slug
-  )}&acf_format=standard`;
-
-  try {
-    const res = await fetch(apiUrl, { next: { revalidate: 60 } });
-    const status = res.status;
-
-    const raw = await res.json().catch(() => null);
-    const project =
-      Array.isArray(raw) && raw.length ? (raw[0] as PortfolioDetail) : null;
-
-    return { apiUrl, status, raw, project };
-  } catch (err: any) {
-    return {
-      apiUrl,
-      status: 0,
-      raw: { error: String(err) },
-      project: null as PortfolioDetail | null,
-    };
-  }
-}
-
-type PageProps = {
-  // αφήνουμε τα “maybe promise” γιατί Next 16 μπορεί να τα δώσει έτσι
-  params: { slug?: string } | Promise<{ slug?: string }>;
-  searchParams?: Record<string, string | string[] | undefined> | Promise<any>;
+export type PortfolioDetail = {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  acf?: {
+    [key: string]: any;
+  };
 };
 
-export default async function PortfolioDetailPage(props: PageProps) {
-  const resolvedParams = await resolveMaybePromise(props.params);
-  const slug = resolvedParams?.slug;
+export default function PortfolioDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
 
-  if (!slug) {
+  const [project, setProject] = useState<PortfolioDetail | null | "loading">(
+    "loading"
+  );
+  const [debug, setDebug] = useState<any | null>(null);
+
+  const slug = params?.slug;
+  const id = searchParams.get("id") || undefined;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      if (!slug && !id) {
+        setProject(null);
+        setDebug({ reason: "missing slug and id", slug, id });
+        return;
+      }
+
+      const dbg: any = { slug, id, steps: [] };
+
+      let found: PortfolioDetail | null = null;
+
+      // 1) ΔΟΚΙΜΗ με ID (αν υπάρχει)
+      if (id) {
+        const byIdUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio/${id}?acf_format=standard`;
+        dbg.steps.push({ type: "byId", url: byIdUrl });
+
+        try {
+          const res = await fetch(byIdUrl, { cache: "no-store" });
+          dbg.steps[dbg.steps.length - 1].status = res.status;
+          if (res.ok) {
+            const data = (await res.json()) as PortfolioDetail;
+            found = data ?? null;
+          } else {
+            dbg.steps[dbg.steps.length - 1].body = await res.text();
+          }
+        } catch (err: any) {
+          dbg.steps[dbg.steps.length - 1].error = String(err);
+        }
+      }
+
+      // 2) Αν δεν βρήκαμε, δοκίμασε με slug
+      if (!found && slug) {
+        const bySlugUrl = `${WP_BASE_URL}/wp-json/wp/v2/portfolio?slug=${slug}&acf_format=standard`;
+        dbg.steps.push({ type: "bySlug", url: bySlugUrl });
+
+        try {
+          const res = await fetch(bySlugUrl, { cache: "no-store" });
+          dbg.steps[dbg.steps.length - 1].status = res.status;
+          if (res.ok) {
+            const arr = (await res.json()) as PortfolioDetail[];
+            dbg.steps[dbg.steps.length - 1].length = arr.length;
+            found = arr[0] ?? null;
+          } else {
+            dbg.steps[dbg.steps.length - 1].body = await res.text();
+          }
+        } catch (err: any) {
+          dbg.steps[dbg.steps.length - 1].error = String(err);
+        }
+      }
+
+      if (cancelled) return;
+
+      if (!found) {
+        setProject(null);
+        setDebug(dbg);
+      } else {
+        setProject(found);
+        setDebug(null);
+      }
+    }
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug, id]);
+
+  // Loading state
+  if (project === "loading") {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="max-w-3xl px-4 text-left space-y-4">
-          <h1 className="text-lg font-semibold">Δεν πήρα slug από το route.</h1>
-          <pre className="text-xs bg-neutral-900 text-neutral-300 px-4 py-3 rounded-lg overflow-auto max-h-[60vh]">
-            {JSON.stringify({ resolvedParams }, null, 2)}
-          </pre>
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="animate-pulse text-sm md:text-base">
+          Φορτώνω το project...
         </div>
       </main>
     );
   }
 
-  const { apiUrl, status, raw, project } = await fetchBySlug(slug);
-
+  // Δεν βρέθηκε – δείξε debug info (μέχρι να είμαστε 100% σίγουροι)
   if (!project) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="max-w-3xl px-4 text-left space-y-4">
-          <h1 className="text-lg font-semibold">
-            Δεν βρέθηκε project με αυτό το slug.
-          </h1>
-          <p>
-            Άνοιξες URL: <span className="font-mono">{`/portfolio/${slug}`}</span>
-          </p>
-          <pre className="text-xs bg-neutral-900 text-neutral-300 px-4 py-3 rounded-lg overflow-auto max-h-[60vh]">
-            {JSON.stringify(
-              {
-                apiUrl,
-                status,
-                length: Array.isArray(raw) ? raw.length : null,
-                rawSample: Array.isArray(raw) ? raw[0] : raw,
-              },
-              null,
-              2
-            )}
-          </pre>
-        </div>
+      <main className="min-h-screen bg-black text-white p-8">
+        <h1 className="text-2xl mb-4">Portfolio detail – debug (client)</h1>
+        <p className="mb-2">
+          Δεν βρέθηκε project. Δες τι γύρισε το σύστημα από τον browser:
+        </p>
+        <pre className="whitespace-pre-wrap text-xs bg-zinc-900/80 p-4 rounded-lg overflow-auto max-h-[80vh]">
+          {JSON.stringify(
+            {
+              slug,
+              id,
+              debug,
+            },
+            null,
+            2
+          )}
+        </pre>
       </main>
     );
   }
 
+  // Όλα ΟΚ → κανονικό template
   return <ProjectDetailClient project={project} />;
 }
