@@ -380,48 +380,6 @@ export default function ProjectDetailClient({ project }: Props) {
           </div>
         </div>
       )}
-      {/* PREVIOUS / NEXT PROJECT – ίδια cards με Portfolio */}
-      {(nav.prev || nav.next) && (
-        <div className="mx-auto mt-24 max-w-6xl px-6 md:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-            {nav.prev && (
-              <div>
-                <div className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                  Previous Project
-                </div>
-                <button
-                  type="button"
-                  className="block w-full text-left"
-                  ref={(el) => {
-                    navCardRefs.current.prev = el;
-                  }}
-                  onClick={(e) => handleNavClick(nav.prev, "prev", e)}
-                >
-                  <PortfolioCard project={nav.prev as any} />
-                </button>
-              </div>
-            )}
-
-            {nav.next && (
-              <div>
-                <div className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                  Next Project
-                </div>
-                <button
-                  type="button"
-                  className="block w-full text-left"
-                  ref={(el) => {
-                    navCardRefs.current.next = el;
-                  }}
-                  onClick={(e) => handleNavClick(nav.next, "next", e)}
-                >
-                  <PortfolioCard project={nav.next as any} />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </main>
   );
 }
