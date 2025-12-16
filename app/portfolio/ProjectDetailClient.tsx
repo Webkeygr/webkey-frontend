@@ -428,6 +428,7 @@ export default function ProjectDetailClient({ project }: Props) {
                   <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
                     Project Info
                   </h4>
+
                   <div className="space-y-4 text-sm text-slate-700">
                     {industry && (
                       <div>
@@ -437,6 +438,7 @@ export default function ProjectDetailClient({ project }: Props) {
                         <div>{industry}</div>
                       </div>
                     )}
+
                     {location && (
                       <div>
                         <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
@@ -445,6 +447,13 @@ export default function ProjectDetailClient({ project }: Props) {
                         <div>{location}</div>
                       </div>
                     )}
+
+                    {!industry && !location && (
+                      <div className="text-xs text-slate-500">
+                        (No project info yet)
+                      </div>
+                    )}
+
                     {(heading3 || description) && (
                       <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
                         {heading3 || description}
@@ -565,15 +574,13 @@ export default function ProjectDetailClient({ project }: Props) {
       {text2 && (
         <section className="bg-slate-50 py-16 md:py-20">
           <Container>
-            <div className="max-w-5xl">
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                Website
-              </h3>
-              <div
-                className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
-                dangerouslySetInnerHTML={{ __html: text2 }}
-              />
-            </div>
+            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+              Website
+            </h3>
+            <div
+              className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
+              dangerouslySetInnerHTML={{ __html: text2 }}
+            />
           </Container>
         </section>
       )}
