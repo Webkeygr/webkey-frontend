@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioDetail } from "./types";
 
@@ -135,6 +135,13 @@ type NavProject = {
 
 export default function ProjectDetailClient({ project }: Props) {
   const router = useRouter();
+  
+  const pathname = usePathname();
+const searchParams = useSearchParams();
+
+const currentSlugFromUrl = pathname.split("/").filter(Boolean).pop() || "";
+const currentIdFromUrl = Number(searchParams.get("id") || "");
+
 
   // κρατάμε το header “light” όπως στο portfolio list
   useEffect(() => {
@@ -198,9 +205,10 @@ export default function ProjectDetailClient({ project }: Props) {
         const list = (await res.json()) as NavProject[];
         if (!Array.isArray(list) || list.length === 0) return;
 
-const currentIndex = list.findIndex(
-  (p) => p?.slug === project.slug
-);
+const currentIndex = currentIdFromUrl
+  ? list.findIndex((p) => Number(p?.id) === currentIdFromUrl)
+  : list.findIndex((p) => String(p?.slug || "") === currentSlugFromUrl);
+
         if (currentIndex === -1) return;
 
         const prev = list[(currentIndex - 1 + list.length) % list.length] ?? null;
@@ -216,7 +224,7 @@ const currentIndex = list.findIndex(
     return () => {
       cancelled = true;
     };
-  }, [project.id]);
+  }, [project.id, currentSlugFromUrl, currentIdFromUrl]);
 
   const navCardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
