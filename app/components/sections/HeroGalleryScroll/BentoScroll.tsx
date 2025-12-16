@@ -5,9 +5,13 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { usePathname } from "next/navigation";
 import "./HeroGalleryScroll.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { usePageTransition } from "@/app/components/PageTransition";
 
 const BentoScroll: React.FC = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { startTransition } = usePageTransition();
   const isEnglish = pathname.startsWith("/en");
 
   /* ===========================
@@ -63,10 +67,25 @@ const BentoScroll: React.FC = () => {
                 className="hero-gallery-buttons"
                 style={{ opacity: buttonsOpacity, y: buttonsY }}
               >
-                <button className="hero-gallery-btn hero-gallery-btn-primary">
+                <button
+                  className="hero-gallery-btn hero-gallery-btn-primary"
+                  onClick={() =>
+                    startTransition("Portfolio", () => {
+                      router.push(isEnglish ? "/en/portfolio" : "/portfolio");
+                    })
+                  }
+                >
                   {btnPrimary}
                 </button>
-                <button className="hero-gallery-btn hero-gallery-btn-secondary">
+
+                <button
+                  className="hero-gallery-btn hero-gallery-btn-secondary"
+                  onClick={() =>
+                    startTransition("Contact", () => {
+                      router.push(isEnglish ? "/en/contact" : "/contact");
+                    })
+                  }
+                >
                   {btnSecondary}
                 </button>
               </motion.div>
@@ -108,6 +127,14 @@ const BentoScroll: React.FC = () => {
                     <Link
                       href={isEnglish ? "/en/portfolio" : "/portfolio"}
                       className="hero-gallery-btn hero-gallery-btn-primary hero-gallery-btn-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        startTransition("Portfolio", () => {
+                          router.push(
+                            isEnglish ? "/en/portfolio" : "/portfolio"
+                          );
+                        });
+                      }}
                     >
                       {ctaPrimary}
                     </Link>
@@ -115,6 +142,12 @@ const BentoScroll: React.FC = () => {
                     <Link
                       href={isEnglish ? "/en/contact" : "/contact"}
                       className="hero-gallery-btn hero-gallery-btn-secondary hero-gallery-btn-full"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        startTransition("Contact", () => {
+                          router.push(isEnglish ? "/en/contact" : "/contact");
+                        });
+                      }}
                     >
                       {ctaSecondary}
                     </Link>
