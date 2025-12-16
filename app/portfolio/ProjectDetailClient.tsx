@@ -6,7 +6,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { useRouter, usePathname } from "next/navigation";
 import type { PortfolioDetail } from "./types";
-import PortfolioCard from "../components/PortfolioCard";
+import { PortfolioCard } from "../components/PortfolioCard";
 
 /* ----------------------------------------------------
  * Helper: παίρνουμε URL από ACF image field (object/string)
