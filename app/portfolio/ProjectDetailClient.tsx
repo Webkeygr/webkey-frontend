@@ -3,11 +3,10 @@
 
 import { useEffect, useRef, useState, MouseEvent } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useRouter, usePathname } from "next/navigation";
 import type { PortfolioDetail } from "./types";
-import { PortfolioCard } from "@/app/components/PortfolioCard";
+import PortfolioCard from "../components/PortfolioCard";
 
 /* ----------------------------------------------------
  * Helper: παίρνουμε URL από ACF image field (object/string)
@@ -20,6 +19,21 @@ function getImageUrl(field: any): string | null {
     if (typeof field.source_url === "string") return field.source_url;
   }
   return null;
+}
+
+/* ----------------------------------------------------
+ * Helper: παίρνουμε το πιο “high-res” main image (όπως Portfolio)
+ * ---------------------------------------------------- */
+function getHighResMainImage(p: any): string | null {
+  const sizes = p?.acf?.main_image?.sizes;
+  return (
+    sizes?.["2048x2048"] ||
+    sizes?.["1536x1536"] ||
+    sizes?.["large"] ||
+    sizes?.["medium_large"] ||
+    p?.acf?.main_image?.url ||
+    null
+  );
 }
 
 /* ----------------------------------------------------
@@ -45,16 +59,18 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
       const viewHeight = container.offsetHeight;
       const distance = imgHeight - viewHeight;
 
+      // Αν η εικόνα δεν είναι μεγαλύτερη από το viewport, δεν χρειάζεται scroll
       if (distance <= 0) return;
 
+      // Καθαρίζουμε τυχόν παλιό timeline
       if (tlRef.current) {
         tlRef.current.kill();
         tlRef.current = null;
       }
 
       const tl = gsap.timeline({
-        repeat: -1,
-        repeatDelay: 0.6,
+        repeat: -1, // infinite loop
+        repeatDelay: 0.6, // μικρή παύση στο τέλος
       });
 
       tl.fromTo(
@@ -65,7 +81,7 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
           ease: "none",
           duration,
         }
-      ).set(img, { y: 0 });
+      ).set(img, { y: 0 }); // reset πάνω πριν ξαναξεκινήσει
 
       tlRef.current = tl;
     };
@@ -130,7 +146,9 @@ export default function ProjectDetailClient({ project }: Props) {
   const heading2 = acf.heading_2 || "";
   const heading3 = acf.heading_3 || "";
   const description = acf.description || "";
-  const technologies: string[] = Array.isArray(acf.technologies) ? acf.technologies : [];
+  const technologies: string[] = Array.isArray(acf.technologies)
+    ? acf.technologies
+    : [];
   const industry = acf.industry || "";
   const location = acf.location || "";
   const text1 = acf.text_1 || "";
@@ -139,7 +157,7 @@ export default function ProjectDetailClient({ project }: Props) {
   const mainImageUrl = getImageUrl(acf.main_image);
   const wholeSiteUrl = getImageUrl(acf.whole_site);
   const logoUrl = getImageUrl(acf.logo);
-  const highlight1 = getImageUrl(acf.highlight_1);
+  const highlight1 = getImageUrl(acf.highlight_1); // για το section "Technologies"
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
@@ -148,17 +166,14 @@ export default function ProjectDetailClient({ project }: Props) {
   // NAV state
   const [nav, setNav] = useState<NavState>({ prev: null, next: null });
 
-  // refs για τα 2 buttons ώστε να κάνουμε ίδιο click animation με PortfolioClient
-  const prevBtnRef = useRef<HTMLButtonElement | null>(null);
-  const nextBtnRef = useRef<HTMLButtonElement | null>(null);
-
   useEffect(() => {
-    const slugFromPath = (pathname || "").split("/").filter(Boolean).pop() || "";
+    const slugFromPath =
+      (pathname || "").split("/").filter(Boolean).pop() || "";
     const id = project?.id;
 
-    const apiUrl = `/api/portfolio-nav?id=${encodeURIComponent(String(id))}&slug=${encodeURIComponent(
-      slugFromPath
-    )}`;
+    const apiUrl = `/api/portfolio-nav?id=${encodeURIComponent(
+      String(id)
+    )}&slug=${encodeURIComponent(slugFromPath)}`;
 
     fetch(apiUrl, { cache: "no-store" })
       .then((r) => r.json())
@@ -173,26 +188,36 @@ export default function ProjectDetailClient({ project }: Props) {
       });
   }, [pathname, project?.id]);
 
-  const handleNavClick = (navProject: any, e: MouseEvent<HTMLButtonElement>) => {
+  const handleNavClick = (
+    navProject: any,
+    e: MouseEvent<HTMLButtonElement>
+  ) => {
     e.preventDefault();
 
-    if (!navProject?.slug || !navProject?.id) {
-      return;
-    }
+    if (!navProject?.slug || !navProject?.id) return;
 
     const btn = e.currentTarget as HTMLButtonElement;
-    const img = btn.querySelector("img");
+    const imgEl = btn.querySelector("img") as HTMLImageElement | null;
 
-    if (typeof window === "undefined" || !img) {
+    // Αν δεν βρούμε img, πάμε απευθείας
+    if (typeof window === "undefined" || !imgEl) {
       router.push(`/portfolio/${navProject.slug}?id=${navProject.id}`);
       return;
     }
 
-    const rect = img.getBoundingClientRect();
+    const rect = imgEl.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    const clone = img.cloneNode(true) as HTMLImageElement;
+    // ✅ Χρησιμοποιούμε high-res src (όχι το rendered thumbnail)
+    const hiRes =
+      getHighResMainImage(navProject) || imgEl.currentSrc || imgEl.src;
+
+    const clone = document.createElement("img");
+    clone.src = hiRes;
+    clone.alt = imgEl.alt || "";
+    clone.decoding = "async";
+
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
     clone.style.top = `${rect.top}px`;
@@ -282,20 +307,28 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* HERO: main_image 100vh, μόνο η εικόνα */}
       <section className="relative h-screen overflow-hidden">
         {mainImageUrl && (
-          <Image src={mainImageUrl} alt={title} fill priority className="object-cover" />
+          <Image
+            src={mainImageUrl}
+            alt={title}
+            fill
+            priority
+            className="object-cover"
+          />
         )}
       </section>
 
-      {/* MARQUEE */}
+      {/* MARQUEE – title • ... */}
       <section className="overflow-hidden border-y border-slate-200 bg-slate-50 py-4">
         <div className="whitespace-nowrap">
           <div className="portfolio-marquee text-xs md:text-sm font-semibold tracking-[0.35em] uppercase text-slate-500">
-            {Array.from({ length: 12 }).map(() => `${title} •`).join(" ")}
+            {Array.from({ length: 12 })
+              .map(() => `${title} •`)
+              .join(" ")}
           </div>
         </div>
       </section>
 
-      {/* HEADING 2 + LOGO + TECHNOLOGY TAGS */}
+      {/* HEADING 2 + LOGO + TECHNOLOGY TAGS (λευκό section) */}
       <section className="bg-white py-16 md:py-20">
         <div className="mx-auto flex max-w-6xl flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
           <div className="md:w-2/3 space-y-6">
@@ -310,10 +343,14 @@ export default function ProjectDetailClient({ project }: Props) {
               </div>
             )}
 
-            {heading3 && <p className="text-base md:text-lg text-slate-600">{heading3}</p>}
+            {heading3 && (
+              <p className="text-base md:text-lg text-slate-600">{heading3}</p>
+            )}
 
             {description && (
-              <p className="text-sm md:text-base leading-relaxed text-slate-600">{description}</p>
+              <p className="text-sm md:text-base leading-relaxed text-slate-600">
+                {description}
+              </p>
             )}
 
             {technologies.length > 0 && (
@@ -338,7 +375,12 @@ export default function ProjectDetailClient({ project }: Props) {
           {logoUrl && (
             <div className="md:w-1/3 flex md:justify-end">
               <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
-                <Image src={logoUrl} alt={`${title} logo`} fill className="object-contain p-6" />
+                <Image
+                  src={logoUrl}
+                  alt={`${title} logo`}
+                  fill
+                  className="object-contain p-6"
+                />
               </div>
             </div>
           )}
@@ -362,7 +404,7 @@ export default function ProjectDetailClient({ project }: Props) {
         )}
       </section>
 
-      {/* WHOLE SITE */}
+      {/* WHOLE SITE – 100vh, auto-scroll σε loop + Industry / Location card */}
       {wholeSiteUrl && (
         <section className="bg-slate-50 py-16">
           <div className="mx-auto max-w-6xl px-6 md:px-8">
@@ -437,7 +479,7 @@ export default function ProjectDetailClient({ project }: Props) {
         </section>
       )}
 
-      {/* HIGHLIGHT_3 + HIGHLIGHT_4 */}
+      {/* HIGHLIGHT_3 + HIGHLIGHT_4 σε δύο στήλες */}
       {(highlight3 || highlight4) && (
         <section className="bg-white py-12 md:py-16">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8">
@@ -467,7 +509,7 @@ export default function ProjectDetailClient({ project }: Props) {
         </section>
       )}
 
-      {/* TEXT_2 */}
+      {/* TEXT_2 τελικό section */}
       {text2 && (
         <section className="bg-slate-50 py-16 md:py-20">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
@@ -482,7 +524,7 @@ export default function ProjectDetailClient({ project }: Props) {
         </section>
       )}
 
-      {/* HIGHLIGHT_5 */}
+      {/* HIGHLIGHT_5 – ίδιο wrapper με highlight_1 */}
       {highlight5 && (
         <div className="mx-auto mt-16 max-w-6xl px-6 md:px-8">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
@@ -500,10 +542,21 @@ export default function ProjectDetailClient({ project }: Props) {
         </div>
       )}
 
-      {/* ✅ PREVIOUS / NEXT (Previous αριστερά, Next δεξιά) */}
+      {/* PREVIOUS / NEXT + Back button */}
       {(nav.prev || nav.next) && (
         <section className="bg-white py-20">
           <div className="mx-auto max-w-6xl px-6 md:px-8">
+            {/* ✅ Back to Portfolio button (center, πάνω από τα cards) */}
+            <div className="mb-10 flex justify-center">
+              <button
+                type="button"
+                onClick={() => router.push("/portfolio")}
+                className="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50"
+              >
+                Back to Portfolio
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
               {/* Previous LEFT */}
               {nav.prev && (
@@ -512,7 +565,6 @@ export default function ProjectDetailClient({ project }: Props) {
                     Previous Project
                   </div>
                   <button
-                    ref={prevBtnRef}
                     type="button"
                     className="block w-full text-left"
                     onClick={(e) => handleNavClick(nav.prev, e)}
@@ -529,7 +581,6 @@ export default function ProjectDetailClient({ project }: Props) {
                     Next Project
                   </div>
                   <button
-                    ref={nextBtnRef}
                     type="button"
                     className="block w-full text-left"
                     onClick={(e) => handleNavClick(nav.next, e)}
