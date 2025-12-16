@@ -3,8 +3,8 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { usePathname } from "next/navigation";
-
 import "./HeroGalleryScroll.css";
+import Link from "next/link";
 
 const BentoScroll: React.FC = () => {
   const pathname = usePathname();
@@ -13,11 +13,11 @@ const BentoScroll: React.FC = () => {
   /* ===========================
      TEXT GR + EN
   ============================ */
-  const eyebrow = isEnglish ? "SELECTED WORK" : "ΕΠΙΛΕΓΜΕΝΑ ΕΡΓΑ";
-  const title = "Gallery / Project 1"; // ίδιο και στις 2 γλώσσες, αλλά μπορείς να το καθορίσεις
+  const eyebrow = "PORTFOLIO";
+  const title = isEnglish ? "Selected Work" : "Επιλεγμένα έργα"; // ίδιο και στις 2 γλώσσες, αλλά μπορείς να το καθορίσεις
   const subtitle = isEnglish
-    ? "Here you can place an image or description of the first project."
-    : "Εδώ θα βάλεις εικόνα ή περιγραφή του πρώτου project.";
+    ? "Digital experiences designed for brands that want to stand out."
+    : "Ψηφιακές εμπειρίες σχεδιασμένες για brands που θέλουν να ξεχωρίζουν.";
 
   const btnPrimary = isEnglish ? "View projects" : "Δες τα projects";
   const btnSecondary = isEnglish ? "Book a meeting" : "Κλείσε ραντεβού";
@@ -105,12 +105,19 @@ const BentoScroll: React.FC = () => {
                 {/* BOTTOM RIGHT BUTTONS */}
                 <div className="hero-gallery-cell hero-gallery-side-bottom">
                   <div className="hero-gallery-cta-column">
-                    <button className="hero-gallery-btn hero-gallery-btn-primary hero-gallery-btn-full">
+                    <Link
+                      href={isEnglish ? "/en/portfolio" : "/portfolio"}
+                      className="hero-gallery-btn hero-gallery-btn-primary hero-gallery-btn-full"
+                    >
                       {ctaPrimary}
-                    </button>
-                    <button className="hero-gallery-btn hero-gallery-btn-secondary hero-gallery-btn-full">
+                    </Link>
+
+                    <Link
+                      href={isEnglish ? "/en/contact" : "/contact"}
+                      className="hero-gallery-btn hero-gallery-btn-secondary hero-gallery-btn-full"
+                    >
                       {ctaSecondary}
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
