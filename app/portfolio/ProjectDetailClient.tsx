@@ -595,7 +595,7 @@ export default function ProjectDetailClient({ project }: Props) {
             <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-md">
               <Image
                 src={highlight5}
-                alt={`${title} highlight`}
+                alt={`${title} Responsive`}
                 width={1600}
                 height={800}
                 className="h-full w-full object-cover"
