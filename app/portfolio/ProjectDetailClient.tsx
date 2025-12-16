@@ -165,10 +165,15 @@ export default function ProjectDetailClient({ project }: Props) {
   const techY = useTransform(scrollYProgress, [0, 1], ["-35%", "35%"]);
 
   // -------- Prev / Next --------
-  const [nav, setNav] = useState<{ prev: NavProject | null; next: NavProject | null }>({
-    prev: null,
-    next: null,
-  });
+  const [nav, setNav] = useState<{
+  prev: NavProject | null;
+  next: NavProject | null;
+  debug?: any;
+}>({
+  prev: null,
+  next: null,
+  debug: null,
+});
 
   useEffect(() => {
     let cancelled = false;
@@ -188,9 +193,10 @@ export default function ProjectDetailClient({ project }: Props) {
         const data = await res.json();
         if (!cancelled) {
           setNav({
-            prev: data?.prev ?? null,
-            next: data?.next ?? null,
-          });
+  prev: data?.prev ?? null,
+  next: data?.next ?? null,
+  debug: data?.debug ?? null,
+});
         }
       } catch {
         // silent
@@ -537,6 +543,11 @@ export default function ProjectDetailClient({ project }: Props) {
       <div>pathname slug: <b>{currentSlugFromUrl}</b></div>
       <div>query id: <b>{currentIdFromUrl || "—"}</b></div>
       <div className="mt-2">nav.prev: <b>{nav.prev ? `${nav.prev.id} / ${nav.prev.slug}` : "null"}</b></div>
+      <div className="mt-3 font-bold">API DEBUG</div>
+<pre className="mt-2 whitespace-pre-wrap text-[12px] leading-relaxed">
+  {JSON.stringify(nav.debug, null, 2)}
+</pre>
+
       <div>nav.next: <b>{nav.next ? `${nav.next.id} / ${nav.next.slug}` : "null"}</b></div>
     </div>
   </div>
