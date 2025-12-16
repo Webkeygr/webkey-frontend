@@ -28,11 +28,9 @@ async function fetchPage(url: string) {
 
 async function loadAllPortfolio(orderby: string, order: "asc" | "desc") {
   const perPage = 100;
-
   const page1Url = `${CMS_BASE}/wp-json/wp/v2/portfolio?per_page=${perPage}&page=1&orderby=${orderby}&order=${order}&acf_format=standard`;
   const first = await fetchPage(page1Url);
-
-  return { first, page1Url, perPage };
+  return { first, page1Url };
 }
 
 export async function GET(req: Request) {
@@ -54,19 +52,12 @@ export async function GET(req: Request) {
 
   if (!slug && !Number.isFinite(id)) {
     return NextResponse.json(
-      {
-        prev: null,
-        next: null,
-        debug: {
-          ...debug,
-          errors: ["Missing slug or id"],
-        },
-      },
+      { prev: null, next: null, debug: { ...debug, errors: ["Missing slug or id"] } },
       { status: 400 }
     );
   }
 
-  // 1) προσπαθούμε menu_order (αν το CPT δεν το υποστηρίζει θα φάμε 400)
+  // 1) try menu_order
   const attempt1 = await loadAllPortfolio("menu_order", "asc");
   debug.attempts.push({
     orderby: "menu_order",
@@ -76,9 +67,9 @@ export async function GET(req: Request) {
   });
 
   let strategyUsed: { orderby: string; order: "asc" | "desc" } = {
-  orderby: "menu_order",
-  order: "asc",
-};
+    orderby: "menu_order",
+    order: "asc",
+  };
 
   let list: WPItem[] = [];
   let totalPages = 1;
@@ -88,7 +79,7 @@ export async function GET(req: Request) {
     const tp = attempt1.first.res.headers.get("X-WP-TotalPages");
     totalPages = tp ? Number(tp) : 1;
   } else {
-    // 2) fallback σε date desc
+    // 2) fallback date desc
     const attempt2 = await loadAllPortfolio("date", "desc");
     debug.attempts.push({
       orderby: "date",
@@ -104,17 +95,13 @@ export async function GET(req: Request) {
         firstResOk: attempt2.first.res.ok,
         firstResStatus: attempt2.first.res.status,
       };
-      return NextResponse.json(
-        { prev: null, next: null, debug },
-        { status: 400 }
-      );
+      return NextResponse.json({ prev: null, next: null, debug }, { status: 400 });
     }
 
     list = attempt2.first.json as WPItem[];
     const tp = attempt2.first.res.headers.get("X-WP-TotalPages");
     totalPages = tp ? Number(tp) : 1;
 
-    // αν έχει πολλές σελίδες, τις φορτώνουμε όλες
     if (totalPages > 1) {
       const perPage = 100;
       for (let page = 2; page <= totalPages; page++) {
@@ -141,28 +128,22 @@ export async function GET(req: Request) {
   });
 
   debug.match = {
-    containsId: Number.isFinite(id)
-      ? list.some((p) => p?.id === id)
-      : false,
+    containsId: Number.isFinite(id) ? list.some((p) => p?.id === id) : false,
     containsSlug: slug ? list.some((p) => p?.slug === slug) : false,
     currentIndex,
   };
 
   debug.sample = {
-    first10: list.slice(0, 10).map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      status: p.status,
-    })),
+    first10: list.slice(0, 10).map((p) => ({ id: p.id, slug: p.slug, status: p.status })),
   };
 
-  if (currentIndex === -1) {
+  if (currentIndex === -1 || list.length === 0) {
     return NextResponse.json({ prev: null, next: null, debug });
   }
 
-  // ✅ ΟΧΙ circular:
-  const prev = currentIndex > 0 ? list[currentIndex - 1] : null;
-  const next = currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
+  // ✅ WRAP-AROUND (κυκλικό)
+  const prev = list[(currentIndex - 1 + list.length) % list.length] ?? null;
+  const next = list[(currentIndex + 1) % list.length] ?? null;
 
   return NextResponse.json({ prev, next, debug });
 }
