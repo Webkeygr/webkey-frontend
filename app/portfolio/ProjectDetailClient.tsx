@@ -145,7 +145,7 @@ export default function ProjectDetailClient({ project }: Props) {
     target: techRef,
     offset: ["start end", "end start"],
   });
-  const techY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const techY = useTransform(scrollYProgress, [0, 1], ["-35%", "35%"]);
 
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
