@@ -116,6 +116,26 @@ export default function ProjectDetailClient({ project }: Props) {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
   }, []);
+  useEffect(() => {
+  // ✅ Δεν θέλουμε ΠΟΤΕ dark header σε αυτή τη σελίδα
+  document.body.classList.remove("dark-header");
+
+  // Αν κάτι το ξαναβάζει (scroll trigger / header hook), το αφαιρούμε αυτόματα
+  const obs = new MutationObserver(() => {
+    if (document.body.classList.contains("dark-header")) {
+      document.body.classList.remove("dark-header");
+    }
+  });
+
+  obs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+
+  return () => {
+    obs.disconnect();
+    // (προαιρετικό) σιγουριά: καθάρισε ξανά
+    document.body.classList.remove("dark-header");
+  };
+}, []);
+
 
   const acf = project.acf ?? {};
   const title = acf.title || project.title?.rendered || "";
