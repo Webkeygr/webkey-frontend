@@ -184,7 +184,8 @@ export default function ProjectDetailClient({ project }: Props) {
       if (currentIdFromUrl) qs.set("id", String(currentIdFromUrl));
       if (currentSlugFromUrl) qs.set("slug", currentSlugFromUrl);
 
-      const url = `/api/portfolio-nav?${qs.toString()}`;
+      const url = `${window.location.origin}/api/portfolio-nav?${qs.toString()}`;
+
 
       const res = await fetch(url, { cache: "no-store" });
 
