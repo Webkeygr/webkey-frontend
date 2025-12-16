@@ -529,6 +529,19 @@ export default function ProjectDetailClient({ project }: Props) {
           </div>
         </section>
       )}
+      {/* ✅ DEBUG – ΠΡΕΠΕΙ ΝΑ ΦΑΙΝΕΤΑΙ ΠΑΝΤΑ */}
+<section className="bg-red-50 py-10">
+  <div className="mx-auto max-w-[1440px] px-6 md:px-8">
+    <div className="rounded-2xl border border-red-200 bg-white p-6 text-sm text-red-900">
+      <div className="font-bold mb-2">DEBUG NAV (should always be visible)</div>
+      <div>pathname slug: <b>{currentSlugFromUrl}</b></div>
+      <div>query id: <b>{currentIdFromUrl || "—"}</b></div>
+      <div className="mt-2">nav.prev: <b>{nav.prev ? `${nav.prev.id} / ${nav.prev.slug}` : "null"}</b></div>
+      <div>nav.next: <b>{nav.next ? `${nav.next.id} / ${nav.next.slug}` : "null"}</b></div>
+    </div>
+  </div>
+</section>
+
     </main>
   );
 }
