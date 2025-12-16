@@ -50,6 +50,19 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
 
     // Clone της εικόνας
     const clone = img.cloneNode(true) as HTMLImageElement;
+
+    // ✅ Force full-res image for the transition (avoid thumbnail pixelation)
+    const hiResSrc =
+      project?.acf?.main_image?.url ??
+      project?.acf?.main_image?.sizes?.["2048x2048"] ??
+      project?.acf?.main_image?.sizes?.["1536x1536"];
+
+    if (hiResSrc) {
+      clone.src = hiResSrc;
+      clone.srcset = "";
+      clone.sizes = "";
+    }
+
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
     clone.style.top = `${rect.top}px`;
@@ -155,12 +168,12 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
       </div>
 
       {/* HERO */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-white">
+      <section className="relative min-h-screen flex flex-col items-center justify-center text-black">
         <div className="w-full max-w-7xl mx-auto flex flex-col items-center text-center gap-10 pt-24">
           <div className="w-full">
             <TextPressure
               text="Portfolio"
-              textColor="#ffffff"
+              textColor="#000000"
               minFontSize={90}
               weight
               width
@@ -173,10 +186,10 @@ export default function PortfolioClient({ projects }: PortfolioClientProps) {
           </div>
 
           <div className="max-w-4xl">
-            <h2 className="text-4xl md:text-6xl font-black bg-gradient-to-r from-white via-white/90 to-white/60 bg-clip-text text-transparent leading-tight">
+            <h2 className="text-4xl md:text-6xl font-black text-black leading-tight">
               Ένα showcase επιλεγμένων digital έργων
             </h2>
-            <p className="mt-6 text-xl md:text-2xl opacity-90 leading-relaxed">
+            <p className="mt-6 text-xl md:text-2xl text-black/90 leading-relaxed">
               όπου το design, η τεχνολογία και η τυπογραφία συναντιούνται.
               <br className="hidden md:block" />
               Projects χτισμένα με Next.js, WordPress, WooCommerce και custom
