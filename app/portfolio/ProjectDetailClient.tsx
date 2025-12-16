@@ -198,7 +198,9 @@ export default function ProjectDetailClient({ project }: Props) {
         const list = (await res.json()) as NavProject[];
         if (!Array.isArray(list) || list.length === 0) return;
 
-        const currentIndex = list.findIndex((p) => p?.id === project.id);
+const currentIndex = list.findIndex(
+  (p) => p?.slug === project.slug
+);
         if (currentIndex === -1) return;
 
         const prev = list[(currentIndex - 1 + list.length) % list.length] ?? null;
