@@ -3,7 +3,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
 import type { PortfolioDetail } from "./types";
 
@@ -112,11 +112,10 @@ type Props = {
 
 export default function ProjectDetailClient({ project }: Props) {
   // κρατάμε το header “light” όπως στο portfolio list
-  //useEffect(() => {
-    //document.body.classList.add("portfolio-no-dark");
-    //return () => document.body.classList.remove("portfolio-no-dark");
-  //}, []);
-  
+  useEffect(() => {
+    document.body.classList.add("portfolio-no-dark");
+    return () => document.body.classList.remove("portfolio-no-dark");
+  }, []);
 
   const acf = project.acf ?? {};
   const title = acf.title || project.title?.rendered || "";
@@ -138,6 +137,15 @@ export default function ProjectDetailClient({ project }: Props) {
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
+  const highlight5 = getImageUrl(acf.highlight_5);
+
+  // Parallax για Highlight_1 (100vh, full width)
+  const techRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: techRef,
+    offset: ["start end", "end start"],
+  });
+  const techY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
@@ -167,7 +175,7 @@ export default function ProjectDetailClient({ project }: Props) {
 
       {/* HEADING 2 + LOGO + TECHNOLOGY TAGS (λευκό section) */}
       <section className="bg-white py-16 md:py-20">
-        <div className="mx-auto flex max-w-6xl flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
           {/* Αριστερή στήλη: heading2, heading3, description, technologies tags */}
           <div className="md:w-2/3 space-y-6">
             {heading2 && (
@@ -208,85 +216,91 @@ export default function ProjectDetailClient({ project }: Props) {
             )}
           </div>
 
-          {/* Δεξιά στήλη: Logo */}
-          {logoUrl && (
-            <div className="md:w-1/3 flex md:justify-end">
-              <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
-                <Image
-                  src={logoUrl}
-                  alt={`${title} logo`}
-                  fill
-                  className="object-contain p-6"
-                />
+          {/* Δεξιά στήλη: Logo + Project Info κάτω από αυτό */}
+          <div className="md:w-1/3 flex flex-col gap-6 md:items-end">
+            {logoUrl && (
+              <div className="flex md:justify-end w-full">
+                <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
+                  <Image
+                    src={logoUrl}
+                    alt={`${title} logo`}
+                    fill
+                    className="object-contain p-6"
+                  />
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
 
-        {/* Φαρδύ banner για "Technologies" visual (Highlight_1) */}
-        {highlight1 && (
-          <div className="mx-auto mt-16 max-w-6xl px-6 md:px-8">
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-              Technologies
-            </h3>
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-md">
-              <Image
-                src={highlight1}
-                alt={`${title} technologies visual`}
-                width={1600}
-                height={800}
-                className="h-full w-full object-cover"
-              />
+            {/* ✅ Project Info moved here (κάτω από logo) */}
+            <div className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
+                Project Info
+              </h4>
+              <div className="space-y-4 text-sm text-slate-700">
+                {industry && (
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      Industry
+                    </div>
+                    <div>{industry}</div>
+                  </div>
+                )}
+                {location && (
+                  <div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      Location
+                    </div>
+                    <div>{location}</div>
+                  </div>
+                )}
+                {(heading3 || description) && (
+                  <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
+                    {heading3 || description}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </section>
 
-      {/* WHOLE SITE – 100vh, auto-scroll σε loop + Industry / Location card */}
+      {/* ✅ Highlight_1 FULL WIDTH 100vh + parallax */}
+      {highlight1 && (
+        <section
+          ref={(el) => {
+            techRef.current = el;
+          }}
+          className="relative h-screen w-full overflow-hidden bg-slate-50"
+        >
+          <motion.div style={{ y: techY }} className="absolute inset-0">
+            <Image
+              src={highlight1}
+              alt={`${title} technologies visual`}
+              fill
+              priority={false}
+              className="object-cover"
+            />
+          </motion.div>
+
+          {/* Label */}
+          <div className="relative z-10 mx-auto max-w-[1440px] px-6 md:px-8 pt-10">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-white/80 drop-shadow">
+              Technologies
+            </h3>
+          </div>
+        </section>
+      )}
+
+      {/* WHOLE SITE – auto-scroll (full 1440px width, χωρίς δεξιά στήλη) */}
       {wholeSiteUrl && (
         <section className="bg-slate-50 py-16">
-          <div className="mx-auto max-w-6xl px-6 md:px-8">
-            <div className="grid h-screen gap-10 md:grid-cols-[minmax(0,3fr)_minmax(0,1.2fr)] items-stretch">
-              {/* Αριστερά: τίτλος + auto-scroll image */}
-              <div className="flex h-full flex-col">
-                <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                  Whole Site
-                </h3>
-                <div className="mt-4 flex-1">
-                  <AutoScrollImage src={wholeSiteUrl} duration={20} />
-                </div>
-              </div>
-
-              {/* Δεξιά: Industry / Location / μικρό summary */}
-              <div className="flex flex-col items-stretch">
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
-                  <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
-                    Project Info
-                  </h4>
-                  <div className="space-y-4 text-sm text-slate-700">
-                    {industry && (
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                          Industry
-                        </div>
-                        <div>{industry}</div>
-                      </div>
-                    )}
-                    {location && (
-                      <div>
-                        <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                          Location
-                        </div>
-                        <div>{location}</div>
-                      </div>
-                    )}
-                    {(heading3 || description) && (
-                      <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 leading-relaxed">
-                        {heading3 || description}
-                      </div>
-                    )}
-                  </div>
-                </div>
+          <div className="mx-auto max-w-[1440px] px-6 md:px-8">
+            <div className="flex flex-col">
+              <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                Whole Site
+              </h3>
+              <div className="mt-4 h-screen">
+                <AutoScrollImage src={wholeSiteUrl} duration={20} />
               </div>
             </div>
           </div>
@@ -296,7 +310,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* TEXT_1 + HIGHLIGHT_2 */}
       {(text1 || highlight2) && (
         <section className="bg-white py-16 md:py-20">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
             {text1 && (
               <div
                 className="text-sm md:text-base leading-relaxed text-slate-700 space-y-4"
@@ -322,7 +336,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* HIGHLIGHT_3 + HIGHLIGHT_4 σε δύο στήλες */}
       {(highlight3 || highlight4) && (
         <section className="bg-white py-12 md:py-16">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-2 md:px-8">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8">
             {highlight3 && (
               <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
@@ -352,7 +366,7 @@ export default function ProjectDetailClient({ project }: Props) {
       {/* TEXT_2 τελικό section */}
       {text2 && (
         <section className="bg-slate-50 py-16 md:py-20">
-          <div className="mx-auto max-w-5xl px-6 md:px-8">
+          <div className="mx-auto max-w-[1440px] px-6 md:px-8">
             <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
               Website
             </h3>
@@ -362,6 +376,24 @@ export default function ProjectDetailClient({ project }: Props) {
             />
           </div>
         </section>
+      )}
+
+      {/* HIGHLIGHT_5 – ίδιο wrapper με highlight_1 */}
+      {highlight5 && (
+        <div className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+            Highlight
+          </h3>
+          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-md">
+            <Image
+              src={highlight5}
+              alt={`${title} highlight`}
+              width={1600}
+              height={800}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        </div>
       )}
     </main>
   );
