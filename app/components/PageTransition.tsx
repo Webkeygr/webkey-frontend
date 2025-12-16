@@ -98,7 +98,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
       {children}
 
       {isActive && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none left-0 top-0 w-screen h-screen">
           {/* ΥΓΡΟ: γεμίζει κι αδειάζει από κάτω προς τα πάνω */}
           <div className="absolute inset-0 overflow-hidden flex items-end justify-center">
             <motion.div

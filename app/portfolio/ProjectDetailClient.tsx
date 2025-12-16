@@ -8,6 +8,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
 import type { PortfolioDetail } from "./types";
 import { PortfolioCard } from "@/app/components/PortfolioCard";
+import { usePageTransition } from "@/app/components/PageTransition";
 
 /* ----------------------------------------------------
  * Helper: παίρνουμε URL από ACF image field (object/string)
@@ -183,6 +184,7 @@ type Props = {
 
 export default function ProjectDetailClient({ project }: Props) {
   const router = useRouter();
+  const { startTransition } = usePageTransition();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -675,7 +677,11 @@ export default function ProjectDetailClient({ project }: Props) {
           <div className="flex items-center justify-center">
             <button
               type="button"
-              onClick={() => router.push("/portfolio")}
+              onClick={() =>
+                startTransition("Portfolio", () => {
+                  router.push("/portfolio");
+                })
+              }
               className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold tracking-[0.18em] uppercase text-slate-800 shadow-sm hover:shadow-md transition"
             >
               Back to Portfolio
