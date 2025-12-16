@@ -23,6 +23,62 @@ function getImageUrl(field: any): string | null {
 }
 
 /* ----------------------------------------------------
+ * Helper: διάλεξε "best" high-res url από ACF image object (με sizes)
+ * ---------------------------------------------------- */
+function getBestFromAcfImage(img: any): string | null {
+  if (!img) return null;
+
+  // ACF image object: { url, sizes: { large, 1536x1536, 2048x2048, ... } }
+  const sizes = img?.sizes;
+  if (sizes && typeof sizes === "object") {
+    // προτεραιότητα στα μεγάλα
+    return (
+      sizes["2048x2048"] ||
+      sizes["1536x1536"] ||
+      sizes["large"] ||
+      sizes["medium_large"] ||
+      img.url ||
+      img.source_url ||
+      null
+    );
+  }
+
+  return getImageUrl(img);
+}
+
+/* ----------------------------------------------------
+ * Helper: από NavItem βρες την καλύτερη εικόνα για το zoom (high-res)
+ * (ίδια λογική με portfolio: προτιμάμε main_image / highlight_1 / whole_site)
+ * ---------------------------------------------------- */
+function getBestNavImageUrl(item: any): string | null {
+  const acf = item?.acf;
+  if (!acf) return null;
+
+  return (
+    getBestFromAcfImage(acf.main_image) ||
+    getBestFromAcfImage(acf.highlight_1) ||
+    getBestFromAcfImage(acf.whole_site) ||
+    getImageUrl(acf.main_image) ||
+    getImageUrl(acf.highlight_1) ||
+    getImageUrl(acf.whole_site) ||
+    null
+  );
+}
+
+/* ----------------------------------------------------
+ * Helper: preload image
+ * ---------------------------------------------------- */
+function preloadImage(src: string) {
+  return new Promise<void>((resolve) => {
+    if (typeof window === "undefined") return resolve();
+    const img = new window.Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+/* ----------------------------------------------------
  * AutoScrollImage – κάνει το long screenshot να scrollάρει μόνο του σε loop
  * ---------------------------------------------------- */
 type AutoScrollImageProps = {
@@ -218,9 +274,10 @@ export default function ProjectDetailClient({ project }: Props) {
   }, [currentId, currentSlug]);
 
   // ------- SAME CLICK ANIMATION (όπως PortfolioClient) για prev/next cards -------
+  // (κρατάμε το ref map όπως το είχες, αλλά ΔΕΝ το χρησιμοποιούμε πια για το animation)
   const navCardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  const handleAnimatedNavClick = (
+  const handleAnimatedNavClick = async (
     item: NavItem,
     e: MouseEvent<HTMLButtonElement>
   ) => {
@@ -233,11 +290,8 @@ export default function ProjectDetailClient({ project }: Props) {
       return;
     }
 
-    const cardEl = navCardRefs.current[item.id];
-    if (!cardEl) {
-      router.push(`/portfolio/${item.slug}?id=${item.id}`);
-      return;
-    }
+    // ✅ FIX #1: ΠΑΝΤΑ παίρνουμε το κουμπί που πατήθηκε
+    const cardEl = e.currentTarget;
 
     const img = cardEl.querySelector("img");
     if (!img) {
@@ -249,7 +303,18 @@ export default function ProjectDetailClient({ project }: Props) {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    const clone = img.cloneNode(true) as HTMLImageElement;
+    // ✅ FIX #2: high-res source (από ACF sizes) + preload για να μην "σκάει" low-res
+    const hiResSrc = getBestNavImageUrl(item);
+    if (hiResSrc) {
+      await preloadImage(hiResSrc);
+    }
+
+    const clone = document.createElement("img");
+    clone.src =
+      hiResSrc ||
+      (img as HTMLImageElement).currentSrc ||
+      (img as HTMLImageElement).src;
+
     clone.style.position = "fixed";
     clone.style.left = `${rect.left}px`;
     clone.style.top = `${rect.top}px`;
@@ -273,7 +338,7 @@ export default function ProjectDetailClient({ project }: Props) {
         router.push(`/portfolio/${item.slug}?id=${item.id}`);
         setTimeout(() => {
           clone.remove();
-          if (cardEl) cardEl.style.opacity = "";
+          cardEl.style.opacity = "";
         }, 1500);
       },
     });
@@ -408,7 +473,7 @@ export default function ProjectDetailClient({ project }: Props) {
               )}
             </div>
 
-            {/* Δεξιά στήλη: Logo + Project Info (ΜΕΤΑΚΙΝΗΣΗ ΕΔΩ) */}
+            {/* Δεξιά στήλη: Logo + Project Info */}
             <div className="md:w-1/3 flex flex-col items-start md:items-end gap-6">
               {logoUrl && (
                 <div className="flex w-full justify-center">
@@ -483,7 +548,6 @@ export default function ProjectDetailClient({ project }: Props) {
             />
           </motion.div>
 
-          {/* label πάνω από την εικόνα (όπως πριν, απλά full width) */}
           <div className="pointer-events-none absolute left-1/2 top-8 -translate-x-1/2">
             <div className="rounded-full border border-white/25 bg-black/30 px-5 py-2 backdrop-blur-md">
               <span className="text-xs font-semibold uppercase tracking-[0.35em] text-white/90">
@@ -585,7 +649,7 @@ export default function ProjectDetailClient({ project }: Props) {
         </section>
       )}
 
-      {/* HIGHLIGHT_5 – ίδιο wrapper με highlight_1 (1440 container) */}
+      {/* HIGHLIGHT_5 */}
       {highlight5 && (
         <section className="bg-white py-16">
           <Container>
@@ -605,7 +669,7 @@ export default function ProjectDetailClient({ project }: Props) {
         </section>
       )}
 
-      {/* BACK + PREV/NEXT (όπως τα είχαμε) */}
+      {/* BACK + PREV/NEXT */}
       <section className="bg-white pb-24">
         <Container>
           <div className="flex items-center justify-center">
