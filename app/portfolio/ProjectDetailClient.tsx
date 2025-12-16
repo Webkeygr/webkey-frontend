@@ -21,6 +21,18 @@ function getImageUrl(field: any): string | null {
 }
 
 /* ----------------------------------------------------
+ * Small helper for entrance animations (no layout changes)
+ * ---------------------------------------------------- */
+function reveal(delay = 0, y = 14, scale = 1) {
+  return {
+    initial: { opacity: 0, y, scale },
+    whileInView: { opacity: 1, y: 0, scale: 1 },
+    viewport: { once: true, amount: 0.25 },
+    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1], delay },
+  } as const;
+}
+
+/* ----------------------------------------------------
  * AutoScrollImage – κάνει το long screenshot να scrollάρει μόνο του σε loop
  * ---------------------------------------------------- */
 type AutoScrollImageProps = {
@@ -43,18 +55,16 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
       const viewHeight = container.offsetHeight;
       const distance = imgHeight - viewHeight;
 
-      // Αν η εικόνα δεν είναι μεγαλύτερη από το viewport, δεν χρειάζεται scroll
       if (distance <= 0) return;
 
-      // Καθαρίζουμε τυχόν παλιό timeline
       if (tlRef.current) {
         tlRef.current.kill();
         tlRef.current = null;
       }
 
       const tl = gsap.timeline({
-        repeat: -1, // infinite loop
-        repeatDelay: 0.6, // μικρή παύση στο τέλος
+        repeat: -1,
+        repeatDelay: 0.6,
       });
 
       tl.fromTo(
@@ -65,7 +75,7 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
           ease: "none",
           duration,
         }
-      ).set(img, { y: 0 }); // reset πάνω πριν ξαναξεκινήσει
+      ).set(img, { y: 0 });
 
       tlRef.current = tl;
     };
@@ -111,7 +121,6 @@ type Props = {
 };
 
 export default function ProjectDetailClient({ project }: Props) {
-  // κρατάμε το header “light” όπως στο portfolio list
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -133,7 +142,7 @@ export default function ProjectDetailClient({ project }: Props) {
   const mainImageUrl = getImageUrl(acf.main_image);
   const wholeSiteUrl = getImageUrl(acf.whole_site);
   const logoUrl = getImageUrl(acf.logo);
-  const highlight1 = getImageUrl(acf.highlight_1); // για το section "Technologies"
+  const highlight1 = getImageUrl(acf.highlight_1);
   const highlight2 = getImageUrl(acf.highlight_2);
   const highlight3 = getImageUrl(acf.highlight_3);
   const highlight4 = getImageUrl(acf.highlight_4);
@@ -145,6 +154,8 @@ export default function ProjectDetailClient({ project }: Props) {
     target: techRef,
     offset: ["start end", "end start"],
   });
+
+  // (εσύ ήδη το έκανες πιο έντονο — κράτα ό,τι έχεις)
   const techY = useTransform(scrollYProgress, [0, 1], ["-35%", "35%"]);
 
   return (
@@ -162,7 +173,7 @@ export default function ProjectDetailClient({ project }: Props) {
         )}
       </section>
 
-      {/* MARQUEE – Nikolopoulou Foods • ... */}
+      {/* MARQUEE */}
       <section className="overflow-hidden border-y border-slate-200 bg-slate-50 py-4">
         <div className="whitespace-nowrap">
           <div className="portfolio-marquee text-xs md:text-sm font-semibold tracking-[0.35em] uppercase text-slate-500">
@@ -173,53 +184,63 @@ export default function ProjectDetailClient({ project }: Props) {
         </div>
       </section>
 
-      {/* HEADING 2 + LOGO + TECHNOLOGY TAGS (λευκό section) */}
+      {/* HEADING 2 + LOGO + TECHNOLOGY TAGS */}
       <section className="bg-white py-16 md:py-20">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
-          {/* Αριστερή στήλη: heading2, heading3, description, technologies tags */}
+          {/* Left column */}
           <div className="md:w-2/3 space-y-6">
             {heading2 && (
-              <div className="space-y-3">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                  Case Study
-                </h2>
-                <h1 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">
-                  {heading2}
-                </h1>
-              </div>
+              <motion.div {...reveal(0.05, 18)}>
+                <div className="space-y-3">
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                    Case Study
+                  </h2>
+                  <h1 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">
+                    {heading2}
+                  </h1>
+                </div>
+              </motion.div>
             )}
+
             {heading3 && (
-              <p className="text-base md:text-lg text-slate-600">{heading3}</p>
+              <motion.p {...reveal(0.12, 14)} className="text-base md:text-lg text-slate-600">
+                {heading3}
+              </motion.p>
             )}
+
             {description && (
-              <p className="text-sm md:text-base leading-relaxed text-slate-600">
+              <motion.p
+                {...reveal(0.18, 12)}
+                className="text-sm md:text-base leading-relaxed text-slate-600"
+              >
                 {description}
-              </p>
+              </motion.p>
             )}
 
             {technologies.length > 0 && (
-              <div className="space-y-2">
+              <motion.div {...reveal(0.22, 10)} className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
                   Technologies
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {technologies.map((tech) => (
-                    <span
+                  {technologies.map((tech, idx) => (
+                    <motion.span
                       key={tech}
+                      {...reveal(0.25 + idx * 0.03, 10, 0.98)}
                       className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs md:text-[13px] font-medium text-slate-700"
                     >
                       {tech}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
 
-          {/* Δεξιά στήλη: Logo + Project Info κάτω από αυτό */}
+          {/* Right column: Logo + Project Info */}
           <div className="md:w-1/3 flex flex-col gap-6 md:items-end">
             {logoUrl && (
-              <div className="flex md:justify-end w-full">
+              <motion.div {...reveal(0.08, 18, 0.98)} className="flex md:justify-end w-full">
                 <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
                   <Image
                     src={logoUrl}
@@ -228,11 +249,10 @@ export default function ProjectDetailClient({ project }: Props) {
                     className="object-contain p-6"
                   />
                 </div>
-              </div>
+              </motion.div>
             )}
 
-            {/* ✅ Project Info moved here (κάτω από logo) */}
-            <div className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+            <motion.div {...reveal(0.16, 18)} className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
                 Project Info
               </h4>
@@ -259,12 +279,12 @@ export default function ProjectDetailClient({ project }: Props) {
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ✅ Highlight_1 FULL WIDTH 100vh + parallax */}
+      {/* Highlight_1 FULL WIDTH 100vh + parallax */}
       {highlight1 && (
         <section
           ref={(el) => {
@@ -283,26 +303,30 @@ export default function ProjectDetailClient({ project }: Props) {
           </motion.div>
 
           {/* Label */}
-          <div className="relative z-10 mx-auto max-w-[1440px] px-6 md:px-8 pt-10">
+          <motion.div
+            {...reveal(0.05, 12)}
+            className="relative z-10 mx-auto max-w-[1440px] px-6 md:px-8 pt-10"
+          >
             <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-white/80 drop-shadow">
               Technologies
             </h3>
-          </div>
+          </motion.div>
         </section>
       )}
 
-      {/* WHOLE SITE – auto-scroll (full 1440px width, χωρίς δεξιά στήλη) */}
+      {/* WHOLE SITE – auto-scroll (full 1440px width) */}
       {wholeSiteUrl && (
         <section className="bg-slate-50 py-16">
           <div className="mx-auto max-w-[1440px] px-6 md:px-8">
-            <div className="flex flex-col">
+            <motion.div {...reveal(0.06, 16)}>
               <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
                 Whole Site
               </h3>
-              <div className="mt-4 h-screen">
-                <AutoScrollImage src={wholeSiteUrl} duration={20} />
-              </div>
-            </div>
+            </motion.div>
+
+            <motion.div {...reveal(0.1, 22, 0.99)} className="mt-4 h-screen">
+              <AutoScrollImage src={wholeSiteUrl} duration={20} />
+            </motion.div>
           </div>
         </section>
       )}
@@ -312,14 +336,15 @@ export default function ProjectDetailClient({ project }: Props) {
         <section className="bg-white py-16 md:py-20">
           <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8 md:items-start">
             {text1 && (
-              <div
+              <motion.div
+                {...reveal(0.06, 16)}
                 className="text-sm md:text-base leading-relaxed text-slate-700 space-y-4"
                 dangerouslySetInnerHTML={{ __html: text1 }}
               />
             )}
 
             {highlight2 && (
-              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+              <motion.div {...reveal(0.12, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
                   src={highlight2}
                   alt={`${title} highlight 2`}
@@ -327,18 +352,18 @@ export default function ProjectDetailClient({ project }: Props) {
                   height={900}
                   className="h-full w-full object-cover"
                 />
-              </div>
+              </motion.div>
             )}
           </div>
         </section>
       )}
 
-      {/* HIGHLIGHT_3 + HIGHLIGHT_4 σε δύο στήλες */}
+      {/* HIGHLIGHT_3 + HIGHLIGHT_4 */}
       {(highlight3 || highlight4) && (
         <section className="bg-white py-12 md:py-16">
           <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8">
             {highlight3 && (
-              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+              <motion.div {...reveal(0.06, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
                   src={highlight3}
                   alt={`${title} highlight 3`}
@@ -346,10 +371,10 @@ export default function ProjectDetailClient({ project }: Props) {
                   height={900}
                   className="h-full w-full object-cover"
                 />
-              </div>
+              </motion.div>
             )}
             {highlight4 && (
-              <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+              <motion.div {...reveal(0.12, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
                 <Image
                   src={highlight4}
                   alt={`${title} highlight 4`}
@@ -357,20 +382,24 @@ export default function ProjectDetailClient({ project }: Props) {
                   height={900}
                   className="h-full w-full object-cover"
                 />
-              </div>
+              </motion.div>
             )}
           </div>
         </section>
       )}
 
-      {/* TEXT_2 τελικό section */}
+      {/* TEXT_2 */}
       {text2 && (
         <section className="bg-slate-50 py-16 md:py-20">
           <div className="mx-auto max-w-[1440px] px-6 md:px-8">
-            <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-              Website
-            </h3>
-            <div
+            <motion.div {...reveal(0.06, 14)}>
+              <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                Website
+              </h3>
+            </motion.div>
+
+            <motion.div
+              {...reveal(0.12, 20)}
               className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 text-sm md:text-base leading-relaxed text-slate-700 space-y-4 shadow-md"
               dangerouslySetInnerHTML={{ __html: text2 }}
             />
@@ -378,9 +407,9 @@ export default function ProjectDetailClient({ project }: Props) {
         </section>
       )}
 
-      {/* HIGHLIGHT_5 – ίδιο wrapper με highlight_1 */}
+      {/* HIGHLIGHT_5 */}
       {highlight5 && (
-        <div className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
+        <motion.div {...reveal(0.06, 22)} className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
             Highlight
           </h3>
@@ -393,7 +422,7 @@ export default function ProjectDetailClient({ project }: Props) {
               className="h-full w-full object-cover"
             />
           </div>
-        </div>
+        </motion.div>
       )}
     </main>
   );
