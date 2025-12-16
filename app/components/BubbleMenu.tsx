@@ -31,16 +31,14 @@ function getPageLabelFromItem(label: string, href: string): string {
   const clean = label.toLowerCase();
 
   if (clean === "home") return "Home";
-  if (clean === "about") return "About";
+  if (clean === "Portfolio") return "Portfolio";
   if (clean === "services") return "Services";
   if (clean === "blog") return "Blog";
   if (clean === "contact") return "Contact";
 
   const parts = href.split("/").filter(Boolean);
   const last = parts[parts.length - 1] || "";
-  return last
-    .replace(/-/g, " ")
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+  return last.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 export default function BubbleMenu({
@@ -226,10 +224,7 @@ export default function BubbleMenu({
                   e.preventDefault();
                   setOpen(false);
 
-                  const label = getPageLabelFromItem(
-                    item.label,
-                    item.href
-                  );
+                  const label = getPageLabelFromItem(item.label, item.href);
 
                   startTransition(label, () => {
                     router.push(item.href);
