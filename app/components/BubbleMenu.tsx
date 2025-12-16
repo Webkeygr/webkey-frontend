@@ -31,7 +31,7 @@ function getPageLabelFromItem(label: string, href: string): string {
   const clean = label.toLowerCase();
 
   if (clean === "home") return "Home";
-  if (clean === "Portfolio") return "Portfolio";
+  if (clean === "portfolio") return "Portfolio";
   if (clean === "services") return "Services";
   if (clean === "blog") return "Blog";
   if (clean === "contact") return "Contact";

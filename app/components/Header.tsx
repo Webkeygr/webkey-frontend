@@ -148,9 +148,9 @@ export default function Header({
       hoverStyles: { bgColor: "#4FAAFF", textColor: "#fff" },
     },
     {
-      label: "about",
-      baseHref: "/about",
-      ariaLabel: "About",
+      label: "portfolio",
+      baseHref: "/portfolio",
+      ariaLabel: "Portfolio",
       rotation: 8,
       hoverStyles: { bgColor: "#70D3F3", textColor: "#fff" },
     },

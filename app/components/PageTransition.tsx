@@ -151,7 +151,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
                 Navigating to
               </p>
 
-              <h2 className="text-10xl md:text-11xl font-semibold text-white pointer-events-none whitespace-nowrap">
+              <h2 className="text-9xl md:text-10xl font-semibold text-white pointer-events-none">
                 {pageLabel}
               </h2>
             </motion.div>
