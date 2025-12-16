@@ -176,38 +176,60 @@ export default function ProjectDetailClient({ project }: Props) {
 });
 
   useEffect(() => {
-    let cancelled = false;
+  let cancelled = false;
 
-    const load = async () => {
+  const load = async () => {
+    try {
+      const qs = new URLSearchParams();
+      if (currentIdFromUrl) qs.set("id", String(currentIdFromUrl));
+      if (currentSlugFromUrl) qs.set("slug", currentSlugFromUrl);
+
+      const url = `/api/portfolio-nav?${qs.toString()}`;
+
+      const res = await fetch(url, { cache: "no-store" });
+
+      // ✅ ΠΑΝΤΑ διαβάζουμε body για να δούμε τι έγινε
+      const text = await res.text();
+
+      // Προσπαθούμε να το κάνουμε JSON αν γίνεται
+      let data: any = null;
       try {
-        const qs = new URLSearchParams();
-        if (currentIdFromUrl) qs.set("id", String(currentIdFromUrl));
-        qs.set("slug", currentSlugFromUrl);
-
-        const res = await fetch(`/api/portfolio-nav?${qs.toString()}`, {
-          cache: "no-store",
-        });
-
-        if (!res.ok) return;
-
-        const data = await res.json();
-        if (!cancelled) {
-          setNav({
-  prev: data?.prev ?? null,
-  next: data?.next ?? null,
-  debug: data?.debug ?? null,
-});
-        }
+        data = JSON.parse(text);
       } catch {
-        // silent
+        data = null;
       }
-    };
 
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [currentSlugFromUrl, currentIdFromUrl]);
+      if (!cancelled) {
+        setNav({
+          prev: data?.prev ?? null,
+          next: data?.next ?? null,
+          debug:
+            data?.debug ??
+            ({
+              apiUrl: url,
+              status: res.status,
+              ok: res.ok,
+              raw: text?.slice(0, 800),
+            } as any),
+        });
+      }
+    } catch (e: any) {
+      if (!cancelled) {
+        setNav({
+          prev: null,
+          next: null,
+          debug: { error: String(e?.message || e) },
+        });
+      }
+    }
+  };
+
+  load();
+  return () => {
+    cancelled = true;
+  };
+}, [currentSlugFromUrl, currentIdFromUrl]);
+
 
   const navCardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
@@ -549,6 +571,10 @@ export default function ProjectDetailClient({ project }: Props) {
 </pre>
 
       <div>nav.next: <b>{nav.next ? `${nav.next.id} / ${nav.next.slug}` : "null"}</b></div>
+      <pre className="mt-2 whitespace-pre-wrap text-[12px] leading-relaxed">
+  {JSON.stringify(nav.debug, null, 2)}
+</pre>
+
     </div>
   </div>
 </section>
