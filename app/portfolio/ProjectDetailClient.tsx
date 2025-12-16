@@ -189,7 +189,7 @@ export default function ProjectDetailClient({ project }: Props) {
           process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://cms.webkey.gr";
 
         const res = await fetch(
-          `${base}/wp-json/wp/v2/projects?per_page=100&orderby=menu_order&order=asc`,
+          `${base}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
           { cache: "no-store" }
         );
 
