@@ -13,13 +13,40 @@ function normSlug(v: string) {
     .toLowerCase();
 }
 
+async function fetchPage(
+  base: string,
+  page: number,
+  orderby: string,
+  order: string
+) {
+  const url =
+    `${base}/wp-json/wp/v2/portfolio` +
+    `?per_page=100&page=${page}` +
+    `&orderby=${encodeURIComponent(orderby)}` +
+    `&order=${encodeURIComponent(order)}` +
+    `&acf_format=standard`;
+
+  const res = await fetch(url, { cache: "no-store" });
+  return { res, url };
+}
+
 export async function GET(req: Request) {
-  const debugParam = new URL(req.url).searchParams.get("debug");
-  const wantsDebug = debugParam === "1";
+  const { searchParams } = new URL(req.url);
+  const wantsDebug = searchParams.get("debug") === "1";
+
+  const slugRaw = (searchParams.get("slug") || "").trim();
+  const slug = normSlug(slugRaw);
+
+  const idParam = (searchParams.get("id") || "").trim();
+  const id = idParam ? Number(idParam) : 0;
+
+  const base =
+    process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://cms.webkey.gr";
 
   const debug: any = wantsDebug
     ? {
-        input: {},
+        input: { slugRaw, slug, id },
+        attempts: [],
         totals: {},
         match: {},
         sample: {},
@@ -27,68 +54,46 @@ export async function GET(req: Request) {
       }
     : null;
 
+  // Θα δοκιμάσουμε 2 “σχέδια” ordering
+  const strategies = [
+    { orderby: "menu_order", order: "asc" },
+    { orderby: "date", order: "desc" },
+  ];
+
   try {
-    const { searchParams } = new URL(req.url);
+    let all: WPItem[] = [];
+    let totalPages = 1;
 
-    const slugRaw = (searchParams.get("slug") || "").trim();
-    const slug = normSlug(slugRaw);
+    // --- Try strategies until one works ---
+    for (const s of strategies) {
+      all = [];
+      totalPages = 1;
 
-    const idParam = (searchParams.get("id") || "").trim();
-    const id = idParam ? Number(idParam) : 0;
+      const first = await fetchPage(base, 1, s.orderby, s.order);
+      if (wantsDebug) debug.attempts.push({ ...s, page1Url: first.url, status: first.res.status });
 
-    const base =
-      process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://cms.webkey.gr";
+      // Αν αποτύχει (π.χ. 400), πάμε στο επόμενο strategy
+      if (!first.res.ok) continue;
 
-    if (wantsDebug) debug.input = { slugRaw, slug, id };
+      totalPages = Number(first.res.headers.get("X-WP-TotalPages") || 1);
+      const firstPage = (await first.res.json()) as WPItem[];
+      if (Array.isArray(firstPage)) all.push(...firstPage);
 
-    // 1) Πρώτη σελίδα για headers
-    const firstRes = await fetch(
-      `${base}/wp-json/wp/v2/portfolio?per_page=100&page=1&orderby=menu_order&order=asc&acf_format=standard`,
-      { cache: "no-store" }
-    );
-
-    if (wantsDebug) {
-      debug.totals.firstResOk = firstRes.ok;
-      debug.totals.firstResStatus = firstRes.status;
-    }
-
-    if (!firstRes.ok) {
-      return NextResponse.json(
-        wantsDebug ? { prev: null, next: null, debug } : { prev: null, next: null },
-        { status: 200 }
-      );
-    }
-
-    const totalPages = Number(firstRes.headers.get("X-WP-TotalPages") || 1);
-    const total = Number(firstRes.headers.get("X-WP-Total") || 0);
-
-    const all: WPItem[] = [];
-    const firstPage = (await firstRes.json()) as WPItem[];
-    if (Array.isArray(firstPage)) all.push(...firstPage);
-
-    // 2) Φέρνουμε όλες τις σελίδες
-    for (let page = 2; page <= totalPages; page++) {
-      const res = await fetch(
-        `${base}/wp-json/wp/v2/portfolio?per_page=100&page=${page}&orderby=menu_order&order=asc&acf_format=standard`,
-        { cache: "no-store" }
-      );
-      if (!res.ok) {
-        if (wantsDebug) debug.errors.push(`page ${page} status ${res.status}`);
-        continue;
+      for (let page = 2; page <= totalPages; page++) {
+        const r = await fetchPage(base, page, s.orderby, s.order);
+        if (!r.res.ok) {
+          if (wantsDebug) debug.errors.push(`page ${page} ${s.orderby}/${s.order} status ${r.res.status}`);
+          continue;
+        }
+        const data = (await r.res.json()) as WPItem[];
+        if (Array.isArray(data) && data.length) all.push(...data);
       }
-      const data = (await res.json()) as WPItem[];
-      if (Array.isArray(data) && data.length) all.push(...data);
-    }
 
-    if (wantsDebug) {
-      debug.totals.totalPages = totalPages;
-      debug.totals.totalHeader = total;
-      debug.totals.loaded = all.length;
-      debug.sample.first10 = all.slice(0, 10).map((p) => ({
-        id: p.id,
-        slug: p.slug,
-        status: p.status,
-      }));
+      // Αν καταφέραμε να φορτώσουμε κάτι, σταματάμε εδώ
+      if (all.length) {
+        if (wantsDebug) debug.totals = { strategyUsed: s, totalPages, loaded: all.length };
+        break;
+      }
     }
 
     if (!all.length) {
@@ -98,40 +103,31 @@ export async function GET(req: Request) {
       );
     }
 
-    // 3) Προσπάθεια match
-    let currentIndex = -1;
-
-    if (id) {
-      currentIndex = all.findIndex((p) => Number(p?.id) === id);
-    }
-    if (currentIndex === -1 && slug) {
-      currentIndex = all.findIndex((p) => normSlug(p?.slug || "") === slug);
-    }
-
     if (wantsDebug) {
+      debug.sample.first10 = all.slice(0, 10).map((p) => ({ id: p.id, slug: p.slug, status: p.status }));
       debug.match.containsId = id ? all.some((p) => Number(p?.id) === id) : null;
       debug.match.containsSlug = slug ? all.some((p) => normSlug(p?.slug || "") === slug) : null;
-      debug.match.currentIndex = currentIndex;
     }
 
-    // 4) Fallback: lookup με slug για να βρούμε το πραγματικό REST id
-    if (currentIndex === -1 && slug) {
-      const lookupRes = await fetch(
-        `${base}/wp-json/wp/v2/portfolio?per_page=1&slug=${encodeURIComponent(slug)}&acf_format=standard`,
-        { cache: "no-store" }
-      );
+    // βρίσκουμε current
+    let currentIndex = -1;
+    if (id) currentIndex = all.findIndex((p) => Number(p?.id) === id);
+    if (currentIndex === -1 && slug) currentIndex = all.findIndex((p) => normSlug(p?.slug || "") === slug);
 
-      if (wantsDebug) debug.match.slugLookupStatus = lookupRes.status;
+    if (wantsDebug) debug.match.currentIndex = currentIndex;
+
+    // fallback lookup με slug (μόνο αν έχουμε slug)
+    if (currentIndex === -1 && slug) {
+      const lookupUrl =
+        `${base}/wp-json/wp/v2/portfolio?per_page=1&slug=${encodeURIComponent(slug)}&acf_format=standard`;
+      const lookupRes = await fetch(lookupUrl, { cache: "no-store" });
+
+      if (wantsDebug) debug.match.slugLookup = { url: lookupUrl, status: lookupRes.status };
 
       if (lookupRes.ok) {
         const lookup = (await lookupRes.json()) as WPItem[];
         const found = Array.isArray(lookup) ? lookup[0] : null;
-
-        if (wantsDebug) {
-          debug.sample.slugLookup = Array.isArray(lookup)
-            ? lookup.map((p) => ({ id: p.id, slug: p.slug, status: p.status }))
-            : [];
-        }
+        if (wantsDebug) debug.match.slugLookupResult = Array.isArray(lookup) ? lookup.map(p => ({ id: p.id, slug: p.slug })) : [];
 
         if (found?.id) {
           currentIndex = all.findIndex((p) => Number(p?.id) === Number(found.id));
