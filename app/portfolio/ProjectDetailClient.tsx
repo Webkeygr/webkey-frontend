@@ -39,7 +39,7 @@ function reveal(delay = 0, y = 14, scale = 1) {
  * ---------------------------------------------------- */
 type AutoScrollImageProps = {
   src: string;
-  duration?: number; // σε δευτερόλεπτα για ένα "run" από πάνω μέχρι κάτω
+  duration?: number;
 };
 
 function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
@@ -56,7 +56,6 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
       const imgHeight = img.offsetHeight;
       const viewHeight = container.offsetHeight;
       const distance = imgHeight - viewHeight;
-
       if (distance <= 0) return;
 
       if (tlRef.current) {
@@ -64,38 +63,26 @@ function AutoScrollImage({ src, duration = 18 }: AutoScrollImageProps) {
         tlRef.current = null;
       }
 
-      const tl = gsap.timeline({
-        repeat: -1,
-        repeatDelay: 0.6,
-      });
+      const tl = gsap.timeline({ repeat: -1, repeatDelay: 0.6 });
 
       tl.fromTo(
         img,
         { y: 0 },
-        {
-          y: -distance,
-          ease: "none",
-          duration,
-        }
+        { y: -distance, ease: "none", duration }
       ).set(img, { y: 0 });
 
       tlRef.current = tl;
     };
 
-    if (img.complete) {
-      setup();
-    } else {
-      img.addEventListener("load", setup);
-    }
+    if (img.complete) setup();
+    else img.addEventListener("load", setup);
 
     return () => {
       if (tlRef.current) {
         tlRef.current.kill();
         tlRef.current = null;
       }
-      if (img) {
-        img.removeEventListener("load", setup);
-      }
+      img.removeEventListener("load", setup);
     };
   }, [duration]);
 
@@ -127,23 +114,21 @@ type NavProject = {
   slug?: string;
   title?: { rendered: string };
   acf?: {
-    main_image?: { url?: string; sizes?: Record<string, string> };
+    main_image?: { url?: string; [k: string]: any };
     technologies?: string[];
     [key: string]: any;
   };
+  [key: string]: any;
 };
 
 export default function ProjectDetailClient({ project }: Props) {
   const router = useRouter();
-  
   const pathname = usePathname();
-const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
-const currentSlugFromUrl = pathname.split("/").filter(Boolean).pop() || "";
-const currentIdFromUrl = Number(searchParams.get("id") || "");
+  const currentSlugFromUrl = pathname.split("/").filter(Boolean).pop() || "";
+  const currentIdFromUrl = Number(searchParams.get("id") || "");
 
-
-  // κρατάμε το header “light” όπως στο portfolio list
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -171,17 +156,15 @@ const currentIdFromUrl = Number(searchParams.get("id") || "");
   const highlight4 = getImageUrl(acf.highlight_4);
   const highlight5 = getImageUrl(acf.highlight_5);
 
-  // Parallax για Highlight_1 (100vh, full width)
+  // Parallax για Highlight_1
   const techRef = useRef<HTMLElement | null>(null);
   const { scrollYProgress } = useScroll({
     target: techRef,
     offset: ["start end", "end start"],
   });
-
-  // (εσύ το έχεις ήδη πιο έντονο — κράτα/ρύθμισε εδώ)
   const techY = useTransform(scrollYProgress, [0, 1], ["-35%", "35%"]);
 
-  // -------- Prev / Next data --------
+  // -------- Prev / Next --------
   const [nav, setNav] = useState<{ prev: NavProject | null; next: NavProject | null }>({
     prev: null,
     next: null,
@@ -192,29 +175,23 @@ const currentIdFromUrl = Number(searchParams.get("id") || "");
 
     const load = async () => {
       try {
-        const base =
-          process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://cms.webkey.gr";
+        const qs = new URLSearchParams();
+        if (currentIdFromUrl) qs.set("id", String(currentIdFromUrl));
+        qs.set("slug", currentSlugFromUrl);
 
-        const res = await fetch(
-          `${base}/wp-json/wp/v2/portfolio?per_page=100&orderby=menu_order&order=asc&acf_format=standard`,
-          { cache: "no-store" }
-        );
+        const res = await fetch(`/api/portfolio-nav?${qs.toString()}`, {
+          cache: "no-store",
+        });
 
         if (!res.ok) return;
 
-        const list = (await res.json()) as NavProject[];
-        if (!Array.isArray(list) || list.length === 0) return;
-
-const currentIndex = currentIdFromUrl
-  ? list.findIndex((p) => Number(p?.id) === currentIdFromUrl)
-  : list.findIndex((p) => String(p?.slug || "") === currentSlugFromUrl);
-
-        if (currentIndex === -1) return;
-
-        const prev = list[(currentIndex - 1 + list.length) % list.length] ?? null;
-        const next = list[(currentIndex + 1) % list.length] ?? null;
-
-        if (!cancelled) setNav({ prev, next });
+        const data = await res.json();
+        if (!cancelled) {
+          setNav({
+            prev: data?.prev ?? null,
+            next: data?.next ?? null,
+          });
+        }
       } catch {
         // silent
       }
@@ -224,14 +201,11 @@ const currentIndex = currentIdFromUrl
     return () => {
       cancelled = true;
     };
-  }, [project.id, currentSlugFromUrl, currentIdFromUrl]);
+  }, [currentSlugFromUrl, currentIdFromUrl]);
 
   const navCardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
 
-  const handleProjectNavClick = (
-    target: NavProject,
-    e: MouseEvent<HTMLButtonElement>
-  ) => {
+  const handleProjectNavClick = (target: NavProject, e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (typeof window === "undefined") {
@@ -257,7 +231,7 @@ const currentIndex = currentIdFromUrl
 
     const clone = img.cloneNode(true) as HTMLImageElement;
 
-    // ✅ Χρησιμοποιούμε high-res για να μην "σπάει" στο fullscreen
+    // high-res transition
     const hiRes = target?.acf?.main_image?.url;
     if (hiRes) {
       clone.src = hiRes;
@@ -280,63 +254,25 @@ const currentIndex = currentIdFromUrl
     document.body.appendChild(clone);
     cardEl.style.opacity = "0";
 
-    gsap.set(clone, {
-      transformPerspective: 1400,
-    });
+    gsap.set(clone, { transformPerspective: 1400 });
 
     const tl = gsap.timeline({
       defaults: { duration: 0.32, ease: "power2.inOut" },
       onComplete: () => {
         router.push(`/portfolio/${target.slug}?id=${target.id}`);
-
         setTimeout(() => {
           clone.remove();
-          if (cardEl) cardEl.style.opacity = "";
+          cardEl.style.opacity = "";
         }, 1500);
       },
     });
 
-    tl.set(clone, {
-      x: 0,
-      y: 0,
-      scale: 1,
-      rotationX: 0,
-      rotationY: 0,
-      borderRadius: "32px",
-    });
+    tl.set(clone, { x: 0, y: 0, scale: 1, rotationX: 0, rotationY: 0, borderRadius: "32px" });
 
-    tl.to(clone, {
-      y: -28,
-      rotationX: 10,
-      rotationY: -10,
-      scale: 1.06,
-      borderRadius: "40px 120px 30px 100px",
-    });
-
-    tl.to(clone, {
-      y: 26,
-      rotationX: -12,
-      rotationY: 12,
-      scale: 1.12,
-      borderRadius: "130px 40px 150px 50px",
-    });
-
-    tl.to(clone, {
-      y: -18,
-      rotationX: 8,
-      rotationY: -6,
-      scale: 1.08,
-      borderRadius: "60px 140px 80px 160px",
-    });
-
-    tl.to(clone, {
-      y: 8,
-      rotationX: -4,
-      rotationY: 4,
-      scale: 1.03,
-      borderRadius: "30px 80px 50px 90px",
-      duration: 0.28,
-    });
+    tl.to(clone, { y: -28, rotationX: 10, rotationY: -10, scale: 1.06, borderRadius: "40px 120px 30px 100px" });
+    tl.to(clone, { y: 26, rotationX: -12, rotationY: 12, scale: 1.12, borderRadius: "130px 40px 150px 50px" });
+    tl.to(clone, { y: -18, rotationX: 8, rotationY: -6, scale: 1.08, borderRadius: "60px 140px 80px 160px" });
+    tl.to(clone, { y: 8, rotationX: -4, rotationY: 4, scale: 1.03, borderRadius: "30px 80px 50px 90px", duration: 0.28 });
 
     tl.to(clone, {
       x: rect.left * -1,
@@ -354,16 +290,10 @@ const currentIndex = currentIdFromUrl
 
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
-      {/* HERO: main_image 100vh, μόνο η εικόνα */}
+      {/* HERO */}
       <section className="relative h-screen overflow-hidden">
         {mainImageUrl && (
-          <Image
-            src={mainImageUrl}
-            alt={title}
-            fill
-            priority
-            className="object-cover"
-          />
+          <Image src={mainImageUrl} alt={title} fill priority className="object-cover" />
         )}
       </section>
 
@@ -371,54 +301,39 @@ const currentIndex = currentIdFromUrl
       <section className="overflow-hidden border-y border-slate-200 bg-slate-50 py-4">
         <div className="whitespace-nowrap">
           <div className="portfolio-marquee text-xs md:text-sm font-semibold tracking-[0.35em] uppercase text-slate-500">
-            {Array.from({ length: 12 })
-              .map(() => `${title} •`)
-              .join(" ")}
+            {Array.from({ length: 12 }).map(() => `${title} •`).join(" ")}
           </div>
         </div>
       </section>
 
-      {/* HEADING 2 + LOGO + TECHNOLOGY TAGS */}
+      {/* HEADING + LOGO + TAGS */}
       <section className="bg-white py-16 md:py-20">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-12 px-6 md:flex-row md:items-start md:px-8">
-          {/* Left column */}
           <div className="md:w-2/3 space-y-6">
             {heading2 && (
               <motion.div {...reveal(0.05, 18)}>
                 <div className="space-y-3">
-                  <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                    Case Study
-                  </h2>
-                  <h1 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">
-                    {heading2}
-                  </h1>
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Case Study</h2>
+                  <h1 className="text-3xl md:text-5xl font-bold leading-tight text-slate-900">{heading2}</h1>
                 </div>
               </motion.div>
             )}
 
             {heading3 && (
-              <motion.p
-                {...reveal(0.12, 14)}
-                className="text-base md:text-lg text-slate-600"
-              >
+              <motion.p {...reveal(0.12, 14)} className="text-base md:text-lg text-slate-600">
                 {heading3}
               </motion.p>
             )}
 
             {description && (
-              <motion.p
-                {...reveal(0.18, 12)}
-                className="text-sm md:text-base leading-relaxed text-slate-600"
-              >
+              <motion.p {...reveal(0.18, 12)} className="text-sm md:text-base leading-relaxed text-slate-600">
                 {description}
               </motion.p>
             )}
 
             {technologies.length > 0 && (
               <motion.div {...reveal(0.22, 10)} className="space-y-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
-                  Technologies
-                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Technologies</p>
                 <div className="flex flex-wrap gap-2">
                   {technologies.map((tech, idx) => (
                     <motion.span
@@ -434,45 +349,27 @@ const currentIndex = currentIdFromUrl
             )}
           </div>
 
-          {/* Right column: Logo + Project Info */}
           <div className="md:w-1/3 flex flex-col gap-6 md:items-end">
             {logoUrl && (
-              <motion.div
-                {...reveal(0.08, 18, 0.98)}
-                className="flex md:justify-end w-full"
-              >
+              <motion.div {...reveal(0.08, 18, 0.98)} className="flex md:justify-end w-full">
                 <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
-                  <Image
-                    src={logoUrl}
-                    alt={`${title} logo`}
-                    fill
-                    className="object-contain p-6"
-                  />
+                  <Image src={logoUrl} alt={`${title} logo`} fill className="object-contain p-6" />
                 </div>
               </motion.div>
             )}
 
-            <motion.div
-              {...reveal(0.16, 18)}
-              className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
-            >
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
-                Project Info
-              </h4>
+            <motion.div {...reveal(0.16, 18)} className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+              <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Project Info</h4>
               <div className="space-y-4 text-sm text-slate-700">
                 {industry && (
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                      Industry
-                    </div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Industry</div>
                     <div>{industry}</div>
                   </div>
                 )}
                 {location && (
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-                      Location
-                    </div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Location</div>
                     <div>{location}</div>
                   </div>
                 )}
@@ -487,7 +384,7 @@ const currentIndex = currentIdFromUrl
         </div>
       </section>
 
-      {/* Highlight_1 FULL WIDTH 100vh + parallax */}
+      {/* Highlight_1 FULL WIDTH + parallax */}
       {highlight1 && (
         <section
           ref={(el) => {
@@ -496,19 +393,10 @@ const currentIndex = currentIdFromUrl
           className="relative h-screen w-full overflow-hidden bg-slate-50"
         >
           <motion.div style={{ y: techY }} className="absolute inset-0">
-            <Image
-              src={highlight1}
-              alt={`${title} technologies visual`}
-              fill
-              priority={false}
-              className="object-cover"
-            />
+            <Image src={highlight1} alt={`${title} technologies visual`} fill priority={false} className="object-cover" />
           </motion.div>
 
-          <motion.div
-            {...reveal(0.05, 12)}
-            className="relative z-10 mx-auto max-w-[1440px] px-6 md:px-8 pt-10"
-          >
+          <motion.div {...reveal(0.05, 12)} className="relative z-10 mx-auto max-w-[1440px] px-6 md:px-8 pt-10">
             <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-white/80 drop-shadow">
               Technologies
             </h3>
@@ -516,14 +404,12 @@ const currentIndex = currentIdFromUrl
         </section>
       )}
 
-      {/* WHOLE SITE – auto-scroll (full 1440px width) */}
+      {/* WHOLE SITE */}
       {wholeSiteUrl && (
         <section className="bg-slate-50 py-16">
           <div className="mx-auto max-w-[1440px] px-6 md:px-8">
             <motion.div {...reveal(0.06, 16)}>
-              <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                Whole Site
-              </h3>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Whole Site</h3>
             </motion.div>
 
             <motion.div {...reveal(0.1, 22, 0.99)} className="mt-4 h-screen">
@@ -546,17 +432,8 @@ const currentIndex = currentIdFromUrl
             )}
 
             {highlight2 && (
-              <motion.div
-                {...reveal(0.12, 18, 0.99)}
-                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl"
-              >
-                <Image
-                  src={highlight2}
-                  alt={`${title} highlight 2`}
-                  width={1200}
-                  height={900}
-                  className="h-full w-full object-cover"
-                />
+              <motion.div {...reveal(0.12, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+                <Image src={highlight2} alt={`${title} highlight 2`} width={1200} height={900} className="h-full w-full object-cover" />
               </motion.div>
             )}
           </div>
@@ -568,31 +445,13 @@ const currentIndex = currentIdFromUrl
         <section className="bg-white py-12 md:py-16">
           <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8">
             {highlight3 && (
-              <motion.div
-                {...reveal(0.06, 18, 0.99)}
-                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl"
-              >
-                <Image
-                  src={highlight3}
-                  alt={`${title} highlight 3`}
-                  width={1200}
-                  height={900}
-                  className="h-full w-full object-cover"
-                />
+              <motion.div {...reveal(0.06, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+                <Image src={highlight3} alt={`${title} highlight 3`} width={1200} height={900} className="h-full w-full object-cover" />
               </motion.div>
             )}
             {highlight4 && (
-              <motion.div
-                {...reveal(0.12, 18, 0.99)}
-                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl"
-              >
-                <Image
-                  src={highlight4}
-                  alt={`${title} highlight 4`}
-                  width={1200}
-                  height={900}
-                  className="h-full w-full object-cover"
-                />
+              <motion.div {...reveal(0.12, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+                <Image src={highlight4} alt={`${title} highlight 4`} width={1200} height={900} className="h-full w-full object-cover" />
               </motion.div>
             )}
           </div>
@@ -604,9 +463,7 @@ const currentIndex = currentIdFromUrl
         <section className="bg-slate-50 py-16 md:py-20">
           <div className="mx-auto max-w-[1440px] px-6 md:px-8">
             <motion.div {...reveal(0.06, 14)}>
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-                Website
-              </h3>
+              <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Website</h3>
             </motion.div>
 
             <motion.div
@@ -620,26 +477,15 @@ const currentIndex = currentIdFromUrl
 
       {/* HIGHLIGHT_5 */}
       {highlight5 && (
-        <motion.div
-          {...reveal(0.06, 22)}
-          className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8"
-        >
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
-            Highlight
-          </h3>
+        <motion.div {...reveal(0.06, 22)} className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Highlight</h3>
           <div className="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-md">
-            <Image
-              src={highlight5}
-              alt={`${title} highlight`}
-              width={1600}
-              height={800}
-              className="h-full w-full object-cover"
-            />
+            <Image src={highlight5} alt={`${title} highlight`} width={1600} height={800} className="h-full w-full object-cover" />
           </div>
         </motion.div>
       )}
 
-      {/* ✅ PREVIOUS / NEXT PROJECT (ίδιες κάρτες με Portfolio + ίδιο animation) */}
+      {/* ✅ PREV / NEXT */}
       {(nav.prev || nav.next) && (
         <section className="bg-white py-20">
           <div className="mx-auto max-w-[1440px] px-6 md:px-8">
