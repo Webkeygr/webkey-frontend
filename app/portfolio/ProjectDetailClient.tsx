@@ -411,7 +411,7 @@ export default function ProjectDetailClient({ project }: Props) {
             {/* Δεξιά στήλη: Logo + Project Info (ΜΕΤΑΚΙΝΗΣΗ ΕΔΩ) */}
             <div className="md:w-1/3 flex flex-col items-start md:items-end gap-6">
               {logoUrl && (
-                <div className="md:w-1/3 flex justify-center md:justify-center">
+                <div className="flex w-full justify-center">
                   <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
                     <Image
                       src={logoUrl}
