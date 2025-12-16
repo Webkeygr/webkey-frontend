@@ -29,6 +29,14 @@ function useAboutDark(): boolean {
     if (typeof window === "undefined") return;
 
     const check = () => {
+      // ✅ Αν είμαστε σε σελίδα που θέλει ΠΑΝΤΑ light header (π.χ. Project Details)
+      // τότε δεν επιτρέπουμε να μπει dark state από About trigger
+      if (document.body.classList.contains("portfolio-no-dark")) {
+        setIsDark(false);
+        document.body.classList.remove("about-dark");
+        return;
+      }
+
       const circle = document.querySelector<HTMLElement>(".about-black-circle");
 
       // Αν δεν υπάρχει το section, δεν είμαστε σε dark phase
@@ -83,6 +91,13 @@ function useFooterZone(): boolean {
     if (typeof window === "undefined") return;
 
     const handle = () => {
+      // ✅ Αν είμαστε σε σελίδα που θέλει ΠΑΝΤΑ light header (π.χ. Project Details)
+      // τότε δεν επιτρέπουμε να μπει dark state από Footer trigger
+      if (document.body.classList.contains("portfolio-no-dark")) {
+        setIsFooterDark(false);
+        return;
+      }
+
       const doc = document.documentElement;
       const scrollY = window.scrollY || window.pageYOffset || 0;
       const vh = window.innerHeight || 0;
