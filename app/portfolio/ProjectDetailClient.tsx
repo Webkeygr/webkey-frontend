@@ -1,10 +1,12 @@
 // app/portfolio/ProjectDetailClient.tsx
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
+import { useRouter } from "next/navigation";
+import { PortfolioCard } from "@/app/components/PortfolioCard";
 import type { PortfolioDetail } from "./types";
 
 /* ----------------------------------------------------
@@ -120,7 +122,21 @@ type Props = {
   project: PortfolioDetail;
 };
 
+type NavProject = {
+  id: number;
+  slug?: string;
+  title?: { rendered: string };
+  acf?: {
+    main_image?: { url?: string; sizes?: Record<string, string> };
+    technologies?: string[];
+    [key: string]: any;
+  };
+};
+
 export default function ProjectDetailClient({ project }: Props) {
+  const router = useRouter();
+
+  // κρατάμε το header “light” όπως στο portfolio list
   useEffect(() => {
     document.body.classList.add("portfolio-no-dark");
     return () => document.body.classList.remove("portfolio-no-dark");
@@ -155,8 +171,176 @@ export default function ProjectDetailClient({ project }: Props) {
     offset: ["start end", "end start"],
   });
 
-  // (εσύ ήδη το έκανες πιο έντονο — κράτα ό,τι έχεις)
+  // (εσύ το έχεις ήδη πιο έντονο — κράτα/ρύθμισε εδώ)
   const techY = useTransform(scrollYProgress, [0, 1], ["-35%", "35%"]);
+
+  // -------- Prev / Next data --------
+  const [nav, setNav] = useState<{ prev: NavProject | null; next: NavProject | null }>({
+    prev: null,
+    next: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      try {
+        const base =
+          process.env.NEXT_PUBLIC_WORDPRESS_URL || "https://cms.webkey.gr";
+
+        const res = await fetch(
+          `${base}/wp-json/wp/v2/projects?per_page=100&orderby=menu_order&order=asc`,
+          { cache: "no-store" }
+        );
+
+        if (!res.ok) return;
+
+        const list = (await res.json()) as NavProject[];
+        if (!Array.isArray(list) || list.length === 0) return;
+
+        const currentIndex = list.findIndex((p) => p?.id === project.id);
+        if (currentIndex === -1) return;
+
+        const prev = list[(currentIndex - 1 + list.length) % list.length] ?? null;
+        const next = list[(currentIndex + 1) % list.length] ?? null;
+
+        if (!cancelled) setNav({ prev, next });
+      } catch {
+        // silent
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [project.id]);
+
+  const navCardRefs = useRef<Record<number, HTMLButtonElement | null>>({});
+
+  const handleProjectNavClick = (
+    target: NavProject,
+    e: MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+
+    if (typeof window === "undefined") {
+      router.push(`/portfolio/${target.slug}?id=${target.id}`);
+      return;
+    }
+
+    const cardEl = navCardRefs.current[target.id];
+    if (!cardEl) {
+      router.push(`/portfolio/${target.slug}?id=${target.id}`);
+      return;
+    }
+
+    const img = cardEl.querySelector("img");
+    if (!img) {
+      router.push(`/portfolio/${target.slug}?id=${target.id}`);
+      return;
+    }
+
+    const rect = img.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    const clone = img.cloneNode(true) as HTMLImageElement;
+
+    // ✅ Χρησιμοποιούμε high-res για να μην "σπάει" στο fullscreen
+    const hiRes = target?.acf?.main_image?.url;
+    if (hiRes) {
+      clone.src = hiRes;
+      clone.srcset = "";
+      clone.sizes = "";
+    }
+
+    clone.style.position = "fixed";
+    clone.style.left = `${rect.left}px`;
+    clone.style.top = `${rect.top}px`;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.zIndex = "9999";
+    clone.style.borderRadius = "32px";
+    clone.style.objectFit = "cover";
+    clone.style.pointerEvents = "none";
+    clone.style.boxShadow = "0 30px 80px rgba(0,0,0,0.45)";
+    clone.style.transformOrigin = "50% 50%";
+
+    document.body.appendChild(clone);
+    cardEl.style.opacity = "0";
+
+    gsap.set(clone, {
+      transformPerspective: 1400,
+    });
+
+    const tl = gsap.timeline({
+      defaults: { duration: 0.32, ease: "power2.inOut" },
+      onComplete: () => {
+        router.push(`/portfolio/${target.slug}?id=${target.id}`);
+
+        setTimeout(() => {
+          clone.remove();
+          if (cardEl) cardEl.style.opacity = "";
+        }, 1500);
+      },
+    });
+
+    tl.set(clone, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotationX: 0,
+      rotationY: 0,
+      borderRadius: "32px",
+    });
+
+    tl.to(clone, {
+      y: -28,
+      rotationX: 10,
+      rotationY: -10,
+      scale: 1.06,
+      borderRadius: "40px 120px 30px 100px",
+    });
+
+    tl.to(clone, {
+      y: 26,
+      rotationX: -12,
+      rotationY: 12,
+      scale: 1.12,
+      borderRadius: "130px 40px 150px 50px",
+    });
+
+    tl.to(clone, {
+      y: -18,
+      rotationX: 8,
+      rotationY: -6,
+      scale: 1.08,
+      borderRadius: "60px 140px 80px 160px",
+    });
+
+    tl.to(clone, {
+      y: 8,
+      rotationX: -4,
+      rotationY: 4,
+      scale: 1.03,
+      borderRadius: "30px 80px 50px 90px",
+      duration: 0.28,
+    });
+
+    tl.to(clone, {
+      x: rect.left * -1,
+      y: rect.top * -1,
+      width: viewportWidth,
+      height: viewportHeight,
+      rotationX: 0,
+      rotationY: 0,
+      scale: 1,
+      borderRadius: "0px",
+      duration: 0.55,
+      ease: "power3.inOut",
+    });
+  };
 
   return (
     <main className="relative min-h-screen bg-white text-slate-900">
@@ -203,7 +387,10 @@ export default function ProjectDetailClient({ project }: Props) {
             )}
 
             {heading3 && (
-              <motion.p {...reveal(0.12, 14)} className="text-base md:text-lg text-slate-600">
+              <motion.p
+                {...reveal(0.12, 14)}
+                className="text-base md:text-lg text-slate-600"
+              >
                 {heading3}
               </motion.p>
             )}
@@ -240,7 +427,10 @@ export default function ProjectDetailClient({ project }: Props) {
           {/* Right column: Logo + Project Info */}
           <div className="md:w-1/3 flex flex-col gap-6 md:items-end">
             {logoUrl && (
-              <motion.div {...reveal(0.08, 18, 0.98)} className="flex md:justify-end w-full">
+              <motion.div
+                {...reveal(0.08, 18, 0.98)}
+                className="flex md:justify-end w-full"
+              >
                 <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border border-slate-200 bg-white shadow-lg flex items-center justify-center">
                   <Image
                     src={logoUrl}
@@ -252,7 +442,10 @@ export default function ProjectDetailClient({ project }: Props) {
               </motion.div>
             )}
 
-            <motion.div {...reveal(0.16, 18)} className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+            <motion.div
+              {...reveal(0.16, 18)}
+              className="w-full md:max-w-[420px] rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+            >
               <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">
                 Project Info
               </h4>
@@ -302,7 +495,6 @@ export default function ProjectDetailClient({ project }: Props) {
             />
           </motion.div>
 
-          {/* Label */}
           <motion.div
             {...reveal(0.05, 12)}
             className="relative z-10 mx-auto max-w-[1440px] px-6 md:px-8 pt-10"
@@ -344,7 +536,10 @@ export default function ProjectDetailClient({ project }: Props) {
             )}
 
             {highlight2 && (
-              <motion.div {...reveal(0.12, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+              <motion.div
+                {...reveal(0.12, 18, 0.99)}
+                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl"
+              >
                 <Image
                   src={highlight2}
                   alt={`${title} highlight 2`}
@@ -363,7 +558,10 @@ export default function ProjectDetailClient({ project }: Props) {
         <section className="bg-white py-12 md:py-16">
           <div className="mx-auto grid max-w-[1440px] gap-10 px-6 md:grid-cols-2 md:px-8">
             {highlight3 && (
-              <motion.div {...reveal(0.06, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+              <motion.div
+                {...reveal(0.06, 18, 0.99)}
+                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl"
+              >
                 <Image
                   src={highlight3}
                   alt={`${title} highlight 3`}
@@ -374,7 +572,10 @@ export default function ProjectDetailClient({ project }: Props) {
               </motion.div>
             )}
             {highlight4 && (
-              <motion.div {...reveal(0.12, 18, 0.99)} className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl">
+              <motion.div
+                {...reveal(0.12, 18, 0.99)}
+                className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-xl"
+              >
                 <Image
                   src={highlight4}
                   alt={`${title} highlight 4`}
@@ -409,7 +610,10 @@ export default function ProjectDetailClient({ project }: Props) {
 
       {/* HIGHLIGHT_5 */}
       {highlight5 && (
-        <motion.div {...reveal(0.06, 22)} className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8">
+        <motion.div
+          {...reveal(0.06, 22)}
+          className="mx-auto mt-16 max-w-[1440px] px-6 md:px-8"
+        >
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
             Highlight
           </h3>
@@ -423,6 +627,51 @@ export default function ProjectDetailClient({ project }: Props) {
             />
           </div>
         </motion.div>
+      )}
+
+      {/* ✅ PREVIOUS / NEXT PROJECT (ίδιες κάρτες με Portfolio + ίδιο animation) */}
+      {(nav.prev || nav.next) && (
+        <section className="bg-white py-20">
+          <div className="mx-auto max-w-[1440px] px-6 md:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+              {nav.prev && (
+                <motion.div {...reveal(0.06, 18, 0.99)}>
+                  <div className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                    Previous Project
+                  </div>
+                  <button
+                    type="button"
+                    className="block w-full text-left"
+                    onClick={(e) => handleProjectNavClick(nav.prev as NavProject, e)}
+                    ref={(el) => {
+                      navCardRefs.current[(nav.prev as NavProject).id] = el;
+                    }}
+                  >
+                    <PortfolioCard project={nav.prev as any} />
+                  </button>
+                </motion.div>
+              )}
+
+              {nav.next && (
+                <motion.div {...reveal(0.12, 18, 0.99)}>
+                  <div className="mb-4 text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">
+                    Next Project
+                  </div>
+                  <button
+                    type="button"
+                    className="block w-full text-left"
+                    onClick={(e) => handleProjectNavClick(nav.next as NavProject, e)}
+                    ref={(el) => {
+                      navCardRefs.current[(nav.next as NavProject).id] = el;
+                    }}
+                  >
+                    <PortfolioCard project={nav.next as any} />
+                  </button>
+                </motion.div>
+              )}
+            </div>
+          </div>
+        </section>
       )}
     </main>
   );
