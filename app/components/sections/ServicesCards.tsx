@@ -208,7 +208,8 @@ export default function ServicesCards() {
 }
 
 /* ============================================================
-   CARD LAYER (UNCHANGED)
+   CARD LAYER
+   ✅ ONLY CHANGE: removed `scale` transform to prevent video pixelation
 ============================================================ */
 
 function CardLayer({
@@ -239,9 +240,6 @@ function CardLayer({
   const y = useTransform(progress, [enterStart, enterEnd], [t.offsetPx, 0], {
     clamp: true,
   });
-  const scale = useTransform(progress, [enterStart, enterEnd], [0.985, 1], {
-    clamp: true,
-  });
 
   const opacity = 1;
 
@@ -250,10 +248,7 @@ function CardLayer({
   );
 
   return (
-    <motion.article
-      className="absolute inset-0"
-      style={{ y, scale, opacity, zIndex }}
-    >
+    <motion.article className="absolute inset-0" style={{ y, opacity, zIndex }}>
       <CardBody data={data} />
     </motion.article>
   );
