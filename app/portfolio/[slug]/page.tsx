@@ -131,5 +131,10 @@ export default function PortfolioDetailPage() {
   }
 
   // Όλα ΟΚ → κανονικό template
-  return <ProjectDetailClient project={project} />;
+  return (
+    <>
+      <ProjectDetailClient project={project} />
+      <Footer />
+    </>
+  );
 }

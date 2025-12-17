@@ -71,5 +71,11 @@ export default async function PortfolioPage() {
     );
   }
 
-  return <PortfolioClient projects={projects} />;
+  return (
+    <>
+    <PortfolioClient projects={projects} />;
+    <Footer />
+    </>
+  );
+
 }
