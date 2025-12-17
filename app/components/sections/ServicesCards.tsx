@@ -1,7 +1,13 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { usePathname } from "next/navigation";
 
 type CardTiming = {
@@ -174,6 +180,15 @@ export default function ServicesCards() {
     mass: 0.18,
   });
 
+  // ✅ NEW: active card index so only its video plays
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useMotionValueEvent(prog, "change", (v) => {
+    const total = CARDS_DATA.length;
+    const idx = Math.max(0, Math.min(total - 1, Math.floor(v * total)));
+    setActiveIndex(idx);
+  });
+
   return (
     <section
       ref={wrapRef}
@@ -197,6 +212,7 @@ export default function ServicesCards() {
                   total={CARDS_DATA.length}
                   progress={prog}
                   data={data}
+                  isActive={i === activeIndex}
                 />
               ))}
             </div>
@@ -208,8 +224,7 @@ export default function ServicesCards() {
 }
 
 /* ============================================================
-   CARD LAYER
-   ✅ ONLY CHANGE: removed `scale` transform to prevent video pixelation
+   CARD LAYER (same animation)
 ============================================================ */
 
 function CardLayer({
@@ -217,11 +232,13 @@ function CardLayer({
   total,
   progress,
   data,
+  isActive,
 }: {
   index: number;
   total: number;
   progress: any;
   data: CardContent;
+  isActive: boolean;
 }) {
   const SEG = 1 / total;
   const segStart = index * SEG;
@@ -240,6 +257,9 @@ function CardLayer({
   const y = useTransform(progress, [enterStart, enterEnd], [t.offsetPx, 0], {
     clamp: true,
   });
+  const scale = useTransform(progress, [enterStart, enterEnd], [0.985, 1], {
+    clamp: true,
+  });
 
   const opacity = 1;
 
@@ -248,17 +268,39 @@ function CardLayer({
   );
 
   return (
-    <motion.article className="absolute inset-0" style={{ y, opacity, zIndex }}>
-      <CardBody data={data} />
+    <motion.article
+      className="absolute inset-0"
+      style={{ y, scale, opacity, zIndex }}
+    >
+      <CardBody data={data} isActive={isActive} />
     </motion.article>
   );
 }
 
 /* ============================================================
-   CARD BODY (UNCHANGED)
+   CARD BODY
+   ✅ ONLY CHANGE: play/pause based on isActive
 ============================================================ */
 
-function CardBody({ data }: { data: CardContent }) {
+function CardBody({ data, isActive }: { data: CardContent; isActive: boolean }) {
+  const vRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const v = vRef.current;
+    if (!v) return;
+
+    // keep inline on iOS/Safari
+    v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
+
+    if (isActive) {
+      const p = v.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [isActive]);
+
   return (
     <div
       className="
@@ -271,12 +313,14 @@ function CardBody({ data }: { data: CardContent }) {
     >
       <div className="relative h-[52%] overflow-hidden rounded-t-[54px]">
         <video
+          ref={vRef}
           className="absolute inset-0 h-full w-full object-cover"
           src={data.videoSrc}
           autoPlay
           loop
           muted
           playsInline
+          preload="metadata"
         />
       </div>
 
