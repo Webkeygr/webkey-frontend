@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import ProjectDetailClient from "../ProjectDetailClient";
 import type { PortfolioDetail } from "../types";
+import Footer from "@/app/components/Footer";
+
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
@@ -123,6 +125,7 @@ export default function PortfolioDetailPage() {
             2
           )}
         </pre>
+        <Footer />
       </main>
     );
   }

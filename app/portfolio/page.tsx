@@ -1,5 +1,7 @@
 // app/portfolio/page.tsx
 import PortfolioClient from "./PortfolioClient";
+import Footer from "@/app/components/Footer";
+
 
 const WP_BASE_URL =
   process.env.NEXT_PUBLIC_WORDPRESS_URL ?? "https://cms.webkey.gr";
@@ -63,7 +65,9 @@ export default async function PortfolioPage() {
             )}
           </pre>
         </div>
+        <Footer />
       </main>
+      
     );
   }
 
