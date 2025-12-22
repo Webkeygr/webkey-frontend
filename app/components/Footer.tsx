@@ -60,13 +60,11 @@ export default function Footer() {
 
   return (
     <section
+      id="site-footer"
       ref={ref}
       className="relative z-[10] h-screen bg-black text-white overflow-hidden"
     >
-      <motion.div
-        style={{ y }}
-        className="relative z-10 flex h-full flex-col"
-      >
+      <motion.div style={{ y }} className="relative z-10 flex h-full flex-col">
         <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-between py-12 md:py-16">
           {/* === Top: Logo + Menu === */}
           <div className="flex flex-1 flex-col gap-12 md:flex-row md:items-center md:justify-between">
