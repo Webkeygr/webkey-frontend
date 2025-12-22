@@ -86,33 +86,33 @@ function useFooterZone(): boolean {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const handle = () => {
-      const doc = document.documentElement;
-      const scrollY = window.scrollY || window.pageYOffset || 0;
-      const vh = window.innerHeight || 0;
-      const docHeight = doc.scrollHeight || document.body.scrollHeight || 0;
+    const footer = document.getElementById("site-footer");
+    if (!footer) {
+      setIsFooterDark(false);
+      return;
+    }
 
-      const distanceFromBottom = docHeight - (scrollY + vh);
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        // true όταν το footer φαίνεται στο viewport
+        setIsFooterDark(entry.isIntersecting);
+      },
+      {
+        // μόλις αρχίσει να μπαίνει, κάνε το dark
+        threshold: 0.01,
+      }
+    );
 
-      // Όταν η απόσταση από το bottom είναι μικρότερη από ~0.8 * viewport,
-      // θεωρούμε ότι έχουμε μπει στην περιοχή του footer.
-      const inFooterZone = distanceFromBottom <= vh * 0.8;
-
-      setIsFooterDark(inFooterZone);
-    };
-
-    handle();
-    window.addEventListener("scroll", handle);
-    window.addEventListener("resize", handle);
+    obs.observe(footer);
 
     return () => {
-      window.removeEventListener("scroll", handle);
-      window.removeEventListener("resize", handle);
+      obs.disconnect();
     };
   }, []);
 
   return isFooterDark;
 }
+
 
 
 export default function Header({
